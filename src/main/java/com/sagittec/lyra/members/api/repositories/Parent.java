@@ -1,18 +1,17 @@
 package com.sagittec.lyra.members.api.repositories;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @Getter
@@ -27,12 +27,12 @@ import org.springframework.data.annotation.LastModifiedDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "KIDS")
-class Kid {
+@Table(name = "PARENTS")
+class Parent {
 
     @Id
-    @GeneratedValue(generator = "kids_seq")
-    @SequenceGenerator(name = "kids_seq", sequenceName = "KIDS_SEQ", allocationSize = 1)
+    @GeneratedValue(generator = "parents_seq")
+    @SequenceGenerator(name = "parents_seq", sequenceName = "PARENTS_SEQ", allocationSize = 1)
     @Column(name = "ID")
     private int id;
 
@@ -44,13 +44,14 @@ class Kid {
     @Column(name = "SURNAME", length = 100, nullable = false)
     private String surname;
 
-    @Past
-    @Column(name = "BIRTHDAY", nullable = false)
-    private LocalDate birthday;
+    @Email
+    @Size(max = 200)
+    @Column(name = "E_MAIL", length = 200, nullable = false)
+    private String mail;
 
-    @ManyToOne
-    @JoinColumn(name = "PARENT_ID", nullable = false)
-    private Parent parent;
+    @Exclude
+    @OneToMany(mappedBy = "parent")
+    private List<Kid> kids;
 
     @Version
     @Column(name = "OPTLOCK")
