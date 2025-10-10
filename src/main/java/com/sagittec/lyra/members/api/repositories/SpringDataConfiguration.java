@@ -7,4 +7,4 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableJpaRepositories
 @EnableTransactionManagement
-class RepositoriesConfiguration {}
+class SpringDataConfiguration {}
