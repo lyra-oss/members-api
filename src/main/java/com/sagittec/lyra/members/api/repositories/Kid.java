@@ -26,7 +26,7 @@ class Kid {
 
     @Id
     @GeneratedValue(generator = "kids_seq")
-    @SequenceGenerator(name = "kids_seq", sequenceName = "KIDS_SEQ", allocationSize = 1, initialValue = 1)
+    @SequenceGenerator(name = "kids_seq", sequenceName = "KIDS_SEQ", allocationSize = 1)
     @Column(name = "ID")
     private int id;
 
