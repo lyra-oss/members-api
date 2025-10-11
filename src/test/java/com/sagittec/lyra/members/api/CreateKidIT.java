@@ -13,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static java.time.LocalDate.now;
+
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -20,13 +22,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class CreateParentIT {
+class CreateKidIT {
 
     private static final ObjectMapper OM = new ObjectMapper();
 
-    private static final String VALID_NAME    = "Esteban";
-    private static final String VALID_SURNAME = "Cristóbal";
-    private static final String VALID_EMAIL   = "esteban.cristobal@example.com";
+    private static final String VALID_NAME      = "Alicia";
+    private static final String VALID_SURNAME   = "Cristóbal";
+    private static final String VALID_BIRTHDATE = now().minusYears(5).toString();
 
     @Autowired
     private MockMvc mvc;
@@ -35,99 +37,94 @@ class CreateParentIT {
     private ObjectMapper objectMapper;
 
     @Test
-    void createParent_withValidPayload_shouldReturnCreated()
+    void createKid_withValidPayload_shouldReturnCreated()
             throws Exception {
-        //@formatter:off
-        final ObjectNode parentJson = this.objectMapper.createObjectNode()
+        // @formatter:off
+        final ObjectNode kidJson = this.objectMapper.createObjectNode()
                 .put("name", VALID_NAME)
                 .put("surname", VALID_SURNAME)
-                .put("mail", VALID_EMAIL);
-        this.mvc.perform(post("/parents")
-                                 .contentType(APPLICATION_JSON)
-                                 .content(this.objectMapper.writeValueAsBytes(parentJson)))
+                .put("birthdate", VALID_BIRTHDATE);
+        this.mvc.perform(post("/kids")
+                        .contentType(APPLICATION_JSON)
+                        .content(this.objectMapper.writeValueAsBytes(kidJson)))
                 .andExpect(status().isCreated());
-        //@formatter:on
+        // @formatter:on
     }
 
     @ParameterizedTest(name = "{index}: {0}")
-    @MethodSource("invalidParentPayloads")
-    void createParent_withInvalidPayload_shouldReturnBadRequest(String ignoredCaseName, ObjectNode parentJson)
+    @MethodSource("invalidKidPayloads")
+    void createKid_withInvalidPayload_shouldReturnBadRequest(String ignoredCaseName, ObjectNode kidJson)
             throws Exception {
-        //@formatter:off
-        this.mvc.perform(post("/parents")
-                                 .contentType(APPLICATION_JSON)
-                                 .content(this.objectMapper.writeValueAsBytes(parentJson)))
+        // @formatter:off
+        this.mvc.perform(post("/kids")
+                        .contentType(APPLICATION_JSON)
+                        .content(this.objectMapper.writeValueAsBytes(kidJson)))
                 .andExpect(status().isBadRequest());
-        //@formatter:on
+        // @formatter:on
     }
 
-    private static List<Arguments> invalidParentPayloads() {
-        //@formatter:off
+    private static List<Arguments> invalidKidPayloads() {
+        // @formatter:off
         return List.of(
-                // Size validations already covered
                 arguments("Name too long", OM.createObjectNode()
                         .put("name", "a".repeat(101))
                         .put("surname", VALID_SURNAME)
-                        .put("mail", VALID_EMAIL)),
+                        .put("birthdate", VALID_BIRTHDATE)),
                 arguments("Surname too long", OM.createObjectNode()
                         .put("name", VALID_NAME)
                         .put("surname", "b".repeat(101))
-                        .put("mail", VALID_EMAIL)),
-                arguments("E-mail too long", OM.createObjectNode()
-                        .put("name", VALID_NAME)
-                        .put("surname", VALID_SURNAME)
-                        .put("mail", "c".repeat(201) + "@example.com")),
-                arguments("Invalid e-mail format", OM.createObjectNode()
-                        .put("name", VALID_NAME)
-                        .put("surname", VALID_SURNAME)
-                        .put("mail", "not-an-email")),
+                        .put("birthdate", VALID_BIRTHDATE)),
                 arguments("Missing name (NotBlank)", OM.createObjectNode()
                         .put("surname", VALID_SURNAME)
-                        .put("mail", VALID_EMAIL)),
+                        .put("birthdate", VALID_BIRTHDATE)),
                 arguments("Null name (NotBlank)", OM.createObjectNode()
                         .putNull("name")
                         .put("surname", VALID_SURNAME)
-                        .put("mail", VALID_EMAIL)),
+                        .put("birthdate", VALID_BIRTHDATE)),
                 arguments("Empty name (NotBlank)", OM.createObjectNode()
                         .put("name", "")
                         .put("surname", VALID_SURNAME)
-                        .put("mail", VALID_EMAIL)),
+                        .put("birthdate", VALID_BIRTHDATE)),
                 arguments("Whitespace name (NotBlank)", OM.createObjectNode()
                         .put("name", "   ")
                         .put("surname", VALID_SURNAME)
-                        .put("mail", VALID_EMAIL)),
+                        .put("birthdate", VALID_BIRTHDATE)),
                 arguments("Missing surname (NotBlank)", OM.createObjectNode()
                         .put("name", VALID_NAME)
-                        .put("mail", VALID_EMAIL)),
+                        .put("birthdate", VALID_BIRTHDATE)),
                 arguments("Null surname (NotBlank)", OM.createObjectNode()
                         .put("name", VALID_NAME)
                         .putNull("surname")
-                        .put("mail", VALID_EMAIL)),
+                        .put("birthdate", VALID_BIRTHDATE)),
                 arguments("Empty surname (NotBlank)", OM.createObjectNode()
                         .put("name", VALID_NAME)
                         .put("surname", "")
-                        .put("mail", VALID_EMAIL)),
+                        .put("birthdate", VALID_BIRTHDATE)),
                 arguments("Whitespace surname (NotBlank)", OM.createObjectNode()
                         .put("name", VALID_NAME)
                         .put("surname", "   ")
-                        .put("mail", VALID_EMAIL)),
-                arguments("Missing e-mail (NotBlank)", OM.createObjectNode()
+                        .put("birthdate", VALID_BIRTHDATE)),
+                arguments("Missing birthdate (NotNull)", OM.createObjectNode()
                         .put("name", VALID_NAME)
                         .put("surname", VALID_SURNAME)),
-                arguments("Null e-mail (NotBlank)", OM.createObjectNode()
+                arguments("Null birthdate (NotNull)", OM.createObjectNode()
                         .put("name", VALID_NAME)
                         .put("surname", VALID_SURNAME)
-                        .putNull("mail")),
-                arguments("Empty e-mail (NotBlank)", OM.createObjectNode()
+                        .putNull("birthdate")),
+                arguments("Empty birthdate (parse error)", OM.createObjectNode()
                         .put("name", VALID_NAME)
                         .put("surname", VALID_SURNAME)
-                        .put("mail", "")),
-                arguments("Whitespace e-mail (Email invalid)", OM.createObjectNode()
+                        .put("birthdate", "")),
+                arguments("Whitespace birthdate (parse error)", OM.createObjectNode()
                         .put("name", VALID_NAME)
                         .put("surname", VALID_SURNAME)
-                        .put("mail", "   "))
+                        .put("birthdate", "   ")),
+                arguments("Future birthdate (Past)", OM.createObjectNode()
+                        .put("name", VALID_NAME)
+                        .put("surname", VALID_SURNAME)
+                        .put("birthdate", now().plusDays(1).toString()))
         );
-        //@formatter:on
+        // @formatter:on
     }
 
 }

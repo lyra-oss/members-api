@@ -12,20 +12,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @Getter
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "KIDS")
 class Kid {
@@ -36,15 +34,18 @@ class Kid {
     @Column(name = "ID")
     private int id;
 
+    @NotBlank
     @Size(max = 100)
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
 
+    @NotBlank
     @Size(max = 100)
     @Column(name = "SURNAME", length = 100, nullable = false)
     private String surname;
 
     @Past
+    @NotNull
     @Column(name = "BIRTHDATE")
     private LocalDate birthdate;
 
