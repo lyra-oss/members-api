@@ -45,7 +45,7 @@ class CreateParentIT {
 
     @ParameterizedTest(name = "{index}: {0}")
     @MethodSource("invalidParentPayloads")
-    void createParent_withInvalidPayload_shouldReturnBadRequest(String caseName, ObjectNode parentJson)
+    void createParent_withInvalidPayload_shouldReturnBadRequest(String ignoredCaseName, ObjectNode parentJson)
             throws Exception {
         //@formatter:off
         this.mvc.perform(post("/parents")
