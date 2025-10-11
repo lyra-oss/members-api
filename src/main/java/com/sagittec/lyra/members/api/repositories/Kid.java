@@ -45,11 +45,11 @@ class Kid {
     private String surname;
 
     @Past
-    @Column(name = "BIRTHDAY", nullable = false)
-    private LocalDate birthday;
+    @Column(name = "BIRTHDATE")
+    private LocalDate birthdate;
 
     @ManyToOne
-    @JoinColumn(name = "PARENT_ID", nullable = false)
+    @JoinColumn(name = "PARENT_ID")
     private Parent parent;
 
     @Version
