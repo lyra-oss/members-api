@@ -6,5 +6,5 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectPackages("com.sagittec.lyra.members.api")
-@IncludeClassNamePatterns("com.sagittec.lyra.members.api..*Kid")
+@IncludeClassNamePatterns("com.sagittec.lyra.members.api..*KidITestCase")
 class KidIT {}

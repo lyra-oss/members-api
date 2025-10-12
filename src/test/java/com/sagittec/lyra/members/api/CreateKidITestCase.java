@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("embedded")
 @AutoConfigureMockMvc
 @SuppressWarnings("java:S3577")
-class CreateKid {
+class CreateKidITestCase {
 
     private static final ObjectMapper OM = new ObjectMapper();
 
