@@ -22,7 +22,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("embedded")
 @AutoConfigureMockMvc
-class CreateParentIT {
+@SuppressWarnings("java:S3577")
+class CreateParent {
 
     private static final ObjectMapper OM = new ObjectMapper();
 
