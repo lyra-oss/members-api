@@ -18,7 +18,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class ParentFeatures {
+public class ParentCreationFeatures {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 

@@ -139,6 +139,11 @@
             <artifactId>cucumber-spring</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>ci-environment</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -176,15 +181,6 @@
                 <configuration>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
-                    <excludes>
-                        <exclude>**/*ITestCase</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
                     <properties>
                         <configurationParameters>
                             cucumber.junit-platform.naming-strategy=long
