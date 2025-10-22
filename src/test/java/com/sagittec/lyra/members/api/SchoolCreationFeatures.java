@@ -1,18 +1,17 @@
 package com.sagittec.lyra.members.api;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.cucumber.java.Before;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,27 +41,30 @@ public class SchoolCreationFeatures {
     }
 
     @When("I click on \"Create school\"")
-    public void createSchool() throws Exception {
+    public void createSchool()
+            throws Exception {
         final String content = OBJECT_MAPPER.writeValueAsString(this.school);
         this.resultActions = this.mvc.perform(post("/schools").contentType(APPLICATION_JSON).content(content));
     }
 
     @Then("I receive a confirmation that the school has been successfully created")
-    public void schoolCreatedOk() throws Exception {
+    public void schoolCreatedOk()
+            throws Exception {
         this.resultActions.andExpect(status().isCreated());
     }
 
     @Then("I receive an error because the school data is invalid")
-    public void schoolCreationBadRequest() throws Exception {
+    public void schoolCreationBadRequest()
+            throws Exception {
         this.resultActions.andExpect(status().isBadRequest());
     }
 
     private void putMaybe(String field, String token) {
-        if (token == null) {
+        if(token == null) {
             this.school.putNull(field);
             return;
         }
-        switch (token) {
+        switch(token) {
             case "missing":
                 return; // omit field
             case "null":
@@ -81,12 +83,13 @@ public class SchoolCreationFeatures {
 
     private String expand(String token) {
         final Matcher m = REPEAT_PATTERN.matcher(token);
-        if (m.matches()) {
-            char ch = m.group(1).charAt(0);
-            int count = Integer.parseInt(m.group(2));
+        if(m.matches()) {
+            char         ch     = m.group(1).charAt(0);
+            int          count  = Integer.parseInt(m.group(2));
             final String suffix = m.group(3) == null ? "" : m.group(3);
             return ("" + ch).repeat(Math.max(0, count)) + suffix;
         }
         return token;
     }
+
 }
