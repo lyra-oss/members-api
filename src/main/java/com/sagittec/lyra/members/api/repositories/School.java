@@ -11,7 +11,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -25,19 +24,17 @@ import org.springframework.data.annotation.LastModifiedDate;
 @Getter
 @ToString
 @Entity
-@Table(name = "PARENTS")
-public class Parent {
+@Table(name = "SCHOOLS")
+public class School {
 
     @Builder
-    private Parent(final String name, final String surname, final String mail) {
-        this.name    = name;
-        this.surname = surname;
-        this.mail    = mail;
+    private School(final String name) {
+        this.name = name;
     }
 
     @Id
-    @GeneratedValue(generator = "parents_seq")
-    @SequenceGenerator(name = "parents_seq", sequenceName = "PARENTS_SEQ", allocationSize = 1)
+    @GeneratedValue(generator = "schools_seq")
+    @SequenceGenerator(name = "schools_seq", sequenceName = "SCHOOLS_SEQ", allocationSize = 1)
     @Column(name = "ID")
     private int id;
 
@@ -46,20 +43,9 @@ public class Parent {
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
 
-    @NotBlank
-    @Size(max = 100)
-    @Column(name = "SURNAME", length = 100, nullable = false)
-    private String surname;
-
-    @Email
-    @NotBlank
-    @Size(max = 200)
-    @Column(name = "EMAIL", length = 200, nullable = false, unique = true)
-    private String mail;
-
     @Exclude
-    @OneToMany(mappedBy = "parent")
-    private Set<Kid> kids;
+    @OneToMany(mappedBy = "school")
+    private Set<Classroom> classrooms;
 
     @Version
     @Column(name = "OPTLOCK")

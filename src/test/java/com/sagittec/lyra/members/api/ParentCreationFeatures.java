@@ -5,6 +5,8 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sagittec.lyra.members.api.repositories.Parent;
+import com.sagittec.lyra.members.api.repositories.ParentsRepository;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -24,16 +26,21 @@ public class ParentCreationFeatures {
 
     private static final Pattern REPEAT_PATTERN = Pattern.compile("^([a-zA-Z])\\((\\d+)\\)(.*)$");
 
-    private final ObjectNode parent = OBJECT_MAPPER.createObjectNode();
+    private final ObjectNode parentJson = OBJECT_MAPPER.createObjectNode();
 
     private ResultActions resultActions;
 
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private ParentsRepository parentsRepository;
+
     @Before
     public void cleanJson() {
-        this.parent.removeAll();
+        this.parentJson.removeAll();
+        // Ensure isolation between scenarios
+        this.parentsRepository.deleteAll();
     }
 
     @Given("my name is {string}")
@@ -51,10 +58,28 @@ public class ParentCreationFeatures {
         this.putMaybe("mail", mailToken);
     }
 
+    @And("I already have an account")
+    public void iAlreadyHaveAnAccount() {
+        final String email = this.parentJson.get("mail").asText();
+        final boolean alreadyExists = this.parentsRepository.findAll().stream()
+                .anyMatch(p -> email.equals(p.getMail()));
+        if (alreadyExists) {
+            return;
+        }
+        //@formatter:off
+        final Parent parentEntity = Parent.builder()
+                                    .name(this.parentJson.get("name").asText())
+                                    .surname(this.parentJson.get("surname").asText())
+                                    .mail(email)
+                                    .build();
+        //@formatter:on
+        this.parentsRepository.save(parentEntity);
+    }
+
     @When("I click on \"Create account\"")
     public void createAccount()
             throws Exception {
-        final String content = OBJECT_MAPPER.writeValueAsString(this.parent);
+        final String content = OBJECT_MAPPER.writeValueAsString(this.parentJson);
         this.resultActions = this.mvc.perform(post("/parents").contentType(APPLICATION_JSON).content(content));
     }
 
@@ -70,9 +95,15 @@ public class ParentCreationFeatures {
         this.resultActions.andExpect(status().isBadRequest());
     }
 
+    @Then("I receive an error because the account already exists")
+    public void iReceiveAnErrorBecauseTheAccountAlreadyExists()
+            throws Exception {
+        this.resultActions.andExpect(status().isConflict());
+    }
+
     private void putMaybe(String field, String token) {
         if(token == null) {
-            this.parent.putNull(field);
+            this.parentJson.putNull(field);
             return;
         }
         switch(token) {
@@ -80,16 +111,16 @@ public class ParentCreationFeatures {
                 // Do not include this field in the payload
                 return;
             case "null":
-                this.parent.putNull(field);
+                this.parentJson.putNull(field);
                 return;
             case "empty":
-                this.parent.put(field, "");
+                this.parentJson.put(field, "");
                 return;
             case "spaces":
-                this.parent.put(field, "   ");
+                this.parentJson.put(field, "   ");
                 return;
             default:
-                this.parent.put(field, expand(token));
+                this.parentJson.put(field, expand(token));
         }
     }
 

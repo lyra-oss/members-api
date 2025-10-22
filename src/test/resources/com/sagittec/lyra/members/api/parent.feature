@@ -43,3 +43,11 @@ Feature: Parents' onboarding
             | Null e-mail           | Esteban | Cristóbal | null                          |
             | Empty e-mail          | Esteban | Cristóbal | empty                         |
             | Whitespace e-mail     | Esteban | Cristóbal | spaces                        |
+
+    Scenario: Create duplicated parent account
+        Given my name is "José"
+        And my surname is "García"
+        And my e-mail address is "jose.garcia@example.com"
+        And I already have an account
+        When I click on "Create account"
+        Then I receive an error because the account already exists
