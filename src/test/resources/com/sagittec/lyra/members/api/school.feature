@@ -1,4 +1,4 @@
-Feature: Schools management
+Feature: Schools' onboarding
 
     In order to register classrooms under a school
     As Lyra
