@@ -12,7 +12,7 @@ class ExceptionControllerAdvice {
 
     @ResponseStatus(CONFLICT)
     @ExceptionHandler(DataIntegrityViolationException.class)
-    void handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+    void handleDataIntegrityViolationException() {
         // Empty method
     }
 
