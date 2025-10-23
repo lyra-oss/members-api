@@ -3,6 +3,8 @@ package com.sagittec.lyra.members.api.repositories;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,13 +24,23 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.annotation.LastModifiedDate;
 
-@NoArgsConstructor
+import static jakarta.persistence.CascadeType.ALL;
+
 @Getter
 @ToString
+@NoArgsConstructor
 @Entity
 @Table(name = "PARENTS")
 public class Parent {
 
+    @Builder
+    private Parent(final String name, final String surname, final String mail) {
+        this.name    = name;
+        this.surname = surname;
+        this.mail    = mail;
+    }
+
+    @JsonIgnore
     @Id
     @GeneratedValue(generator = "parents_seq")
     @SequenceGenerator(name = "parents_seq", sequenceName = "PARENTS_SEQ", allocationSize = 1)
@@ -53,22 +65,18 @@ public class Parent {
 
     @Setter
     @Exclude
-    @OneToMany(mappedBy = "parent")
+    @JsonManagedReference("parent")
+    @OneToMany(mappedBy = "parent", cascade = ALL)
     private Set<Kid> kids;
 
+    @JsonIgnore
     @Version
     @Column(name = "OPTLOCK")
     private int version;
 
+    @JsonIgnore
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private LocalDateTime lastModifiedDate;
-
-    @Builder
-    private Parent(final String name, final String surname, final String mail) {
-        this.name    = name;
-        this.surname = surname;
-        this.mail    = mail;
-    }
 
 }

@@ -3,6 +3,9 @@ package com.sagittec.lyra.members.api.repositories;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,9 +27,11 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.annotation.LastModifiedDate;
 
-@NoArgsConstructor
+import static jakarta.persistence.CascadeType.ALL;
+
 @Getter
 @ToString
+@NoArgsConstructor
 @Entity
 @Table(
         name = "CLASSROOMS",
@@ -34,6 +39,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 )
 public class Classroom {
 
+    @Builder
+    private Classroom(final int course, final String group, final School school) {
+        this.course = course;
+        this.group  = group;
+        this.school = school;
+    }
+
+    @JsonIgnore
     @Id
     @GeneratedValue(generator = "classrooms_seq")
     @SequenceGenerator(name = "classrooms_seq", sequenceName = "CLASSROOMS_SEQ", allocationSize = 1)
@@ -49,27 +62,24 @@ public class Classroom {
     @Column(name = "GROUP_NAME", length = 1, nullable = false)
     private String group;
 
+    @JsonBackReference("school")
     @ManyToOne
     @JoinColumn(name = "SCHOOL_ID")
     private School school;
 
     @Exclude
-    @OneToMany(mappedBy = "classroom")
+    @JsonManagedReference("classroom")
+    @OneToMany(mappedBy = "classroom", cascade = ALL)
     private Set<Kid> kids;
 
+    @JsonIgnore
     @Version
     @Column(name = "OPTLOCK")
     private int version;
 
+    @JsonIgnore
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private LocalDateTime lastModifiedDate;
-
-    @Builder
-    private Classroom(final int course, final String group, final School school) {
-        this.course = course;
-        this.group  = group;
-        this.school = school;
-    }
 
 }

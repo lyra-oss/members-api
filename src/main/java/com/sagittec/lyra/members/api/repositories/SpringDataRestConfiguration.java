@@ -11,7 +11,7 @@ import org.springframework.validation.Validator;
 @Configuration
 @EnableJpaRepositories
 @EnableTransactionManagement
-class SpringDataConfiguration {
+class SpringDataRestConfiguration {
 
     @Bean
     RepositoryRestConfigurer repositoryRestConfigurer(Validator validator) {
