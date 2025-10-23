@@ -27,11 +27,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 @Table(name = "SCHOOLS")
 public class School {
 
-    @Builder
-    private School(final String name) {
-        this.name = name;
-    }
-
     @Id
     @GeneratedValue(generator = "schools_seq")
     @SequenceGenerator(name = "schools_seq", sequenceName = "SCHOOLS_SEQ", allocationSize = 1)
@@ -54,5 +49,10 @@ public class School {
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private LocalDateTime lastModifiedDate;
+
+    @Builder
+    private School(final String name) {
+        this.name = name;
+    }
 
 }

@@ -17,6 +17,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -27,13 +28,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 @Entity
 @Table(name = "PARENTS")
 public class Parent {
-
-    @Builder
-    private Parent(final String name, final String surname, final String mail) {
-        this.name    = name;
-        this.surname = surname;
-        this.mail    = mail;
-    }
 
     @Id
     @GeneratedValue(generator = "parents_seq")
@@ -57,6 +51,7 @@ public class Parent {
     @Column(name = "EMAIL", length = 200, nullable = false, unique = true)
     private String mail;
 
+    @Setter
     @Exclude
     @OneToMany(mappedBy = "parent")
     private Set<Kid> kids;
@@ -68,5 +63,12 @@ public class Parent {
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private LocalDateTime lastModifiedDate;
+
+    @Builder
+    private Parent(final String name, final String surname, final String mail) {
+        this.name    = name;
+        this.surname = surname;
+        this.mail    = mail;
+    }
 
 }

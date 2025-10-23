@@ -61,9 +61,9 @@ public class ParentCreationFeatures {
     @And("I already have an account")
     public void iAlreadyHaveAnAccount() {
         final String email = this.parentJson.get("mail").asText();
-        final boolean alreadyExists = this.parentsRepository.findAll().stream()
-                .anyMatch(p -> email.equals(p.getMail()));
-        if (alreadyExists) {
+        final boolean alreadyExists =
+                this.parentsRepository.findAll().stream().anyMatch(p -> email.equals(p.getMail()));
+        if(alreadyExists) {
             return;
         }
         //@formatter:off
