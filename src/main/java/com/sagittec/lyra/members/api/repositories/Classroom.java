@@ -61,11 +61,11 @@ public class Classroom {
     private String group;
 
     @ManyToOne
-    @JoinColumn(name = "SCHOOL_ID")
     private School school;
 
     @Exclude
-    @OneToMany(mappedBy = "classroom", cascade = ALL)
+    @OneToMany(cascade = ALL)
+    @JoinColumn(name = "CLASSROOM_ID")
     private Set<Kid> kids;
 
     @JsonIgnore

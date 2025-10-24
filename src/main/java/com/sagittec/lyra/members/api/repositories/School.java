@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -48,7 +49,8 @@ public class School {
     private String name;
 
     @Exclude
-    @OneToMany(mappedBy = "school", cascade = ALL)
+    @OneToMany(cascade = ALL)
+    @JoinColumn(name = "SCHOOL_ID")
     private Set<Classroom> classrooms;
 
     @JsonIgnore
