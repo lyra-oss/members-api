@@ -2,33 +2,35 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.6</version>
         <relativePath/>
     </parent>
+
     <groupId>com.sagittec.lyra</groupId>
     <artifactId>members-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
     <name>members-api</name>
     <description>members-api</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
+
     <developers>
         <developer>
             <name>Esteban Cristóbal Rodríguez</name>
             <email>ecristobalr@gmail.com</email>
         </developer>
     </developers>
+
     <scm>
         <connection/>
         <developerConnection/>
         <tag/>
         <url/>
     </scm>
+
     <properties>
         <!-- Maven settings -->
         <java.version>21</java.version>
@@ -41,6 +43,7 @@
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
         <rewrite-maven-plugin.version>6.19.0</rewrite-maven-plugin.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -52,6 +55,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
