@@ -39,7 +39,6 @@ public class ParentCreationFeatures {
     @Before
     public void cleanJson() {
         this.parentJson.removeAll();
-        // Ensure isolation between scenarios
         this.parentsRepository.deleteAll();
     }
 
@@ -60,17 +59,11 @@ public class ParentCreationFeatures {
 
     @And("I already have an account")
     public void iAlreadyHaveAnAccount() {
-        final String email = this.parentJson.get("mail").asText();
-        final boolean alreadyExists =
-                this.parentsRepository.findAll().stream().anyMatch(p -> email.equals(p.getMail()));
-        if(alreadyExists) {
-            return;
-        }
         //@formatter:off
         final Parent parentEntity = Parent.builder()
                                     .name(this.parentJson.get("name").asText())
                                     .surname(this.parentJson.get("surname").asText())
-                                    .mail(email)
+                                    .mail(this.parentJson.get("mail").asText())
                                     .build();
         //@formatter:on
         this.parentsRepository.save(parentEntity);

@@ -2,7 +2,7 @@ package com.sagittec.lyra.members.api.controllers;
 
 import java.util.Map;
 
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +19,8 @@ import static org.springframework.http.HttpStatus.CONFLICT;
 class ProblemDetailsControllerAdvice
         extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ProblemDetail> handleIntegrity(final DataIntegrityViolationException ex) {
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ProblemDetail> handleDuplicateKeyException(final DuplicateKeyException ex) {
         final ProblemDetail pd = ProblemDetail.forStatus(CONFLICT);
         pd.setType(create("https://lyra.sagittec.com/problems/constraint-violation"));
         pd.setTitle("Database constraint violation");

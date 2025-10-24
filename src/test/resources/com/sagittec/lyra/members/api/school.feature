@@ -5,7 +5,7 @@ Feature: Schools' onboarding
     I want to provide onboarding services for schools
 
     Scenario: Create school
-        Given the school name is "Colegio Público Cervantes"
+        Given the school name is "Gloria Fuertes"
         When I click on "Create school"
         Then I receive a confirmation that the school has been successfully created
 
