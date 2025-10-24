@@ -3,9 +3,7 @@ package com.sagittec.lyra.members.api.repositories;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -62,13 +60,11 @@ public class Classroom {
     @Column(name = "GROUP_NAME", length = 1, nullable = false)
     private String group;
 
-    @JsonBackReference("school")
     @ManyToOne
     @JoinColumn(name = "SCHOOL_ID")
     private School school;
 
     @Exclude
-    @JsonManagedReference("classroom")
     @OneToMany(mappedBy = "classroom", cascade = ALL)
     private Set<Kid> kids;
 

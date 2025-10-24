@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -49,7 +48,6 @@ public class School {
     private String name;
 
     @Exclude
-    @JsonManagedReference("school")
     @OneToMany(mappedBy = "school", cascade = ALL)
     private Set<Classroom> classrooms;
 

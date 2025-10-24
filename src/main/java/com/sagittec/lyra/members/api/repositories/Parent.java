@@ -4,11 +4,11 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -19,7 +19,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -63,10 +62,9 @@ public class Parent {
     @Column(name = "EMAIL", length = 200, nullable = false, unique = true)
     private String mail;
 
-    @Setter
     @Exclude
-    @JsonManagedReference("parent")
-    @OneToMany(mappedBy = "parent", cascade = ALL)
+    @OneToMany(cascade = ALL)
+    @JoinColumn(name = "PARENT_ID")
     private Set<Kid> kids;
 
     @JsonIgnore

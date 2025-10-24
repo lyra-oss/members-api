@@ -3,7 +3,6 @@ package com.sagittec.lyra.members.api.repositories;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +21,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -59,16 +57,13 @@ public class Kid {
 
     @Past
     @NotNull
-    @Column(name = "BIRTHDATE")
+    @Column(name = "BIRTHDATE", nullable = false)
     private LocalDate birthdate;
 
-    @Setter
-    @JsonBackReference("parent")
     @ManyToOne
     @JoinColumn(name = "PARENT_ID")
     private Parent parent;
 
-    @JsonBackReference("classroom")
     @ManyToOne
     @JoinColumn(name = "CLASSROOM_ID")
     private Classroom classroom;
