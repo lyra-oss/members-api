@@ -73,7 +73,7 @@ public class ParentCreationFeatures {
     public void createAccount()
             throws Exception {
         final String content = OBJECT_MAPPER.writeValueAsString(this.parentJson);
-        this.resultActions = this.mvc.perform(post("/parents").contentType(APPLICATION_JSON).content(content));
+        this.resultActions = this.mvc.perform(post("/v0/parents").contentType(APPLICATION_JSON).content(content));
     }
 
     @Then("I receive a confirmation that my account has been successfully created")

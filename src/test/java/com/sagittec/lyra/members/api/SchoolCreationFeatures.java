@@ -44,7 +44,7 @@ public class SchoolCreationFeatures {
     public void createSchool()
             throws Exception {
         final String content = OBJECT_MAPPER.writeValueAsString(this.school);
-        this.resultActions = this.mvc.perform(post("/schools").contentType(APPLICATION_JSON).content(content));
+        this.resultActions = this.mvc.perform(post("/v0/schools").contentType(APPLICATION_JSON).content(content));
     }
 
     @Then("I receive a confirmation that the school has been successfully created")
