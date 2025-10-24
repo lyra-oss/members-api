@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sagittec.lyra.members.api.repositories.Parent;
-import com.sagittec.lyra.members.api.repositories.ParentsRepository;
+import com.sagittec.lyra.members.api.repositories.jpa.Parent;
+import com.sagittec.lyra.members.api.repositories.jpa.ParentsRepository;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
