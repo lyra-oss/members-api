@@ -5,10 +5,10 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory></baseDirectory>
+    <baseDirectory/>
     <fileSets>
         <fileSet>
-            <directory>src/shell/native</directory>
+            <directory>src/shell</directory>
             <outputDirectory>/</outputDirectory>
             <useDefaultExcludes>true</useDefaultExcludes>
             <fileMode>0775</fileMode>
