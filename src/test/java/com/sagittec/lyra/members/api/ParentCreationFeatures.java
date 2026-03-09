@@ -61,9 +61,9 @@ public class ParentCreationFeatures {
     public void iAlreadyHaveAnAccount() {
         //@formatter:off
         final Parent parentEntity = Parent.builder()
-                                    .name(this.parentJson.get("name").asText())
-                                    .surname(this.parentJson.get("surname").asText())
-                                    .mail(this.parentJson.get("mail").asText())
+                                    .name(this.parentJson.get("name").asString())
+                                    .surname(this.parentJson.get("surname").asString())
+                                    .mail(this.parentJson.get("mail").asString())
                                     .build();
         //@formatter:on
         this.parentsRepository.save(parentEntity);

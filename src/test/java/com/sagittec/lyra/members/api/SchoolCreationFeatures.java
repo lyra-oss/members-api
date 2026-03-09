@@ -37,7 +37,7 @@ public class SchoolCreationFeatures {
 
     @Given("the school name is {string}")
     public void schoolNameIs(final String nameToken) {
-        this.putMaybe("name", nameToken);
+        this.putMaybe(nameToken);
     }
 
     @When("I click on \"Create school\"")
@@ -59,25 +59,25 @@ public class SchoolCreationFeatures {
         this.resultActions.andExpect(status().isBadRequest());
     }
 
-    private void putMaybe(String field, String token) {
+    private void putMaybe(String token) {
         if(token == null) {
-            this.school.putNull(field);
+            this.school.putNull("name");
             return;
         }
         switch(token) {
             case "missing":
                 return; // omit field
             case "null":
-                this.school.putNull(field);
+                this.school.putNull("name");
                 return;
             case "empty":
-                this.school.put(field, "");
+                this.school.put("name", "");
                 return;
             case "spaces":
-                this.school.put(field, "   ");
+                this.school.put("name", "   ");
                 return;
             default:
-                this.school.put(field, expand(token));
+                this.school.put("name", expand(token));
         }
     }
 
