@@ -3,8 +3,8 @@ package com.sagittec.lyra.members.api;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import com.sagittec.lyra.members.api.repositories.jpa.Parent;
 import com.sagittec.lyra.members.api.repositories.jpa.ParentsRepository;
 import io.cucumber.java.Before;

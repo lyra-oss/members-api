@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.7</version>
+        <version>4.0.3</version>
         <relativePath/>
     </parent>
 
@@ -33,16 +33,17 @@
 
     <properties>
         <!-- Maven settings -->
-        <java.version>21</java.version>
+        <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Dependency versions -->
-        <cucumber.version>7.23.0</cucumber.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.8.13</springdoc-openapi-starter-webmvc-ui.version>
+        <cucumber.version>7.34.3</cucumber.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.0.0</springdoc-openapi-starter-webmvc-ui.version>
         <!-- Plugin versions -->
-        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-        <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-        <rewrite-maven-plugin.version>6.19.0</rewrite-maven-plugin.version>
-        <aws-serverless.version>2.0.1</aws-serverless.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
+        <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
+        <rewrite-maven-plugin.version>6.32.0</rewrite-maven-plugin.version>
+        <aws-serverless.version>3.0.0</aws-serverless.version>
     </properties>
 
     <dependencyManagement>
@@ -81,12 +82,20 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-opentelemetry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>context-propagation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-otel</artifactId>
         </dependency>
         <dependency>
             <groupId>com.amazonaws.serverless</groupId>
-            <artifactId>aws-serverless-java-container-springboot3</artifactId>
+            <artifactId>aws-serverless-java-container-springboot4</artifactId>
             <version>${aws-serverless.version}</version>
         </dependency>
         <!-- Optional & Runtime dependencies -->
@@ -113,6 +122,11 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-h2console</artifactId>
             <optional>true</optional>
         </dependency>
         <!-- Test dependencies -->
@@ -211,7 +225,9 @@
                         </configurationParameters>
                     </properties>
                     <classpathDependencyExcludes>
-                        <classpathDependencyExclude>com.amazonaws.serverless:aws-serverless-java-container-springboot3
+                        <classpathDependencyExclude>com.amazonaws.serverless:aws-serverless-java-container-springboot4
+                        </classpathDependencyExclude>
+                        <classpathDependencyExclude>org.springframework.cloud:spring-cloud-function-serverless-web
                         </classpathDependencyExclude>
                     </classpathDependencyExcludes>
                 </configuration>
@@ -263,24 +279,6 @@
                         <recipe>org.openrewrite.maven.OrderPomElements</recipe>
                     </activeRecipes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.hibernate.orm.tooling</groupId>
-                <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>${hibernate.version}</version>
-                <executions>
-                    <execution>
-                        <id>enhance</id>
-                        <goals>
-                            <goal>enhance</goal>
-                        </goals>
-                        <configuration>
-                            <enableLazyInitialization>true</enableLazyInitialization>
-                            <enableDirtyTracking>true</enableDirtyTracking>
-                            <enableAssociationManagement>true</enableAssociationManagement>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.cyclonedx</groupId>
