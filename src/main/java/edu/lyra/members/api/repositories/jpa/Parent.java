@@ -1,4 +1,4 @@
-package com.sagittec.lyra.members.api.repositories.jpa;
+package edu.lyra.members.api.repositories.jpa;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -9,15 +9,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,41 +29,42 @@ import static jakarta.persistence.CascadeType.ALL;
 @ToString
 @NoArgsConstructor
 @Entity
-@Table(
-        name = "CLASSROOMS",
-        uniqueConstraints = @UniqueConstraint(columnNames = { "COURSE", "GROUP_NAME", "SCHOOL_ID" })
-)
-public class Classroom {
+@Table(name = "PARENTS")
+public class Parent {
 
     @Builder
-    private Classroom(final int course, final String group, final School school) {
-        this.course = course;
-        this.group  = group;
-        this.school = school;
+    private Parent(final String name, final String surname, final String mail) {
+        this.name    = name;
+        this.surname = surname;
+        this.mail    = mail;
     }
 
     @JsonIgnore
     @Id
-    @GeneratedValue(generator = "classrooms_seq")
-    @SequenceGenerator(name = "classrooms_seq", sequenceName = "CLASSROOMS_SEQ", allocationSize = 1)
+    @GeneratedValue(generator = "parents_seq")
+    @SequenceGenerator(name = "parents_seq", sequenceName = "PARENTS_SEQ", allocationSize = 1)
     @Column(name = "ID")
     private int id;
 
-    @Positive
-    @Max(6)
-    @Column(name = "COURSE", length = 1, nullable = false)
-    private int course;
+    @NotBlank
+    @Size(max = 100)
+    @Column(name = "NAME", length = 100, nullable = false)
+    private String name;
 
-    @Pattern(regexp = "^[A-Z]$")
-    @Column(name = "GROUP_NAME", length = 1, nullable = false)
-    private String group;
+    @NotBlank
+    @Size(max = 100)
+    @Column(name = "SURNAME", length = 100, nullable = false)
+    private String surname;
 
-    @ManyToOne
-    private School school;
+    @Email
+    @NotBlank
+    @Size(max = 200)
+    @Column(name = "EMAIL", length = 200, nullable = false, unique = true)
+    private String mail;
 
     @Exclude
     @OneToMany(cascade = ALL)
-    @JoinColumn(name = "CLASSROOM_ID")
+    @JoinColumn(name = "PARENT_ID")
     private Set<Kid> kids;
 
     @JsonIgnore

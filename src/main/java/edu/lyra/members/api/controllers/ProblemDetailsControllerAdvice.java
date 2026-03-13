@@ -1,4 +1,4 @@
-package com.sagittec.lyra.members.api.controllers;
+package edu.lyra.members.api.controllers;
 
 import java.util.Map;
 

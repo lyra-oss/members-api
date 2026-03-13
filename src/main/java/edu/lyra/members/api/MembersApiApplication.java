@@ -1,4 +1,4 @@
-package com.sagittec.lyra.members.api;
+package edu.lyra.members.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class MembersApiApplication {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(MembersApiApplication.class, args);
     }
 

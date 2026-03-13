@@ -10,12 +10,12 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.sagittec.lyra</groupId>
+    <groupId>edu.lyra</groupId>
     <artifactId>members-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>members-api</name>
-    <description>members-api</description>
+    <name>Lyra Members API</name>
+    <description>Service to manage Lyra users</description>
 
     <developers>
         <developer>

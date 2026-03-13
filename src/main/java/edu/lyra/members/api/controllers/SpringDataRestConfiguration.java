@@ -1,6 +1,6 @@
-package com.sagittec.lyra.members.api.controllers;
+package edu.lyra.members.api.controllers;
 
-import com.sagittec.lyra.members.api.repositories.jpa.Kid;
+import edu.lyra.members.api.repositories.jpa.Kid;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;

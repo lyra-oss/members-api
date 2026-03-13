@@ -1,48 +1,46 @@
-package com.sagittec.lyra.members.api.repositories.jpa;
+package edu.lyra.members.api.repositories.jpa;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.ToString.Exclude;
 import org.springframework.data.annotation.LastModifiedDate;
-
-import static jakarta.persistence.CascadeType.ALL;
 
 @Getter
 @ToString
 @NoArgsConstructor
 @Entity
-@Table(name = "PARENTS")
-public class Parent {
+@Table(name = "KIDS", uniqueConstraints = @UniqueConstraint(columnNames = { "NAME", "BIRTHDATE", "PARENT_ID" }))
+public class Kid {
 
     @Builder
-    private Parent(final String name, final String surname, final String mail) {
-        this.name    = name;
-        this.surname = surname;
-        this.mail    = mail;
+    private Kid(final String name, final String surname, final LocalDate birthdate) {
+        this.name      = name;
+        this.surname   = surname;
+        this.birthdate = birthdate;
     }
 
     @JsonIgnore
     @Id
-    @GeneratedValue(generator = "parents_seq")
-    @SequenceGenerator(name = "parents_seq", sequenceName = "PARENTS_SEQ", allocationSize = 1)
+    @GeneratedValue(generator = "kids_seq")
+    @SequenceGenerator(name = "kids_seq", sequenceName = "KIDS_SEQ", allocationSize = 1)
     @Column(name = "ID")
     private int id;
 
@@ -56,16 +54,16 @@ public class Parent {
     @Column(name = "SURNAME", length = 100, nullable = false)
     private String surname;
 
-    @Email
-    @NotBlank
-    @Size(max = 200)
-    @Column(name = "EMAIL", length = 200, nullable = false, unique = true)
-    private String mail;
+    @Past
+    @NotNull
+    @Column(name = "BIRTHDATE", nullable = false)
+    private LocalDate birthdate;
 
-    @Exclude
-    @OneToMany(cascade = ALL)
-    @JoinColumn(name = "PARENT_ID")
-    private Set<Kid> kids;
+    @ManyToOne
+    private Parent parent;
+
+    @ManyToOne
+    private Classroom classroom;
 
     @JsonIgnore
     @Version

@@ -1,4 +1,4 @@
-package com.sagittec.lyra.members.api;
+package edu.lyra.members.api;
 
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.junit.platform.suite.api.IncludeEngines;

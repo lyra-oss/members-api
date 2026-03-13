@@ -1,4 +1,4 @@
-package com.sagittec.lyra.members.api.repositories.jpa;
+package edu.lyra.members.api.repositories.jpa;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
