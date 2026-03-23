@@ -37,13 +37,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Dependency versions -->
         <cucumber.version>7.34.3</cucumber.version>
-        <springdoc-openapi-starter-webmvc-ui.version>3.0.0</springdoc-openapi-starter-webmvc-ui.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.0.2</springdoc-openapi-starter-webmvc-ui.version>
         <!-- Plugin versions -->
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
-        <rewrite-maven-plugin.version>6.32.0</rewrite-maven-plugin.version>
-        <aws-serverless.version>3.0.0</aws-serverless.version>
+        <rewrite-maven-plugin.version>6.34.0</rewrite-maven-plugin.version>
+        <aws-serverless.version>3.0.1</aws-serverless.version>
     </properties>
 
     <dependencyManagement>
