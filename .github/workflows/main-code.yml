@@ -5,10 +5,8 @@ on:
     branches:
       - 'main'
     paths:
-      - '/**'
-      - '.github/workflows/build-code.yml'
-      - '.github/workflows/main-code.yml'
-      - '.github/workflows/build-docker.yml'
+      - '!.github/workflows/dependabot-code.yml'
+      - '!.github/dependabot.yml'
 
 permissions:
   contents: read
