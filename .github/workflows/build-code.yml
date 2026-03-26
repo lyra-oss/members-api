@@ -38,6 +38,7 @@ jobs:
           ./mvnw -B sonar:sonar
           -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
           -Dsonar.projectKey=${{ github.repository }}
+          -Dsonar.host.url=${{ vars.SONAR_HOST_URL }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
