@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - 'main'
-    paths:
-      - '!.github/workflows/dependabot-code.yml'
-      - '!.github/dependabot.yml'
+    paths-ignore:
+      - '.github/workflows/dependabot-code.yml'
+      - '.github/dependabot.yml'
 
 permissions:
   contents: read
