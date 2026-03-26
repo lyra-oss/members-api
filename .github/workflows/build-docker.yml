@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 permissions:
-  pull-requests: read
+  pull-requests: write
   contents: read
   security-events: write
   packages: write

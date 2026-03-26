@@ -9,7 +9,7 @@ on:
       - '.github/workflows/**'
 
 permissions:
-  pull-requests: read
+  pull-requests: write
   contents: read
   security-events: write
   packages: write
