@@ -37,7 +37,7 @@ jobs:
         run: >
           ./mvnw -B sonar:sonar
           -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
-          -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY_CODE }}
+          -Dsonar.projectKey=lyra-oss_members-api
           -Dsonar.host.url=${{ vars.SONAR_HOST_URL }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
