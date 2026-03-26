@@ -284,61 +284,6 @@
 
     <profiles>
         <profile>
-            <id>aws-lambda</id>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter-tomcat</artifactId>
-                        <scope>provided</scope>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-            <dependencies>
-                <dependency>
-                    <groupId>com.amazonaws.serverless</groupId>
-                    <artifactId>aws-serverless-java-container-springboot4</artifactId>
-                    <version>${aws-serverless.version}</version>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <classpathDependencyExcludes>
-                                <classpathDependencyExclude>
-                                    com.amazonaws.serverless:aws-serverless-java-container-springboot4
-                                </classpathDependencyExclude>
-                                <classpathDependencyExclude>
-                                    org.springframework.cloud:spring-cloud-function-serverless-web
-                                </classpathDependencyExclude>
-                            </classpathDependencyExcludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>native-zip</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <inherited>false</inherited>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/assembly/native.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>native</id>
             <build>
                 <plugins>
