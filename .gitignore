@@ -1,4 +1,3 @@
-HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -9,9 +8,6 @@ target/
 *.iws
 *.iml
 *.ipr
-
-### AWS SAM ###
-.aws-sam
 
 ### GraalVM ###
 src/main/resources/META-INF/native*
