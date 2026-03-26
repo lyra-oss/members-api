@@ -32,6 +32,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Docker image
         run: ./mvnw -B spring-boot:build-image -Pnative
+      - name: Get Maven artifact version
+        id: get-artifact-version
+        run: echo value=$(./mvnw -B help:evaluate -Dexpression=project.version -q -DforceStdout) >> $GITHUB_OUTPUT
       - name: Run Snyk analysis in Docker image
         uses: snyk/actions/docker@9adf32b1121593767fc3c057af55b55db032dc04 # master
         continue-on-error: true
