@@ -31,7 +31,7 @@ jobs:
     name: Clean up old Docker images
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/delete-package-versions@v5
+      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
         with:
           package-name: 'members-api'
           package-type: 'container'
