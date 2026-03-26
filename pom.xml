@@ -229,6 +229,11 @@
                             <goal>report</goal>
                             <goal>report-integration</goal>
                         </goals>
+                        <configuration>
+                            <formats>
+                                <format>XML</format>
+                            </formats>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
