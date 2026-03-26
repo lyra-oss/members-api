@@ -1,0 +1,43 @@
+name: Build source code
+
+on:
+  workflow_call:
+
+permissions:
+  pull-requests: read
+  contents: read
+  security-events: write
+  packages: write
+
+jobs:
+  build:
+    name: Build Maven artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set-up GraalVM
+        uses: actions/setup-java@v5.2.0
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          cache: 'maven'
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Build & Test
+        run: ./mvnw -B clean verify
+      - name: Run SonarCloud analysis
+        if: github.actor != 'dependabot[bot]'
+        run: >
+          ./mvnw -B sonar:sonar
+          -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+          -Dsonar.projectKey=${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -270,7 +270,22 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
+                    <createdDate>now</createdDate>
+                    <imageName>ghcr.io/lyra-oss/${project.artifactId}:${project.version}</imageName>
+                    <image>
+                        <env>
+                            <BP_OCI_SOURCE>https://github.com/lyra-oss/members-api</BP_OCI_SOURCE>
+                            <BP_OCI_DESCRIPTION>Lyra OSS Members API</BP_OCI_DESCRIPTION>
+                        </env>
+                    </image>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

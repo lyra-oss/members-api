@@ -1,0 +1,21 @@
+name: Build Code
+
+on:
+  push:
+    branches:
+      - 'dependabot/maven/**'
+    paths:
+      - '/**'
+      - '.github/workflows/**'
+
+permissions:
+  pull-requests: read
+  contents: read
+  security-events: write
+  packages: write
+
+jobs:
+  build-source-code:
+    name: Build source code
+    uses: ./.github/workflows/build-code.yml
+    secrets: inherit

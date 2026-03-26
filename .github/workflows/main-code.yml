@@ -1,0 +1,38 @@
+name: Build Code
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '/**'
+      - '.github/workflows/build-code.yml'
+      - '.github/workflows/main-code.yml'
+      - '.github/workflows/build-docker.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+  security-events: write
+  packages: write
+
+jobs:
+  build-source-code:
+    name: Build source code
+    uses: ./.github/workflows/build-code.yml
+    secrets: inherit
+  build-application-deliverable:
+    needs: build-source-code
+    name: Build application deliverable
+    uses: ./.github/workflows/build-docker.yml
+    secrets: inherit
+  clean-old-docker-images:
+    needs: build-application-deliverable
+    name: Clean up old Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'members-api'
+          package-type: 'container'
+          min-versions-to-keep: 2

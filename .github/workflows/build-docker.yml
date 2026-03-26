@@ -1,0 +1,36 @@
+name: Build Docker image
+
+on:
+  workflow_call:
+
+permissions:
+  pull-requests: read
+  contents: read
+  security-events: write
+  packages: write
+
+jobs:
+  build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set-up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          cache: 'maven'
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Docker image
+        run: ./mvnw -B spring-boot:build-image -Pnative
+      - name: Deploy Docker image
+        run: docker push ghcr.io/lyra-oss/members-api:${{ steps.get-artifact-version.outputs.value }}
