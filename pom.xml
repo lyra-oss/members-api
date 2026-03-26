@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.4</version>
+        <version>4.0.5</version>
         <relativePath/>
     </parent>
 
@@ -42,7 +42,7 @@
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
-        <rewrite-maven-plugin.version>6.34.0</rewrite-maven-plugin.version>
+        <rewrite-maven-plugin.version>6.35.0</rewrite-maven-plugin.version>
         <aws-serverless.version>3.0.1</aws-serverless.version>
     </properties>
 
