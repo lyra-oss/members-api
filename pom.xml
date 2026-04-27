@@ -258,9 +258,6 @@
                         <arg>--all-projects</arg>
                         <arg>--sarif-file-output=code.sarif</arg>
                     </args>
-                    <cli>
-                        <executable>/home/runner/.local/share/snyk/snyk-linux-arm64</executable>
-                    </cli>
                 </configuration>
             </plugin>
             <plugin>
