@@ -43,7 +43,7 @@
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
-        <rewrite-maven-plugin.version>6.35.0</rewrite-maven-plugin.version>
+        <rewrite-maven-plugin.version>6.37.0</rewrite-maven-plugin.version>
         <aws-serverless.version>3.0.1</aws-serverless.version>
     </properties>
 
