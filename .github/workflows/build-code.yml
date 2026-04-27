@@ -45,6 +45,8 @@ jobs:
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Check Snyl CLI folder
+        run: ls -al /home/runner/.local/share/snyk/
       - name: Upload source code analysis results to GitHub
         uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225
         with:
