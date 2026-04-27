@@ -313,6 +313,7 @@
                             <BP_OCI_SOURCE>https://github.com/lyra-oss/members-api</BP_OCI_SOURCE>
                             <BP_OCI_DESCRIPTION>Lyra OSS Members API</BP_OCI_DESCRIPTION>
                         </env>
+                        <imagePlatform>linux/arm64</imagePlatform>
                     </image>
                     <excludes>
                         <exclude>
