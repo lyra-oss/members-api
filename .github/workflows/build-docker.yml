@@ -6,6 +6,7 @@ on:
 permissions:
   contents: read
   packages: write
+  security-events: write
 
 jobs:
   build:
@@ -33,5 +34,22 @@ jobs:
       - name: Get Maven artifact version
         id: get-artifact-version
         run: echo value=$(./mvnw -B help:evaluate -Dexpression=project.version -q -DforceStdout) >> $GITHUB_OUTPUT
+      - name: Run Snyk analysis in Docker image
+        uses: snyk/actions/docker@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ghcr.io/lyra-oss/members-api:${{ steps.get-artifact-version.outputs.value }}
+          args: --sarif-file-output=docker.sarif
+      - name: Replace security-severity null for license-related findings
+        run: |
+          sed -i 's/"security-severity": "null"/"security-severity": "0"/g' ../docker.sarif
+      - name: Upload Docker image analysis results to GitHub
+        uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
+        with:
+          sarif_file: docker.sarif
+          category: docker
       - name: Deploy Docker image
         run: docker push ghcr.io/lyra-oss/members-api:${{ steps.get-artifact-version.outputs.value }}
