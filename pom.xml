@@ -259,7 +259,7 @@
                         <arg>--sarif-file-output=code.sarif</arg>
                     </args>
                     <cli>
-                        <updatePolicy>always</updatePolicy>
+                        <executable>/home/runner/.local/share/snyk/snyk-linux-arm64</executable>
                     </cli>
                 </configuration>
             </plugin>
