@@ -258,6 +258,9 @@
                         <arg>--all-projects</arg>
                         <arg>--sarif-file-output=code.sarif</arg>
                     </args>
+                    <cli>
+                        <updatePolicy>always</updatePolicy>
+                    </cli>
                 </configuration>
             </plugin>
             <plugin>
