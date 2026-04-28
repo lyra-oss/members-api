@@ -252,8 +252,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!--suppress UnresolvedMavenProperty -->
-                    <apiToken>${env.SNYK_TOKEN}</apiToken>
                     <args>
                         <arg>--all-projects</arg>
                         <arg>--sarif-file-output=code.sarif</arg>
@@ -313,7 +311,6 @@
                             <BP_OCI_SOURCE>https://github.com/lyra-oss/members-api</BP_OCI_SOURCE>
                             <BP_OCI_DESCRIPTION>Lyra OSS Members API</BP_OCI_DESCRIPTION>
                         </env>
-                        <imagePlatform>linux/arm64</imagePlatform>
                     </image>
                     <excludes>
                         <exclude>
