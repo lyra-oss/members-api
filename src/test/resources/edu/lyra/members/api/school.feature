@@ -9,21 +9,19 @@ Feature: Schools' onboarding
         When I click on "Create school"
         Then I receive a confirmation that the school has been successfully created
 
-    # Tokens used in the examples below:
-    # - missing: field will be omitted from the payload
-    # - null: field will be explicitly set to JSON null
-    # - empty: field will be an empty string ""
-    # - spaces: field will be a string with three spaces
-    # - a(101): expands to 101 repetitions of 'a'
-    Scenario Outline: Error creating school with invalid data
-        Given the school name is "<name>"
+    Scenario: Cannot create school when the name is longer than 100 characters
+        Given the school name is longer than 100 characters
         When I click on "Create school"
-        Then I receive an error because the school data is invalid
+        Then I receive the error "size must be between 0 and 100"
+
+    Scenario Outline: Cannot create school when the name <condition>
+        Given the school name <condition>
+        When I click on "Create school"
+        Then I receive the error "must not be blank"
 
         Examples:
-            | case            | name   |
-            | Name too long   | a(101) |
-            | Missing name    | missing|
-            | Null name       | null   |
-            | Empty name      | empty  |
-            | Whitespace name | spaces |
+            | condition                |
+            | is not provided          |
+            | is set to null           |
+            | is left blank            |
+            | contains only whitespace |
