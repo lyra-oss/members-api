@@ -1,4 +1,4 @@
-Feature: Parents" onboarding
+Feature: Parents' onboarding
 
     In order to let parents use our service
     As Lyra

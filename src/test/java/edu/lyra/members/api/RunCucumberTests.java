@@ -2,6 +2,7 @@ package edu.lyra.members.api;
 
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectClasspathResource;
 import org.junit.platform.suite.api.Suite;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -12,6 +13,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @Suite
 @IncludeEngines("cucumber")
+@SelectClasspathResource("edu/lyra/members/api")
 class RunCucumberTests {
 
     @CucumberContextConfiguration
