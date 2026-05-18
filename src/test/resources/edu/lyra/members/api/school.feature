@@ -1,4 +1,4 @@
-Feature: Schools' onboarding
+Feature: Schools" onboarding
 
     In order to register classrooms under a school
     As Lyra
@@ -12,12 +12,12 @@ Feature: Schools' onboarding
     Scenario: Cannot create school when the name is longer than 100 characters
         Given the school name is longer than 100 characters
         When I click on "Create school"
-        Then I receive the error "size must be between 0 and 100"
+        Then I receive an error stating that "name" field is incorrect because "size must be between 0 and 100"
 
     Scenario Outline: Cannot create school when the name <condition>
         Given the school name <condition>
         When I click on "Create school"
-        Then I receive the error "must not be blank"
+        Then I receive an error stating that "name" field is incorrect because "must not be blank"
 
         Examples:
             | condition                |
