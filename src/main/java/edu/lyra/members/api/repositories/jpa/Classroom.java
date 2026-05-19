@@ -18,7 +18,6 @@ import jakarta.persistence.Version;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -36,13 +35,6 @@ import static jakarta.persistence.CascadeType.ALL;
         uniqueConstraints = @UniqueConstraint(columnNames = { "COURSE", "GROUP_NAME", "SCHOOL_ID" })
 )
 public class Classroom {
-
-    @Builder
-    private Classroom(final int course, final String group, final School school) {
-        this.course = course;
-        this.group  = group;
-        this.school = school;
-    }
 
     @JsonIgnore
     @Id

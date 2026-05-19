@@ -15,7 +15,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -30,11 +29,6 @@ import static jakarta.persistence.CascadeType.ALL;
 @Entity
 @Table(name = "SCHOOLS")
 public class School {
-
-    @Builder
-    private School(final String name) {
-        this.name = name;
-    }
 
     @JsonIgnore
     @Id

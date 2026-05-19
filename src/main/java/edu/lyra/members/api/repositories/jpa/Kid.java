@@ -17,7 +17,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -29,13 +28,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 @Entity
 @Table(name = "KIDS", uniqueConstraints = @UniqueConstraint(columnNames = { "NAME", "BIRTHDATE", "PARENT_ID" }))
 public class Kid {
-
-    @Builder
-    private Kid(final String name, final String surname, final LocalDate birthdate) {
-        this.name      = name;
-        this.surname   = surname;
-        this.birthdate = birthdate;
-    }
 
     @JsonIgnore
     @Id
