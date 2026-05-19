@@ -1,7 +1,5 @@
 package edu.lyra.members.api.controllers;
 
-import java.util.Map;
-
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -12,8 +10,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import static java.net.URI.create;
 import static java.time.OffsetDateTime.now;
+import static java.util.Map.of;
 
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.ResponseEntity.status;
 
 @ControllerAdvice
 class ProblemDetailsControllerAdvice
@@ -21,16 +21,16 @@ class ProblemDetailsControllerAdvice
 
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ProblemDetail> handleDuplicateKeyException(final DuplicateKeyException ex) {
-        final ProblemDetail pd = ProblemDetail.forStatus(CONFLICT);
-        pd.setType(create("https://lyra.sagittec.com/problems/constraint-violation"));
-        pd.setTitle("Database constraint violation");
-        pd.setDetail(this.humanize(ex));
+        final ProblemDetail problemDetail = ProblemDetail.forStatus(CONFLICT);
+        problemDetail.setType(create("https://lyra.sagittec.com/problems/constraint-violation"));
+        problemDetail.setTitle("Database constraint violation");
+        problemDetail.setDetail(this.humanize(ex));
+        problemDetail.setProperty("timestamp", now());
         //@formatter:off
-        pd.setProperty("errors", Map.of("code", "UNIQUE_CONSTRAINT",
-                                        "message", "There already exists a resource with the same constraints"));
+        problemDetail.setProperty("errors", of("code", "UNIQUE_CONSTRAINT",
+                                               "message", "There already exists a resource with the same constraints"));
         //@formatter:on
-        pd.setProperty("timestamp", now());
-        return ResponseEntity.status(CONFLICT).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
+        return status(CONFLICT).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
     }
 
     private String humanize(Throwable ex) {

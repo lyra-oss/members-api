@@ -30,6 +30,8 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
       - name: Build & Test
         run: ./mvnw -B clean verify
+      - name: Mutation Tests
+        run: ./mvnw -B org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=90
       - name: Run SonarCloud analysis
         if: github.actor != 'dependabot[bot]'
         run: >
