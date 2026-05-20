@@ -9,10 +9,6 @@ import okhttp3.Response;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -21,10 +17,11 @@ import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Testcontainers
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = { "spring.jpa.hibernate.ddl-auto=create-drop", "management.otlp.metrics.export.enabled=false" }
+        properties = { "spring.jpa.properties.jakarta.persistence.schema-generation.database.action=create-drop",
+                       "management.otlp.metrics.export.enabled=false",
+                       "spring.docker.compose.skip.in-tests=false" }
 )
 class ParentIT {
 
@@ -37,10 +34,6 @@ class ParentIT {
 
     private final OkHttpClient http = new OkHttpClient();
     private final ObjectMapper json = new ObjectMapper();
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:latest");
 
     @LocalServerPort
     int port;
