@@ -7,22 +7,17 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+
+import static java.lang.Integer.parseInt;
+import static java.lang.System.getProperty;
 
 import static okhttp3.MediaType.get;
 import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = { "spring.jpa.properties.jakarta.persistence.schema-generation.database.action=create-drop",
-                       "management.otlp.metrics.export.enabled=false",
-                       "spring.docker.compose.skip.in-tests=false" }
-)
 class ParentIT {
 
     private static final String MAIL_VALUE    = "jane.doe@example.com";
@@ -31,19 +26,17 @@ class ParentIT {
     private static final String SURNAME_KEY   = "surname";
     private static final String NAME_VALUE    = "Jane";
     private static final String NAME_KEY      = "name";
+    private static final int    PORT          = parseInt(getProperty("it.port"));
 
     private final OkHttpClient http = new OkHttpClient();
     private final ObjectMapper json = new ObjectMapper();
-
-    @LocalServerPort
-    int port;
 
     @Test
     void testAddAndRetrieveParent()
             throws IOException {
         final String body = this.json.writeValueAsString(
                 Map.of(NAME_KEY, NAME_VALUE, SURNAME_KEY, SURNAME_VALUE, MAIL_KEY, MAIL_VALUE));
-        final Request postRequest = new Request.Builder().url("http://localhost:" + port + "/v0/parents")
+        final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/parents")
                                                          .post(create(body, get("application/json"))).build();
         String location;
         try(Response response = this.http.newCall(postRequest).execute()) {

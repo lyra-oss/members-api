@@ -204,6 +204,18 @@
                             <goal>parse-version</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>reserve-port</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <configuration>
+                            <portNames>
+                                <portName>it.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -260,6 +272,9 @@
                 <configuration>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
+                    <systemPropertyVariables>
+                        <it.port>${it.port}</it.port>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
@@ -353,6 +368,28 @@
                     <execution>
                         <goals>
                             <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>
+                                <argument>--server.port=${it.port}</argument>
+                                <argument>--spring.jpa.properties.jakarta.persistence.schema-generation.database.action=create-drop</argument>
+                                <argument>--management.otlp.metrics.export.enabled=false</argument>
+                            </arguments>
+                            <maxAttempts>120</maxAttempts>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                 </executions>
