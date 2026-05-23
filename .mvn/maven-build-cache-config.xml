@@ -9,4 +9,20 @@
         </local>
         <projectVersioning adjustMetaInf="true"/>
     </configuration>
+    <executionControl>
+        <runAlways>
+            <goalsLists>
+                <goalsList artifactId="maven-jar-plugin">
+                    <goals>
+                        <goal>jar</goal>
+                    </goals>
+                </goalsList>
+                <goalsList artifactId="spring-boot-maven-plugin">
+                    <goals>
+                        <goal>repackage</goal>
+                    </goals>
+                </goalsList>
+            </goalsLists>
+        </runAlways>
+    </executionControl>
 </cache>

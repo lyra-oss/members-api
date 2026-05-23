@@ -4,6 +4,9 @@ Feature: Schools' onboarding
     As Lyra
     I want to provide onboarding services for schools
 
+    Background:
+        Given I am authenticated with "schools:create" scope
+
     Scenario: Create school
         Given the school name is "Gloria Fuertes"
         When I click on "Create school"
@@ -25,3 +28,4 @@ Feature: Schools' onboarding
             | is set to null           |
             | is left blank            |
             | contains only whitespace |
+

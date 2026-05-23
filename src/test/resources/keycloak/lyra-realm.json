@@ -1,0 +1,128 @@
+{
+    "realm": "lyra",
+    "enabled": true,
+    "sslRequired": "none",
+    "registrationAllowed": false,
+    "clientScopes": [
+        {
+            "name": "basic",
+            "description": "Adds the username as the subject identifier (sub) to tokens",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "false",
+                "display.on.consent.screen": "false"
+            },
+            "protocolMappers": [
+                {
+                    "name": "sub",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-property-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "introspection.token.claim": "true",
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "username",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "sub",
+                        "jsonType.label": "String"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "parents:create",
+            "description": "Permission to create parent accounts",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "kids:create",
+            "description": "Permission to register kids",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "schools:create",
+            "description": "Permission to create schools",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        }
+    ],
+    "clients": [
+        {
+            "clientId": "members-api-test",
+            "enabled": true,
+            "publicClient": true,
+            "directAccessGrantsEnabled": true,
+            "standardFlowEnabled": false,
+            "implicitFlowEnabled": false,
+            "serviceAccountsEnabled": false,
+            "protocol": "openid-connect",
+            "defaultClientScopes": [
+                "basic"
+            ],
+            "optionalClientScopes": [
+                "parents:create",
+                "kids:create",
+                "schools:create"
+            ]
+        }
+    ],
+    "users": [
+        {
+            "username": "test.user",
+            "email": "test.user@example.com",
+            "firstName": "Test",
+            "lastName": "User",
+            "enabled": true,
+            "emailVerified": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "kid.parent@example.com",
+            "email": "kid.parent@example.com",
+            "firstName": "Kid",
+            "lastName": "Parent",
+            "enabled": true,
+            "emailVerified": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "school.admin@example.com",
+            "email": "school.admin@example.com",
+            "firstName": "School",
+            "lastName": "Admin",
+            "enabled": true,
+            "emailVerified": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        }
+    ]
+}

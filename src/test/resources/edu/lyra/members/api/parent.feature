@@ -4,6 +4,9 @@ Feature: Parents' onboarding
     As Lyra
     I want to provide onboarding services
 
+    Background:
+        Given I am authenticated with "parents:create" scope
+
     Scenario: Create parent account
         Given my name is "Esteban"
         And my surname is "Cristóbal"
@@ -86,3 +89,4 @@ Feature: Parents' onboarding
         And I already have an account
         When I click on "Create account"
         Then I receive an error because the account already exists
+

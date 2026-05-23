@@ -103,6 +103,10 @@
             <artifactId>spring-boot-starter-data-rest</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
@@ -147,6 +151,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -379,10 +388,15 @@
                         <configuration>
                             <arguments>
                                 <argument>--server.port=${it.port}</argument>
-                                <argument>--spring.jpa.properties.jakarta.persistence.schema-generation.database.action=create-drop</argument>
+                                <argument>
+                                    --spring.jpa.properties.jakarta.persistence.schema-generation.database.action=create-drop
+                                </argument>
                                 <argument>--management.otlp.metrics.export.enabled=false</argument>
+                                <argument>
+                                    --spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/lyra
+                                </argument>
                             </arguments>
-                            <maxAttempts>120</maxAttempts>
+                            <maxAttempts>360</maxAttempts>
                         </configuration>
                     </execution>
                     <execution>

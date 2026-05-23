@@ -100,6 +100,7 @@ public class ParentCreationFeatures {
     @And("my e-mail address is {string}")
     public void myEMailAddressIs(final String mail) {
         this.parentJson.put("mail", mail);
+        this.scenarioContext.setParentSub(mail);
     }
 
     @And("my e-mail address is longer than 200 characters")
@@ -139,12 +140,19 @@ public class ParentCreationFeatures {
         this.parentsRepository.save(parentEntity);
     }
 
+    @Given("another parent exists with e-mail {string}")
+    public void anotherParentExistsWithMail(final String mail) {
+        final Parent parent = Parent.builder().name("Other").surname("Parent").mail(mail).build();
+        this.parentsRepository.save(parent);
+    }
+
     @When("I click on \"Create account\"")
     public void createAccount()
             throws Exception {
         final String content = OBJECT_MAPPER.writeValueAsString(this.parentJson);
-        this.scenarioContext.setResultActions(
-                this.mvc.perform(post("/v0/parents").contentType(APPLICATION_JSON).content(content)));
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                post("/v0/parents").with(this.scenarioContext.getJwtProcessor()).contentType(APPLICATION_JSON)
+                                   .content(content)));
     }
 
     @Then("I receive a confirmation that my account has been successfully created")

@@ -1,6 +1,7 @@
 package edu.lyra.members.api.controllers;
 
 import edu.lyra.members.api.repositories.jpa.Kid;
+import edu.lyra.members.api.repositories.jpa.ParentsRepository;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +19,7 @@ import static org.springframework.http.HttpMethod.PUT;
 class SpringDataRestConfiguration {
 
     @Bean
-    RepositoryRestConfigurer repositoryRestConfigurer(Validator validator) {
+    RepositoryRestConfigurer repositoryRestConfigurer(final Validator validator) {
         return new RepositoryRestConfigurer() {
 
             @Override
@@ -35,6 +36,11 @@ class SpringDataRestConfiguration {
                       .withAssociationExposure((_, httpMethods) -> httpMethods.disable(POST, PUT, PATCH));
             }
         };
+    }
+
+    @Bean
+    KidAuthorizationEventHandler kidAuthorizationEventHandler(final ParentsRepository parentsRepository) {
+        return new KidAuthorizationEventHandler(parentsRepository);
     }
 
 }

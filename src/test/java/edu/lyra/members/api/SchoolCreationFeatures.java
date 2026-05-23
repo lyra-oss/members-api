@@ -64,8 +64,9 @@ public class SchoolCreationFeatures {
     public void createSchool()
             throws Exception {
         final String content = OBJECT_MAPPER.writeValueAsString(this.school);
-        this.scenarioContext.setResultActions(
-                this.mvc.perform(post("/v0/schools").contentType(APPLICATION_JSON).content(content)));
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                post("/v0/schools").with(this.scenarioContext.getJwtProcessor()).contentType(APPLICATION_JSON)
+                                   .content(content)));
     }
 
     @Then("I receive a confirmation that the school has been successfully created")

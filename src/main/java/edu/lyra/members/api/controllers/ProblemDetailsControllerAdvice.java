@@ -33,7 +33,7 @@ class ProblemDetailsControllerAdvice
         return status(CONFLICT).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
     }
 
-    private String humanize(Throwable ex) {
+    private String humanize(final Throwable ex) {
         final String msg = ex.getMessage();
         return (msg != null && msg.length() > 100) ? msg.substring(0, 100) + "…" : msg;
     }

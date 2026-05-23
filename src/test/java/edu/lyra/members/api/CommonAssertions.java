@@ -21,4 +21,10 @@ public class CommonAssertions {
                             .andExpect(jsonPath(ERROR_MESSAGE.formatted(expectedField, expectedMessage)).exists());
     }
 
+    @Then("I receive a forbidden error")
+    public void receiveForbiddenError()
+            throws Exception {
+        this.scenarioContext.getResultActions().andExpect(status().isForbidden());
+    }
+
 }

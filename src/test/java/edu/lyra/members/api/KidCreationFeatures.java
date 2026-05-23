@@ -51,10 +51,10 @@ public class KidCreationFeatures {
 
     @When("I add the kid to my account")
     public void addKid() throws Exception {
-        final int parentId = parentsRepository.findAll().iterator().next().getId();
+        final int parentId = parentsRepository.findByMail(scenarioContext.getParentSub()).orElseThrow().getId();
         this.kidJson.put("parent", "http://localhost/v0/parents/" + parentId);
         this.scenarioContext.setResultActions(
-                this.mvc.perform(post("/v0/kids")
+                this.mvc.perform(post("/v0/kids").with(this.scenarioContext.getJwtProcessor())
                         .contentType(APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(this.kidJson))));
     }
