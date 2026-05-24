@@ -109,6 +109,19 @@ class SpringSecurityConfigurationTest {
     }
 
     @Test
+    void testCreateKidKo_parentNotFound()
+            throws Exception {
+        doReturn(Optional.empty()).when(parentsRepository).findByMail(any(String.class));
+        //@formatter:off
+        mvc.perform(post(this.base() + "/kids")
+                .with(jwt().jwt(b -> b.subject("unknown@example.com")).authorities(new SimpleGrantedAuthority("SCOPE_kids:create")))
+                .contentType(APPLICATION_JSON)
+                .content("{\"name\":\"Alicia\",\"surname\":\"Cristóbal\",\"birthdate\":\"2019-12-12\"}"))
+           .andExpect(status().isForbidden());
+        //@formatter:on
+    }
+
+    @Test
     void testCreateSchoolOk()
             throws Exception {
         doAnswer(inv -> inv.getArgument(0)).when(schoolsRepository).save(any(School.class));
