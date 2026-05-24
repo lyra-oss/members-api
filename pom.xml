@@ -369,7 +369,6 @@
                         <param>**.*ITCase</param>
                         <param>**/IT*</param>
                     </excludedTestClasses>
-                    <parseSurefireConfig>false</parseSurefireConfig>
                 </configuration>
             </plugin>
             <plugin>
