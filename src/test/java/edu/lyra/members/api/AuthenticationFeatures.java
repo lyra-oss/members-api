@@ -1,5 +1,8 @@
 package edu.lyra.members.api;
 
+import java.util.UUID;
+
+import edu.lyra.members.api.repositories.jpa.ParentsRepository;
 import io.cucumber.java.en.Given;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,13 +14,18 @@ public class AuthenticationFeatures {
     @Autowired
     private ScenarioContext scenarioContext;
 
+    @Autowired
+    private ParentsRepository parentsRepository;
+
     @Given("I am authenticated with {string} scope")
     public void iAmAuthenticatedWithScope(final String scope) {
-        scenarioContext.setJwtProcessor(jwt().authorities(new SimpleGrantedAuthority("SCOPE_" + scope)));
+        scenarioContext.setJwtProcessor(jwt().jwt(builder -> builder.subject(UUID.randomUUID().toString()))
+                                             .authorities(new SimpleGrantedAuthority("SCOPE_" + scope)));
     }
 
     @Given("I am authenticated as {string} with {string} scope")
-    public void iAmAuthenticatedAsWithScope(final String sub, final String scope) {
+    public void iAmAuthenticatedAsWithScope(final String email, final String scope) {
+        final String sub = parentsRepository.findByMail(email).orElseThrow().getId().toString();
         scenarioContext.setJwtProcessor(
                 jwt().jwt(builder -> builder.subject(sub)).authorities(new SimpleGrantedAuthority("SCOPE_" + scope)));
     }

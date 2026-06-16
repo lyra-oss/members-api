@@ -5,7 +5,7 @@ Feature: Parents' onboarding
     I want to provide onboarding services
 
     Background:
-        Given I am authenticated with "parents:create" scope
+        Given I am authenticated with "parents.create" scope
 
     Scenario: Create parent account
         Given my name is "Esteban"

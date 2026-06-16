@@ -1,5 +1,8 @@
 package edu.lyra.members.api;
 
+import java.util.UUID;
+
+import edu.lyra.members.api.repositories.jpa.KidsRepository;
 import edu.lyra.members.api.repositories.jpa.Parent;
 import edu.lyra.members.api.repositories.jpa.ParentsRepository;
 import io.cucumber.java.Before;
@@ -26,6 +29,9 @@ public class ParentCreationFeatures {
     private MockMvc mvc;
 
     @Autowired
+    private KidsRepository kidsRepository;
+
+    @Autowired
     private ParentsRepository parentsRepository;
 
     @Autowired
@@ -34,6 +40,7 @@ public class ParentCreationFeatures {
     @Before
     public void cleanJson() {
         this.parentJson.removeAll();
+        this.kidsRepository.deleteAll();
         this.parentsRepository.deleteAll();
     }
 
@@ -100,7 +107,7 @@ public class ParentCreationFeatures {
     @And("my e-mail address is {string}")
     public void myEMailAddressIs(final String mail) {
         this.parentJson.put("mail", mail);
-        this.scenarioContext.setParentSub(mail);
+        this.scenarioContext.setParentEmail(mail);
     }
 
     @And("my e-mail address is longer than 200 characters")
@@ -132,6 +139,7 @@ public class ParentCreationFeatures {
     public void iAlreadyHaveAnAccount() {
         //@formatter:off
         final Parent parentEntity = Parent.builder()
+                                    .id(UUID.randomUUID())
                                     .name(this.parentJson.get("name").asString())
                                     .surname(this.parentJson.get("surname").asString())
                                     .mail(this.parentJson.get("mail").asString())
@@ -142,7 +150,7 @@ public class ParentCreationFeatures {
 
     @Given("another parent exists with e-mail {string}")
     public void anotherParentExistsWithMail(final String mail) {
-        final Parent parent = Parent.builder().name("Other").surname("Parent").mail(mail).build();
+        final Parent parent = Parent.builder().id(UUID.randomUUID()).name("Other").surname("Parent").mail(mail).build();
         this.parentsRepository.save(parent);
     }
 

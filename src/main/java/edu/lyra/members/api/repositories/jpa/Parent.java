@@ -2,15 +2,14 @@ package edu.lyra.members.api.repositories.jpa;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Email;
@@ -32,19 +31,18 @@ import static jakarta.persistence.CascadeType.ALL;
 @Table(name = "PARENTS")
 public class Parent {
 
+    @JsonIgnore
+    @Id
+    @Column(name = "ID", nullable = false)
+    private UUID id;
+
     @Builder
-    private Parent(final String name, final String surname, final String mail) {
+    private Parent(final UUID id, final String name, final String surname, final String mail) {
+        this.id = id;
         this.name    = name;
         this.surname = surname;
         this.mail    = mail;
     }
-
-    @JsonIgnore
-    @Id
-    @GeneratedValue(generator = "parents_seq")
-    @SequenceGenerator(name = "parents_seq", sequenceName = "PARENTS_SEQ", allocationSize = 1)
-    @Column(name = "ID")
-    private int id;
 
     @NotBlank
     @Size(max = 100)
@@ -76,5 +74,9 @@ public class Parent {
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private LocalDateTime lastModifiedDate;
+
+    public void setId(final UUID id) {
+        this.id = id;
+    }
 
 }

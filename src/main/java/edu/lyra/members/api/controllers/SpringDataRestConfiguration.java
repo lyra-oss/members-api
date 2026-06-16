@@ -43,4 +43,9 @@ class SpringDataRestConfiguration {
         return new KidAuthorizationEventHandler(parentsRepository);
     }
 
+    @Bean
+    ParentRegistrationHandler parentRegistrationHandler() {
+        return new ParentRegistrationHandler();
+    }
+
 }

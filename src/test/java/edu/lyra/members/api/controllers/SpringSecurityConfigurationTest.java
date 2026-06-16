@@ -1,6 +1,7 @@
 package edu.lyra.members.api.controllers;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import edu.lyra.members.api.repositories.jpa.Kid;
 import edu.lyra.members.api.repositories.jpa.KidsRepository;
@@ -21,6 +22,8 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static java.util.UUID.randomUUID;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -35,8 +38,10 @@ class SpringSecurityConfigurationTest {
 
     @Autowired
     private MockMvc mvc;
+
     @Autowired
     private RepositoryRestConfiguration restConfiguration;
+
     @MockitoSpyBean
     private ParentsRepository parentsRepository;
     @MockitoSpyBean
@@ -47,10 +52,12 @@ class SpringSecurityConfigurationTest {
     @Test
     void testCreateParentOk()
             throws Exception {
+        final UUID parentId = randomUUID();
         doAnswer(inv -> inv.getArgument(0)).when(parentsRepository).save(any(Parent.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/parents")
-                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_parents:create")))
+                .with(jwt().jwt(b -> b.subject(parentId.toString()))
+                           .authorities(new SimpleGrantedAuthority("SCOPE_parents.create")))
                 .contentType(APPLICATION_JSON)
                 .content("{\"name\":\"Esteban\",\"surname\":\"Cristóbal\",\"mail\":\"esteban.cristobal@example.com\"}"))
            .andExpect(status().isCreated());
@@ -66,7 +73,7 @@ class SpringSecurityConfigurationTest {
             throws Exception {
         //@formatter:off
         mvc.perform(post(this.base() + "/parents")
-                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other:scope")))
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content("{\"name\":\"Esteban\",\"surname\":\"Cristóbal\",\"mail\":\"esteban.cristobal@example.com\"}"))
            .andExpect(status().isForbidden());
@@ -77,21 +84,23 @@ class SpringSecurityConfigurationTest {
     void testCreateKidOk()
             throws Exception {
         //@formatter:off
+        final UUID parentId = randomUUID();
         final Parent parent = Parent.builder()
+                                        .id(parentId)
                                         .name("Esteban")
                                         .surname("Cristóbal")
                                         .mail("esteban.cristobal@example.com")
                                     .build();
         //@formatter:on
-        doReturn(Optional.of(parent)).when(parentsRepository).findByMail("esteban.cristobal@example.com");
-        doReturn(Optional.of(parent)).when(parentsRepository).findById(parent.getId());
+        doReturn(Optional.of(parent)).when(parentsRepository).findById(parentId);
         doAnswer(inv -> inv.getArgument(0)).when(kidsRepository).save(any(Kid.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/kids")
-                .with(jwt().jwt(b -> b.subject("esteban.cristobal@example.com")).authorities(new SimpleGrantedAuthority("SCOPE_kids:create")))
+                .with(jwt().jwt(b -> b.subject(parentId.toString()))
+                           .authorities(new SimpleGrantedAuthority("SCOPE_kids.create")))
                 .contentType(APPLICATION_JSON)
                 .content("{\"name\":\"Alicia\",\"surname\":\"Cristóbal\",\"birthdate\":\"2019-12-12\"," +
-                         "\"parent\":\"http://localhost" + base() + "/parents/" + parent.getId() + "\"}"))
+                         "\"parent\":\"http://localhost" + base() + "/parents/" + parentId + "\"}"))
            .andExpect(status().isCreated());
         //@formatter:on
     }
@@ -101,7 +110,7 @@ class SpringSecurityConfigurationTest {
             throws Exception {
         //@formatter:off
         mvc.perform(post(this.base() + "/kids")
-                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other:scope")))
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content("{\"name\":\"Alicia\",\"surname\":\"Cristóbal\",\"birthdate\":\"2019-12-12\"}"))
            .andExpect(status().isForbidden());
@@ -111,10 +120,11 @@ class SpringSecurityConfigurationTest {
     @Test
     void testCreateKidKo_parentNotFound()
             throws Exception {
-        doReturn(Optional.empty()).when(parentsRepository).findByMail(any(String.class));
+        doReturn(Optional.empty()).when(parentsRepository).findById(any(UUID.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/kids")
-                .with(jwt().jwt(b -> b.subject("unknown@example.com")).authorities(new SimpleGrantedAuthority("SCOPE_kids:create")))
+                .with(jwt().jwt(b -> b.subject(randomUUID().toString()))
+                           .authorities(new SimpleGrantedAuthority("SCOPE_kids.create")))
                 .contentType(APPLICATION_JSON)
                 .content("{\"name\":\"Alicia\",\"surname\":\"Cristóbal\",\"birthdate\":\"2019-12-12\"}"))
            .andExpect(status().isForbidden());
@@ -127,7 +137,7 @@ class SpringSecurityConfigurationTest {
         doAnswer(inv -> inv.getArgument(0)).when(schoolsRepository).save(any(School.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/schools")
-                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_schools:create")))
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_schools.create")))
                 .contentType(APPLICATION_JSON)
                 .content("{\"name\":\"Gloria Fuertes\"}"))
            .andExpect(status().isCreated());
@@ -139,9 +149,9 @@ class SpringSecurityConfigurationTest {
             throws Exception {
         //@formatter:off
         mvc.perform(post(this.base() + "/schools")
-                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other" + ":scope")))
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Gloria " + "Fuertes\"}"))
+                .content("{\"name\":\"Gloria Fuertes\"}"))
            .andExpect(status().isForbidden());
         //@formatter:on
     }

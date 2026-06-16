@@ -36,7 +36,7 @@ class KidIT
 
     private String createParent()
             throws IOException {
-        final String token = this.getToken(USERNAME, "parents:create");
+        final String token = this.getToken(USERNAME, "parents.create");
         final String body  = this.json.writeValueAsString(Map.of("name", "Kid", "surname", "Parent", "mail", USERNAME));
         final Request request = new Request.Builder().url("http://localhost:" + PORT + "/v0/parents")
                                                      .addHeader("Authorization", "Bearer " + token)
@@ -51,7 +51,7 @@ class KidIT
 
     private String createKid(final String parentUrl)
             throws IOException {
-        final String token = this.getToken(USERNAME, "kids:create");
+        final String token = this.getToken(USERNAME, "kids.create");
         final String body = this.json.writeValueAsString(
                 Map.of(NAME_KEY, NAME_VALUE, SURNAME_KEY, SURNAME_VALUE, BIRTHDATE_KEY, BIRTHDATE_VALUE, "parent",
                        parentUrl));
@@ -68,7 +68,7 @@ class KidIT
 
     private void retrieveAndVerifyKid(final String kidUrl)
             throws IOException {
-        final String  token   = this.getToken(USERNAME, "kids:create");
+        final String token = this.getToken(USERNAME, "kids.create");
         final Request request = new Request.Builder().url(kidUrl).addHeader("Authorization", "Bearer " + token).build();
         try(Response response = this.http.newCall(request).execute()) {
             assertEquals(200, response.code());

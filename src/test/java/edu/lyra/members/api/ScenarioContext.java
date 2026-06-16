@@ -11,7 +11,8 @@ class ScenarioContext {
 
     private ResultActions resultActions;
     private RequestPostProcessor jwtProcessor;
-    private String               parentSub;
+
+    private String parentEmail;
 
     void setResultActions(final ResultActions resultActions) {
         this.resultActions = resultActions;
@@ -29,12 +30,12 @@ class ScenarioContext {
         this.jwtProcessor = jwtProcessor;
     }
 
-    String getParentSub() {
-        return parentSub;
+    String getParentEmail() {
+        return parentEmail;
     }
 
-    void setParentSub(final String parentSub) {
-        this.parentSub = parentSub;
+    void setParentEmail(final String parentEmail) {
+        this.parentEmail = parentEmail;
     }
 
 }

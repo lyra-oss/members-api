@@ -5,7 +5,7 @@ Feature: Schools' onboarding
     I want to provide onboarding services for schools
 
     Background:
-        Given I am authenticated with "schools:create" scope
+        Given I am authenticated with "schools.create" scope
 
     Scenario: Create school
         Given the school name is "Gloria Fuertes"

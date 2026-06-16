@@ -6,7 +6,7 @@
     "clientScopes": [
         {
             "name": "basic",
-            "description": "Adds the username as the subject identifier (sub) to tokens",
+            "description": "OpenID Connect scope for add all basic claims to the token",
             "protocol": "openid-connect",
             "attributes": {
                 "include.in.token.scope": "false",
@@ -16,22 +16,17 @@
                 {
                     "name": "sub",
                     "protocol": "openid-connect",
-                    "protocolMapper": "oidc-usermodel-property-mapper",
+                    "protocolMapper": "oidc-sub-mapper",
                     "consentRequired": false,
                     "config": {
-                        "introspection.token.claim": "true",
-                        "userinfo.token.claim": "true",
-                        "user.attribute": "username",
-                        "id.token.claim": "true",
                         "access.token.claim": "true",
-                        "claim.name": "sub",
-                        "jsonType.label": "String"
+                        "introspection.token.claim": "true"
                     }
                 }
             ]
         },
         {
-            "name": "parents:create",
+            "name": "parents.create",
             "description": "Permission to create parent accounts",
             "protocol": "openid-connect",
             "attributes": {
@@ -40,7 +35,7 @@
             }
         },
         {
-            "name": "kids:create",
+            "name": "kids.create",
             "description": "Permission to register kids",
             "protocol": "openid-connect",
             "attributes": {
@@ -49,7 +44,7 @@
             }
         },
         {
-            "name": "schools:create",
+            "name": "schools.create",
             "description": "Permission to create schools",
             "protocol": "openid-connect",
             "attributes": {
@@ -69,18 +64,20 @@
             "serviceAccountsEnabled": false,
             "protocol": "openid-connect",
             "defaultClientScopes": [
-                "basic"
+                "basic",
+                "openid"
             ],
             "optionalClientScopes": [
-                "parents:create",
-                "kids:create",
-                "schools:create"
+                "email",
+                "parents.create",
+                "kids.create",
+                "schools.create"
             ]
         }
     ],
     "users": [
         {
-            "username": "test.user",
+            "username": "test.user@example.com",
             "email": "test.user@example.com",
             "firstName": "Test",
             "lastName": "User",

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ParentIT
         extends BaseIT {
 
-    private static final String USERNAME = "test.user";
+    private static final String USERNAME = "test.user@example.com";
 
     private static final String NAME_KEY    = "name";
     private static final String SURNAME_KEY = "surname";
@@ -29,7 +29,7 @@ class ParentIT
     @Test
     void testAddAndRetrieveParent()
             throws IOException {
-        final String token = this.getToken(USERNAME, "parents:create");
+        final String token = this.getToken(USERNAME, "parents.create");
         final String body = this.json.writeValueAsString(
                 Map.of(NAME_KEY, NAME_VALUE, SURNAME_KEY, SURNAME_VALUE, MAIL_KEY, MAIL_VALUE));
         final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/parents")

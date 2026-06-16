@@ -25,7 +25,7 @@ class SchoolIT
     @Test
     void testAddAndRetrieveSchool()
             throws IOException {
-        final String token = this.getToken(USERNAME, "schools:create");
+        final String token = this.getToken(USERNAME, "schools.create");
         final String body  = this.json.writeValueAsString(Map.of(NAME_KEY, NAME_VALUE));
         final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/schools")
                                                          .addHeader("Authorization", "Bearer " + token)
