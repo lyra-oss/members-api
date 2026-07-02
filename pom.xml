@@ -36,7 +36,7 @@
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Dependency versions -->
-        <cucumber.version>7.34.3</cucumber.version>
+        <cucumber.version>7.34.4</cucumber.version>
         <okhttp.version>5.4.0</okhttp.version>
         <archunit.version>1.4.2</archunit.version>
         <!-- Plugin versions -->
