@@ -18,9 +18,8 @@ Feature: Kids' onboarding
         When I add the kid to my account
         Then I receive a confirmation that the kid has been successfully added
 
-    Scenario: Cannot add a kid linked to a different parent
-        Given another parent exists with e-mail "other.parent@example.com"
-        And I am authenticated as "other.parent@example.com" with "kids.create" scope
+    Scenario: Cannot add a kid when not authenticated as a registered parent
+        Given I am authenticated with "kids.create" scope
         And the kid name is "Alicia"
         And the kid surname is "Cristóbal"
         And the kid birth date is "2019-12-12"

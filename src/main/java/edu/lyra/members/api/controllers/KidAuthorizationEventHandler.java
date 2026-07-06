@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 
 @RepositoryEventHandler
@@ -24,22 +23,14 @@ class KidAuthorizationEventHandler {
     }
 
     @HandleBeforeCreate
-    public void validateParentOwnership(final Kid kid) {
+    public void assignAuthenticatedParent(final Kid kid) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(! (authentication instanceof JwtAuthenticationToken jwtAuth)) {
             throw new AccessDeniedException("JWT authentication required");
         }
-        ofNullable(jwtAuth.getToken().getSubject()).map(UUID::fromString).flatMap(this.parentsRepository::findById)
-                                                   .ifPresentOrElse(parent -> {
-                                                       if(! (isNull(kid.getParent()) ||
-                                                             kid.getParent().getId().equals(parent.getId()))) {
-                                                           throw new AccessDeniedException(
-                                                                   "Cannot create a kid for a different parent");
-                                                       }
-                                                   }, () -> {
-                                                       throw new AccessDeniedException(
-                                                               "Authenticated user cannot register this kid");
-                                                   });
+        kid.setParent(ofNullable(jwtAuth.getToken().getSubject()).map(UUID::fromString)
+                                                                 .flatMap(this.parentsRepository::findById).orElseThrow(
+                        () -> new AccessDeniedException("Authenticated user cannot register this kid")));
     }
 
 }

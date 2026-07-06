@@ -29,12 +29,12 @@ class KidIT
     @Test
     void testAddAndRetrieveKid()
             throws IOException {
-        final String parentUrl   = this.createParent();
-        final String kidLocation = this.createKid(parentUrl);
+        this.createParent();
+        final String kidLocation = this.createKid();
         retrieveAndVerifyKid(kidLocation);
     }
 
-    private String createParent()
+    private void createParent()
             throws IOException {
         final String token = this.getToken(USERNAME, "parents.create");
         final String body  = this.json.writeValueAsString(Map.of("name", "Kid", "surname", "Parent", "mail", USERNAME));
@@ -43,18 +43,14 @@ class KidIT
                                                      .post(create(body, get("application/json"))).build();
         try(Response response = this.http.newCall(request).execute()) {
             assertEquals(201, response.code());
-            final String location = response.header("Location");
-            assertNotNull(location);
-            return location;
         }
     }
 
-    private String createKid(final String parentUrl)
+    private String createKid()
             throws IOException {
         final String token = this.getToken(USERNAME, "kids.create");
         final String body = this.json.writeValueAsString(
-                Map.of(NAME_KEY, NAME_VALUE, SURNAME_KEY, SURNAME_VALUE, BIRTHDATE_KEY, BIRTHDATE_VALUE, "parent",
-                       parentUrl));
+                Map.of(NAME_KEY, NAME_VALUE, SURNAME_KEY, SURNAME_VALUE, BIRTHDATE_KEY, BIRTHDATE_VALUE));
         final Request request = new Request.Builder().url("http://localhost:" + PORT + "/v0/kids")
                                                      .addHeader("Authorization", "Bearer " + token)
                                                      .post(create(body, get("application/json"))).build();

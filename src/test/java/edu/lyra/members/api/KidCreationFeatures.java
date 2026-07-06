@@ -1,8 +1,5 @@
 package edu.lyra.members.api;
 
-import java.util.UUID;
-
-import edu.lyra.members.api.repositories.jpa.ParentsRepository;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -24,9 +21,6 @@ public class KidCreationFeatures {
 
     @Autowired
     private MockMvc mvc;
-
-    @Autowired
-    private ParentsRepository parentsRepository;
 
     @Autowired
     private ScenarioContext scenarioContext;
@@ -54,8 +48,6 @@ public class KidCreationFeatures {
     @When("I add the kid to my account")
     public void addKid()
             throws Exception {
-        final UUID parentId = this.parentsRepository.findByMail(scenarioContext.getParentEmail()).orElseThrow().getId();
-        this.kidJson.put("parent", "http://localhost/v0/parents/" + parentId);
         this.scenarioContext.setResultActions(this.mvc.perform(
                 post("/v0/kids").with(this.scenarioContext.getJwtProcessor()).contentType(APPLICATION_JSON)
                                 .content(OBJECT_MAPPER.writeValueAsString(this.kidJson))));

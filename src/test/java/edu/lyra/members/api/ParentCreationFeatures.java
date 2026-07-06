@@ -107,7 +107,6 @@ public class ParentCreationFeatures {
     @And("my e-mail address is {string}")
     public void myEMailAddressIs(final String mail) {
         this.parentJson.put("mail", mail);
-        this.scenarioContext.setParentEmail(mail);
     }
 
     @And("my e-mail address is longer than 200 characters")

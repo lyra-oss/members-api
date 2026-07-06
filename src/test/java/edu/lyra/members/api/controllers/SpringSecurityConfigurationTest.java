@@ -10,6 +10,7 @@ import edu.lyra.members.api.repositories.jpa.ParentsRepository;
 import edu.lyra.members.api.repositories.jpa.School;
 import edu.lyra.members.api.repositories.jpa.SchoolsRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -24,9 +25,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static java.util.UUID.randomUUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -99,10 +102,12 @@ class SpringSecurityConfigurationTest {
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_kids.create")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Alicia\",\"surname\":\"Cristóbal\",\"birthdate\":\"2019-12-12\"," +
-                         "\"parent\":\"http://localhost" + base() + "/parents/" + parentId + "\"}"))
+                .content("{\"name\":\"Alicia\",\"surname\":\"Cristóbal\",\"birthdate\":\"2019-12-12\"}"))
            .andExpect(status().isCreated());
         //@formatter:on
+        final ArgumentCaptor<Kid> kidCaptor = ArgumentCaptor.forClass(Kid.class);
+        verify(kidsRepository).save(kidCaptor.capture());
+        assertEquals(parent, kidCaptor.getValue().getParent());
     }
 
     @Test

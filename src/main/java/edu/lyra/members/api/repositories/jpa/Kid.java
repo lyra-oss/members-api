@@ -67,4 +67,8 @@ public class Kid {
     @Column(name = "LAST_MODIFIED_DATE")
     private LocalDateTime lastModifiedDate;
 
+    public void setParent(final Parent parent) {
+        this.parent = parent;
+    }
+
 }
