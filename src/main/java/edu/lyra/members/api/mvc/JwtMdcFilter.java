@@ -1,4 +1,4 @@
-package edu.lyra.members.api.controllers;
+package edu.lyra.members.api.mvc;
 
 import java.io.IOException;
 
@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -25,8 +26,8 @@ class JwtMdcFilter
 
     @Override
     protected void doFilterInternal(
-            final HttpServletRequest request,
-            final HttpServletResponse response,
+            final @NonNull HttpServletRequest request,
+            final @NonNull HttpServletResponse response,
             final FilterChain filterChain
     )
             throws ServletException, IOException {

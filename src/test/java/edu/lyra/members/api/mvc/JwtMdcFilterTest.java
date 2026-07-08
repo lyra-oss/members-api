@@ -1,4 +1,4 @@
-package edu.lyra.members.api.controllers;
+package edu.lyra.members.api.mvc;
 
 import java.io.IOException;
 import java.util.HashMap;

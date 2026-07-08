@@ -1,4 +1,4 @@
-package edu.lyra.members.api.controllers;
+package edu.lyra.members.api.mvc;
 
 import java.util.Optional;
 import java.util.UUID;

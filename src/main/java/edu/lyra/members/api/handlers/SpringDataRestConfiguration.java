@@ -1,4 +1,4 @@
-package edu.lyra.members.api.controllers;
+package edu.lyra.members.api.handlers;
 
 import edu.lyra.members.api.repositories.jpa.Kid;
 import edu.lyra.members.api.repositories.jpa.ParentsRepository;
@@ -23,17 +23,17 @@ class SpringDataRestConfiguration {
         return new RepositoryRestConfigurer() {
 
             @Override
-            public void configureValidatingRepositoryEventListener(final @NonNull ValidatingRepositoryEventListener validatingListener) {
-                validatingListener.addValidator("beforeCreate", validator);
-            }
-
-            @Override
             public void configureRepositoryRestConfiguration(
                     final @NonNull RepositoryRestConfiguration config,
                     final @NonNull CorsRegistry cors
             ) {
                 config.getExposureConfiguration().forDomainType(Kid.class)
                       .withAssociationExposure((_, httpMethods) -> httpMethods.disable(POST, PUT, PATCH));
+            }
+
+            @Override
+            public void configureValidatingRepositoryEventListener(final @NonNull ValidatingRepositoryEventListener validatingListener) {
+                validatingListener.addValidator("beforeCreate", validator);
             }
         };
     }

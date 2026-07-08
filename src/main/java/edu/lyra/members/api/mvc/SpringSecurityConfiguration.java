@@ -1,4 +1,4 @@
-package edu.lyra.members.api.controllers;
+package edu.lyra.members.api.mvc;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package edu.lyra.members.api.controllers;
+package edu.lyra.members.api.mvc;
 
 import java.util.stream.Stream;
 
@@ -21,6 +21,11 @@ class ProblemDetailsControllerAdviceTest {
 
     private final ProblemDetailsControllerAdvice advice = new ProblemDetailsControllerAdvice();
 
+    static Stream<Arguments> messageTruncationScenarios() {
+        return Stream.of(arguments("short message", "short message"), arguments("a".repeat(100), "a".repeat(100)),
+                         arguments("a".repeat(101), "a".repeat(100) + "…"));
+    }
+
     @Test
     void testErrorResponse() {
         final ResponseEntity<ProblemDetail> response =
@@ -42,12 +47,6 @@ class ProblemDetailsControllerAdviceTest {
         final ResponseEntity<ProblemDetail> response =
                 advice.handleDuplicateKeyException(new DuplicateKeyException(message));
         assertThat(response.getBody().getDetail()).isEqualTo(expectedDetail);
-    }
-
-    static Stream<Arguments> messageTruncationScenarios() {
-        return Stream.of(arguments("short message", "short message"),
-                         arguments("a".repeat(100), "a".repeat(100)),
-                         arguments("a".repeat(101), "a".repeat(100) + "…"));
     }
 
 }

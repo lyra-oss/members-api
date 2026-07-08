@@ -1,4 +1,4 @@
-package edu.lyra.members.api.controllers;
+package edu.lyra.members.api.mvc;
 
 import java.util.stream.Stream;
 
@@ -44,6 +44,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KidsAssociationMethodsTest {
 
+    @Autowired
+    private MockMvc                     mvc;
+    @Autowired
+    private ResourceMappings            resourceMappings;
+    @Autowired
+    private MappingContext<?, ?>        mappingContext;
+    @Autowired
+    private RepositoryRestConfiguration restConfiguration;
+
     private Stream<Arguments> kidAssociationEndpoints() {
         //@formatter:off
         return kidAssociationPaths().flatMap(path -> of(
@@ -52,6 +61,20 @@ class KidsAssociationMethodsTest {
                 arguments(patch(path).with(jwt()), status().isMethodNotAllowed()),
                 arguments(get(path).with(jwt()), status().isNotFound())
         ));
+        //@formatter:on
+    }
+
+    private Stream<String> kidAssociationPaths() {
+        final ResourceMetadata metadata = resourceMappings.getMetadataFor(Kid.class);
+        //@formatter:off
+        final Path itemPath = new Path("/" + restConfiguration.getBasePath())
+                .slash(requireNonNull(metadata).getPath())
+                .slash("1");
+        return stream(mappingContext.getRequiredPersistentEntity(Kid.class).spliterator(), false)
+                .filter(PersistentProperty::isAssociation)
+                .map(metadata::getMappingFor)
+                .filter(ResourceMapping::isExported)
+                .map(mapping -> itemPath.slash(mapping.getPath()).toString());
         //@formatter:on
     }
 
@@ -70,18 +93,6 @@ class KidsAssociationMethodsTest {
         //@formatter:on
     }
 
-    @Autowired
-    private MockMvc mvc;
-
-    @Autowired
-    private ResourceMappings resourceMappings;
-
-    @Autowired
-    private MappingContext<?, ?> mappingContext;
-
-    @Autowired
-    private RepositoryRestConfiguration restConfiguration;
-
     @TestConfiguration
     static class SecurityConfig {
 
@@ -92,20 +103,6 @@ class KidsAssociationMethodsTest {
             };
         }
 
-    }
-
-    private Stream<String> kidAssociationPaths() {
-        final ResourceMetadata metadata = resourceMappings.getMetadataFor(Kid.class);
-        //@formatter:off
-        final Path itemPath = new Path("/" + restConfiguration.getBasePath())
-                .slash(requireNonNull(metadata).getPath())
-                .slash("1");
-        return stream(mappingContext.getRequiredPersistentEntity(Kid.class).spliterator(), false)
-                .filter(PersistentProperty::isAssociation)
-                .map(metadata::getMappingFor)
-                .filter(ResourceMapping::isExported)
-                .map(mapping -> itemPath.slash(mapping.getPath()).toString());
-        //@formatter:on
     }
 
 }
