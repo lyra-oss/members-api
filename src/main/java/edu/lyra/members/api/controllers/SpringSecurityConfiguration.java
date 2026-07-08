@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.http.HttpMethod.POST;
@@ -26,7 +27,9 @@ class SpringSecurityConfiguration {
                            .requestMatchers(POST, base + "/schools").hasAuthority("SCOPE_schools.create")
                            .anyRequest().authenticated())
                    .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
-                   .csrf(csrf -> csrf.ignoringRequestMatchers(base + "/**")).build();
+                   .csrf(csrf -> csrf.ignoringRequestMatchers(base + "/**"))
+                   .addFilterAfter(new JwtMdcFilter(), BearerTokenAuthenticationFilter.class)
+                   .build();
         //@formatter:on
     }
 
