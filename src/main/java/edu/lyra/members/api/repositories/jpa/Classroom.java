@@ -1,6 +1,5 @@
 package edu.lyra.members.api.repositories.jpa;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,7 +14,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Version;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -23,10 +21,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import static jakarta.persistence.CascadeType.ALL;
@@ -40,7 +34,8 @@ import static jakarta.persistence.CascadeType.ALL;
         name = "CLASSROOMS",
         uniqueConstraints = @UniqueConstraint(columnNames = { "COURSE", "GROUP_NAME", "SCHOOL_ID" })
 )
-public class Classroom {
+public class Classroom
+        extends Auditable {
 
     @JsonIgnore
     @Id
@@ -65,30 +60,5 @@ public class Classroom {
     @OneToMany(cascade = ALL)
     @JoinColumn(name = "CLASSROOM_ID")
     private Set<Kid> kids;
-
-    @JsonIgnore
-    @Version
-    @Column(name = "OPTLOCK")
-    private int version;
-
-    @JsonIgnore
-    @CreatedDate
-    @Column(name = "CREATED_DATE", nullable = false, updatable = false)
-    private LocalDateTime createdDate;
-
-    @JsonIgnore
-    @CreatedBy
-    @Column(name = "CREATED_BY", length = 100, nullable = false, updatable = false)
-    private String createdBy;
-
-    @JsonIgnore
-    @LastModifiedDate
-    @Column(name = "LAST_MODIFIED_DATE")
-    private LocalDateTime lastModifiedDate;
-
-    @JsonIgnore
-    @LastModifiedBy
-    @Column(name = "UPDATED_BY", length = 100)
-    private String updatedBy;
 
 }

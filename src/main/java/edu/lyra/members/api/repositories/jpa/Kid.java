@@ -1,7 +1,6 @@
 package edu.lyra.members.api.repositories.jpa;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
@@ -13,7 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -22,10 +20,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
@@ -34,7 +28,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "KIDS", uniqueConstraints = @UniqueConstraint(columnNames = { "NAME", "BIRTHDATE", "PARENT_ID" }))
-public class Kid {
+public class Kid
+        extends Auditable {
 
     @JsonIgnore
     @Id
@@ -64,30 +59,5 @@ public class Kid {
 
     @ManyToOne
     private Classroom classroom;
-
-    @JsonIgnore
-    @Version
-    @Column(name = "OPTLOCK")
-    private int version;
-
-    @JsonIgnore
-    @CreatedDate
-    @Column(name = "CREATED_DATE", nullable = false, updatable = false)
-    private LocalDateTime createdDate;
-
-    @JsonIgnore
-    @CreatedBy
-    @Column(name = "CREATED_BY", length = 100, nullable = false, updatable = false)
-    private String createdBy;
-
-    @JsonIgnore
-    @LastModifiedDate
-    @Column(name = "LAST_MODIFIED_DATE")
-    private LocalDateTime lastModifiedDate;
-
-    @JsonIgnore
-    @LastModifiedBy
-    @Column(name = "UPDATED_BY", length = 100)
-    private String updatedBy;
 
 }
