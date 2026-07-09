@@ -6,6 +6,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -22,7 +23,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.ToString.Exclude;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import static jakarta.persistence.CascadeType.ALL;
 
@@ -30,6 +35,7 @@ import static jakarta.persistence.CascadeType.ALL;
 @ToString
 @NoArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(
         name = "CLASSROOMS",
         uniqueConstraints = @UniqueConstraint(columnNames = { "COURSE", "GROUP_NAME", "SCHOOL_ID" })
@@ -66,8 +72,23 @@ public class Classroom {
     private int version;
 
     @JsonIgnore
+    @CreatedDate
+    @Column(name = "CREATED_DATE", nullable = false, updatable = false)
+    private LocalDateTime createdDate;
+
+    @JsonIgnore
+    @CreatedBy
+    @Column(name = "CREATED_BY", length = 100, nullable = false, updatable = false)
+    private String createdBy;
+
+    @JsonIgnore
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private LocalDateTime lastModifiedDate;
+
+    @JsonIgnore
+    @LastModifiedBy
+    @Column(name = "UPDATED_BY", length = 100)
+    private String updatedBy;
 
 }

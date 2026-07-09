@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -19,13 +20,19 @@ import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @ToString
 @NoArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "KIDS", uniqueConstraints = @UniqueConstraint(columnNames = { "NAME", "BIRTHDATE", "PARENT_ID" }))
 public class Kid {
 
@@ -51,6 +58,7 @@ public class Kid {
     @Column(name = "BIRTHDATE", nullable = false)
     private LocalDate birthdate;
 
+    @Setter
     @ManyToOne
     private Parent parent;
 
@@ -63,12 +71,23 @@ public class Kid {
     private int version;
 
     @JsonIgnore
+    @CreatedDate
+    @Column(name = "CREATED_DATE", nullable = false, updatable = false)
+    private LocalDateTime createdDate;
+
+    @JsonIgnore
+    @CreatedBy
+    @Column(name = "CREATED_BY", length = 100, nullable = false, updatable = false)
+    private String createdBy;
+
+    @JsonIgnore
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private LocalDateTime lastModifiedDate;
 
-    public void setParent(final Parent parent) {
-        this.parent = parent;
-    }
+    @JsonIgnore
+    @LastModifiedBy
+    @Column(name = "UPDATED_BY", length = 100)
+    private String updatedBy;
 
 }

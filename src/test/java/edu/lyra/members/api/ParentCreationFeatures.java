@@ -1,5 +1,6 @@
 package edu.lyra.members.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import edu.lyra.members.api.repositories.jpa.KidsRepository;
@@ -11,6 +12,10 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -144,13 +149,29 @@ public class ParentCreationFeatures {
                                     .mail(this.parentJson.get("mail").asString())
                                     .build();
         //@formatter:on
-        this.parentsRepository.save(parentEntity);
+        this.saveAsSelf(parentEntity);
+    }
+
+    private void saveAsSelf(final Parent parent) {
+        final Authentication previousAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        //@formatter:off
+        final Jwt jwt = Jwt.withTokenValue("token")
+                           .header("alg", "none")
+                           .subject(parent.getId().toString())
+                           .build();
+        //@formatter:on
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, List.of()));
+        try {
+            this.parentsRepository.save(parent);
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(previousAuthentication);
+        }
     }
 
     @Given("another parent exists with e-mail {string}")
     public void anotherParentExistsWithMail(final String mail) {
         final Parent parent = Parent.builder().id(UUID.randomUUID()).name("Other").surname("Parent").mail(mail).build();
-        this.parentsRepository.save(parent);
+        this.saveAsSelf(parent);
     }
 
     @When("I click on \"Create account\"")
