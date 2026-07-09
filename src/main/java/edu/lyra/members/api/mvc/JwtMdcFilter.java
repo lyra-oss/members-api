@@ -32,21 +32,17 @@ class JwtMdcFilter
     )
             throws ServletException, IOException {
         try {
-            populateMdc();
+            if(SecurityContextHolder.getContext().getAuthentication() instanceof JwtAuthenticationToken jwtAuth) {
+                final Jwt token = jwtAuth.getToken();
+                ofNullable(token.getSubject()).ifPresent(subject -> put(USER_ID, subject));
+                ofNullable(token.getClaimAsString("preferred_username")).ifPresent(username -> put(USER_NAME, username));
+                ofNullable(token.getClaimAsString("email")).ifPresent(email -> put(USER_EMAIL, email));
+            }
             filterChain.doFilter(request, response);
         } finally {
             remove(USER_ID);
             remove(USER_NAME);
             remove(USER_EMAIL);
-        }
-    }
-
-    private static void populateMdc() {
-        if(SecurityContextHolder.getContext().getAuthentication() instanceof JwtAuthenticationToken jwtAuth) {
-            final Jwt token = jwtAuth.getToken();
-            ofNullable(token.getSubject()).ifPresent(subject -> put(USER_ID, subject));
-            ofNullable(token.getClaimAsString("preferred_username")).ifPresent(username -> put(USER_NAME, username));
-            ofNullable(token.getClaimAsString("email")).ifPresent(email -> put(USER_EMAIL, email));
         }
     }
 
