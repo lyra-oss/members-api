@@ -1,5 +1,6 @@
 package edu.lyra.members.api.mvc;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import edu.lyra.members.api.repositories.jpa.Kid;
@@ -45,52 +46,42 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class KidsAssociationMethodsTest {
 
     @Autowired
-    private MockMvc                     mvc;
+    private MockMvc mvc;
+
     @Autowired
-    private ResourceMappings            resourceMappings;
+    private ResourceMappings resourceMappings;
+
     @Autowired
-    private MappingContext<?, ?>        mappingContext;
+    private MappingContext<?, ?> mappingContext;
+
     @Autowired
     private RepositoryRestConfiguration restConfiguration;
 
     private Stream<Arguments> kidAssociationEndpoints() {
-        //@formatter:off
-        return kidAssociationPaths().flatMap(path -> of(
-                arguments(post(path).with(jwt()), status().isMethodNotAllowed()),
-                arguments(put(path).with(jwt()), status().isMethodNotAllowed()),
-                arguments(patch(path).with(jwt()), status().isMethodNotAllowed()),
-                arguments(get(path).with(jwt()), status().isNotFound())
-        ));
-        //@formatter:on
+        return kidAssociationPaths().flatMap(
+                path -> of(arguments(post(path).with(jwt()), status().isMethodNotAllowed()),
+                           arguments(put(path).with(jwt()), status().isMethodNotAllowed()),
+                           arguments(patch(path).with(jwt()), status().isMethodNotAllowed()),
+                           arguments(get(path).with(jwt()), status().isNotFound())));
     }
 
     private Stream<String> kidAssociationPaths() {
         final ResourceMetadata metadata = resourceMappings.getMetadataFor(Kid.class);
-        //@formatter:off
-        final Path itemPath = new Path("/" + restConfiguration.getBasePath())
-                .slash(requireNonNull(metadata).getPath())
-                .slash("1");
+        final Path itemPath = new Path("/" + restConfiguration.getBasePath()).slash(requireNonNull(metadata).getPath())
+                                                                             .slash(UUID.randomUUID().toString());
         return stream(mappingContext.getRequiredPersistentEntity(Kid.class).spliterator(), false)
-                .filter(PersistentProperty::isAssociation)
-                .map(metadata::getMappingFor)
-                .filter(ResourceMapping::isExported)
-                .map(mapping -> itemPath.slash(mapping.getPath()).toString());
-        //@formatter:on
+                .filter(PersistentProperty::isAssociation).map(metadata::getMappingFor)
+                .filter(ResourceMapping::isExported).map(mapping -> itemPath.slash(mapping.getPath()).toString());
     }
 
     @ParameterizedTest
     @MethodSource("kidAssociationEndpoints")
     void testMethods(final MockHttpServletRequestBuilder request, final ResultMatcher expectedStatus)
             throws Exception {
-        //@formatter:off
-        this.mvc.perform(request)
-                .andDo(result -> log.atInfo()
-                                                  .addArgument(result.getRequest().getMethod())
-                                                  .addArgument(result.getRequest().getRequestURI())
-                                                  .addArgument(result.getResponse().getStatus())
-                                              .log("Tested {} {} → {}"))
-                .andExpect(expectedStatus);
-        //@formatter:on
+        this.mvc.perform(request).andDo(result -> log.atInfo().addArgument(result.getRequest().getMethod())
+                                                     .addArgument(result.getRequest().getRequestURI())
+                                                     .addArgument(result.getResponse().getStatus())
+                                                     .log("Tested {} {} → {}")).andExpect(expectedStatus);
     }
 
     @TestConfiguration

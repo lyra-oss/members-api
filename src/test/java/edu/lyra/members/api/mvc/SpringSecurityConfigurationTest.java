@@ -9,6 +9,7 @@ import edu.lyra.members.api.repositories.jpa.Parent;
 import edu.lyra.members.api.repositories.jpa.ParentsRepository;
 import edu.lyra.members.api.repositories.jpa.School;
 import edu.lyra.members.api.repositories.jpa.SchoolsRepository;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,14 +90,14 @@ class SpringSecurityConfigurationTest {
         //@formatter:off
         final UUID parentId = randomUUID();
         final Parent parent = Parent.builder()
-                                        .id(parentId)
-                                        .name("Esteban")
-                                        .surname("Cristóbal")
-                                        .mail("esteban.cristobal@example.com")
+                                    .id(parentId)
+                                    .name("Esteban")
+                                    .surname("Cristóbal")
+                                    .mail("esteban.cristobal@example.com")
                                     .build();
         //@formatter:on
         doReturn(Optional.of(parent)).when(parentsRepository).findById(parentId);
-        doAnswer(inv -> inv.getArgument(0)).when(kidsRepository).save(any(Kid.class));
+        doReturn(Instancio.create(Kid.class)).when(kidsRepository).save(any(Kid.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/kids")
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
@@ -139,7 +140,7 @@ class SpringSecurityConfigurationTest {
     @Test
     void testCreateSchoolOk()
             throws Exception {
-        doAnswer(inv -> inv.getArgument(0)).when(schoolsRepository).save(any(School.class));
+        doReturn(Instancio.create(School.class)).when(schoolsRepository).save(any(School.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/schools")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_schools.create")))

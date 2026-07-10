@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import net.datafaker.Faker;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +17,15 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 @Import(SpringDataJpaConfiguration.class)
 class JpaAuditingTest {
+
+    private static final Faker FAKER = new Faker();
 
     @Autowired
     private TestEntityManager entityManager;
@@ -94,8 +99,12 @@ class JpaAuditingTest {
     @Test
     void populatesAuditingFieldsForEveryEntity() {
         final String subject = this.authenticate();
-        final School school  = new School();
-        ReflectionTestUtils.setField(school, "name", "Gloria Fuertes");
+        final School school =
+                Instancio.of(School.class).ignore(field(School.class, "id")).ignore(field(School.class, "classrooms"))
+                         .ignore(field(Auditable.class, "version")).ignore(field(Auditable.class, "createdDate"))
+                         .ignore(field(Auditable.class, "createdBy")).ignore(field(Auditable.class, "lastModifiedDate"))
+                         .ignore(field(Auditable.class, "updatedBy"))
+                         .set(field(School.class, "name"), FAKER.educator().secondarySchool()).create();
         final School saved = this.schoolsRepository.save(school);
         this.entityManager.flush();
         assertEquals(subject, saved.getCreatedBy());
