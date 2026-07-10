@@ -39,6 +39,9 @@
         <cucumber.version>7.34.4</cucumber.version>
         <okhttp.version>5.4.0</okhttp.version>
         <archunit.version>1.4.2</archunit.version>
+        <postgresql.version>42.7.12</postgresql.version>
+        <tomcat-embed-core.version>11.0.23</tomcat-embed-core.version>
+        <logback-core.version>1.5.36</logback-core.version>
         <!-- Plugin versions -->
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
@@ -67,6 +70,21 @@
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-api</artifactId>
                 <version>1.63.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat-embed-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback-core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
