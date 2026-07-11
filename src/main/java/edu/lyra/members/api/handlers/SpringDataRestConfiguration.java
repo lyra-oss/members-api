@@ -1,5 +1,8 @@
 package edu.lyra.members.api.handlers;
 
+import java.util.Set;
+
+import edu.lyra.members.api.repositories.jpa.Classroom;
 import edu.lyra.members.api.repositories.jpa.Kid;
 import edu.lyra.members.api.repositories.jpa.ParentsRepository;
 import org.jspecify.annotations.NonNull;
@@ -18,6 +21,8 @@ import static org.springframework.http.HttpMethod.PUT;
 @Configuration
 class SpringDataRestConfiguration {
 
+    private static final Set<String> CLASSROOM_TEACHING_STAFF_PROPERTIES = Set.of("tutor", "teachers");
+
     @Bean
     RepositoryRestConfigurer repositoryRestConfigurer(final Validator validator) {
         return new RepositoryRestConfigurer() {
@@ -29,6 +34,12 @@ class SpringDataRestConfiguration {
             ) {
                 config.getExposureConfiguration().forDomainType(Kid.class)
                       .withAssociationExposure((_, httpMethods) -> httpMethods.disable(POST, PUT, PATCH));
+                //@formatter:off
+                config.getExposureConfiguration().forDomainType(Classroom.class)
+                      .withAssociationExposure((property, httpMethods) ->
+                              CLASSROOM_TEACHING_STAFF_PROPERTIES.contains(property.getProperty().getName())
+                                      ? httpMethods.disable(POST, PUT, PATCH) : httpMethods);
+                //@formatter:on
             }
 
             @Override

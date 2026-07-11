@@ -72,41 +72,4 @@ class ClassroomTeacherAssignmentEventHandlerTest {
         assertThrows(SchoolMismatchException.class, () -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
-    // Spring Data REST applies the incoming link(s) onto the classroom bean before publishing the
-    // before-link-save event, so the handler reads classroom.getTutor()/getTeachers() directly instead
-    // of the event's own "linked" argument, which is unreliable for singular properties.
-
-    @Test
-    void allowsLinkingASingleTeacherFromTheSameSchool() {
-        final School school = schoolWithId();
-        final Classroom classroom = classroomAt(school);
-        ReflectionTestUtils.setField(classroom, "tutor", teacherAt(school));
-        assertDoesNotThrow(() -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
-    }
-
-    @Test
-    void allowsLinkingMultipleTeachersFromTheSameSchool() {
-        final School school = schoolWithId();
-        final Classroom classroom = classroomAt(school);
-        ReflectionTestUtils.setField(classroom, "teachers", Set.of(teacherAt(school), teacherAt(school)));
-        assertDoesNotThrow(() -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
-    }
-
-    @Test
-    void rejectsLinkingASingleTeacherFromAnotherSchool() {
-        final Classroom classroom = classroomAt(schoolWithId());
-        ReflectionTestUtils.setField(classroom, "tutor", teacherAt(schoolWithId()));
-        assertThrows(SchoolMismatchException.class,
-                    () -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
-    }
-
-    @Test
-    void rejectsLinkingATeacherFromAnotherSchoolWithinACollection() {
-        final School school = schoolWithId();
-        final Classroom classroom = classroomAt(school);
-        ReflectionTestUtils.setField(classroom, "teachers", Set.of(teacherAt(school), teacherAt(schoolWithId())));
-        assertThrows(SchoolMismatchException.class,
-                    () -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
-    }
-
 }

@@ -43,3 +43,15 @@ Feature: Classroom teaching staff
         And a teacher named "Pablo" "Ruiz" exists at school "Montessori Norte" with e-mail "pablo.ruiz@example.com"
         When I set teacher "Pablo Ruiz" as the classroom's tutor
         Then I receive an error because the teacher does not belong to the classroom's school
+
+    Scenario: Cannot add a teacher to a classroom that does not exist
+        When I add teacher "Marta Ibáñez" to a classroom that does not exist
+        Then I receive a not found error
+
+    Scenario: Cannot add a teacher that does not exist
+        When I add a teacher that does not exist to the classroom
+        Then I receive a bad request error
+
+    Scenario: Cannot add a teacher without specifying which one
+        When I add a teacher to the classroom without specifying which one
+        Then I receive a bad request error

@@ -1,5 +1,7 @@
 package edu.lyra.members.api;
 
+import java.util.UUID;
+
 import edu.lyra.members.api.repositories.jpa.ClassroomsRepository;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
@@ -42,7 +44,7 @@ public class ClassroomCreationFeatures {
     @Given("teacher {string} has been added to the classroom")
     public void teacherHasBeenAddedToClassroom(final String teacherName)
             throws Exception {
-        this.performAddTeacher(teacherName).andExpect(status().is2xxSuccessful());
+        this.performAddTeacher(teacherName).andExpect(status().isNoContent());
     }
 
     @When("I add teacher {string} to the classroom")
@@ -58,10 +60,40 @@ public class ClassroomCreationFeatures {
                         this.scenarioContext.getLocation("teacher:" + teacherName)));
     }
 
+    @When("I add teacher {string} to a classroom that does not exist")
+    public void addTeacherToNonExistentClassroom(final String teacherName)
+            throws Exception {
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                post(replaceLastSegment(this.classroomLocation()) + "/teachers")
+                        .with(this.scenarioContext.getJwtProcessor()).contentType(URI_LIST)
+                        .content(this.scenarioContext.getLocation("teacher:" + teacherName))));
+    }
+
+    @When("I add a teacher that does not exist to the classroom")
+    public void addNonExistentTeacherToClassroom()
+            throws Exception {
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                post(this.classroomLocation() + "/teachers").with(this.scenarioContext.getJwtProcessor())
+                                                             .contentType(URI_LIST).content(replaceLastSegment(
+                                this.scenarioContext.getLocation("teacher:Marta Ibáñez")))));
+    }
+
+    @When("I add a teacher to the classroom without specifying which one")
+    public void addTeacherWithoutSpecifyingWhichOne()
+            throws Exception {
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                post(this.classroomLocation() + "/teachers").with(this.scenarioContext.getJwtProcessor())
+                                                             .contentType(URI_LIST).content("")));
+    }
+
+    private static String replaceLastSegment(final String location) {
+        return location.substring(0, location.lastIndexOf('/') + 1) + UUID.randomUUID();
+    }
+
     @Given("teacher {string} has been set as the classroom's tutor")
     public void teacherHasBeenSetAsTutor(final String teacherName)
             throws Exception {
-        this.performSetTutor(teacherName).andExpect(status().is2xxSuccessful());
+        this.performSetTutor(teacherName).andExpect(status().isNoContent());
     }
 
     @When("I set teacher {string} as the classroom's tutor")
@@ -94,13 +126,13 @@ public class ClassroomCreationFeatures {
     @Then("I receive a confirmation that the teacher has been successfully added to the classroom")
     public void teacherAddedToClassroomOk()
             throws Exception {
-        this.scenarioContext.getResultActions().andExpect(status().is2xxSuccessful());
+        this.scenarioContext.getResultActions().andExpect(status().isNoContent());
     }
 
     @Then("I receive a confirmation that the tutor has been successfully set")
     public void tutorSetOk()
             throws Exception {
-        this.scenarioContext.getResultActions().andExpect(status().is2xxSuccessful());
+        this.scenarioContext.getResultActions().andExpect(status().isNoContent());
     }
 
     @Then("the classroom's teachers include {string}")

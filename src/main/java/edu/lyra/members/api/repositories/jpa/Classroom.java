@@ -22,6 +22,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -58,6 +59,7 @@ public class Classroom
     @ManyToOne
     private School school;
 
+    @Setter
     @ManyToOne
     private Teacher tutor;
 
