@@ -1,7 +1,5 @@
 package edu.lyra.members.api.handlers;
 
-import java.util.stream.Stream;
-
 import edu.lyra.members.api.repositories.jpa.Classroom;
 import edu.lyra.members.api.repositories.jpa.School;
 import edu.lyra.members.api.repositories.jpa.Teacher;
@@ -31,15 +29,17 @@ class ClassroomTeacherAssignmentEventHandler {
         if(classroomSchool == null) {
             return;
         }
-        final Stream<Teacher> tutor        = Stream.ofNullable(classroom.getTutor());
-        final Stream<Teacher> otherTeachers =
-                classroom.getTeachers() == null ? Stream.empty() : classroom.getTeachers().stream();
-        Stream.concat(tutor, otherTeachers)
-              .filter(teacher -> ! classroomSchool.getId().equals(teacher.getSchool().getId())).findFirst()
-              .ifPresent(teacher -> {
-                  throw new SchoolMismatchException(
-                          "Teacher %s does not belong to the classroom's school".formatted(teacher.getId()));
-              });
+        this.verifyBelongsToSchool(classroomSchool, classroom.getTutor());
+        if(classroom.getTeachers() != null) {
+            classroom.getTeachers().forEach(teacher -> this.verifyBelongsToSchool(classroomSchool, teacher));
+        }
+    }
+
+    private void verifyBelongsToSchool(final School classroomSchool, final Teacher teacher) {
+        if(teacher != null && ! classroomSchool.getId().equals(teacher.getSchool().getId())) {
+            throw new SchoolMismatchException(
+                    "Teacher %s does not belong to the classroom's school".formatted(teacher.getId()));
+        }
     }
 
 }
