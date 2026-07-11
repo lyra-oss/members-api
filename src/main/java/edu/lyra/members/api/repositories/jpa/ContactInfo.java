@@ -5,6 +5,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,8 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Embeddable
 public class ContactInfo {
 
@@ -31,12 +34,5 @@ public class ContactInfo {
     @Size(max = 200)
     @Column(name = "EMAIL", length = 200, nullable = false, unique = true)
     private String mail;
-
-    @Builder
-    public ContactInfo(final String name, final String surname, final String mail) {
-        this.name    = name;
-        this.surname = surname;
-        this.mail    = mail;
-    }
 
 }
