@@ -13,7 +13,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -160,9 +159,8 @@ public class TeacherCreationFeatures {
     private String schoolLocation(final String name) {
         final String key = "school:" + name;
         if(this.scenarioContext.getLocation(key) == null) {
-            final School school = new School();
-            ReflectionTestUtils.setField(school, "name", name);
-            final School saved = TestSecurityContext.runAuthenticated(() -> this.schoolsRepository.save(school));
+            final School saved =
+                    TestSecurityContext.runAuthenticated(() -> this.schoolsRepository.save(EntityFixtures.newSchool(name)));
             this.scenarioContext.putLocation(key, "/v0/schools/" + saved.getId());
         }
         return this.scenarioContext.getLocation(key);

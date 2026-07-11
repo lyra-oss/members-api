@@ -1,14 +1,14 @@
 package edu.lyra.members.api.handlers;
 
 import java.util.Set;
-import java.util.UUID;
 
 import edu.lyra.members.api.repositories.jpa.Classroom;
 import edu.lyra.members.api.repositories.jpa.School;
 import edu.lyra.members.api.repositories.jpa.Teacher;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -16,59 +16,51 @@ class ClassroomTeacherAssignmentEventHandlerTest {
 
     private final ClassroomTeacherAssignmentEventHandler handler = new ClassroomTeacherAssignmentEventHandler();
 
-    private static School schoolWithId() {
-        final School school = new School();
-        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
-        return school;
+    private static School aSchool() {
+        return Instancio.of(School.class).ignore(field(School.class, "classrooms"))
+                         .ignore(field(School.class, "teachers")).create();
     }
 
     private static Teacher teacherAt(final School school) {
-        final Teacher teacher = new Teacher();
-        ReflectionTestUtils.setField(teacher, "id", UUID.randomUUID());
-        ReflectionTestUtils.setField(teacher, "school", school);
-        return teacher;
+        return Instancio.of(Teacher.class).set(field(Teacher.class, "school"), school).create();
     }
 
-    private static Classroom classroomAt(final School school) {
-        final Classroom classroom = new Classroom();
-        ReflectionTestUtils.setField(classroom, "school", school);
-        return classroom;
+    private static Classroom classroomWith(final School school, final Teacher tutor, final Set<Teacher> teachers) {
+        return Instancio.of(Classroom.class).set(field(Classroom.class, "school"), school)
+                         .set(field(Classroom.class, "tutor"), tutor)
+                         .set(field(Classroom.class, "teachers"), teachers)
+                         .ignore(field(Classroom.class, "kids")).create();
     }
 
     @Test
     void allowsCreatingClassroomWithoutTutorOrTeachers() {
-        final Classroom classroom = classroomAt(schoolWithId());
+        final Classroom classroom = classroomWith(aSchool(), null, null);
         assertDoesNotThrow(() -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
     @Test
     void allowsCreatingClassroomWhenSchoolIsNotYetSet() {
-        final Classroom classroom = new Classroom();
-        ReflectionTestUtils.setField(classroom, "tutor", teacherAt(schoolWithId()));
+        final Classroom classroom = classroomWith(null, teacherAt(aSchool()), null);
         assertDoesNotThrow(() -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
     @Test
     void allowsCreatingClassroomWhenTutorAndTeachersBelongToSameSchool() {
-        final School school = schoolWithId();
-        final Classroom classroom = classroomAt(school);
-        ReflectionTestUtils.setField(classroom, "tutor", teacherAt(school));
-        ReflectionTestUtils.setField(classroom, "teachers", Set.of(teacherAt(school)));
+        final School school = aSchool();
+        final Classroom classroom = classroomWith(school, teacherAt(school), Set.of(teacherAt(school)));
         assertDoesNotThrow(() -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
     @Test
     void rejectsCreatingClassroomWhenTutorBelongsToAnotherSchool() {
-        final Classroom classroom = classroomAt(schoolWithId());
-        ReflectionTestUtils.setField(classroom, "tutor", teacherAt(schoolWithId()));
+        final Classroom classroom = classroomWith(aSchool(), teacherAt(aSchool()), null);
         assertThrows(SchoolMismatchException.class, () -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
     @Test
     void rejectsCreatingClassroomWhenATeacherBelongsToAnotherSchool() {
-        final School school = schoolWithId();
-        final Classroom classroom = classroomAt(school);
-        ReflectionTestUtils.setField(classroom, "teachers", Set.of(teacherAt(schoolWithId())));
+        final School school = aSchool();
+        final Classroom classroom = classroomWith(school, null, Set.of(teacherAt(aSchool())));
         assertThrows(SchoolMismatchException.class, () -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
