@@ -4,16 +4,16 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,29 +39,16 @@ public class Parent
     @Column(name = "ID", nullable = false)
     private UUID id;
 
+    @Valid
+    @JsonUnwrapped
+    @Embedded
+    private ContactInfo contactInfo;
+
     @Builder
-    private Parent(final UUID id, final String name, final String surname, final String mail) {
-        this.id = id;
-        this.name    = name;
-        this.surname = surname;
-        this.mail    = mail;
+    private Parent(final UUID id, final ContactInfo contactInfo) {
+        this.id          = id;
+        this.contactInfo = contactInfo;
     }
-
-    @NotBlank
-    @Size(max = 100)
-    @Column(name = "NAME", length = 100, nullable = false)
-    private String name;
-
-    @NotBlank
-    @Size(max = 100)
-    @Column(name = "SURNAME", length = 100, nullable = false)
-    private String surname;
-
-    @Email
-    @NotBlank
-    @Size(max = 200)
-    @Column(name = "EMAIL", length = 200, nullable = false, unique = true)
-    private String mail;
 
     @Exclude
     @OneToMany(cascade = ALL)

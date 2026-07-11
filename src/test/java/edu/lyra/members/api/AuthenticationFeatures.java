@@ -25,7 +25,7 @@ public class AuthenticationFeatures {
 
     @Given("I am authenticated as {string} with {string} scope")
     public void iAmAuthenticatedAsWithScope(final String email, final String scope) {
-        final String sub = parentsRepository.findByMail(email).orElseThrow().getId().toString();
+        final String sub = parentsRepository.findByContactInfoMail(email).orElseThrow().getId().toString();
         scenarioContext.setJwtProcessor(
                 jwt().jwt(builder -> builder.subject(sub)).authorities(new SimpleGrantedAuthority("SCOPE_" + scope)));
     }

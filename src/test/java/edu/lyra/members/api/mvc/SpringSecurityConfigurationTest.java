@@ -3,6 +3,7 @@ package edu.lyra.members.api.mvc;
 import java.util.Optional;
 import java.util.UUID;
 
+import edu.lyra.members.api.repositories.jpa.ContactInfo;
 import edu.lyra.members.api.repositories.jpa.Kid;
 import edu.lyra.members.api.repositories.jpa.KidsRepository;
 import edu.lyra.members.api.repositories.jpa.Parent;
@@ -91,9 +92,11 @@ class SpringSecurityConfigurationTest {
         final UUID parentId = randomUUID();
         final Parent parent = Parent.builder()
                                     .id(parentId)
-                                    .name("Esteban")
-                                    .surname("Cristóbal")
-                                    .mail("esteban.cristobal@example.com")
+                                    .contactInfo(ContactInfo.builder()
+                                                            .name("Esteban")
+                                                            .surname("Cristóbal")
+                                                            .mail("esteban.cristobal@example.com")
+                                                            .build())
                                     .build();
         //@formatter:on
         doReturn(Optional.of(parent)).when(parentsRepository).findById(parentId);

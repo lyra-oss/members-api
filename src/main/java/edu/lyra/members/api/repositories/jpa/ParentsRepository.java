@@ -13,6 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ParentsRepository
         extends CrudRepository<Parent, UUID>, ListPagingAndSortingRepository<Parent, UUID> {
 
-    Optional<Parent> findByMail(final String mail);
+    Optional<Parent> findByContactInfoMail(final String mail);
 
 }

@@ -22,30 +22,30 @@ Feature: Parents' onboarding
         Then I receive an error stating that "<field>" field is incorrect because "size must be between 0 and 100"
 
         Examples:
-            | field   | name                       | surname                    |
-            | name    | longer than 100 characters | "Cristóbal"                |
-            | surname | "Esteban"                  | longer than 100 characters |
+            | field               | name                       | surname                    |
+            | contactInfo.name    | longer than 100 characters | "Cristóbal"                |
+            | contactInfo.surname | "Esteban"                  | longer than 100 characters |
 
     Scenario: Cannot create account when the e-mail address is longer than 200 characters
         Given my name is "Esteban"
         And my surname is "Cristóbal"
         And my e-mail address is longer than 200 characters
         When I click on "Create account"
-        Then I receive an error stating that "mail" field is incorrect because "size must be between 0 and 200"
+        Then I receive an error stating that "contactInfo.mail" field is incorrect because "size must be between 0 and 200"
 
     Scenario: Cannot create account when the e-mail address format is invalid
         Given my name is "Esteban"
         And my surname is "Cristóbal"
         And my e-mail address is "not-an-email"
         When I click on "Create account"
-        Then I receive an error stating that "mail" field is incorrect because "must be a well-formed email address"
+        Then I receive an error stating that "contactInfo.mail" field is incorrect because "must be a well-formed email address"
 
     Scenario Outline: Cannot create account when the name <condition>
         Given my name <condition>
         And my surname is "Cristóbal"
         And my e-mail address is "esteban.cristobal@example.com"
         When I click on "Create account"
-        Then I receive an error stating that "name" field is incorrect because "must not be blank"
+        Then I receive an error stating that "contactInfo.name" field is incorrect because "must not be blank"
 
         Examples:
             | condition                |
@@ -59,7 +59,7 @@ Feature: Parents' onboarding
         And my surname <condition>
         And my e-mail address is "esteban.cristobal@example.com"
         When I click on "Create account"
-        Then I receive an error stating that "surname" field is incorrect because "must not be blank"
+        Then I receive an error stating that "contactInfo.surname" field is incorrect because "must not be blank"
 
         Examples:
             | condition                |
@@ -73,7 +73,7 @@ Feature: Parents' onboarding
         And my surname is "Cristóbal"
         And my e-mail address <condition>
         When I click on "Create account"
-        Then I receive an error stating that "mail" field is incorrect because "must not be blank"
+        Then I receive an error stating that "contactInfo.mail" field is incorrect because "must not be blank"
 
         Examples:
             | condition                |

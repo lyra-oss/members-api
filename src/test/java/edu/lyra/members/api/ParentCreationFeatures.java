@@ -3,6 +3,7 @@ package edu.lyra.members.api;
 import java.util.List;
 import java.util.UUID;
 
+import edu.lyra.members.api.repositories.jpa.ContactInfo;
 import edu.lyra.members.api.repositories.jpa.KidsRepository;
 import edu.lyra.members.api.repositories.jpa.Parent;
 import edu.lyra.members.api.repositories.jpa.ParentsRepository;
@@ -144,9 +145,11 @@ public class ParentCreationFeatures {
         //@formatter:off
         final Parent parentEntity = Parent.builder()
                                     .id(UUID.randomUUID())
-                                    .name(this.parentJson.get("name").asString())
-                                    .surname(this.parentJson.get("surname").asString())
-                                    .mail(this.parentJson.get("mail").asString())
+                                    .contactInfo(ContactInfo.builder()
+                                                            .name(this.parentJson.get("name").asString())
+                                                            .surname(this.parentJson.get("surname").asString())
+                                                            .mail(this.parentJson.get("mail").asString())
+                                                            .build())
                                     .build();
         //@formatter:on
         this.saveAsSelf(parentEntity);
@@ -170,7 +173,12 @@ public class ParentCreationFeatures {
 
     @Given("another parent exists with e-mail {string}")
     public void anotherParentExistsWithMail(final String mail) {
-        final Parent parent = Parent.builder().id(UUID.randomUUID()).name("Other").surname("Parent").mail(mail).build();
+        //@formatter:off
+        final Parent parent = Parent.builder()
+                                    .id(UUID.randomUUID())
+                                    .contactInfo(ContactInfo.builder().name("Other").surname("Parent").mail(mail).build())
+                                    .build();
+        //@formatter:on
         this.saveAsSelf(parent);
     }
 
