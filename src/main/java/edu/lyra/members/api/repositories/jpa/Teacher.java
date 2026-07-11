@@ -13,6 +13,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +25,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "TEACHERS")
@@ -43,12 +47,5 @@ public class Teacher
     @NotNull
     @ManyToOne
     private School school;
-
-    @Builder
-    private Teacher(final UUID id, final ContactInfo contactInfo, final School school) {
-        this.id          = id;
-        this.contactInfo = contactInfo;
-        this.school      = school;
-    }
 
 }

@@ -49,8 +49,7 @@ public class School
     private Set<Classroom> classrooms;
 
     @Exclude
-    @OneToMany(cascade = ALL)
-    @JoinColumn(name = "SCHOOL_ID")
+    @OneToMany(mappedBy = "school", cascade = ALL)
     private Set<Teacher> teachers;
 
 }
