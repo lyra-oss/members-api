@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -91,7 +92,7 @@ class JpaAuditingTest {
         final String        createdBy   = created.getCreatedBy();
         final LocalDateTime createdDate = created.getCreatedDate();
         final String        editor      = this.authenticate();
-        created.getContactInfo().setSurname("García");
+        ReflectionTestUtils.setField(created.getContactInfo(), "surname", "García");
         final Parent updated = this.parentsRepository.save(created);
         this.entityManager.flush();
         assertEquals(createdBy, updated.getCreatedBy());
