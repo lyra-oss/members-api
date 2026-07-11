@@ -105,6 +105,7 @@ class JpaAuditingTest {
         final String subject = this.authenticate();
         final School school =
                 Instancio.of(School.class).ignore(field(School.class, "id")).ignore(field(School.class, "classrooms"))
+                         .ignore(field(School.class, "teachers"))
                          .ignore(field(Auditable.class, "version")).ignore(field(Auditable.class, "createdDate"))
                          .ignore(field(Auditable.class, "createdBy")).ignore(field(Auditable.class, "lastModifiedDate"))
                          .ignore(field(Auditable.class, "updatedBy"))

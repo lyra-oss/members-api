@@ -11,6 +11,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -55,6 +57,18 @@ public class Classroom
 
     @ManyToOne
     private School school;
+
+    @ManyToOne
+    private Teacher tutor;
+
+    @Exclude
+    @ManyToMany
+    @JoinTable(
+            name = "CLASSROOM_TEACHERS",
+            joinColumns = @JoinColumn(name = "CLASSROOM_ID"),
+            inverseJoinColumns = @JoinColumn(name = "TEACHER_ID")
+    )
+    private Set<Teacher> teachers;
 
     @Exclude
     @OneToMany(cascade = ALL)

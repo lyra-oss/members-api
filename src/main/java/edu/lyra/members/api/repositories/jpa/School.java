@@ -48,4 +48,9 @@ public class School
     @JoinColumn(name = "SCHOOL_ID")
     private Set<Classroom> classrooms;
 
+    @Exclude
+    @OneToMany(cascade = ALL)
+    @JoinColumn(name = "SCHOOL_ID")
+    private Set<Teacher> teachers;
+
 }

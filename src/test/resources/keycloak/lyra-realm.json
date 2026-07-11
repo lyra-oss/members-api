@@ -51,6 +51,15 @@
                 "include.in.token.scope": "true",
                 "display.on.consent.screen": "false"
             }
+        },
+        {
+            "name": "teachers.create",
+            "description": "Permission to register teachers",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
         }
     ],
     "clients": [
@@ -71,7 +80,8 @@
                 "email",
                 "parents.create",
                 "kids.create",
-                "schools.create"
+                "schools.create",
+                "teachers.create"
             ]
         }
     ],
@@ -111,6 +121,21 @@
             "email": "school.admin@example.com",
             "firstName": "School",
             "lastName": "Admin",
+            "enabled": true,
+            "emailVerified": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "teacher.account@example.com",
+            "email": "teacher.account@example.com",
+            "firstName": "Teacher",
+            "lastName": "Account",
             "enabled": true,
             "emailVerified": true,
             "credentials": [

@@ -48,4 +48,14 @@ class SpringDataRestConfiguration {
         return new ParentRegistrationHandler();
     }
 
+    @Bean
+    TeacherRegistrationHandler teacherRegistrationHandler() {
+        return new TeacherRegistrationHandler();
+    }
+
+    @Bean
+    ClassroomTeacherAssignmentEventHandler classroomTeacherAssignmentEventHandler() {
+        return new ClassroomTeacherAssignmentEventHandler();
+    }
+
 }

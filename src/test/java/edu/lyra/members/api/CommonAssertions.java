@@ -27,4 +27,10 @@ public class CommonAssertions {
         this.scenarioContext.getResultActions().andExpect(status().isForbidden());
     }
 
+    @Then("I receive a not found error")
+    public void receiveNotFoundError()
+            throws Exception {
+        this.scenarioContext.getResultActions().andExpect(status().isNotFound());
+    }
+
 }

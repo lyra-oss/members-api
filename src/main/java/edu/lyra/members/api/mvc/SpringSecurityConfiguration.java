@@ -25,6 +25,7 @@ class SpringSecurityConfiguration {
                            .requestMatchers(POST, base + "/parents").hasAuthority("SCOPE_parents.create")
                            .requestMatchers(POST, base + "/kids").hasAuthority("SCOPE_kids.create")
                            .requestMatchers(POST, base + "/schools").hasAuthority("SCOPE_schools.create")
+                           .requestMatchers(POST, base + "/teachers").hasAuthority("SCOPE_teachers.create")
                            .anyRequest().authenticated())
                    .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
                    .csrf(csrf -> csrf.ignoringRequestMatchers(base + "/**"))
