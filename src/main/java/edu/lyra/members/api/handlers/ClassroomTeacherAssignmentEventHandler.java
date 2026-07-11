@@ -35,7 +35,7 @@ class ClassroomTeacherAssignmentEventHandler {
         final Stream<Teacher> otherTeachers =
                 classroom.getTeachers() == null ? Stream.empty() : classroom.getTeachers().stream();
         Stream.concat(tutor, otherTeachers)
-              .filter(teacher -> ! classroomSchool.getId().equals(teacher.getSchool().getId())).findFirst()
+              .filter(teacher -> ! teacher.belongsToSchool(classroomSchool)).findFirst()
               .ifPresent(teacher -> {
                   throw new SchoolMismatchException(
                           "Teacher %s does not belong to the classroom's school".formatted(teacher.getId()));

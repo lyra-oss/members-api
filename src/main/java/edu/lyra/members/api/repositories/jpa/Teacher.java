@@ -48,4 +48,8 @@ public class Teacher
     @ManyToOne
     private School school;
 
+    public boolean belongsToSchool(final School otherSchool) {
+        return this.school.getId().equals(otherSchool.getId());
+    }
+
 }
