@@ -64,4 +64,26 @@ class ClassroomTeacherAssignmentEventHandlerTest {
         assertThrows(SchoolMismatchException.class, () -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
+    @Test
+    void allowsLinkingWhenTutorAndTeachersBelongToSameSchool() {
+        final School school = aSchool();
+        final Classroom classroom = classroomWith(school, teacherAt(school), Set.of(teacherAt(school)));
+        assertDoesNotThrow(() -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
+    }
+
+    @Test
+    void rejectsLinkingATutorFromAnotherSchool() {
+        final Classroom classroom = classroomWith(aSchool(), teacherAt(aSchool()), null);
+        assertThrows(SchoolMismatchException.class,
+                    () -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
+    }
+
+    @Test
+    void rejectsLinkingATeacherFromAnotherSchool() {
+        final School school = aSchool();
+        final Classroom classroom = classroomWith(school, null, Set.of(teacherAt(aSchool())));
+        assertThrows(SchoolMismatchException.class,
+                    () -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
+    }
+
 }

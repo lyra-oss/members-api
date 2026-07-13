@@ -2,13 +2,12 @@ package edu.lyra.members.api.handlers;
 
 import edu.lyra.members.api.repositories.jpa.School;
 import edu.lyra.members.api.repositories.jpa.Teacher;
+import lombok.experimental.UtilityClass;
 
-public final class TeacherSchoolMembership {
+@UtilityClass
+public class TeacherSchoolMembership {
 
-    private TeacherSchoolMembership() {
-    }
-
-    public static void verifyBelongsToSchool(final School classroomSchool, final Teacher teacher) {
+    public void verifyBelongsToSchool(final School classroomSchool, final Teacher teacher) {
         if(teacher != null && classroomSchool != null
                 && ! classroomSchool.getId().equals(teacher.getSchool().getId())) {
             throw new SchoolMismatchException(

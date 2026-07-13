@@ -10,6 +10,8 @@ import edu.lyra.members.api.repositories.jpa.Parent;
 import edu.lyra.members.api.repositories.jpa.ParentsRepository;
 import edu.lyra.members.api.repositories.jpa.School;
 import edu.lyra.members.api.repositories.jpa.SchoolsRepository;
+import edu.lyra.members.api.repositories.jpa.Teacher;
+import edu.lyra.members.api.repositories.jpa.TeachersRepository;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -34,6 +36,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,6 +56,8 @@ class SpringSecurityConfigurationTest {
     private KidsRepository    kidsRepository;
     @MockitoSpyBean
     private SchoolsRepository schoolsRepository;
+    @MockitoSpyBean
+    private TeachersRepository teachersRepository;
 
     @Test
     void testCreateParentOk()
@@ -162,6 +167,58 @@ class SpringSecurityConfigurationTest {
                 .contentType(APPLICATION_JSON)
                 .content("{\"name\":\"Gloria Fuertes\"}"))
            .andExpect(status().isForbidden());
+        //@formatter:on
+    }
+
+    @Test
+    void testCreateTeacherOk()
+            throws Exception {
+        final School school = Instancio.create(School.class);
+        doReturn(Optional.of(school)).when(schoolsRepository).findById(school.getId());
+        doAnswer(inv -> inv.getArgument(0)).when(teachersRepository).save(any(Teacher.class));
+        //@formatter:off
+        mvc.perform(post(this.base() + "/teachers")
+                .with(jwt().jwt(b -> b.subject(randomUUID().toString()))
+                           .authorities(new SimpleGrantedAuthority("SCOPE_teachers.create")))
+                .contentType(APPLICATION_JSON)
+                .content("""
+                        {"name":"Marta","surname":"Ibáñez","mail":"marta.ibanez@example.com",\
+                        "school":"%s/schools/%s"}""".formatted(this.base(), school.getId())))
+           .andExpect(status().isCreated());
+        //@formatter:on
+    }
+
+    @Test
+    void testCreateTeacherKo()
+            throws Exception {
+        //@formatter:off
+        mvc.perform(post(this.base() + "/teachers")
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
+                .contentType(APPLICATION_JSON)
+                .content("{\"name\":\"Marta\",\"surname\":\"Ibáñez\",\"mail\":\"marta.ibanez@example.com\"}"))
+           .andExpect(status().isForbidden());
+        //@formatter:on
+    }
+
+    @Test
+    void testActuatorHealthPermitsAllWithoutAuthentication()
+            throws Exception {
+        mvc.perform(get("/actuator/health")).andExpect(status().isOk());
+    }
+
+    @Test
+    void testAnyOtherRequestRequiresAuthentication()
+            throws Exception {
+        mvc.perform(get(this.base() + "/parents")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testAnyOtherRequestIsAllowedWhenAuthenticatedRegardlessOfScope()
+            throws Exception {
+        //@formatter:off
+        mvc.perform(get(this.base() + "/parents")
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope"))))
+           .andExpect(status().isOk());
         //@formatter:on
     }
 

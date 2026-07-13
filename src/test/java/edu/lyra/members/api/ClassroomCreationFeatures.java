@@ -73,26 +73,19 @@ public class ClassroomCreationFeatures {
         //@formatter:on
     }
 
-    @When("I add a teacher that does not exist to the classroom")
-    public void addNonExistentTeacherToClassroom()
+    @When("I create a classroom for course {int} group {string} at school {string} with tutor {string}")
+    public void createClassroomWithTutor(
+            final int course, final String group, final String schoolName, final String teacherName
+    )
             throws Exception {
         //@formatter:off
+        final String body = """
+                {"course":%d,"group":"%s","school":"%s","tutor":"%s"}""".formatted(course, group,
+                        this.scenarioContext.getLocation("school:" + schoolName),
+                        this.scenarioContext.getLocation("teacher:" + teacherName));
         this.scenarioContext.setResultActions(this.mvc.perform(
-                post(this.classroomLocation() + "/teachers")
-                        .with(this.scenarioContext.getJwtProcessor())
-                        .contentType(URI_LIST)
-                        .content(replaceLastSegment(this.scenarioContext.getLocation("teacher:Marta Ibáñez")))));
-        //@formatter:on
-    }
-
-    @When("I add a teacher to the classroom without specifying which one")
-    public void addTeacherWithoutSpecifyingWhichOne()
-            throws Exception {
-        //@formatter:off
-        this.scenarioContext.setResultActions(this.mvc.perform(
-                post(this.classroomLocation() + "/teachers")
-                        .with(this.scenarioContext.getJwtProcessor())
-                        .contentType(URI_LIST).content("")));
+                post("/v0/classrooms").with(this.scenarioContext.getJwtProcessor())
+                                      .contentType(MediaType.APPLICATION_JSON).content(body)));
         //@formatter:on
     }
 

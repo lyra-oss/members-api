@@ -4,17 +4,16 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-final class TestSecurityContext {
+@UtilityClass
+class TestSecurityContext {
 
-    private TestSecurityContext() {
-    }
-
-    static <T> T runAuthenticated(final Supplier<T> action) {
+    <T> T runAuthenticated(final Supplier<T> action) {
         //@formatter:off
         final Authentication previous = SecurityContextHolder.getContext().getAuthentication();
         final Jwt jwt = Jwt.withTokenValue("token")
