@@ -53,12 +53,8 @@ public class ClassroomCreationFeatures {
         this.scenarioContext.setResultActions(this.performAddTeacher(teacherName));
     }
 
-    private ResultActions performAddTeacher(final String teacherName)
-            throws Exception {
-        return this.mvc.perform(
-                post(this.classroomLocation() + "/teachers").with(this.scenarioContext.getJwtProcessor())
-                                                            .contentType(URI_LIST).content(
-                                                                    this.scenarioContext.getLocation("teacher:" + teacherName)));
+    private static String replaceLastSegment(final String location) {
+        return location.substring(0, location.lastIndexOf('/') + 1) + UUID.randomUUID();
     }
 
     @When("I add teacher {string} to a classroom that does not exist")
@@ -87,10 +83,6 @@ public class ClassroomCreationFeatures {
                 post("/v0/classrooms").with(this.scenarioContext.getJwtProcessor())
                                       .contentType(MediaType.APPLICATION_JSON).content(body)));
         //@formatter:on
-    }
-
-    private static String replaceLastSegment(final String location) {
-        return location.substring(0, location.lastIndexOf('/') + 1) + UUID.randomUUID();
     }
 
     @Given("teacher {string} has been set as the classroom's tutor")
@@ -192,6 +184,16 @@ public class ClassroomCreationFeatures {
 
     private String classroomLocation() {
         return this.scenarioContext.getLocation("classroom");
+    }
+
+    private ResultActions performAddTeacher(final String teacherName)
+            throws Exception {
+        //@formatter:off
+        return this.mvc.perform(post(this.classroomLocation() + "/teachers")
+                                        .with(this.scenarioContext.getJwtProcessor())
+                                        .contentType(URI_LIST)
+                                        .content(this.scenarioContext.getLocation("teacher:" + teacherName)));
+        //@formatter:on
     }
 
 }

@@ -16,22 +16,6 @@ class ClassroomTeacherAssignmentEventHandlerTest {
 
     private final ClassroomTeacherAssignmentEventHandler handler = new ClassroomTeacherAssignmentEventHandler();
 
-    private static School aSchool() {
-        return Instancio.of(School.class).ignore(field(School.class, "classrooms"))
-                         .ignore(field(School.class, "teachers")).create();
-    }
-
-    private static Teacher teacherAt(final School school) {
-        return Instancio.of(Teacher.class).set(field(Teacher.class, "school"), school).create();
-    }
-
-    private static Classroom classroomWith(final School school, final Teacher tutor, final Set<Teacher> teachers) {
-        return Instancio.of(Classroom.class).set(field(Classroom.class, "school"), school)
-                         .set(field(Classroom.class, "tutor"), tutor)
-                         .set(field(Classroom.class, "teachers"), teachers)
-                         .ignore(field(Classroom.class, "kids")).create();
-    }
-
     @Test
     void allowsCreatingClassroomWithoutTutorOrTeachers() {
         final Classroom classroom = classroomWith(aSchool(), null, Set.of());
@@ -75,7 +59,31 @@ class ClassroomTeacherAssignmentEventHandlerTest {
     void rejectsLinkingATutorFromAnotherSchool() {
         final Classroom classroom = classroomWith(aSchool(), teacherAt(aSchool()), Set.of());
         assertThrows(SchoolMismatchException.class,
-                    () -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
+                     () -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
+    }
+
+    private static Classroom classroomWith(final School school, final Teacher tutor, final Set<Teacher> teachers) {
+        //@formatter:off
+        return Instancio.of(Classroom.class)
+                        .set(field(Classroom.class, "school"), school)
+                        .set(field(Classroom.class, "tutor"), tutor)
+                        .set(field(Classroom.class, "teachers"), teachers)
+                        .ignore(field(Classroom.class, "kids"))
+                        .create();
+        //@formatter:on
+    }
+
+    private static School aSchool() {
+        //@formatter:off
+        return Instancio.of(School.class)
+                        .ignore(field(School.class, "classrooms"))
+                        .ignore(field(School.class, "teachers"))
+                        .create();
+        //@formatter:off
+    }
+
+    private static Teacher teacherAt(final School school) {
+        return Instancio.of(Teacher.class).set(field(Teacher.class, "school"), school).create();
     }
 
     @Test
@@ -83,7 +91,7 @@ class ClassroomTeacherAssignmentEventHandlerTest {
         final School school = aSchool();
         final Classroom classroom = classroomWith(school, null, Set.of(teacherAt(aSchool())));
         assertThrows(SchoolMismatchException.class,
-                    () -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
+                     () -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
     }
 
 }

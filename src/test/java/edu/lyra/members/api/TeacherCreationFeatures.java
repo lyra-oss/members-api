@@ -175,9 +175,12 @@ public class TeacherCreationFeatures {
     public void createTeacherAccount()
             throws Exception {
         final String content = OBJECT_MAPPER.writeValueAsString(this.teacherJson);
-        this.scenarioContext.setResultActions(this.mvc.perform(
-                post("/v0/teachers").with(this.scenarioContext.getJwtProcessor()).contentType(APPLICATION_JSON)
-                                    .content(content)));
+        //@formatter:off
+        this.scenarioContext.setResultActions(this.mvc.perform(post("/v0/teachers")
+                                                                       .with(this.scenarioContext.getJwtProcessor())
+                                                                       .contentType(APPLICATION_JSON)
+                                                                       .content(content)));
+        //@formatter:on
     }
 
     @Then("I receive a confirmation that the teacher account has been successfully created")
