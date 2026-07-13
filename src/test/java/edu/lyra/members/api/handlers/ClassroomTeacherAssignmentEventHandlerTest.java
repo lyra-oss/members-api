@@ -34,13 +34,13 @@ class ClassroomTeacherAssignmentEventHandlerTest {
 
     @Test
     void allowsCreatingClassroomWithoutTutorOrTeachers() {
-        final Classroom classroom = classroomWith(aSchool(), null, null);
+        final Classroom classroom = classroomWith(aSchool(), null, Set.of());
         assertDoesNotThrow(() -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
     @Test
     void allowsCreatingClassroomWhenSchoolIsNotYetSet() {
-        final Classroom classroom = classroomWith(null, teacherAt(aSchool()), null);
+        final Classroom classroom = classroomWith(null, teacherAt(aSchool()), Set.of());
         assertDoesNotThrow(() -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
@@ -53,7 +53,7 @@ class ClassroomTeacherAssignmentEventHandlerTest {
 
     @Test
     void rejectsCreatingClassroomWhenTutorBelongsToAnotherSchool() {
-        final Classroom classroom = classroomWith(aSchool(), teacherAt(aSchool()), null);
+        final Classroom classroom = classroomWith(aSchool(), teacherAt(aSchool()), Set.of());
         assertThrows(SchoolMismatchException.class, () -> this.handler.verifyTeachersBelongToSchool(classroom));
     }
 
@@ -73,7 +73,7 @@ class ClassroomTeacherAssignmentEventHandlerTest {
 
     @Test
     void rejectsLinkingATutorFromAnotherSchool() {
-        final Classroom classroom = classroomWith(aSchool(), teacherAt(aSchool()), null);
+        final Classroom classroom = classroomWith(aSchool(), teacherAt(aSchool()), Set.of());
         assertThrows(SchoolMismatchException.class,
                     () -> this.handler.verifyLinkedTeachersBelongToSchool(classroom, null));
     }

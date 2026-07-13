@@ -26,10 +26,8 @@ class ClassroomTeacherAssignmentEventHandler {
     private void verifyClassroomTeachingStaff(final Classroom classroom) {
         final School classroomSchool = classroom.getSchool();
         TeacherSchoolMembership.verifyBelongsToSchool(classroomSchool, classroom.getTutor());
-        if(classroom.getTeachers() != null) {
-            classroom.getTeachers()
-                     .forEach(teacher -> TeacherSchoolMembership.verifyBelongsToSchool(classroomSchool, teacher));
-        }
+        classroom.getTeachers()
+                 .forEach(teacher -> TeacherSchoolMembership.verifyBelongsToSchool(classroomSchool, teacher));
     }
 
 }

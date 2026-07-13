@@ -1,5 +1,6 @@
 package edu.lyra.members.api.repositories.jpa;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,6 +54,6 @@ public class Parent
     @Exclude
     @OneToMany(cascade = ALL)
     @JoinColumn(name = "PARENT_ID")
-    private Set<Kid> kids;
+    private Set<Kid> kids = new HashSet<>();
 
 }

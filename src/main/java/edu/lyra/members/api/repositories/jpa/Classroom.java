@@ -1,5 +1,6 @@
 package edu.lyra.members.api.repositories.jpa;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -70,11 +71,11 @@ public class Classroom
             joinColumns = @JoinColumn(name = "CLASSROOM_ID"),
             inverseJoinColumns = @JoinColumn(name = "TEACHER_ID")
     )
-    private Set<Teacher> teachers;
+    private Set<Teacher> teachers = new HashSet<>();
 
     @Exclude
     @OneToMany(cascade = ALL)
     @JoinColumn(name = "CLASSROOM_ID")
-    private Set<Kid> kids;
+    private Set<Kid> kids = new HashSet<>();
 
 }
