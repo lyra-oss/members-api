@@ -2,9 +2,12 @@ package edu.lyra.members.api.repositories.jpa;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -15,8 +18,10 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
 import jakarta.persistence.Version;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,6 +36,9 @@ class JpaEntityArchitectureTest {
     private static final List<Class<? extends Annotation>> AUDITING_FIELD_ANNOTATIONS =
             List.of(Version.class, CreatedDate.class, CreatedBy.class, LastModifiedDate.class, LastModifiedBy.class);
 
+    private static final List<Class<? extends Annotation>> ID_FIELD_ANNOTATIONS =
+            List.of(Id.class, JsonIgnore.class, Column.class);
+
     private static final String MISSING_ENTITY_LISTENERS_MESSAGE =
             "%s is not annotated with @EntityListeners(AuditingEntityListener.class)";
 
@@ -42,6 +50,15 @@ class JpaEntityArchitectureTest {
 
     private static final String MISSING_AUDITING_FIELD_MESSAGE =
             "%s does not declare an auditing field annotated with @%s";
+
+    private static final String MISSING_ID_FIELD_MESSAGE =
+            "%s does not declare a field annotated with @Id";
+
+    private static final String WRONG_ID_FIELD_TYPE_MESSAGE =
+            "%s id field '%s' is not of type UUID";
+
+    private static final String MISSING_ID_FIELD_ANNOTATION_MESSAGE =
+            "%s id field '%s' is not annotated with @%s";
 
     @ArchTest
     static final ArchRule jpaEntitiesAreAnnotatedWithEntityListeners =
@@ -103,6 +120,43 @@ class JpaEntityArchitectureTest {
                                  events.add(new SimpleConditionEvent(javaClass, hasField,
                                                                      MISSING_AUDITING_FIELD_MESSAGE.formatted(
                                                                              javaClass.getFullName(),
+                                                                             annotation.getSimpleName())));
+                             });
+                         }
+                     });
+    //@formatter:on
+
+    @ArchTest
+    static final ArchRule jpaEntitiesHaveUuidIdField =
+            //@formatter:off
+            classes().that().areAnnotatedWith(Entity.class)
+                     .should(new ArchCondition<>(
+                             "declare a UUID id field annotated with @Id, @JsonIgnore and @Column") {
+
+                         @Override
+                         public void check(final JavaClass javaClass, final ConditionEvents events) {
+                             final Optional<JavaField> idField = javaClass.getAllFields().stream()
+                                                                          .filter(field -> field.isAnnotatedWith(
+                                                                                  Id.class))
+                                                                          .findFirst();
+                             if (idField.isEmpty()) {
+                                 events.add(new SimpleConditionEvent(javaClass, false,
+                                                                     MISSING_ID_FIELD_MESSAGE.formatted(
+                                                                             javaClass.getFullName())));
+                                 return;
+                             }
+
+                             final JavaField field = idField.get();
+                             final boolean isUuid = field.getRawType().isEquivalentTo(UUID.class);
+                             events.add(new SimpleConditionEvent(javaClass, isUuid,
+                                                                 WRONG_ID_FIELD_TYPE_MESSAGE.formatted(
+                                                                         javaClass.getFullName(), field.getName())));
+
+                             ID_FIELD_ANNOTATIONS.forEach(annotation -> {
+                                 final boolean isAnnotated = field.isAnnotatedWith(annotation);
+                                 events.add(new SimpleConditionEvent(javaClass, isAnnotated,
+                                                                     MISSING_ID_FIELD_ANNOTATION_MESSAGE.formatted(
+                                                                             javaClass.getFullName(), field.getName(),
                                                                              annotation.getSimpleName())));
                              });
                          }

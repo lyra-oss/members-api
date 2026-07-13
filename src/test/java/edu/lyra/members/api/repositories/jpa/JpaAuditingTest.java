@@ -47,9 +47,11 @@ class JpaAuditingTest {
         //@formatter:off
         final Parent parent = Parent.builder()
                                     .id(UUID.randomUUID())
-                                    .name("Esteban")
-                                    .surname("Cristóbal")
-                                    .mail("esteban.cristobal@example.com")
+                                    .contactInfo(ContactInfo.builder()
+                                                            .name("Esteban")
+                                                            .surname("Cristóbal")
+                                                            .mail("esteban.cristobal@example.com")
+                                                            .build())
                                     .build();
         //@formatter:on
         final Parent saved = this.parentsRepository.save(parent);
@@ -78,9 +80,11 @@ class JpaAuditingTest {
         //@formatter:off
         final Parent parent = Parent.builder()
                                     .id(UUID.randomUUID())
-                                    .name("Esteban")
-                                    .surname("Cristóbal")
-                                    .mail("esteban.cristobal@example.com")
+                                    .contactInfo(ContactInfo.builder()
+                                                            .name("Esteban")
+                                                            .surname("Cristóbal")
+                                                            .mail("esteban.cristobal@example.com")
+                                                            .build())
                                     .build();
         //@formatter:on
         final Parent created = this.parentsRepository.save(parent);
@@ -88,7 +92,7 @@ class JpaAuditingTest {
         final String        createdBy   = created.getCreatedBy();
         final LocalDateTime createdDate = created.getCreatedDate();
         final String        editor      = this.authenticate();
-        ReflectionTestUtils.setField(created, "surname", "García");
+        ReflectionTestUtils.setField(created.getContactInfo(), "surname", "García");
         final Parent updated = this.parentsRepository.save(created);
         this.entityManager.flush();
         assertEquals(createdBy, updated.getCreatedBy());
@@ -101,6 +105,7 @@ class JpaAuditingTest {
         final String subject = this.authenticate();
         final School school =
                 Instancio.of(School.class).ignore(field(School.class, "id")).ignore(field(School.class, "classrooms"))
+                         .ignore(field(School.class, "teachers"))
                          .ignore(field(Auditable.class, "version")).ignore(field(Auditable.class, "createdDate"))
                          .ignore(field(Auditable.class, "createdBy")).ignore(field(Auditable.class, "lastModifiedDate"))
                          .ignore(field(Auditable.class, "updatedBy"))

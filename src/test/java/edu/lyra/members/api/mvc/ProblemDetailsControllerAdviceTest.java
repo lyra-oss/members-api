@@ -2,6 +2,7 @@ package edu.lyra.members.api.mvc;
 
 import java.util.stream.Stream;
 
+import edu.lyra.members.api.handlers.SchoolMismatchException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -47,6 +48,20 @@ class ProblemDetailsControllerAdviceTest {
         final ResponseEntity<ProblemDetail> response =
                 advice.handleDuplicateKeyException(new DuplicateKeyException(message));
         assertThat(response.getBody().getDetail()).isEqualTo(expectedDetail);
+    }
+
+    @Test
+    void testSchoolMismatchErrorResponse() {
+        final ResponseEntity<ProblemDetail> response =
+                advice.handleSchoolMismatchException(new SchoolMismatchException("teacher does not belong to school"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        final ProblemDetail problemDetail = response.getBody();
+        assertThat(problemDetail).isNotNull();
+        assertThat(problemDetail.getType()).isEqualTo(create("https://lyra.sagittec.com/problems/school-mismatch"));
+        assertThat(problemDetail.getTitle()).isEqualTo("Teacher does not belong to classroom's school");
+        assertThat(problemDetail.getDetail()).isEqualTo("teacher does not belong to school");
+        assertThat(problemDetail.getProperties()).containsKey("timestamp");
     }
 
 }

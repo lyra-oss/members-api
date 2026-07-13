@@ -1,7 +1,5 @@
 package edu.lyra.members.api.repositories.jpa;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,27 +9,28 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.ToString.Exclude;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import static jakarta.persistence.CascadeType.ALL;
 
 @Getter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "PARENTS")
-public class Parent
+@Table(name = "TEACHERS")
+public class Teacher
         extends Auditable {
 
     @Setter
@@ -45,15 +44,8 @@ public class Parent
     @Embedded
     private ContactInfo contactInfo;
 
-    @Builder
-    private Parent(final UUID id, final ContactInfo contactInfo) {
-        this.id          = id;
-        this.contactInfo = contactInfo;
-    }
-
-    @Exclude
-    @OneToMany(cascade = ALL)
-    @JoinColumn(name = "PARENT_ID")
-    private Set<Kid> kids = new HashSet<>();
+    @NotNull
+    @ManyToOne
+    private School school;
 
 }

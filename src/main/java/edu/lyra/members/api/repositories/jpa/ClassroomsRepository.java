@@ -1,6 +1,5 @@
 package edu.lyra.members.api.repositories.jpa;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;
@@ -10,9 +9,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface ParentsRepository
-        extends CrudRepository<Parent, UUID>, ListPagingAndSortingRepository<Parent, UUID> {
-
-    Optional<Parent> findByContactInfoMail(final String mail);
-
-}
+public interface ClassroomsRepository
+        extends CrudRepository<Classroom, UUID>, ListPagingAndSortingRepository<Classroom, UUID> {}

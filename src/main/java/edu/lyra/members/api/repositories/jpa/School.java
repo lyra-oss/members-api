@@ -1,5 +1,6 @@
 package edu.lyra.members.api.repositories.jpa;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,6 +47,10 @@ public class School
     @Exclude
     @OneToMany(cascade = ALL)
     @JoinColumn(name = "SCHOOL_ID")
-    private Set<Classroom> classrooms;
+    private Set<Classroom> classrooms = new HashSet<>();
+
+    @Exclude
+    @OneToMany(mappedBy = "school", cascade = ALL)
+    private Set<Teacher> teachers = new HashSet<>();
 
 }

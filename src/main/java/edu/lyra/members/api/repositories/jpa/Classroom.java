@@ -1,5 +1,6 @@
 package edu.lyra.members.api.repositories.jpa;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,6 +12,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -20,6 +23,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -56,9 +60,22 @@ public class Classroom
     @ManyToOne
     private School school;
 
+    @Setter
+    @ManyToOne
+    private Teacher tutor;
+
+    @Exclude
+    @ManyToMany
+    @JoinTable(
+            name = "CLASSROOM_TEACHERS",
+            joinColumns = @JoinColumn(name = "CLASSROOM_ID"),
+            inverseJoinColumns = @JoinColumn(name = "TEACHER_ID")
+    )
+    private Set<Teacher> teachers = new HashSet<>();
+
     @Exclude
     @OneToMany(cascade = ALL)
     @JoinColumn(name = "CLASSROOM_ID")
-    private Set<Kid> kids;
+    private Set<Kid> kids = new HashSet<>();
 
 }

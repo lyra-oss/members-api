@@ -1,0 +1,20 @@
+name: Build Code
+
+on:
+  push:
+    branches-ignore:
+      - 'main'
+      - 'dependabot/maven/**'
+    paths-ignore:
+      - '.github/workflows/dependabot-code.yml'
+      - '.github/dependabot.yml'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  build-source-code:
+    name: Build source code
+    uses: ./.github/workflows/build-code.yml
+    secrets: inherit
