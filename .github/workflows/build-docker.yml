@@ -30,4 +30,4 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Docker image
-        run: ./mvnw -B spring-boot:build-image -Pnative
+        run: ./mvnw -B spring-boot:build-image -Pnative -Dspring-boot.build-image.publish=true

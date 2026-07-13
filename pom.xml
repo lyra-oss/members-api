@@ -448,7 +448,6 @@
                             <BP_OCI_DESCRIPTION>Lyra OSS Members API</BP_OCI_DESCRIPTION>
                         </env>
                     </image>
-                    <publish>true</publish>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
