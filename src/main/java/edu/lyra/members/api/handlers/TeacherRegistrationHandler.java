@@ -24,10 +24,8 @@ class TeacherRegistrationHandler {
         if(! (authentication instanceof JwtAuthenticationToken jwtAuth)) {
             throw new AccessDeniedException("JWT authentication required");
         } else {
-            //@formatter:off
-            teacher.setId(ofNullable(jwtAuth.getToken().getSubject()).map(UUID::fromString)
-                    .orElseThrow(() -> new AccessDeniedException("Missing \"sub\" claim in JWT token")));
-            //@formatter:on
+            teacher.setId(ofNullable(jwtAuth.getToken().getSubject()).map(UUID::fromString).orElseThrow(
+                    () -> new AccessDeniedException("Missing \"sub\" claim in JWT token")));
         }
     }
 

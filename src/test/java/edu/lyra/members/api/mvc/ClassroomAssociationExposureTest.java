@@ -54,7 +54,8 @@ class ClassroomAssociationExposureTest {
         //@formatter:off
         final ResourceMetadata metadata = this.resourceMappings.getMetadataFor(Classroom.class);
         final Path itemPath = new Path("/" + this.restConfiguration.getBasePath())
-                .slash(requireNonNull(metadata).getPath()).slash(UUID.randomUUID().toString());
+                .slash(requireNonNull(metadata).getPath())
+                .slash(UUID.randomUUID().toString());
         return stream(this.mappingContext.getRequiredPersistentEntity(Classroom.class).spliterator(), false)
                 .filter(PersistentProperty::isAssociation)
                 .filter(property -> ! TEACHING_STAFF_PROPERTIES.contains(property.getName()))

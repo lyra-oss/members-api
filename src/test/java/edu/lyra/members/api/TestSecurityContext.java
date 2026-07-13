@@ -15,8 +15,8 @@ final class TestSecurityContext {
     }
 
     static <T> T runAuthenticated(final Supplier<T> action) {
-        final Authentication previous = SecurityContextHolder.getContext().getAuthentication();
         //@formatter:off
+        final Authentication previous = SecurityContextHolder.getContext().getAuthentication();
         final Jwt jwt = Jwt.withTokenValue("token")
                            .header("alg", "none")
                            .subject(UUID.randomUUID().toString())

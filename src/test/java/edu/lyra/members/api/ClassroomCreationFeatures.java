@@ -55,35 +55,45 @@ public class ClassroomCreationFeatures {
 
     private ResultActions performAddTeacher(final String teacherName)
             throws Exception {
-        return this.mvc.perform(post(this.classroomLocation() + "/teachers").with(this.scenarioContext.getJwtProcessor())
-                                                                            .contentType(URI_LIST).content(
-                        this.scenarioContext.getLocation("teacher:" + teacherName)));
+        return this.mvc.perform(
+                post(this.classroomLocation() + "/teachers").with(this.scenarioContext.getJwtProcessor())
+                                                            .contentType(URI_LIST).content(
+                                                                    this.scenarioContext.getLocation("teacher:" + teacherName)));
     }
 
     @When("I add teacher {string} to a classroom that does not exist")
     public void addTeacherToNonExistentClassroom(final String teacherName)
             throws Exception {
+        //@formatter:off
         this.scenarioContext.setResultActions(this.mvc.perform(
                 post(replaceLastSegment(this.classroomLocation()) + "/teachers")
-                        .with(this.scenarioContext.getJwtProcessor()).contentType(URI_LIST)
+                        .with(this.scenarioContext.getJwtProcessor())
+                        .contentType(URI_LIST)
                         .content(this.scenarioContext.getLocation("teacher:" + teacherName))));
+        //@formatter:on
     }
 
     @When("I add a teacher that does not exist to the classroom")
     public void addNonExistentTeacherToClassroom()
             throws Exception {
+        //@formatter:off
         this.scenarioContext.setResultActions(this.mvc.perform(
-                post(this.classroomLocation() + "/teachers").with(this.scenarioContext.getJwtProcessor())
-                                                             .contentType(URI_LIST).content(replaceLastSegment(
-                                this.scenarioContext.getLocation("teacher:Marta Ibáñez")))));
+                post(this.classroomLocation() + "/teachers")
+                        .with(this.scenarioContext.getJwtProcessor())
+                        .contentType(URI_LIST)
+                        .content(replaceLastSegment(this.scenarioContext.getLocation("teacher:Marta Ibáñez")))));
+        //@formatter:on
     }
 
     @When("I add a teacher to the classroom without specifying which one")
     public void addTeacherWithoutSpecifyingWhichOne()
             throws Exception {
+        //@formatter:off
         this.scenarioContext.setResultActions(this.mvc.perform(
-                post(this.classroomLocation() + "/teachers").with(this.scenarioContext.getJwtProcessor())
-                                                             .contentType(URI_LIST).content("")));
+                post(this.classroomLocation() + "/teachers")
+                        .with(this.scenarioContext.getJwtProcessor())
+                        .contentType(URI_LIST).content("")));
+        //@formatter:on
     }
 
     private static String replaceLastSegment(final String location) {
@@ -104,9 +114,12 @@ public class ClassroomCreationFeatures {
 
     private ResultActions performSetTutor(final String teacherName)
             throws Exception {
-        return this.mvc.perform(put(this.classroomLocation() + "/tutor").with(this.scenarioContext.getJwtProcessor())
-                                                                        .contentType(URI_LIST).content(
-                        this.scenarioContext.getLocation("teacher:" + teacherName)));
+        //@formatter:off
+        return this.mvc.perform(put(this.classroomLocation() + "/tutor")
+                                        .with(this.scenarioContext.getJwtProcessor())
+                                        .contentType(URI_LIST)
+                                        .content(this.scenarioContext.getLocation("teacher:" + teacherName)));
+        //@formatter:on
     }
 
     @When("I request the classroom's teachers")
@@ -119,8 +132,8 @@ public class ClassroomCreationFeatures {
     @When("I request the classroom's tutor")
     public void requestClassroomTutor()
             throws Exception {
-        this.scenarioContext.setResultActions(
-                this.mvc.perform(get(this.classroomLocation() + "/tutor").with(this.scenarioContext.getJwtProcessor())));
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                get(this.classroomLocation() + "/tutor").with(this.scenarioContext.getJwtProcessor())));
     }
 
     @Then("I receive a confirmation that the teacher has been successfully added to the classroom")
@@ -138,38 +151,50 @@ public class ClassroomCreationFeatures {
     @Then("the classroom's teachers include {string}")
     public void classroomTeachersInclude(final String teacherName)
             throws Exception {
-        final MockHttpServletResponse response =
-                this.scenarioContext.getResultActions().andExpect(status().isOk()).andReturn().getResponse();
+        //@formatter:off
+        final MockHttpServletResponse response = this.scenarioContext.getResultActions()
+                .andExpect(status().isOk()).andReturn().getResponse();
         final String expectedLocation = this.scenarioContext.getLocation("teacher:" + teacherName);
-        final JsonNode teachers =
-                OBJECT_MAPPER.readTree(response.getContentAsString()).path("_embedded").path("teachers");
+        final JsonNode teachers = OBJECT_MAPPER.readTree(response.getContentAsString())
+                                               .path("_embedded")
+                                               .path("teachers");
         boolean found = false;
         for(final JsonNode teacher : teachers) {
-            final String selfLink = teacher.path("_links").path("self").path("href").asString();
+            final String selfLink = teacher.path("_links")
+                                           .path("self")
+                                           .path("href")
+                                           .asString();
             if(selfLink.endsWith(expectedLocation)) {
                 found = true;
                 break;
             }
         }
+        //@formatter:on
         assertTrue(found, "Expected classroom's teachers to include " + teacherName);
     }
 
     @Then("the classroom's tutor is {string}")
     public void classroomTutorIs(final String teacherName)
             throws Exception {
-        final MockHttpServletResponse response =
-                this.scenarioContext.getResultActions().andExpect(status().isOk()).andReturn().getResponse();
-        final String selfLink = OBJECT_MAPPER.readTree(response.getContentAsString()).path("_links").path("self")
-                                             .path("href").asString();
+        //@formatter:off
+        final MockHttpServletResponse response = this.scenarioContext.getResultActions()
+                                                                     .andExpect(status().isOk())
+                                                                     .andReturn().getResponse();
+        final String selfLink = OBJECT_MAPPER.readTree(response.getContentAsString())
+                                             .path("_links")
+                                             .path("self")
+                                             .path("href")
+                                             .asString();
+        //@formatter:on
         final String expectedLocation = this.scenarioContext.getLocation("teacher:" + teacherName);
         assertTrue(selfLink.endsWith(expectedLocation),
-                  "Expected tutor link " + selfLink + " to match " + expectedLocation);
+                   "Expected tutor link " + selfLink + " to match " + expectedLocation);
     }
 
     @Then("I receive an error because the teacher does not belong to the classroom's school")
     public void receiveSchoolMismatchError()
             throws Exception {
-        this.scenarioContext.getResultActions().andExpect(status().isUnprocessableEntity());
+        this.scenarioContext.getResultActions().andExpect(status().isUnprocessableContent());
     }
 
     private String classroomLocation() {

@@ -27,7 +27,8 @@ class ClassroomTeachingStaffController {
     private final TeachersRepository teachersRepository;
 
     ClassroomTeachingStaffController(
-            final ClassroomsRepository classroomsRepository, final TeachersRepository teachersRepository
+            final ClassroomsRepository classroomsRepository,
+            final TeachersRepository teachersRepository
     ) {
         this.classroomsRepository = classroomsRepository;
         this.teachersRepository = teachersRepository;
@@ -66,11 +67,10 @@ class ClassroomTeachingStaffController {
 
     private Teacher resolveTeacher(final String body) {
         final String uri = body.strip().lines().findFirst()
-                                .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Missing teacher URI"));
+                               .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Missing teacher URI"));
         final UUID teacherId = UUID.fromString(uri.substring(uri.lastIndexOf('/') + 1));
         return this.teachersRepository.findById(teacherId)
-                                       .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST,
-                                                                                       "Teacher not found"));
+                                      .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Teacher not found"));
     }
 
 }

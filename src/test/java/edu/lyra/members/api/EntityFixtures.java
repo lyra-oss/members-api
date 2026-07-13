@@ -31,7 +31,7 @@ public class EntityFixtures {
     private ScenarioContext scenarioContext;
 
     static School newSchool(final String name) {
-        //@formatter:off
+        //@formatter:on
         return Instancio.of(School.class)
                          .ignore(field(School.class, "id"))
                          .ignore(field(School.class, "classrooms"))
@@ -54,21 +54,19 @@ public class EntityFixtures {
 
     @Given("a classroom for course {int} group {string} exists at school {string}")
     public void aClassroomExistsAtSchool(final int course, final String group, final String schoolName) {
-        //@formatter:off
-        final Classroom classroom = Instancio.of(Classroom.class)
-                                              .ignore(field(Classroom.class, "id"))
-                                              .ignore(field(Classroom.class, "tutor"))
-                                              .ignore(field(Classroom.class, "teachers"))
-                                              .ignore(field(Classroom.class, "kids"))
-                                              .ignore(field(Auditable.class, "version"))
-                                              .ignore(field(Auditable.class, "createdDate"))
-                                              .ignore(field(Auditable.class, "createdBy"))
-                                              .ignore(field(Auditable.class, "lastModifiedDate"))
-                                              .ignore(field(Auditable.class, "updatedBy"))
-                                              .set(field(Classroom.class, "course"), course)
-                                              .set(field(Classroom.class, "group"), group)
-                                              .set(field(Classroom.class, "school"), this.school(schoolName))
-                                              .create();
+        //@formatter:on
+        final Classroom classroom = Instancio.of(Classroom.class).ignore(field(Classroom.class, "id"))
+                                             .ignore(field(Classroom.class, "tutor"))
+                                             .ignore(field(Classroom.class, "teachers"))
+                                             .ignore(field(Classroom.class, "kids"))
+                                             .ignore(field(Auditable.class, "version"))
+                                             .ignore(field(Auditable.class, "createdDate"))
+                                             .ignore(field(Auditable.class, "createdBy"))
+                                             .ignore(field(Auditable.class, "lastModifiedDate"))
+                                             .ignore(field(Auditable.class, "updatedBy"))
+                                             .set(field(Classroom.class, "course"), course)
+                                             .set(field(Classroom.class, "group"), group)
+                                             .set(field(Classroom.class, "school"), this.school(schoolName)).create();
         //@formatter:on
         final Classroom saved = TestSecurityContext.runAuthenticated(() -> this.classroomsRepository.save(classroom));
         this.scenarioContext.putLocation("classroom", "/v0/classrooms/" + saved.getId());

@@ -159,8 +159,8 @@ public class TeacherCreationFeatures {
     private String schoolLocation(final String name) {
         final String key = "school:" + name;
         if(this.scenarioContext.getLocation(key) == null) {
-            final School saved =
-                    TestSecurityContext.runAuthenticated(() -> this.schoolsRepository.save(EntityFixtures.newSchool(name)));
+            final School saved = TestSecurityContext.runAuthenticated(
+                    () -> this.schoolsRepository.save(EntityFixtures.newSchool(name)));
             this.scenarioContext.putLocation(key, "/v0/schools/" + saved.getId());
         }
         return this.scenarioContext.getLocation(key);
