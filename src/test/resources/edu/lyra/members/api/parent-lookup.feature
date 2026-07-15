@@ -16,7 +16,13 @@ Feature: Parents directory
 
     Scenario: List parents
         When I request the list of parents
-        Then the list of parents includes "Esteban" "Cristóbal"
+        Then the list of parents contains exactly the following parents:
+            | name    | surname   | mail                          |
+            | Esteban | Cristóbal | esteban.cristobal@example.com |
+            | Marta   | Ibáñez    | marta.ibanez@example.com      |
+            | Pablo   | Ruiz      | pablo.ruiz@example.com        |
+            | Lucía   | Moreno    | lucia.moreno@example.com      |
+            | Diego   | Torres    | diego.torres@example.com      |
 
     Scenario: List parents with pagination
         When I request the list of parents with page size 2 and page number 0

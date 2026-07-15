@@ -1,7 +1,10 @@
 package edu.lyra.members.api;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,27 +63,37 @@ public class TeacherLookupFeatures {
                 get("/v0/teachers/" + UUID.randomUUID()).with(this.scenarioContext.getJwtProcessor())));
     }
 
-    @Then("the list of teachers includes {string} {string}")
-    public void listOfTeachersIncludes(final String name, final String surname)
+    @Then("the list of teachers contains exactly the following teachers:")
+    public void listOfTeachersContainsExactly(final DataTable table)
             throws Exception {
         //@formatter:off
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
         final MockHttpServletResponse response = this.scenarioContext.getResultActions()
                                                                      .andExpect(status().isOk())
                                                                      .andReturn().getResponse();
-        final String expectedLocation = this.scenarioContext.getLocation("teacher:" + name + " " + surname);
         final JsonNode teachers = OBJECT_MAPPER.readTree(response.getContentAsString())
                                                .path("_embedded")
                                                .path("teachers");
-        boolean found = false;
-        for(final JsonNode teacher : teachers) {
-            final String selfLink = teacher.path("_links").path("self").path("href").asString();
-            if(selfLink.endsWith(expectedLocation)) {
-                found = true;
-                break;
-            }
-        }
         //@formatter:on
-        assertTrue(found, "Expected teacher list to include " + name + " " + surname);
+        assertEquals(rows.size(), teachers.size(),
+                     "Expected teacher list to contain exactly %d teachers".formatted(rows.size()));
+        for(final Map<String, String> row : rows) {
+            final String name             = row.get("name");
+            final String surname          = row.get("surname");
+            final String expectedLocation = this.scenarioContext.getLocation("teacher:" + name + " " + surname);
+            boolean      found            = false;
+            for(final JsonNode teacher : teachers) {
+                final String selfLink = teacher.path("_links").path("self").path("href").asString();
+                if(selfLink.endsWith(expectedLocation)) {
+                    found = true;
+                    assertEquals(name, teacher.path("name").asString());
+                    assertEquals(surname, teacher.path("surname").asString());
+                    assertEquals(row.get("mail"), teacher.path("mail").asString());
+                    break;
+                }
+            }
+            assertTrue(found, "Expected teacher list to include %s %s".formatted(name, surname));
+        }
     }
 
     @Then("I receive a page of {int} teachers out of a total of {int}")
@@ -111,7 +124,7 @@ public class TeacherLookupFeatures {
         //@formatter:on
         final String expectedLocation = this.scenarioContext.getLocation("teacher:" + name + " " + surname);
         assertTrue(selfLink.endsWith(expectedLocation),
-                   "Expected teacher link " + selfLink + " to match " + expectedLocation);
+                   "Expected teacher link %s to match %s".formatted(selfLink, expectedLocation));
     }
 
 }

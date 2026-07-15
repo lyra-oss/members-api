@@ -1,12 +1,14 @@
 package edu.lyra.members.api;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import edu.lyra.members.api.repositories.jpa.Auditable;
-import edu.lyra.members.api.repositories.jpa.ContactInfo;
+import edu.lyra.members.api.repositories.jpa.Classroom;
+import edu.lyra.members.api.repositories.jpa.ClassroomsRepository;
 import edu.lyra.members.api.repositories.jpa.Kid;
 import edu.lyra.members.api.repositories.jpa.KidsRepository;
 import edu.lyra.members.api.repositories.jpa.Parent;
@@ -32,6 +34,8 @@ public class KidLookupFeatures {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    private final Map<Integer, JsonNode> kidPages = new HashMap<>();
+
     @Autowired
     private MockMvc mvc;
 
@@ -42,20 +46,21 @@ public class KidLookupFeatures {
     private ParentsRepository parentsRepository;
 
     @Autowired
+    private ClassroomsRepository classroomsRepository;
+
+    @Autowired
     private ScenarioContext scenarioContext;
 
-    @Given("a kid named {string} {string} born on {string} exists")
-    public void aKidExists(final String name, final String surname, final String birthdate) {
+    @Given("the following kids exist:")
+    public void theFollowingKidsExist(final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aKidExists(row.get("name"), row.get("surname"), row.get("birthdate"), row.get("parent"));
+        }
+    }
+
+    private void aKidExists(final String name, final String surname, final String birthdate, final String parentName) {
         //@formatter:off
-        final Parent parent = Parent.builder()
-                                    .id(UUID.randomUUID())
-                                    .contactInfo(ContactInfo.builder()
-                                                            .name("Auto")
-                                                            .surname("Parent")
-                                                            .mail(UUID.randomUUID() + "@example.com")
-                                                            .build())
-                                    .build();
-        final Parent savedParent = TestSecurityContext.runAuthenticated(() -> this.parentsRepository.save(parent));
         final Kid kid = Instancio.of(Kid.class)
                                  .ignore(field(Kid.class, "id"))
                                  .ignore(field(Kid.class, "classroom"))
@@ -67,19 +72,41 @@ public class KidLookupFeatures {
                                  .set(field(Kid.class, "name"), name)
                                  .set(field(Kid.class, "surname"), surname)
                                  .set(field(Kid.class, "birthdate"), LocalDate.parse(birthdate))
-                                 .set(field(Kid.class, "parent"), savedParent)
+                                 .set(field(Kid.class, "parent"), this.parent(parentName))
                                  .create();
         //@formatter:on
         final Kid saved = TestSecurityContext.runAuthenticated(() -> this.kidsRepository.save(kid));
         this.scenarioContext.putLocation("kid:" + name + " " + surname, "/v0/kids/" + saved.getId());
     }
 
-    @Given("the following kids exist:")
-    public void theFollowingKidsExist(final DataTable table) {
-        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
-        for(final Map<String, String> row : rows) {
-            this.aKidExists(row.get("name"), row.get("surname"), row.get("birthdate"));
-        }
+    private Parent parent(final String key) {
+        final String location = this.scenarioContext.getLocation("parent:" + key);
+        final UUID   id       = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
+        return this.parentsRepository.findById(id).orElseThrow();
+    }
+
+    @Given("kid {string} {string} is enrolled in classroom for course {int} group {string}")
+    public void kidIsEnrolledInClassroom(
+            final String name,
+            final String surname,
+            final int course,
+            final String group
+    ) {
+        final Kid kid = this.kid(name, surname);
+        kid.setClassroom(this.classroom(course, group));
+        TestSecurityContext.runAuthenticated(() -> this.kidsRepository.save(kid));
+    }
+
+    private Kid kid(final String name, final String surname) {
+        final String location = this.scenarioContext.getLocation("kid:" + name + " " + surname);
+        final UUID   id       = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
+        return this.kidsRepository.findById(id).orElseThrow();
+    }
+
+    private Classroom classroom(final int course, final String group) {
+        final String location = this.scenarioContext.getLocation("classroom:" + course + " " + group);
+        final UUID   id       = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
+        return this.classroomsRepository.findById(id).orElseThrow();
     }
 
     @When("I request the list of kids")
@@ -89,15 +116,31 @@ public class KidLookupFeatures {
                 this.mvc.perform(get("/v0/kids").with(this.scenarioContext.getJwtProcessor())));
     }
 
-    @When("I request the list of kids with page size {int} and page number {int}")
-    public void requestKidListPaged(final int size, final int page)
+    @When("I request the list of kids with page size {int}")
+    public void requestAllKidPages(final int size)
+            throws Exception {
+        this.kidPages.clear();
+        int page = 0;
+        int totalPages;
+        do {
+            final JsonNode body = this.requestKidPage(size, page);
+            this.kidPages.put(page, body);
+            totalPages = body.path("page").path("totalPages").asInt();
+            page++;
+        } while(page < totalPages);
+    }
+
+    private JsonNode requestKidPage(final int size, final int page)
             throws Exception {
         //@formatter:off
-        this.scenarioContext.setResultActions(this.mvc.perform(
+        final MockHttpServletResponse response = this.mvc.perform(
                 get("/v0/kids").queryParam("size", String.valueOf(size))
                                .queryParam("page", String.valueOf(page))
-                               .with(this.scenarioContext.getJwtProcessor())));
+                               .with(this.scenarioContext.getJwtProcessor()))
+                                                          .andExpect(status().isOk())
+                                                          .andReturn().getResponse();
         //@formatter:on
+        return OBJECT_MAPPER.readTree(response.getContentAsString());
     }
 
     @When("I request kid {string} {string}")
@@ -117,40 +160,45 @@ public class KidLookupFeatures {
                 this.mvc.perform(get("/v0/kids/" + UUID.randomUUID()).with(this.scenarioContext.getJwtProcessor())));
     }
 
-    @Then("the list of kids includes {string} {string}")
-    public void listOfKidsIncludes(final String name, final String surname)
+    @Then("the list of kids contains exactly the following kids:")
+    public void listOfKidsContainsExactly(final DataTable table)
             throws Exception {
         //@formatter:off
         final MockHttpServletResponse response = this.scenarioContext.getResultActions()
                                                                      .andExpect(status().isOk())
                                                                      .andReturn().getResponse();
-        final String expectedLocation = this.scenarioContext.getLocation("kid:" + name + " " + surname);
         final JsonNode kids = OBJECT_MAPPER.readTree(response.getContentAsString())
                                            .path("_embedded")
                                            .path("kids");
-        boolean found = false;
-        for(final JsonNode kid : kids) {
-            final String selfLink = kid.path("_links").path("self").path("href").asString();
-            if(selfLink.endsWith(expectedLocation)) {
-                found = true;
-                break;
-            }
-        }
         //@formatter:on
-        assertTrue(found, "Expected kid list to include " + name + " " + surname);
+        this.assertKidsMatch(kids, table.asMaps(String.class, String.class));
     }
 
-    @Then("I receive a page of {int} kids out of a total of {int}")
-    public void receivePageOfKids(final int expectedSize, final int expectedTotal)
-            throws Exception {
-        //@formatter:off
-        final MockHttpServletResponse response = this.scenarioContext.getResultActions()
-                                                                     .andExpect(status().isOk())
-                                                                     .andReturn().getResponse();
-        final JsonNode body = OBJECT_MAPPER.readTree(response.getContentAsString());
-        assertEquals(expectedTotal, body.path("page").path("totalElements").asInt());
-        assertEquals(expectedSize, body.path("_embedded").path("kids").size());
-        //@formatter:on
+    private void assertKidsMatch(final JsonNode kids, final List<Map<String, String>> rows) {
+        assertEquals(rows.size(), kids.size(), "Expected kid list to contain exactly %d kids".formatted(rows.size()));
+        for(final Map<String, String> row : rows) {
+            final String name     = row.get("name");
+            final String surname  = row.get("surname");
+            final String location = this.scenarioContext.getLocation("kid:" + name + " " + surname);
+            boolean      found    = false;
+            for(final JsonNode kid : kids) {
+                final String selfLink = kid.path("_links").path("self").path("href").asString();
+                if(selfLink.endsWith(location)) {
+                    found = true;
+                    assertEquals(name, kid.path("name").asString());
+                    assertEquals(surname, kid.path("surname").asString());
+                    assertEquals(row.get("birthdate"), kid.path("birthdate").asString());
+                    break;
+                }
+            }
+            assertTrue(found, "Expected kid list to include %s %s".formatted(name, surname));
+        }
+    }
+
+    @Then("page {int} contains exactly the following kids:")
+    public void pageContainsExactly(final int pageNumber, final DataTable table) {
+        final JsonNode kids = this.kidPages.get(pageNumber).path("_embedded").path("kids");
+        this.assertKidsMatch(kids, table.asMaps(String.class, String.class));
     }
 
     @Then("I receive the details of kid {string} {string}")
@@ -166,9 +214,8 @@ public class KidLookupFeatures {
                                              .path("href")
                                              .asString();
         //@formatter:on
-        final String expectedLocation = this.scenarioContext.getLocation("kid:" + name + " " + surname);
-        assertTrue(selfLink.endsWith(expectedLocation),
-                   "Expected kid link " + selfLink + " to match " + expectedLocation);
+        final String location = this.scenarioContext.getLocation("kid:" + name + " " + surname);
+        assertTrue(selfLink.endsWith(location), "Expected kid link %s to match %s".formatted(selfLink, location));
     }
 
 }

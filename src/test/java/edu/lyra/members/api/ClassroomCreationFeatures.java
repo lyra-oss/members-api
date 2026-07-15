@@ -151,7 +151,7 @@ public class ClassroomCreationFeatures {
             }
         }
         //@formatter:on
-        assertTrue(found, "Expected classroom's teachers to include " + teacherName);
+        assertTrue(found, "Expected classroom's teachers to include %s".formatted(teacherName));
     }
 
     @Then("the classroom's tutor is {string}")
@@ -169,7 +169,7 @@ public class ClassroomCreationFeatures {
         //@formatter:on
         final String expectedLocation = this.scenarioContext.getLocation("teacher:" + teacherName);
         assertTrue(selfLink.endsWith(expectedLocation),
-                   "Expected tutor link " + selfLink + " to match " + expectedLocation);
+                   "Expected tutor link %s to match %s".formatted(selfLink, expectedLocation));
     }
 
     @Then("I receive an error because the teacher does not belong to the classroom's school")

@@ -16,7 +16,13 @@ Feature: Schools directory
 
     Scenario: List schools
         When I request the list of schools
-        Then the list of schools includes "Gloria Fuertes"
+        Then the list of schools contains exactly the following schools:
+            | name             |
+            | Gloria Fuertes   |
+            | Montessori Norte |
+            | San Ignacio      |
+            | Santa Cecilia    |
+            | El Pilar         |
 
     Scenario: List schools with pagination
         When I request the list of schools with page size 2 and page number 0

@@ -90,27 +90,37 @@ public class ParentLookupFeatures {
                 this.mvc.perform(get("/v0/parents/" + UUID.randomUUID()).with(this.scenarioContext.getJwtProcessor())));
     }
 
-    @Then("the list of parents includes {string} {string}")
-    public void listOfParentsIncludes(final String name, final String surname)
+    @Then("the list of parents contains exactly the following parents:")
+    public void listOfParentsContainsExactly(final DataTable table)
             throws Exception {
         //@formatter:off
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
         final MockHttpServletResponse response = this.scenarioContext.getResultActions()
                                                                      .andExpect(status().isOk())
                                                                      .andReturn().getResponse();
-        final String expectedLocation = this.scenarioContext.getLocation("parent:" + name + " " + surname);
         final JsonNode parents = OBJECT_MAPPER.readTree(response.getContentAsString())
                                               .path("_embedded")
                                               .path("parents");
-        boolean found = false;
-        for(final JsonNode parent : parents) {
-            final String selfLink = parent.path("_links").path("self").path("href").asString();
-            if(selfLink.endsWith(expectedLocation)) {
-                found = true;
-                break;
-            }
-        }
         //@formatter:on
-        assertTrue(found, "Expected parent list to include " + name + " " + surname);
+        assertEquals(rows.size(), parents.size(),
+                     "Expected parent list to contain exactly %d parents".formatted(rows.size()));
+        for(final Map<String, String> row : rows) {
+            final String name     = row.get("name");
+            final String surname  = row.get("surname");
+            final String location = this.scenarioContext.getLocation("parent:" + name + " " + surname);
+            boolean      found    = false;
+            for(final JsonNode parent : parents) {
+                final String selfLink = parent.path("_links").path("self").path("href").asString();
+                if(selfLink.endsWith(location)) {
+                    found = true;
+                    assertEquals(name, parent.path("name").asString());
+                    assertEquals(surname, parent.path("surname").asString());
+                    assertEquals(row.get("mail"), parent.path("mail").asString());
+                    break;
+                }
+            }
+            assertTrue(found, "Expected parent list to include %s %s".formatted(name, surname));
+        }
     }
 
     @Then("I receive a page of {int} parents out of a total of {int}")
@@ -139,9 +149,8 @@ public class ParentLookupFeatures {
                                              .path("href")
                                              .asString();
         //@formatter:on
-        final String expectedLocation = this.scenarioContext.getLocation("parent:" + name + " " + surname);
-        assertTrue(selfLink.endsWith(expectedLocation),
-                   "Expected parent link " + selfLink + " to match " + expectedLocation);
+        final String location = this.scenarioContext.getLocation("parent:" + name + " " + surname);
+        assertTrue(selfLink.endsWith(location), "Expected parent link %s to match %s".formatted(selfLink, location));
     }
 
 }

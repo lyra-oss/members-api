@@ -30,4 +30,12 @@ public class AuthenticationFeatures {
                 jwt().jwt(builder -> builder.subject(sub)).authorities(new SimpleGrantedAuthority("SCOPE_" + scope)));
     }
 
+    @Given("I am authenticated as teacher {string} with {string} scope")
+    public void iAmAuthenticatedAsTeacherWithScope(final String teacherName, final String scope) {
+        final String location = scenarioContext.getLocation("teacher:" + teacherName);
+        final String sub      = location.substring(location.lastIndexOf('/') + 1);
+        scenarioContext.setJwtProcessor(
+                jwt().jwt(builder -> builder.subject(sub)).authorities(new SimpleGrantedAuthority("SCOPE_" + scope)));
+    }
+
 }

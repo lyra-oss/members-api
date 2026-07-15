@@ -57,6 +57,7 @@ public class Kid
     @ManyToOne
     private Parent parent;
 
+    @Setter
     @ManyToOne
     private Classroom classroom;
 

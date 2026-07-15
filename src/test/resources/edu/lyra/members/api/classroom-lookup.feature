@@ -17,7 +17,13 @@ Feature: Classrooms directory
 
     Scenario: List classrooms
         When I request the list of classrooms
-        Then the list of classrooms includes course 1 group "A"
+        Then the list of classrooms contains exactly the following classrooms:
+            | course | group |
+            | 1      | A     |
+            | 2      | B     |
+            | 3      | C     |
+            | 4      | D     |
+            | 5      | E     |
 
     Scenario: List classrooms with pagination
         When I request the list of classrooms with page size 2 and page number 0

@@ -17,7 +17,13 @@ Feature: Teachers directory
 
     Scenario: List teachers
         When I request the list of teachers
-        Then the list of teachers includes "Marta" "Ibáñez"
+        Then the list of teachers contains exactly the following teachers:
+            | name  | surname | mail                     |
+            | Marta | Ibáñez  | marta.ibanez@example.com |
+            | Pablo | Ruiz    | pablo.ruiz@example.com   |
+            | José  | García  | jose.garcia@example.com  |
+            | Lucía | Moreno  | lucia.moreno@example.com |
+            | Diego | Torres  | diego.torres@example.com |
 
     Scenario: List teachers with pagination
         When I request the list of teachers with page size 2 and page number 0

@@ -1,7 +1,10 @@
 package edu.lyra.members.api;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,27 +63,37 @@ public class ClassroomLookupFeatures {
                 get("/v0/classrooms/" + UUID.randomUUID()).with(this.scenarioContext.getJwtProcessor())));
     }
 
-    @Then("the list of classrooms includes course {int} group {string}")
-    public void listOfClassroomsIncludes(final int course, final String group)
+    @Then("the list of classrooms contains exactly the following classrooms:")
+    public void listOfClassroomsContainsExactly(final DataTable table)
             throws Exception {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
         //@formatter:off
         final MockHttpServletResponse response = this.scenarioContext.getResultActions()
                                                                      .andExpect(status().isOk())
-                                                                     .andReturn().getResponse();
-        final String expectedLocation = this.scenarioContext.getLocation("classroom:" + course + " " + group);
+                                                                     .andReturn()
+                                                                     .getResponse();
         final JsonNode classrooms = OBJECT_MAPPER.readTree(response.getContentAsString())
                                                  .path("_embedded")
                                                  .path("classrooms");
-        boolean found = false;
-        for(final JsonNode classroom : classrooms) {
-            final String selfLink = classroom.path("_links").path("self").path("href").asString();
-            if(selfLink.endsWith(expectedLocation)) {
-                found = true;
-                break;
-            }
-        }
         //@formatter:on
-        assertTrue(found, "Expected classroom list to include course " + course + " group " + group);
+        assertEquals(rows.size(), classrooms.size(),
+                     "Expected classroom list to contain exactly %d classrooms".formatted(rows.size()));
+        for(final Map<String, String> row : rows) {
+            final int    course   = Integer.parseInt(row.get("course"));
+            final String group    = row.get("group");
+            final String location = this.scenarioContext.getLocation("classroom:" + course + " " + group);
+            boolean      found    = false;
+            for(final JsonNode classroom : classrooms) {
+                final String selfLink = classroom.path("_links").path("self").path("href").asString();
+                if(selfLink.endsWith(location)) {
+                    found = true;
+                    assertEquals(course, classroom.path("course").asInt());
+                    assertEquals(group, classroom.path("group").asString());
+                    break;
+                }
+            }
+            assertTrue(found, "Expected classroom list to include course %d group %s".formatted(course, group));
+        }
     }
 
     @Then("I receive a page of {int} classrooms out of a total of {int}")
@@ -111,7 +124,7 @@ public class ClassroomLookupFeatures {
         //@formatter:on
         final String expectedLocation = this.scenarioContext.getLocation("classroom:" + course + " " + group);
         assertTrue(selfLink.endsWith(expectedLocation),
-                   "Expected classroom link " + selfLink + " to match " + expectedLocation);
+                   "Expected classroom link %s to match %s".formatted(selfLink, expectedLocation));
     }
 
 }
