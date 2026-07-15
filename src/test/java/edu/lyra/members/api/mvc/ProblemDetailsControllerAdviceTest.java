@@ -1,5 +1,6 @@
 package edu.lyra.members.api.mvc;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import edu.lyra.members.api.handlers.SchoolMismatchException;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +19,7 @@ import static java.net.URI.create;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.springframework.core.convert.TypeDescriptor.valueOf;
 
 class ProblemDetailsControllerAdviceTest {
 
@@ -54,13 +57,33 @@ class ProblemDetailsControllerAdviceTest {
     void testSchoolMismatchErrorResponse() {
         final ResponseEntity<ProblemDetail> response =
                 advice.handleSchoolMismatchException(new SchoolMismatchException("teacher does not belong to school"));
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
         final ProblemDetail problemDetail = response.getBody();
         assertThat(problemDetail).isNotNull();
         assertThat(problemDetail.getType()).isEqualTo(create("https://lyra.sagittec.com/problems/school-mismatch"));
         assertThat(problemDetail.getTitle()).isEqualTo("Teacher does not belong to classroom's school");
         assertThat(problemDetail.getDetail()).isEqualTo("teacher does not belong to school");
+        assertThat(problemDetail.getProperties()).containsKey("timestamp");
+    }
+
+    @Test
+    void testConversionFailedErrorResponse() {
+        //@formatter:off
+        final ConversionFailedException ex = new ConversionFailedException(
+                valueOf(String.class),
+                valueOf(UUID.class),
+                "not-a-uuid",
+                new IllegalArgumentException("Invalid UUID string: not-a-uuid"));
+        //@formatter:on
+        final ResponseEntity<ProblemDetail> response = advice.handleConversionFailedException(ex);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        final ProblemDetail problemDetail = response.getBody();
+        assertThat(problemDetail).isNotNull();
+        assertThat(problemDetail.getType()).isEqualTo(create("https://lyra.sagittec.com/problems/invalid-parameter"));
+        assertThat(problemDetail.getTitle()).isEqualTo("Invalid request parameter");
+        assertThat(problemDetail.getDetail()).isEqualTo("'not-a-uuid' is not a valid UUID");
         assertThat(problemDetail.getProperties()).containsKey("timestamp");
     }
 

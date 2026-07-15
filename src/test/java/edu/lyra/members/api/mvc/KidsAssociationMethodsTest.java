@@ -21,6 +21,7 @@ import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.mapping.ResourceMapping;
 import org.springframework.data.rest.core.mapping.ResourceMappings;
 import org.springframework.data.rest.core.mapping.ResourceMetadata;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.web.servlet.MockMvc;
@@ -62,7 +63,8 @@ class KidsAssociationMethodsTest {
                 path -> of(arguments(post(path).with(jwt()), status().isMethodNotAllowed()),
                            arguments(put(path).with(jwt()), status().isMethodNotAllowed()),
                            arguments(patch(path).with(jwt()), status().isMethodNotAllowed()),
-                           arguments(get(path).with(jwt()), status().isNotFound())));
+                           arguments(get(path).with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_kids.read"))),
+                                     status().isNotFound())));
     }
 
     private Stream<String> kidAssociationPaths() {

@@ -14,6 +14,8 @@ import edu.lyra.members.api.repositories.jpa.Teacher;
 import edu.lyra.members.api.repositories.jpa.TeachersRepository;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +28,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import static java.util.UUID.randomUUID;
 
@@ -43,6 +47,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class SpringSecurityConfigurationTest {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Autowired
     private MockMvc mvc;
@@ -69,13 +75,21 @@ class SpringSecurityConfigurationTest {
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_parents.create")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Esteban\",\"surname\":\"Cristóbal\",\"mail\":\"esteban.cristobal@example.com\"}"))
+                .content(OBJECT_MAPPER.writeValueAsString(this.newParentJson())))
            .andExpect(status().isCreated());
         //@formatter:on
     }
 
     private String base() {
         return restConfiguration.getBasePath().toString();
+    }
+
+    private ObjectNode newParentJson() {
+        final ObjectNode parentJson = OBJECT_MAPPER.createObjectNode();
+        parentJson.put("name", "Esteban");
+        parentJson.put("surname", "Cristóbal");
+        parentJson.put("mail", "esteban.cristobal@example.com");
+        return parentJson;
     }
 
     @Test
@@ -85,7 +99,7 @@ class SpringSecurityConfigurationTest {
         mvc.perform(post(this.base() + "/parents")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Esteban\",\"surname\":\"Cristóbal\",\"mail\":\"esteban.cristobal@example.com\"}"))
+                .content(OBJECT_MAPPER.writeValueAsString(this.newParentJson())))
            .andExpect(status().isForbidden());
         //@formatter:on
     }
@@ -111,12 +125,20 @@ class SpringSecurityConfigurationTest {
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_kids.create")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Alicia\",\"surname\":\"Cristóbal\",\"birthdate\":\"2019-12-12\"}"))
+                .content(OBJECT_MAPPER.writeValueAsString(this.newKidJson())))
            .andExpect(status().isCreated());
         //@formatter:on
         final ArgumentCaptor<Kid> kidCaptor = ArgumentCaptor.forClass(Kid.class);
         verify(kidsRepository).save(kidCaptor.capture());
         assertEquals(parent, kidCaptor.getValue().getParent());
+    }
+
+    private ObjectNode newKidJson() {
+        final ObjectNode kidJson = OBJECT_MAPPER.createObjectNode();
+        kidJson.put("name", "Alicia");
+        kidJson.put("surname", "Cristóbal");
+        kidJson.put("birthdate", "2019-12-12");
+        return kidJson;
     }
 
     @Test
@@ -126,7 +148,7 @@ class SpringSecurityConfigurationTest {
         mvc.perform(post(this.base() + "/kids")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Alicia\",\"surname\":\"Cristóbal\",\"birthdate\":\"2019-12-12\"}"))
+                .content(OBJECT_MAPPER.writeValueAsString(this.newKidJson())))
            .andExpect(status().isForbidden());
         //@formatter:on
     }
@@ -140,7 +162,7 @@ class SpringSecurityConfigurationTest {
                 .with(jwt().jwt(b -> b.subject(randomUUID().toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_kids.create")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Alicia\",\"surname\":\"Cristóbal\",\"birthdate\":\"2019-12-12\"}"))
+                .content(OBJECT_MAPPER.writeValueAsString(this.newKidJson())))
            .andExpect(status().isForbidden());
         //@formatter:on
     }
@@ -153,9 +175,21 @@ class SpringSecurityConfigurationTest {
         mvc.perform(post(this.base() + "/schools")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_schools.create")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Gloria Fuertes\"}"))
+                .content(OBJECT_MAPPER.writeValueAsString(this.newSchoolJson())))
            .andExpect(status().isCreated());
         //@formatter:on
+    }
+
+    private ObjectNode newSchoolJson() {
+        final ObjectNode schoolJson = OBJECT_MAPPER.createObjectNode();
+        schoolJson.put("name", "Gloria Fuertes");
+        return schoolJson;
+    }
+
+    @Test
+    void testActuatorHealthPermitsAllWithoutAuthentication()
+            throws Exception {
+        mvc.perform(get("/actuator/health")).andExpect(status().isOk());
     }
 
     @Test
@@ -165,7 +199,7 @@ class SpringSecurityConfigurationTest {
         mvc.perform(post(this.base() + "/schools")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Gloria Fuertes\"}"))
+                .content(OBJECT_MAPPER.writeValueAsString(this.newSchoolJson())))
            .andExpect(status().isForbidden());
         //@formatter:on
     }
@@ -181,11 +215,23 @@ class SpringSecurityConfigurationTest {
                 .with(jwt().jwt(b -> b.subject(randomUUID().toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_teachers.create")))
                 .contentType(APPLICATION_JSON)
-                .content("""
-                        {"name":"Marta","surname":"Ibáñez","mail":"marta.ibanez@example.com",\
-                        "school":"%s/schools/%s"}""".formatted(this.base(), school.getId())))
+                .content(this.teacherJsonWithSchool(school)))
            .andExpect(status().isCreated());
         //@formatter:on
+    }
+
+    private String teacherJsonWithSchool(final School school) {
+        final ObjectNode teacherJson = this.newTeacherJson();
+        teacherJson.put("school", this.base() + "/schools/" + school.getId());
+        return OBJECT_MAPPER.writeValueAsString(teacherJson);
+    }
+
+    private ObjectNode newTeacherJson() {
+        final ObjectNode teacherJson = OBJECT_MAPPER.createObjectNode();
+        teacherJson.put("name", "Marta");
+        teacherJson.put("surname", "Ibáñez");
+        teacherJson.put("mail", "marta.ibanez@example.com");
+        return teacherJson;
     }
 
     @Test
@@ -195,30 +241,66 @@ class SpringSecurityConfigurationTest {
         mvc.perform(post(this.base() + "/teachers")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
-                .content("{\"name\":\"Marta\",\"surname\":\"Ibáñez\",\"mail\":\"marta.ibanez@example.com\"}"))
+                .content(OBJECT_MAPPER.writeValueAsString(this.newTeacherJson())))
            .andExpect(status().isForbidden());
         //@formatter:on
     }
 
-    @Test
-    void testActuatorHealthPermitsAllWithoutAuthentication()
+    @ParameterizedTest
+    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    void testListingRequiresAuthentication(final String resource)
             throws Exception {
-        mvc.perform(get("/actuator/health")).andExpect(status().isOk());
+        mvc.perform(get(this.base() + "/" + resource)).andExpect(status().isUnauthorized());
     }
 
-    @Test
-    void testAnyOtherRequestRequiresAuthentication()
-            throws Exception {
-        mvc.perform(get(this.base() + "/parents")).andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void testAnyOtherRequestIsAllowedWhenAuthenticatedRegardlessOfScope()
+    @ParameterizedTest
+    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    void testListingRequiresReadScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(get(this.base() + "/parents")
+        mvc.perform(get(this.base() + "/" + resource)
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope"))))
+           .andExpect(status().isForbidden());
+        //@formatter:on
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    void testListingIsAllowedWithReadScope(final String resource)
+            throws Exception {
+        //@formatter:off
+        mvc.perform(get(this.base() + "/" + resource)
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_" + resource + ".read"))))
            .andExpect(status().isOk());
+        //@formatter:on
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    void testGettingSingleItemRequiresAuthentication(final String resource)
+            throws Exception {
+        mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())).andExpect(status().isUnauthorized());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    void testGettingSingleItemRequiresReadScope(final String resource)
+            throws Exception {
+        //@formatter:off
+        mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope"))))
+           .andExpect(status().isForbidden());
+        //@formatter:on
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    void testGettingSingleItemIsAllowedWithReadScope(final String resource)
+            throws Exception {
+        //@formatter:off
+        mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_" + resource + ".read"))))
+           .andExpect(status().isNotFound());
         //@formatter:on
     }
 

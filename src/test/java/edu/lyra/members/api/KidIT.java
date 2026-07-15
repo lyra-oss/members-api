@@ -64,7 +64,7 @@ class KidIT
 
     private void retrieveAndVerifyKid(final String kidUrl)
             throws IOException {
-        final String token = this.getToken(USERNAME, "kids.create");
+        final String token = this.getToken(USERNAME, "kids.read");
         final Request request = new Request.Builder().url(kidUrl).addHeader("Authorization", "Bearer " + token).build();
         try(Response response = this.http.newCall(request).execute()) {
             assertEquals(200, response.code());

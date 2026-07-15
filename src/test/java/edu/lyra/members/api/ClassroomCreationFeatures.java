@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -53,10 +54,6 @@ public class ClassroomCreationFeatures {
         this.scenarioContext.setResultActions(this.performAddTeacher(teacherName));
     }
 
-    private static String replaceLastSegment(final String location) {
-        return location.substring(0, location.lastIndexOf('/') + 1) + UUID.randomUUID();
-    }
-
     @When("I add teacher {string} to a classroom that does not exist")
     public void addTeacherToNonExistentClassroom(final String teacherName)
             throws Exception {
@@ -69,19 +66,28 @@ public class ClassroomCreationFeatures {
         //@formatter:on
     }
 
+    private static String replaceLastSegment(final String location) {
+        return location.substring(0, location.lastIndexOf('/') + 1) + UUID.randomUUID();
+    }
+
     @When("I create a classroom for course {int} group {string} at school {string} with tutor {string}")
     public void createClassroomWithTutor(
-            final int course, final String group, final String schoolName, final String teacherName
+            final int course,
+            final String group,
+            final String schoolName,
+            final String teacherName
     )
             throws Exception {
         //@formatter:off
-        final String body = """
-                {"course":%d,"group":"%s","school":"%s","tutor":"%s"}""".formatted(course, group,
-                        this.scenarioContext.getLocation("school:" + schoolName),
-                        this.scenarioContext.getLocation("teacher:" + teacherName));
+        final ObjectNode body = OBJECT_MAPPER.createObjectNode();
+        body.put("course", course);
+        body.put("group", group);
+        body.put("school", this.scenarioContext.getLocation("school:" + schoolName));
+        body.put("tutor", this.scenarioContext.getLocation("teacher:" + teacherName));
         this.scenarioContext.setResultActions(this.mvc.perform(
                 post("/v0/classrooms").with(this.scenarioContext.getJwtProcessor())
-                                      .contentType(MediaType.APPLICATION_JSON).content(body)));
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .content(OBJECT_MAPPER.writeValueAsString(body))));
         //@formatter:on
     }
 
@@ -95,16 +101,6 @@ public class ClassroomCreationFeatures {
     public void setTutor(final String teacherName)
             throws Exception {
         this.scenarioContext.setResultActions(this.performSetTutor(teacherName));
-    }
-
-    private ResultActions performSetTutor(final String teacherName)
-            throws Exception {
-        //@formatter:off
-        return this.mvc.perform(put(this.classroomLocation() + "/tutor")
-                                        .with(this.scenarioContext.getJwtProcessor())
-                                        .contentType(URI_LIST)
-                                        .content(this.scenarioContext.getLocation("teacher:" + teacherName)));
-        //@formatter:on
     }
 
     @When("I request the classroom's teachers")
@@ -182,6 +178,27 @@ public class ClassroomCreationFeatures {
         this.scenarioContext.getResultActions().andExpect(status().isUnprocessableContent());
     }
 
+    @When("I create a classroom for course {int} group {string} at school {string}")
+    public void createClassroom(final int course, final String group, final String schoolName)
+            throws Exception {
+        //@formatter:off
+        final ObjectNode body = OBJECT_MAPPER.createObjectNode();
+        body.put("course", course);
+        body.put("group", group);
+        body.put("school", this.scenarioContext.getLocation("school:" + schoolName));
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                post("/v0/classrooms").with(this.scenarioContext.getJwtProcessor())
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .content(OBJECT_MAPPER.writeValueAsString(body))));
+        //@formatter:on
+    }
+
+    @Then("I receive a confirmation that the classroom has been successfully created")
+    public void classroomCreatedOk()
+            throws Exception {
+        this.scenarioContext.getResultActions().andExpect(status().isCreated());
+    }
+
     private String classroomLocation() {
         return this.scenarioContext.getLocation("classroom");
     }
@@ -190,6 +207,22 @@ public class ClassroomCreationFeatures {
             throws Exception {
         //@formatter:off
         return this.mvc.perform(post(this.classroomLocation() + "/teachers")
+                                        .with(this.scenarioContext.getJwtProcessor())
+                                        .contentType(URI_LIST)
+                                        .content(this.scenarioContext.getLocation("teacher:" + teacherName)));
+        //@formatter:on
+    }
+
+    @Then("I receive an error because the classroom already exists")
+    public void receiveClassroomAlreadyExistsError()
+            throws Exception {
+        this.scenarioContext.getResultActions().andExpect(status().isConflict());
+    }
+
+    private ResultActions performSetTutor(final String teacherName)
+            throws Exception {
+        //@formatter:off
+        return this.mvc.perform(put(this.classroomLocation() + "/tutor")
                                         .with(this.scenarioContext.getJwtProcessor())
                                         .contentType(URI_LIST)
                                         .content(this.scenarioContext.getLocation("teacher:" + teacherName)));

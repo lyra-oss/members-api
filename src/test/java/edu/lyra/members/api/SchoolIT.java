@@ -25,10 +25,10 @@ class SchoolIT
     @Test
     void testAddAndRetrieveSchool()
             throws IOException {
-        final String token = this.getToken(USERNAME, "schools.create");
+        final String createToken = this.getToken(USERNAME, "schools.create");
         final String body  = this.json.writeValueAsString(Map.of(NAME_KEY, NAME_VALUE));
         final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/schools")
-                                                         .addHeader("Authorization", "Bearer " + token)
+                                                         .addHeader("Authorization", "Bearer " + createToken)
                                                          .post(create(body, get("application/json"))).build();
         String location;
         try(Response response = this.http.newCall(postRequest).execute()) {
@@ -36,8 +36,9 @@ class SchoolIT
             location = response.header("Location");
             assertNotNull(location);
         }
+        final String readToken = this.getToken(USERNAME, "schools.read");
         final Request getRequest =
-                new Request.Builder().url(location).addHeader("Authorization", "Bearer " + token).build();
+                new Request.Builder().url(location).addHeader("Authorization", "Bearer " + readToken).build();
         try(Response response = this.http.newCall(getRequest).execute()) {
             assertEquals(200, response.code());
             final JsonNode node = this.json.readTree(response.body().string());

@@ -60,6 +60,51 @@
                 "include.in.token.scope": "true",
                 "display.on.consent.screen": "false"
             }
+        },
+        {
+            "name": "parents.read",
+            "description": "Permission to look up parent records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "kids.read",
+            "description": "Permission to look up kid records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "schools.read",
+            "description": "Permission to look up school records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "teachers.read",
+            "description": "Permission to look up teacher records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "classrooms.read",
+            "description": "Permission to look up classroom records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
         }
     ],
     "clients": [
@@ -81,7 +126,12 @@
                 "parents.create",
                 "kids.create",
                 "schools.create",
-                "teachers.create"
+                "teachers.create",
+                "parents.read",
+                "kids.read",
+                "schools.read",
+                "teachers.read",
+                "classrooms.read"
             ]
         }
     ],

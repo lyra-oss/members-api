@@ -5,7 +5,7 @@ Feature: Classroom teaching staff
     I want to assign teachers and a tutor to a classroom
 
     Background:
-        Given I am authenticated with "schools.create" scope
+        Given I am authenticated with "classrooms.read" scope
         And a school named "Gloria Fuertes" exists
         And a classroom for course 3 group "A" exists at school "Gloria Fuertes"
         And a teacher named "Marta" "Ibáñez" exists at school "Gloria Fuertes" with e-mail "marta.ibanez@example.com"

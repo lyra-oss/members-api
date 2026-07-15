@@ -10,6 +10,7 @@ import edu.lyra.members.api.repositories.jpa.School;
 import edu.lyra.members.api.repositories.jpa.SchoolsRepository;
 import edu.lyra.members.api.repositories.jpa.Teacher;
 import edu.lyra.members.api.repositories.jpa.TeachersRepository;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import org.instancio.Instancio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class EntityFixtures {
     private ScenarioContext scenarioContext;
 
     static School newSchool(final String name) {
-        //@formatter:on
+        //@formatter:off
         return Instancio.of(School.class)
                          .ignore(field(School.class, "id"))
                          .ignore(field(School.class, "classrooms"))
@@ -46,6 +47,13 @@ public class EntityFixtures {
         //@formatter:on
     }
 
+    @Before(order = 0)
+    public void cleanSchools() {
+        this.classroomsRepository.deleteAll();
+        this.teachersRepository.deleteAll();
+        this.schoolsRepository.deleteAll();
+    }
+
     @Given("a school named {string} exists")
     public void aSchoolNamedExists(final String name) {
         final School saved = TestSecurityContext.runAuthenticated(() -> this.schoolsRepository.save(newSchool(name)));
@@ -54,7 +62,7 @@ public class EntityFixtures {
 
     @Given("a classroom for course {int} group {string} exists at school {string}")
     public void aClassroomExistsAtSchool(final int course, final String group, final String schoolName) {
-        //@formatter:on
+        //@formatter:off
         final Classroom classroom = Instancio.of(Classroom.class).ignore(field(Classroom.class, "id"))
                                              .ignore(field(Classroom.class, "tutor"))
                                              .ignore(field(Classroom.class, "teachers"))
@@ -70,11 +78,15 @@ public class EntityFixtures {
         //@formatter:on
         final Classroom saved = TestSecurityContext.runAuthenticated(() -> this.classroomsRepository.save(classroom));
         this.scenarioContext.putLocation("classroom", "/v0/classrooms/" + saved.getId());
+        this.scenarioContext.putLocation("classroom:" + course + " " + group, "/v0/classrooms/" + saved.getId());
     }
 
     @Given("a teacher named {string} {string} exists at school {string} with e-mail {string}")
     public void aTeacherExistsAtSchool(
-            final String name, final String surname, final String schoolName, final String mail
+            final String name,
+            final String surname,
+            final String schoolName,
+            final String mail
     ) {
         //@formatter:off
         final Teacher teacher = Teacher.builder()
