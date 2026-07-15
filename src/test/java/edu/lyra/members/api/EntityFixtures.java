@@ -1,5 +1,7 @@
 package edu.lyra.members.api;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import edu.lyra.members.api.repositories.jpa.Auditable;
@@ -10,6 +12,7 @@ import edu.lyra.members.api.repositories.jpa.School;
 import edu.lyra.members.api.repositories.jpa.SchoolsRepository;
 import edu.lyra.members.api.repositories.jpa.Teacher;
 import edu.lyra.members.api.repositories.jpa.TeachersRepository;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import org.instancio.Instancio;
@@ -60,6 +63,14 @@ public class EntityFixtures {
         this.scenarioContext.putLocation("school:" + name, "/v0/schools/" + saved.getId());
     }
 
+    @Given("the following schools exist:")
+    public void theFollowingSchoolsExist(final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aSchoolNamedExists(row.get("name"));
+        }
+    }
+
     @Given("a classroom for course {int} group {string} exists at school {string}")
     public void aClassroomExistsAtSchool(final int course, final String group, final String schoolName) {
         //@formatter:off
@@ -81,6 +92,14 @@ public class EntityFixtures {
         this.scenarioContext.putLocation("classroom:" + course + " " + group, "/v0/classrooms/" + saved.getId());
     }
 
+    @Given("the following classrooms exist at school {string}:")
+    public void theFollowingClassroomsExistAtSchool(final String schoolName, final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aClassroomExistsAtSchool(Integer.parseInt(row.get("course")), row.get("group"), schoolName);
+        }
+    }
+
     @Given("a teacher named {string} {string} exists at school {string} with e-mail {string}")
     public void aTeacherExistsAtSchool(
             final String name,
@@ -97,6 +116,14 @@ public class EntityFixtures {
         //@formatter:on
         final Teacher saved = TestSecurityContext.runAuthenticated(() -> this.teachersRepository.save(teacher));
         this.scenarioContext.putLocation("teacher:" + name + " " + surname, "/v0/teachers/" + saved.getId());
+    }
+
+    @Given("the following teachers exist at school {string}:")
+    public void theFollowingTeachersExistAtSchool(final String schoolName, final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aTeacherExistsAtSchool(row.get("name"), row.get("surname"), schoolName, row.get("mail"));
+        }
     }
 
     private School school(final String name) {

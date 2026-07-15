@@ -5,9 +5,13 @@ Feature: Kids directory
     I want to list and retrieve kid records
 
     Background:
-        Given a kid named "Alicia" "Cristóbal" born on "2019-12-12" exists
-        And a kid named "Marta" "Ibáñez" born on "2018-05-20" exists
-        And a kid named "Pablo" "Ruiz" born on "2020-03-08" exists
+        Given the following kids exist:
+            | name   | surname   | birthdate  |
+            | Alicia | Cristóbal | 2019-12-12 |
+            | Marta  | Ibáñez    | 2018-05-20 |
+            | Pablo  | Ruiz      | 2020-03-08 |
+            | Lucía  | Moreno    | 2017-09-15 |
+            | Diego  | Torres    | 2021-01-30 |
         And I am authenticated with "kids.read" scope
 
     Scenario: List kids
@@ -16,11 +20,11 @@ Feature: Kids directory
 
     Scenario: List kids with pagination
         When I request the list of kids with page size 2 and page number 0
-        Then I receive a page of 2 kids out of a total of 3
+        Then I receive a page of 2 kids out of a total of 5
 
     Scenario: List kids with pagination, second page
         When I request the list of kids with page size 2 and page number 1
-        Then I receive a page of 1 kids out of a total of 3
+        Then I receive a page of 2 kids out of a total of 5
 
     Scenario: Get a kid
         When I request kid "Alicia" "Cristóbal"

@@ -5,9 +5,13 @@ Feature: Schools directory
     I want to list and retrieve school records
 
     Background:
-        Given a school named "Gloria Fuertes" exists
-        And a school named "Montessori Norte" exists
-        And a school named "San Ignacio" exists
+        Given the following schools exist:
+            | name             |
+            | Gloria Fuertes   |
+            | Montessori Norte |
+            | San Ignacio      |
+            | Santa Cecilia    |
+            | El Pilar         |
         And I am authenticated with "schools.read" scope
 
     Scenario: List schools
@@ -16,11 +20,11 @@ Feature: Schools directory
 
     Scenario: List schools with pagination
         When I request the list of schools with page size 2 and page number 0
-        Then I receive a page of 2 schools out of a total of 3
+        Then I receive a page of 2 schools out of a total of 5
 
     Scenario: List schools with pagination, second page
         When I request the list of schools with page size 2 and page number 1
-        Then I receive a page of 1 schools out of a total of 3
+        Then I receive a page of 2 schools out of a total of 5
 
     Scenario: Get a school
         When I request school "Gloria Fuertes"

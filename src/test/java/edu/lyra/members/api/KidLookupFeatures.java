@@ -1,6 +1,8 @@
 package edu.lyra.members.api;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import edu.lyra.members.api.repositories.jpa.Auditable;
@@ -9,6 +11,7 @@ import edu.lyra.members.api.repositories.jpa.Kid;
 import edu.lyra.members.api.repositories.jpa.KidsRepository;
 import edu.lyra.members.api.repositories.jpa.Parent;
 import edu.lyra.members.api.repositories.jpa.ParentsRepository;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -69,6 +72,14 @@ public class KidLookupFeatures {
         //@formatter:on
         final Kid saved = TestSecurityContext.runAuthenticated(() -> this.kidsRepository.save(kid));
         this.scenarioContext.putLocation("kid:" + name + " " + surname, "/v0/kids/" + saved.getId());
+    }
+
+    @Given("the following kids exist:")
+    public void theFollowingKidsExist(final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aKidExists(row.get("name"), row.get("surname"), row.get("birthdate"));
+        }
     }
 
     @When("I request the list of kids")

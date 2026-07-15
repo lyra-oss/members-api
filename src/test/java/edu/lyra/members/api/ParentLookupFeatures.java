@@ -1,10 +1,13 @@
 package edu.lyra.members.api;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import edu.lyra.members.api.repositories.jpa.ContactInfo;
 import edu.lyra.members.api.repositories.jpa.Parent;
 import edu.lyra.members.api.repositories.jpa.ParentsRepository;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -42,6 +45,14 @@ public class ParentLookupFeatures {
         //@formatter:on
         final Parent saved = TestSecurityContext.runAuthenticated(() -> this.parentsRepository.save(parent));
         this.scenarioContext.putLocation("parent:" + name + " " + surname, "/v0/parents/" + saved.getId());
+    }
+
+    @Given("the following parents exist:")
+    public void theFollowingParentsExist(final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.parentExistsWithMail(row.get("name"), row.get("surname"), row.get("mail"));
+        }
     }
 
     @When("I request the list of parents")

@@ -1,8 +1,8 @@
-Feature: Parents' onboarding
+Feature: Parents' creation
 
     In order to let parents use our service
     As Lyra
-    I want to provide onboarding services
+    I want to provide creation services
 
     Background:
         Given I am authenticated with "parents.create" scope
@@ -89,4 +89,3 @@ Feature: Parents' onboarding
         And I already have an account
         When I click on "Create account"
         Then I receive an error because the account already exists
-

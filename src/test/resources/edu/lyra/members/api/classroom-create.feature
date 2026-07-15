@@ -1,8 +1,8 @@
-Feature: Classrooms' onboarding
+Feature: Classrooms' creation
 
     In order to organize a school's students
     As Lyra
-    I want to provide onboarding services for classrooms
+    I want to provide creation services for classrooms
 
     Background:
         Given a school named "Gloria Fuertes" exists

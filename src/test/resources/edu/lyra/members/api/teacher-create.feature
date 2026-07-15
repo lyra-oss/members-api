@@ -1,8 +1,8 @@
-Feature: Teachers' onboarding
+Feature: Teachers' creation
 
     In order to let teachers use our service
     As Lyra
-    I want to provide onboarding services for teachers
+    I want to provide creation services for teachers
 
     Background:
         Given I am authenticated with "teachers.create" scope

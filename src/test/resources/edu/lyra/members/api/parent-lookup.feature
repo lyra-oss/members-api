@@ -5,9 +5,13 @@ Feature: Parents directory
     I want to list and retrieve parent records
 
     Background:
-        Given parent "Esteban" "Cristóbal" exists with e-mail "esteban.cristobal@example.com"
-        And parent "Marta" "Ibáñez" exists with e-mail "marta.ibanez@example.com"
-        And parent "Pablo" "Ruiz" exists with e-mail "pablo.ruiz@example.com"
+        Given the following parents exist:
+            | name    | surname   | mail                          |
+            | Esteban | Cristóbal | esteban.cristobal@example.com |
+            | Marta   | Ibáñez    | marta.ibanez@example.com      |
+            | Pablo   | Ruiz      | pablo.ruiz@example.com        |
+            | Lucía   | Moreno    | lucia.moreno@example.com      |
+            | Diego   | Torres    | diego.torres@example.com      |
         And I am authenticated with "parents.read" scope
 
     Scenario: List parents
@@ -16,11 +20,11 @@ Feature: Parents directory
 
     Scenario: List parents with pagination
         When I request the list of parents with page size 2 and page number 0
-        Then I receive a page of 2 parents out of a total of 3
+        Then I receive a page of 2 parents out of a total of 5
 
     Scenario: List parents with pagination, second page
         When I request the list of parents with page size 2 and page number 1
-        Then I receive a page of 1 parents out of a total of 3
+        Then I receive a page of 2 parents out of a total of 5
 
     Scenario: Get a parent
         When I request parent "Esteban" "Cristóbal"

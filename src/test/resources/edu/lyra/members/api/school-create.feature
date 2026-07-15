@@ -1,8 +1,8 @@
-Feature: Schools' onboarding
+Feature: Schools' creation
 
     In order to register classrooms under a school
     As Lyra
-    I want to provide onboarding services for schools
+    I want to provide creation services for schools
 
     Background:
         Given I am authenticated with "schools.create" scope
@@ -28,4 +28,3 @@ Feature: Schools' onboarding
             | is set to null           |
             | is left blank            |
             | contains only whitespace |
-

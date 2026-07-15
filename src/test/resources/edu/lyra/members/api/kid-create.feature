@@ -1,8 +1,8 @@
-Feature: Kids' onboarding
+Feature: Kids' creation
 
     In order to let parents register their kids in Lyra
     As Lyra
-    I want to provide onboarding services for kids
+    I want to provide creation services for kids
 
     Background:
         Given my name is "Esteban"
