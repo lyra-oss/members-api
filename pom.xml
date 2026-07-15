@@ -37,11 +37,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Dependency versions -->
         <cucumber.version>7.34.4</cucumber.version>
+        <opentelemetry.version>1.63.0</opentelemetry.version>
         <okhttp.version>5.4.0</okhttp.version>
         <archunit.version>1.4.2</archunit.version>
         <postgresql.version>42.7.12</postgresql.version>
         <tomcat-embed-core.version>11.0.23</tomcat-embed-core.version>
         <logback-core.version>1.5.36</logback-core.version>
+        <jackson-databind.version>3.1.5</jackson-databind.version>
         <instancio.version>5.6.0</instancio.version>
         <datafaker.version>2.7.0</datafaker.version>
         <!-- Plugin versions -->
@@ -66,12 +68,12 @@
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-extension-trace-propagators</artifactId>
-                <version>1.63.0</version>
+                <version>${opentelemetry.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-api</artifactId>
-                <version>1.63.0</version>
+                <version>${opentelemetry.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>
@@ -87,6 +89,11 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
                 <version>${logback-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-databind.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
