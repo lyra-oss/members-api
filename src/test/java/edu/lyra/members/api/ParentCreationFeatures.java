@@ -171,17 +171,6 @@ public class ParentCreationFeatures {
         }
     }
 
-    @Given("another parent exists with e-mail {string}")
-    public void anotherParentExistsWithMail(final String mail) {
-        //@formatter:off
-        final Parent parent = Parent.builder()
-                                    .id(UUID.randomUUID())
-                                    .contactInfo(ContactInfo.builder().name("Other").surname("Parent").mail(mail).build())
-                                    .build();
-        //@formatter:on
-        this.saveAsSelf(parent);
-    }
-
     @When("I click on \"Create account\"")
     public void createAccount()
             throws Exception {

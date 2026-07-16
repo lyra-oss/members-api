@@ -33,10 +33,4 @@ public class CommonAssertions {
         this.scenarioContext.getResultActions().andExpect(status().isNotFound());
     }
 
-    @Then("I receive a bad request error")
-    public void receiveBadRequestError()
-            throws Exception {
-        this.scenarioContext.getResultActions().andExpect(status().isBadRequest());
-    }
-
 }

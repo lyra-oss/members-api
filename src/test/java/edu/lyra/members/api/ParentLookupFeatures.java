@@ -35,7 +35,6 @@ public class ParentLookupFeatures {
     @Autowired
     private ScenarioContext scenarioContext;
 
-    @Given("parent {string} {string} exists with e-mail {string}")
     public void parentExistsWithMail(final String name, final String surname, final String mail) {
         //@formatter:off
         final Parent parent = Parent.builder()
