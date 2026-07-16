@@ -26,16 +26,25 @@ public class AuthenticationFeatures {
     @Given("I am authenticated as {string} with {string} scope")
     public void iAmAuthenticatedAsWithScope(final String email, final String scope) {
         final String sub = parentsRepository.findByContactInfoMail(email).orElseThrow().getId().toString();
-        scenarioContext.setJwtProcessor(
-                jwt().jwt(builder -> builder.subject(sub)).authorities(new SimpleGrantedAuthority("SCOPE_" + scope)));
+        scenarioContext.setJwtProcessor(jwt().jwt(builder -> builder.subject(sub))
+                                             .authorities(new SimpleGrantedAuthority("SCOPE_" + scope),
+                                                          new SimpleGrantedAuthority("ROLE_parent")));
     }
 
     @Given("I am authenticated as teacher {string} with {string} scope")
     public void iAmAuthenticatedAsTeacherWithScope(final String teacherName, final String scope) {
         final String location = scenarioContext.getLocation("teacher:" + teacherName);
         final String sub      = location.substring(location.lastIndexOf('/') + 1);
-        scenarioContext.setJwtProcessor(
-                jwt().jwt(builder -> builder.subject(sub)).authorities(new SimpleGrantedAuthority("SCOPE_" + scope)));
+        scenarioContext.setJwtProcessor(jwt().jwt(builder -> builder.subject(sub))
+                                             .authorities(new SimpleGrantedAuthority("SCOPE_" + scope),
+                                                          new SimpleGrantedAuthority("ROLE_teacher")));
+    }
+
+    @Given("I am authenticated as an admin with {string} scope")
+    public void iAmAuthenticatedAsAdminWithScope(final String scope) {
+        scenarioContext.setJwtProcessor(jwt().jwt(builder -> builder.subject(UUID.randomUUID().toString()))
+                                             .authorities(new SimpleGrantedAuthority("SCOPE_" + scope),
+                                                          new SimpleGrantedAuthority("ROLE_admin")));
     }
 
 }

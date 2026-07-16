@@ -86,6 +86,19 @@ Feature: Kids directory
         Then the list of kids contains exactly the following kids:
             | name | surname | birthdate |
 
+    Scenario: An admin sees every kid
+        Given I am authenticated as an admin with "kids.read" scope
+        When I request the list of kids
+        Then the list of kids contains exactly the following kids:
+            | name   | surname   | birthdate  |
+            | Alicia | Cristóbal | 2019-12-12 |
+            | Bruno  | Cristóbal | 2018-05-20 |
+            | Carla  | Cristóbal | 2020-03-08 |
+            | Dario  | Cristóbal | 2017-09-15 |
+            | Elena  | Cristóbal | 2021-01-30 |
+            | Fabio  | Ibáñez    | 2019-06-01 |
+            | Gala   | Ibáñez    | 2020-07-11 |
+
     Scenario: Get a kid
         Given I am authenticated with "kids.read" scope
         When I request kid "Alicia" "Cristóbal"

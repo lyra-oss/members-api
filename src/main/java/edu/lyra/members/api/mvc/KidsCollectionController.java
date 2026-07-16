@@ -1,12 +1,11 @@
 package edu.lyra.members.api.mvc;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 import edu.lyra.members.api.repositories.jpa.Kid;
 import edu.lyra.members.api.repositories.jpa.KidsRepository;
-import edu.lyra.members.api.repositories.jpa.ParentsRepository;
-import edu.lyra.members.api.repositories.jpa.TeachersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,16 +21,16 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import static java.util.UUID.fromString;
-
 @Slf4j
 @RequiredArgsConstructor
 @RepositoryRestController
 class KidsCollectionController {
 
-    private final KidsRepository     kidsRepository;
-    private final ParentsRepository  parentsRepository;
-    private final TeachersRepository teachersRepository;
+    private static final String ROLE_ADMIN   = "ROLE_admin";
+    private static final String ROLE_PARENT  = "ROLE_parent";
+    private static final String ROLE_TEACHER = "ROLE_teacher";
+
+    private final KidsRepository kidsRepository;
 
     @ResponseBody
     @GetMapping("/kids")
@@ -47,35 +46,43 @@ class KidsCollectionController {
     }
 
     private Page<Kid> kidsVisibleToAuthenticatedPrincipal(final Pageable pageable) {
-        return authenticatedPrincipalId().flatMap(principalId -> this.kidsFor(principalId, pageable))
-                                         .orElseGet(() -> Page.empty(pageable));
-    }
-
-    private static Optional<UUID> authenticatedPrincipalId() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(! (authentication instanceof JwtAuthenticationToken jwtAuth)) {
             log.debug("No JWT authentication present; returning no kids");
-            return Optional.empty();
+            return Page.empty(pageable);
         }
+        if(hasAuthority(jwtAuth, ROLE_ADMIN)) {
+            log.debug("Principal holds {}; returning every kid", ROLE_ADMIN);
+            return this.kidsRepository.findAll(pageable);
+        }
+        final Optional<UUID> principalId = principalId(jwtAuth);
+        if(principalId.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        if(hasAuthority(jwtAuth, ROLE_PARENT)) {
+            log.debug("Scoping kid list to parent {}", principalId.get());
+            return this.kidsRepository.findByParentIdOrderByNameAsc(principalId.get(), pageable);
+        }
+        if(hasAuthority(jwtAuth, ROLE_TEACHER)) {
+            log.debug("Scoping kid list to classrooms taught or tutored by teacher {}", principalId.get());
+            return this.kidsRepository.findByClassroomTaughtOrTutoredBy(principalId.get(), pageable);
+        }
+        log.debug("Principal {} holds no recognised role; returning no kids", principalId.get());
+        return Page.empty(pageable);
+    }
+
+    private static boolean hasAuthority(final Authentication authentication, final String authority) {
+        return authentication.getAuthorities().stream()
+                             .anyMatch(granted -> Objects.equals(granted.getAuthority(), authority));
+    }
+
+    private static Optional<UUID> principalId(final JwtAuthenticationToken jwtAuth) {
         try {
-            return Optional.of(fromString(jwtAuth.getToken().getSubject()));
-        } catch(final IllegalArgumentException e) {
+            return Optional.ofNullable(jwtAuth.getToken().getSubject()).map(UUID::fromString);
+        } catch(final IllegalArgumentException _) {
             log.debug("JWT subject {} is not a valid UUID; returning no kids", jwtAuth.getToken().getSubject());
             return Optional.empty();
         }
-    }
-
-    private Optional<Page<Kid>> kidsFor(final UUID principalId, final Pageable pageable) {
-        if(this.parentsRepository.existsById(principalId)) {
-            log.debug("Scoping kid list to parent {}", principalId);
-            return Optional.of(this.kidsRepository.findByParentIdOrderByNameAsc(principalId, pageable));
-        }
-        if(this.teachersRepository.existsById(principalId)) {
-            log.debug("Scoping kid list to classrooms taught or tutored by teacher {}", principalId);
-            return Optional.of(this.kidsRepository.findByClassroomTaughtOrTutoredBy(principalId, pageable));
-        }
-        log.debug("Principal {} is neither a parent nor a teacher; returning no kids", principalId);
-        return Optional.empty();
     }
 
 }

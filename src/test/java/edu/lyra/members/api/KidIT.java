@@ -32,6 +32,7 @@ class KidIT
         this.createParent();
         final String kidLocation = this.createKid();
         retrieveAndVerifyKid(kidLocation);
+        this.verifyKidAppearsInParentScopedKidList();
     }
 
     private void createParent()
@@ -72,6 +73,20 @@ class KidIT
             assertEquals(NAME_VALUE, node.get(NAME_KEY).asString());
             assertEquals(SURNAME_VALUE, node.get(SURNAME_KEY).asString());
             assertEquals(BIRTHDATE_VALUE, node.get(BIRTHDATE_KEY).asString());
+        }
+    }
+
+    private void verifyKidAppearsInParentScopedKidList()
+            throws IOException {
+        final String token = this.getToken(USERNAME, "kids.read");
+        final Request request = new Request.Builder().url("http://localhost:" + PORT + "/v0/kids")
+                                                     .addHeader("Authorization", "Bearer " + token).build();
+        try(Response response = this.http.newCall(request).execute()) {
+            assertEquals(200, response.code());
+            final JsonNode kids = this.json.readTree(response.body().string()).path("_embedded").path("kids");
+            assertEquals(1, kids.size());
+            assertEquals(NAME_VALUE, kids.get(0).get(NAME_KEY).asString());
+            assertEquals(SURNAME_VALUE, kids.get(0).get(SURNAME_KEY).asString());
         }
     }
 

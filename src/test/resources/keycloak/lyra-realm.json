@@ -3,7 +3,48 @@
     "enabled": true,
     "sslRequired": "none",
     "registrationAllowed": false,
+    "roles": {
+        "realm": [
+            {
+                "name": "parent",
+                "description": "A parent, entitled to see their own kids"
+            },
+            {
+                "name": "teacher",
+                "description": "A teacher, entitled to see the kids in classrooms they teach or tutor"
+            },
+            {
+                "name": "admin",
+                "description": "An administrator, entitled to see every kid"
+            }
+        ]
+    },
     "clientScopes": [
+        {
+            "name": "roles",
+            "description": "OpenID Connect scope for add user roles to the access token",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "false",
+                "display.on.consent.screen": "false"
+            },
+            "protocolMappers": [
+                {
+                    "name": "realm roles",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "multivalued": "true",
+                        "userinfo.token.claim": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "realm_access.roles",
+                        "jsonType.label": "String"
+                    }
+                }
+            ]
+        },
         {
             "name": "basic",
             "description": "OpenID Connect scope for add all basic claims to the token",
@@ -119,7 +160,8 @@
             "protocol": "openid-connect",
             "defaultClientScopes": [
                 "basic",
-                "openid"
+                "openid",
+                "roles"
             ],
             "optionalClientScopes": [
                 "email",
@@ -158,6 +200,9 @@
             "lastName": "Parent",
             "enabled": true,
             "emailVerified": true,
+            "realmRoles": [
+                "parent"
+            ],
             "credentials": [
                 {
                     "type": "password",
@@ -173,6 +218,9 @@
             "lastName": "Admin",
             "enabled": true,
             "emailVerified": true,
+            "realmRoles": [
+                "admin"
+            ],
             "credentials": [
                 {
                     "type": "password",
@@ -188,6 +236,9 @@
             "lastName": "Account",
             "enabled": true,
             "emailVerified": true,
+            "realmRoles": [
+                "teacher"
+            ],
             "credentials": [
                 {
                     "type": "password",
