@@ -53,7 +53,7 @@
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
         <pitest-maven-plugin.version>1.25.7</pitest-maven-plugin.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
-        <rewrite-maven-plugin.version>6.43.0</rewrite-maven-plugin.version>
+        <rewrite-maven-plugin.version>6.44.0</rewrite-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
