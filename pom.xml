@@ -37,7 +37,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Dependency versions -->
         <cucumber.version>7.34.4</cucumber.version>
-        <opentelemetry.version>1.63.0</opentelemetry.version>
+        <opentelemetry.version>1.64.0</opentelemetry.version>
         <okhttp.version>5.4.0</okhttp.version>
         <archunit.version>1.4.2</archunit.version>
         <postgresql.version>42.7.13</postgresql.version>
