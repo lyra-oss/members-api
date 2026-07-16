@@ -146,6 +146,51 @@
                 "include.in.token.scope": "true",
                 "display.on.consent.screen": "false"
             }
+        },
+        {
+            "name": "parents.update",
+            "description": "Permission to update parent accounts",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "kids.update",
+            "description": "Permission to update kid records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "schools.update",
+            "description": "Permission to update school records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "teachers.update",
+            "description": "Permission to update teacher records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "classrooms.update",
+            "description": "Permission to update classroom records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
         }
     ],
     "clients": [
@@ -173,7 +218,12 @@
                 "kids.read",
                 "schools.read",
                 "teachers.read",
-                "classrooms.read"
+                "classrooms.read",
+                "parents.update",
+                "kids.update",
+                "schools.update",
+                "teachers.update",
+                "classrooms.update"
             ]
         }
     ],

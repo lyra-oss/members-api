@@ -40,20 +40,21 @@ public class Parent
     @Column(name = "ID", nullable = false)
     private UUID id;
 
+    @Exclude
+    @OneToMany(cascade = ALL)
+    @JoinColumn(name = "PARENT_ID")
+    private Set<Kid> kids = new HashSet<>();
+
+    @Setter
     @Valid
     @JsonUnwrapped
     @Embedded
-    private ContactInfo contactInfo;
+    private ContactInfo contactInfo = new ContactInfo();
 
     @Builder
     private Parent(final UUID id, final ContactInfo contactInfo) {
         this.id          = id;
         this.contactInfo = contactInfo;
     }
-
-    @Exclude
-    @OneToMany(cascade = ALL)
-    @JoinColumn(name = "PARENT_ID")
-    private Set<Kid> kids = new HashSet<>();
 
 }

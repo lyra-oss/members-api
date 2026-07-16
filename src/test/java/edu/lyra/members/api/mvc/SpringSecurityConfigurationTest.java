@@ -39,9 +39,12 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -301,6 +304,45 @@ class SpringSecurityConfigurationTest {
         mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_" + resource + ".read"))))
            .andExpect(status().isNotFound());
+        //@formatter:on
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    void testItemPutIsDisabled(final String resource)
+            throws Exception {
+        //@formatter:off
+        mvc.perform(put(this.base() + "/" + resource + "/" + randomUUID())
+                .with(jwt())
+                .contentType(APPLICATION_JSON)
+                .content("{}"))
+           .andExpect(status().isMethodNotAllowed());
+        //@formatter:on
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    void testItemPatchRequiresAuthentication(final String resource)
+            throws Exception {
+        //@formatter:off
+        mvc.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .content("{}"))
+           .andExpect(status().isUnauthorized());
+        //@formatter:on
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    void testItemPatchRequiresUpdateScope(final String resource)
+            throws Exception {
+        //@formatter:off
+        mvc.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
+                .contentType(APPLICATION_JSON)
+                .content("{}"))
+           .andExpect(status().isForbidden());
         //@formatter:on
     }
 

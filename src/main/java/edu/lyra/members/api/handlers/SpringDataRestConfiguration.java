@@ -1,7 +1,11 @@
 package edu.lyra.members.api.handlers;
 
+import edu.lyra.members.api.repositories.jpa.Classroom;
 import edu.lyra.members.api.repositories.jpa.Kid;
+import edu.lyra.members.api.repositories.jpa.Parent;
 import edu.lyra.members.api.repositories.jpa.ParentsRepository;
+import edu.lyra.members.api.repositories.jpa.School;
+import edu.lyra.members.api.repositories.jpa.Teacher;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,11 +33,22 @@ class SpringDataRestConfiguration {
             ) {
                 config.getExposureConfiguration().forDomainType(Kid.class)
                       .withAssociationExposure((_, httpMethods) -> httpMethods.disable(POST, PUT, PATCH));
+                config.getExposureConfiguration().forDomainType(Parent.class)
+                      .withItemExposure((_, httpMethods) -> httpMethods.disable(PUT));
+                config.getExposureConfiguration().forDomainType(Kid.class)
+                      .withItemExposure((_, httpMethods) -> httpMethods.disable(PUT));
+                config.getExposureConfiguration().forDomainType(Teacher.class)
+                      .withItemExposure((_, httpMethods) -> httpMethods.disable(PUT));
+                config.getExposureConfiguration().forDomainType(School.class)
+                      .withItemExposure((_, httpMethods) -> httpMethods.disable(PUT));
+                config.getExposureConfiguration().forDomainType(Classroom.class)
+                      .withItemExposure((_, httpMethods) -> httpMethods.disable(PUT));
             }
 
             @Override
             public void configureValidatingRepositoryEventListener(final @NonNull ValidatingRepositoryEventListener validatingListener) {
                 validatingListener.addValidator("beforeCreate", validator);
+                validatingListener.addValidator("beforeSave", validator);
             }
         };
     }
@@ -56,6 +71,31 @@ class SpringDataRestConfiguration {
     @Bean
     ClassroomTeacherAssignmentEventHandler classroomTeacherAssignmentEventHandler() {
         return new ClassroomTeacherAssignmentEventHandler();
+    }
+
+    @Bean
+    ParentUpdateAuthorizationEventHandler parentUpdateAuthorizationEventHandler() {
+        return new ParentUpdateAuthorizationEventHandler();
+    }
+
+    @Bean
+    KidUpdateAuthorizationEventHandler kidUpdateAuthorizationEventHandler() {
+        return new KidUpdateAuthorizationEventHandler();
+    }
+
+    @Bean
+    TeacherUpdateAuthorizationEventHandler teacherUpdateAuthorizationEventHandler() {
+        return new TeacherUpdateAuthorizationEventHandler();
+    }
+
+    @Bean
+    SchoolUpdateAuthorizationEventHandler schoolUpdateAuthorizationEventHandler() {
+        return new SchoolUpdateAuthorizationEventHandler();
+    }
+
+    @Bean
+    ClassroomUpdateAuthorizationEventHandler classroomUpdateAuthorizationEventHandler() {
+        return new ClassroomUpdateAuthorizationEventHandler();
     }
 
 }

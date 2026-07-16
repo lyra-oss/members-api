@@ -16,6 +16,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,10 +40,12 @@ public class Teacher
     @Column(name = "ID", nullable = false)
     private UUID id;
 
+    @Setter
+    @Default
     @Valid
     @JsonUnwrapped
     @Embedded
-    private ContactInfo contactInfo;
+    private ContactInfo contactInfo = new ContactInfo();
 
     @NotNull
     @ManyToOne

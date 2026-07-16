@@ -7,11 +7,16 @@ import org.springframework.context.annotation.Configuration;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
+import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;
+
 @AnalyzeClasses(packages = "edu.lyra.members.api")
 class ArchitectureTest {
 
     @ArchTest
     static final ArchRule springConfigurationClassName =
             classes().that().areAnnotatedWith(Configuration.class).should().haveSimpleNameEndingWith("Configuration");
+
+    @ArchTest
+    static final ArchRule noClassesAccessStandardStreams = NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;
 
 }

@@ -16,7 +16,9 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Pattern;
@@ -77,5 +79,14 @@ public class Classroom
     @OneToMany(cascade = ALL)
     @JoinColumn(name = "CLASSROOM_ID")
     private Set<Kid> kids = new HashSet<>();
+
+    @JsonIgnore
+    @Transient
+    private UUID previousTutorId;
+
+    @PostLoad
+    private void capturePreviousTutorId() {
+        this.previousTutorId = this.tutor == null ? null : this.tutor.getId();
+    }
 
 }

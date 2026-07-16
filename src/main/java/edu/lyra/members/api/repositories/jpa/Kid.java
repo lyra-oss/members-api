@@ -11,7 +11,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -60,5 +62,19 @@ public class Kid
     @Setter
     @ManyToOne
     private Classroom classroom;
+
+    @JsonIgnore
+    @Transient
+    private UUID previousParentId;
+
+    @JsonIgnore
+    @Transient
+    private UUID previousClassroomId;
+
+    @PostLoad
+    private void capturePreviousAssociations() {
+        this.previousParentId    = this.parent == null ? null : this.parent.getId();
+        this.previousClassroomId = this.classroom == null ? null : this.classroom.getId();
+    }
 
 }

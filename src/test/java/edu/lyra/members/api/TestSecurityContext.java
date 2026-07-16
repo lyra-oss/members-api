@@ -14,11 +14,15 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 class TestSecurityContext {
 
     <T> T runAuthenticated(final Supplier<T> action) {
+        return runAuthenticated(UUID.randomUUID(), action);
+    }
+
+    <T> T runAuthenticated(final UUID subject, final Supplier<T> action) {
         //@formatter:off
         final Authentication previous = SecurityContextHolder.getContext().getAuthentication();
         final Jwt jwt = Jwt.withTokenValue("token")
                            .header("alg", "none")
-                           .subject(UUID.randomUUID().toString())
+                           .subject(subject.toString())
                            .build();
         //@formatter:on
         SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, List.of()));

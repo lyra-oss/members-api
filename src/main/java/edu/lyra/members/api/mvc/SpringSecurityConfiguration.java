@@ -15,7 +15,9 @@ import org.springframework.security.oauth2.server.resource.web.authentication.Be
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 
 @Configuration
 class SpringSecurityConfiguration {
@@ -34,6 +36,16 @@ class SpringSecurityConfiguration {
                            .requestMatchers(POST, base + "/kids").hasAuthority("SCOPE_kids.create")
                            .requestMatchers(POST, base + "/schools").hasAuthority("SCOPE_schools.create")
                            .requestMatchers(POST, base + "/teachers").hasAuthority("SCOPE_teachers.create")
+                           .requestMatchers(PATCH, base + "/parents/**").hasAuthority("SCOPE_parents.update")
+                           .requestMatchers(PATCH, base + "/kids/**").hasAuthority("SCOPE_kids.update")
+                           .requestMatchers(PATCH, base + "/schools/**").hasAuthority("SCOPE_schools.update")
+                           .requestMatchers(PATCH, base + "/teachers/**").hasAuthority("SCOPE_teachers.update")
+                           .requestMatchers(PATCH, base + "/classrooms/**").hasAuthority("SCOPE_classrooms.update")
+                           .requestMatchers(PUT, base + "/classrooms/*/tutor")
+                                   .hasAuthority("SCOPE_classrooms.update")
+                           .requestMatchers(POST, base + "/classrooms/*/teachers", base + "/classrooms/*/kids")
+                                   .hasAuthority("SCOPE_classrooms.update")
+                           .requestMatchers(POST, base + "/parents/*/kids").hasAuthority("SCOPE_parents.update")
                            .requestMatchers(GET, base + "/parents", base + "/parents/**")
                                    .hasAuthority("SCOPE_parents.read")
                            .requestMatchers(GET, base + "/kids", base + "/kids/**")

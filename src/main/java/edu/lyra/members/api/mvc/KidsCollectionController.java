@@ -46,11 +46,10 @@ class KidsCollectionController {
     }
 
     private Page<Kid> kidsVisibleToAuthenticatedPrincipal(final Pageable pageable) {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(! (authentication instanceof JwtAuthenticationToken jwtAuth)) {
-            log.debug("No JWT authentication present; returning no kids");
-            return Page.empty(pageable);
-        }
+        final JwtAuthenticationToken jwtAuth =
+                (JwtAuthenticationToken) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication(),
+                                                                "Spring Security should have rejected the request " +
+                                                                "before reaching this controller");
         if(hasAuthority(jwtAuth, ROLE_ADMIN)) {
             log.debug("Principal holds {}; returning every kid", ROLE_ADMIN);
             return this.kidsRepository.findAll(pageable);

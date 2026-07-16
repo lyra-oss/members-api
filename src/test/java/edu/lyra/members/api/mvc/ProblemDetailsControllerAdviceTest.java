@@ -1,5 +1,8 @@
 package edu.lyra.members.api.mvc;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -10,10 +13,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.MapBindingResult;
 
 import static java.net.URI.create;
 
@@ -85,6 +91,27 @@ class ProblemDetailsControllerAdviceTest {
         assertThat(problemDetail.getTitle()).isEqualTo("Invalid request parameter");
         assertThat(problemDetail.getDetail()).isEqualTo("'not-a-uuid' is not a valid UUID");
         assertThat(problemDetail.getProperties()).containsKey("timestamp");
+    }
+
+    @Test
+    void testRepositoryConstraintViolationErrorResponse() {
+        final MapBindingResult errors = new MapBindingResult(new HashMap<>(), "Parent");
+        errors.addError(new FieldError("Parent", "contactInfo.surname", "must not be blank"));
+        final RepositoryConstraintViolationException ex       = new RepositoryConstraintViolationException(errors);
+        final ResponseEntity<ProblemDetail>          response = advice.handleRepositoryConstraintViolationException(ex);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        final ProblemDetail problemDetail = response.getBody();
+        assertThat(problemDetail).isNotNull();
+        assertThat(problemDetail.getType()).isEqualTo(create("https://lyra.sagittec.com/problems/validation-error"));
+        assertThat(problemDetail.getTitle()).isEqualTo("Validation failed");
+        assertThat(problemDetail.getProperties()).containsKey("timestamp");
+        //@formatter:off
+        assertThat(problemDetail.getProperties()).containsEntry("errors",
+                List.of(Map.of("entity", "Parent",
+                               "property", "contactInfo.surname",
+                               "message", "must not be blank")));
+        //@formatter:on
     }
 
 }

@@ -27,3 +27,34 @@ Keycloak). Configure it with:
 > **Local development:** when running with `mvn spring-boot:run`, the `spring-boot-docker-compose` integration
 > automatically starts the required PostgreSQL and Keycloak containers defined in `compose.yml`, so no manual
 > configuration is needed.
+
+#### Scopes
+
+Every mutating or read endpoint requires the caller's access token to carry the matching OAuth2 scope, exposed
+as a `SCOPE_*` authority:
+
+| Resource   | Create scope      | Read scope        | Update scope        |
+|------------|-------------------|-------------------|---------------------|
+| Parents    | `parents.create`  | `parents.read`    | `parents.update`    |
+| Kids       | `kids.create`     | `kids.read`       | `kids.update`       |
+| Schools    | `schools.create`  | `schools.read`    | `schools.update`    |
+| Teachers   | `teachers.create` | `teachers.read`   | `teachers.update`   |
+| Classrooms | —                 | `classrooms.read` | `classrooms.update` |
+
+`classrooms.update` also gates the classroom's teaching-staff and roster endpoints (adding/removing a teacher,
+setting the tutor, enrolling a kid), and `parents.update` gates binding an existing kid to a parent
+(`POST /parents/{id}/kids`).
+
+#### Roles
+
+Beyond scopes, the token's `realm_access.roles` claim (mapped to `ROLE_*` authorities) determines *which*
+records a caller may read or update, on top of holding the required scope:
+
+| Role      | Entitlement                                                                                                                                                                                                                       |
+|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `admin`   | Full access — can read and update any parent, kid, teacher, school, or classroom.                                                                                                                                                 |
+| `parent`  | Can read and update only their own account, and only their own kids. Binding a kid to their own account is limited to a kid they themselves created.                                                                              |
+| `teacher` | Can read the kids in classrooms they teach or tutor, but can only *update* a kid, or manage a classroom's roster/teaching staff, for classrooms where they are the **tutor**. Can read and update only their own teacher account. |
+
+A caller with neither role (only a scope) can create records and read/update their own account where applicable,
+but sees no kids and cannot update anyone else's records.

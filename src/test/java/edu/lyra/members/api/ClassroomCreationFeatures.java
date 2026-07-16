@@ -10,14 +10,18 @@ import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,7 +49,7 @@ public class ClassroomCreationFeatures {
     @Given("teacher {string} has been added to the classroom")
     public void teacherHasBeenAddedToClassroom(final String teacherName)
             throws Exception {
-        this.performAddTeacher(teacherName).andExpect(status().isNoContent());
+        this.performAddTeacher(teacherName, adminJwtProcessor()).andExpect(status().isNoContent());
     }
 
     @When("I add teacher {string} to the classroom")
@@ -91,10 +95,14 @@ public class ClassroomCreationFeatures {
         //@formatter:on
     }
 
-    @Given("teacher {string} has been set as the classroom's tutor")
-    public void teacherHasBeenSetAsTutor(final String teacherName)
+    private ResultActions performAddTeacher(final String teacherName, final RequestPostProcessor jwtProcessor)
             throws Exception {
-        this.performSetTutor(teacherName).andExpect(status().isNoContent());
+        //@formatter:off
+        return this.mvc.perform(post(this.classroomLocation() + "/teachers")
+                                        .with(jwtProcessor)
+                                        .contentType(URI_LIST)
+                                        .content(this.scenarioContext.getLocation("teacher:" + teacherName)));
+        //@formatter:on
     }
 
     @When("I set teacher {string} as the classroom's tutor")
@@ -203,14 +211,18 @@ public class ClassroomCreationFeatures {
         return this.scenarioContext.getLocation("classroom");
     }
 
-    private ResultActions performAddTeacher(final String teacherName)
-            throws Exception {
+    static RequestPostProcessor adminJwtProcessor() {
         //@formatter:off
-        return this.mvc.perform(post(this.classroomLocation() + "/teachers")
-                                        .with(this.scenarioContext.getJwtProcessor())
-                                        .contentType(URI_LIST)
-                                        .content(this.scenarioContext.getLocation("teacher:" + teacherName)));
+        return jwt().jwt(builder -> builder.subject(UUID.randomUUID().toString()))
+                    .authorities(new SimpleGrantedAuthority("SCOPE_classrooms.update"),
+                                 new SimpleGrantedAuthority("ROLE_admin"));
         //@formatter:on
+    }
+
+    @Given("teacher {string} has been set as the classroom's tutor")
+    public void teacherHasBeenSetAsTutor(final String teacherName)
+            throws Exception {
+        this.performSetTutor(teacherName, adminJwtProcessor()).andExpect(status().isNoContent());
     }
 
     @Then("I receive an error because the classroom already exists")
@@ -219,14 +231,76 @@ public class ClassroomCreationFeatures {
         this.scenarioContext.getResultActions().andExpect(status().isConflict());
     }
 
-    private ResultActions performSetTutor(final String teacherName)
+    private ResultActions performSetTutor(final String teacherName, final RequestPostProcessor jwtProcessor)
             throws Exception {
         //@formatter:off
         return this.mvc.perform(put(this.classroomLocation() + "/tutor")
-                                        .with(this.scenarioContext.getJwtProcessor())
+                                        .with(jwtProcessor)
                                         .contentType(URI_LIST)
                                         .content(this.scenarioContext.getLocation("teacher:" + teacherName)));
         //@formatter:on
+    }
+
+    private ResultActions performAddTeacher(final String teacherName)
+            throws Exception {
+        return this.performAddTeacher(teacherName, this.scenarioContext.getJwtProcessor());
+    }
+
+    private ResultActions performSetTutor(final String teacherName)
+            throws Exception {
+        return this.performSetTutor(teacherName, this.scenarioContext.getJwtProcessor());
+    }
+
+    @When("I update the classroom's course to {int} and group to {string}")
+    public void updateClassroom(final int course, final String group)
+            throws Exception {
+        final ObjectNode body = OBJECT_MAPPER.createObjectNode();
+        body.put("course", course);
+        body.put("group", group);
+        //@formatter:off
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                patch(this.classroomLocation()).with(this.scenarioContext.getJwtProcessor())
+                                               .contentType(MediaType.APPLICATION_JSON)
+                                               .content(OBJECT_MAPPER.writeValueAsString(body))));
+        //@formatter:on
+    }
+
+    @When("I update a classroom that does not exist")
+    public void updateNonExistentClassroom()
+            throws Exception {
+        final ObjectNode body = OBJECT_MAPPER.createObjectNode();
+        body.put("course", 4);
+        body.put("group", "B");
+        //@formatter:off
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                patch("/v0/classrooms/" + UUID.randomUUID()).with(this.scenarioContext.getJwtProcessor())
+                                                             .contentType(MediaType.APPLICATION_JSON)
+                                                             .content(OBJECT_MAPPER.writeValueAsString(body))));
+        //@formatter:on
+    }
+
+    @Then("I receive a confirmation that the classroom has been successfully updated")
+    public void classroomUpdatedOk()
+            throws Exception {
+        this.scenarioContext.getResultActions().andExpect(status().isNoContent());
+    }
+
+    @When("I enroll kid {string} {string} in the classroom")
+    public void enrollKidInClassroom(final String name, final String surname)
+            throws Exception {
+        //@formatter:off
+        this.scenarioContext.setResultActions(this.mvc.perform(
+                post(this.classroomLocation() + "/kids")
+                        .with(this.scenarioContext.getJwtProcessor())
+                        .contentType(URI_LIST)
+                        .content(this.scenarioContext.getLocation("kid:" + name + " " + surname))));
+        //@formatter:on
+    }
+
+    @Then("I receive a confirmation that the kid has been successfully enrolled")
+    public void kidEnrolledOk()
+            throws Exception {
+        this.scenarioContext.getResultActions().andExpect(status().isNoContent());
     }
 
 }

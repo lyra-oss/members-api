@@ -61,8 +61,9 @@ class KidsAssociationMethodsTest {
     private Stream<Arguments> kidAssociationEndpoints() {
         return kidAssociationPaths().flatMap(
                 path -> of(arguments(post(path).with(jwt()), status().isMethodNotAllowed()),
-                           arguments(put(path).with(jwt()), status().isMethodNotAllowed()),
-                           arguments(patch(path).with(jwt()), status().isMethodNotAllowed()),
+                           arguments(put(path).with(jwt()), status().isMethodNotAllowed()), arguments(
+                                patch(path).with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_kids.update"))),
+                                status().isMethodNotAllowed()),
                            arguments(get(path).with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_kids.read"))),
                                      status().isNotFound())));
     }
