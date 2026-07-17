@@ -1,4 +1,4 @@
-package edu.lyra.members.api.config.jpa;
+package edu.lyra.members.api.config.security;
 
 import java.util.List;
 import java.util.Optional;

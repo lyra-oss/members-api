@@ -1,6 +1,7 @@
 package edu.lyra.members.api.config.jpa;
 
 import edu.lyra.members.api.MembersApiApplication;
+import edu.lyra.members.api.config.security.SecurityAuditorAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
