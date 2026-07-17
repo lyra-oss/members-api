@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 @AnalyzeClasses(packages = "edu.lyra.members.api")
-class JpaRepositoryArchitectureTest {
+class JpaRepositoryRulesTest {
 
     @ArchTest
     static final ArchRule repositoriesAreTransactional =

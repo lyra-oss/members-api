@@ -399,6 +399,7 @@
                         <param>**.*IT</param>
                         <param>**.*ITCase</param>
                         <param>**/IT*</param>
+                        <param>**.architecture.*</param>
                     </excludedTestClasses>
                     <parseSurefireConfig>false</parseSurefireConfig>
                 </configuration>

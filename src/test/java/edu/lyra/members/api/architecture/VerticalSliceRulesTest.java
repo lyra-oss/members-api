@@ -27,7 +27,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
  * added. Scoped to main source only, since test-code visibility is intentionally not held to the same rule.
  */
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
-class VerticalSliceArchitectureTest {
+class VerticalSliceRulesTest {
 
     private static final String BASE_PACKAGE = "edu.lyra.members.api";
 

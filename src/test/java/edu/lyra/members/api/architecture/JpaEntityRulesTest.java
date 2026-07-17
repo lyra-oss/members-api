@@ -31,7 +31,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 @AnalyzeClasses(packages = "edu.lyra.members.api")
-class JpaEntityArchitectureTest {
+class JpaEntityRulesTest {
 
     private static final List<Class<? extends Annotation>> AUDITING_FIELD_ANNOTATIONS =
             List.of(Version.class, CreatedDate.class, CreatedBy.class, LastModifiedDate.class, LastModifiedBy.class);

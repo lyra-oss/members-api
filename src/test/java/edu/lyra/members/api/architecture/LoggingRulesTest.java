@@ -29,7 +29,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
  * actually observable: every such class must be annotated with {@code @Slf4j} and log at least one line.
  */
 @AnalyzeClasses(packages = "edu.lyra.members.api")
-class LoggingArchitectureTest {
+class LoggingRulesTest {
 
     private static final String NOT_ANNOTATED_WITH_SLF4J_MESSAGE =
             "%s is not annotated with @Slf4j (no 'log' field of type org.slf4j.Logger was found)";
@@ -95,7 +95,7 @@ class LoggingArchitectureTest {
                                                                  NOT_ANNOTATED_WITH_SLF4J_MESSAGE.formatted(
                                                                          javaClass.getFullName())));
                              final boolean logsAtLeastOneLine = javaClass.getMethodCallsFromSelf().stream()
-                                                                          .anyMatch(LoggingArchitectureTest::isLoggerCall);
+                                                                          .anyMatch(LoggingRulesTest::isLoggerCall);
                              events.add(new SimpleConditionEvent(javaClass, logsAtLeastOneLine,
                                                                  DOES_NOT_LOG_ANYTHING_MESSAGE.formatted(
                                                                          javaClass.getFullName())));
@@ -115,7 +115,7 @@ class LoggingArchitectureTest {
                                  candidate.getName().equals(method.getName()) ||
                                  candidate.getName().startsWith(lambdaPrefix))
                         .flatMap(candidate -> candidate.getMethodCallsFromSelf().stream())
-                        .anyMatch(LoggingArchitectureTest::isLoggerCall);
+                        .anyMatch(LoggingRulesTest::isLoggerCall);
         //@formatter:on
     }
 

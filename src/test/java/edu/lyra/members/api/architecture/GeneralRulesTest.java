@@ -10,7 +10,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;
 
 @AnalyzeClasses(packages = "edu.lyra.members.api")
-class ArchitectureTest {
+class GeneralRulesTest {
 
     @ArchTest
     static final ArchRule springConfigurationClassName =
