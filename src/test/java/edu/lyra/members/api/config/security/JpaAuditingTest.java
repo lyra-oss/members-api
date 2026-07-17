@@ -1,9 +1,10 @@
-package edu.lyra.members.api.config.jpa;
+package edu.lyra.members.api.config.security;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import edu.lyra.members.api.config.jpa.Auditable;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.Person;
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
-@Import(SpringDataJpaConfiguration.class)
+@Import(SecurityAuditingConfiguration.class)
 class JpaAuditingTest {
 
     private static final Faker FAKER = new Faker();

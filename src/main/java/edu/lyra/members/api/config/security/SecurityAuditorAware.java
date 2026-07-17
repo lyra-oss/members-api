@@ -12,10 +12,9 @@ import static java.util.Optional.ofNullable;
 /**
  * Resolves the auditor stamped onto {@code @CreatedBy}/{@code @LastModifiedBy} columns from the authenticated
  * principal's JWT subject. Auditing is a security concern — it records <em>who</em> acted — so identity resolution
- * lives here, in {@code config.security}, while JPA auditing itself is enabled from {@code config.jpa} against this
- * bean. Public as the cross-package seam consumed by that JPA configuration.
+ * lives here in {@code config.security}, wired into JPA auditing by {@link SecurityAuditingConfiguration}.
  */
-public class SecurityAuditorAware
+class SecurityAuditorAware
         implements AuditorAware<String> {
 
     @Override
