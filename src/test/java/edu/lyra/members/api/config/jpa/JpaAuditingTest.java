@@ -4,11 +4,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import edu.lyra.members.api.contactinfo.ContactInfo;
 import edu.lyra.members.api.parent.Parent;
-import edu.lyra.members.api.parent.ParentsRepository;
+import edu.lyra.members.api.parent.ParentRepository;
+import edu.lyra.members.api.person.Person;
 import edu.lyra.members.api.school.School;
-import edu.lyra.members.api.school.SchoolsRepository;
+import edu.lyra.members.api.school.SchoolRepository;
 import net.datafaker.Faker;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,10 +35,10 @@ class JpaAuditingTest {
     private TestEntityManager entityManager;
 
     @Autowired
-    private ParentsRepository parentsRepository;
+    private ParentRepository parentRepository;
 
     @Autowired
-    private SchoolsRepository schoolsRepository;
+    private SchoolRepository schoolRepository;
 
     @AfterEach
     void clearContext() {
@@ -49,22 +48,24 @@ class JpaAuditingTest {
     @Test
     void populatesCreatedByAndCreatedDateOnInsert() {
         final String subject = this.authenticate();
-        //@formatter:off
-        final Parent parent = Parent.builder()
-                                    .id(UUID.randomUUID())
-                                    .contactInfo(ContactInfo.builder()
-                                                            .name("Esteban")
-                                                            .surname("Cristóbal")
-                                                            .mail("esteban.cristobal@example.com")
-                                                            .build())
-                                    .build();
-        //@formatter:on
-        final Parent saved = this.parentsRepository.save(parent);
+        final Parent parent = Parent.builder().person(aPerson()).build();
+        final Parent saved  = this.parentRepository.save(parent);
         this.entityManager.flush();
         assertEquals(subject, saved.getCreatedBy());
         assertEquals(subject, saved.getUpdatedBy());
         assertNotNull(saved.getCreatedDate());
         assertNotNull(saved.getLastModifiedDate());
+    }
+
+    private static Person aPerson() {
+        //@formatter:off
+        return Person.builder()
+                     .id(UUID.randomUUID())
+                     .name("Esteban")
+                     .surname("Cristóbal")
+                     .mail("esteban.cristobal@example.com")
+                     .build();
+        //@formatter:on
     }
 
     private String authenticate() {
@@ -79,30 +80,25 @@ class JpaAuditingTest {
         return subject;
     }
 
+    /**
+     * A parent's own row only changes with role-specific edits (e.g. kids); editing identity now touches
+     * {@link Person}'s row instead, so it is {@link Person}'s auditing fields — not the role's — that refresh.
+     */
     @Test
-    void keepsCreationAuditInfoAndRefreshesModificationAuditInfoOnUpdate() {
+    void keepsCreationAuditInfoAndRefreshesModificationAuditInfoOnPersonUpdate() {
         authenticate();
-        //@formatter:off
-        final Parent parent = Parent.builder()
-                                    .id(UUID.randomUUID())
-                                    .contactInfo(ContactInfo.builder()
-                                                            .name("Esteban")
-                                                            .surname("Cristóbal")
-                                                            .mail("esteban.cristobal@example.com")
-                                                            .build())
-                                    .build();
-        //@formatter:on
-        final Parent created = this.parentsRepository.save(parent);
+        final Parent parent  = Parent.builder().person(aPerson()).build();
+        final Parent created = this.parentRepository.save(parent);
         this.entityManager.flush();
-        final String        createdBy   = created.getCreatedBy();
-        final LocalDateTime createdDate = created.getCreatedDate();
+        final String        createdBy   = created.getPerson().getCreatedBy();
+        final LocalDateTime createdDate = created.getPerson().getCreatedDate();
         final String        editor      = this.authenticate();
-        ReflectionTestUtils.setField(created.getContactInfo(), "surname", "García");
-        final Parent updated = this.parentsRepository.save(created);
+        created.getPerson().setSurname("García");
+        final Parent updated = this.parentRepository.save(created);
         this.entityManager.flush();
-        assertEquals(createdBy, updated.getCreatedBy());
-        assertEquals(createdDate, updated.getCreatedDate());
-        assertEquals(editor, updated.getUpdatedBy());
+        assertEquals(createdBy, updated.getPerson().getCreatedBy());
+        assertEquals(createdDate, updated.getPerson().getCreatedDate());
+        assertEquals(editor, updated.getPerson().getUpdatedBy());
     }
 
     @Test
@@ -110,12 +106,11 @@ class JpaAuditingTest {
         final String subject = this.authenticate();
         final School school =
                 Instancio.of(School.class).ignore(field(School.class, "id")).ignore(field(School.class, "classrooms"))
-                         .ignore(field(School.class, "teachers"))
-                         .ignore(field(Auditable.class, "version")).ignore(field(Auditable.class, "createdDate"))
-                         .ignore(field(Auditable.class, "createdBy")).ignore(field(Auditable.class, "lastModifiedDate"))
-                         .ignore(field(Auditable.class, "updatedBy"))
+                         .ignore(field(School.class, "teachers")).ignore(field(Auditable.class, "version"))
+                         .ignore(field(Auditable.class, "createdDate")).ignore(field(Auditable.class, "createdBy"))
+                         .ignore(field(Auditable.class, "lastModifiedDate")).ignore(field(Auditable.class, "updatedBy"))
                          .set(field(School.class, "name"), FAKER.educator().secondarySchool()).create();
-        final School saved = this.schoolsRepository.save(school);
+        final School saved = this.schoolRepository.save(school);
         this.entityManager.flush();
         assertEquals(subject, saved.getCreatedBy());
         assertEquals(subject, saved.getUpdatedBy());

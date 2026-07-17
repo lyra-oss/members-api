@@ -5,13 +5,14 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
-import edu.lyra.members.api.classroom.ClassroomsRepository;
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.jpa.Auditable;
-import edu.lyra.members.api.contactinfo.ContactInfo;
+import edu.lyra.members.api.person.Person;
+import edu.lyra.members.api.person.PersonRepository;
 import edu.lyra.members.api.school.School;
-import edu.lyra.members.api.school.SchoolsRepository;
+import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.Teacher;
-import edu.lyra.members.api.teacher.TeachersRepository;
+import edu.lyra.members.api.teacher.TeacherRepository;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
@@ -23,13 +24,16 @@ import static org.instancio.Select.field;
 public class EntityFixtures {
 
     @Autowired
-    private SchoolsRepository schoolsRepository;
+    private SchoolRepository schoolRepository;
 
     @Autowired
-    private ClassroomsRepository classroomsRepository;
+    private ClassroomRepository classroomRepository;
 
     @Autowired
-    private TeachersRepository teachersRepository;
+    private TeacherRepository teacherRepository;
+
+    @Autowired
+    private PersonRepository personRepository;
 
     @Autowired
     private ScenarioContext scenarioContext;
@@ -52,14 +56,24 @@ public class EntityFixtures {
 
     @Before(order = 0)
     public void cleanSchools() {
-        this.classroomsRepository.deleteAll();
-        this.teachersRepository.deleteAll();
-        this.schoolsRepository.deleteAll();
+        this.classroomRepository.deleteAll();
+        this.teacherRepository.deleteAll();
+        this.schoolRepository.deleteAll();
+    }
+
+    /**
+     * Runs after every other scenario-setup {@code @Before} hook (Cucumber's default order is 10000) since a
+     * {@link Person} can only be deleted once nothing still references it via the shared-primary-key {@code parent}/
+     * {@code teacher} role rows those hooks clear.
+     */
+    @Before(order = 20000)
+    public void cleanPersons() {
+        this.personRepository.deleteAll();
     }
 
     @Given("a school named {string} exists")
     public void aSchoolNamedExists(final String name) {
-        final School saved = TestSecurityContext.runAuthenticated(() -> this.schoolsRepository.save(newSchool(name)));
+        final School saved = TestSecurityContext.runAuthenticated(() -> this.schoolRepository.save(newSchool(name)));
         this.scenarioContext.putLocation("school:" + name, "/v0/schools/" + saved.getId());
     }
 
@@ -87,7 +101,7 @@ public class EntityFixtures {
                                              .set(field(Classroom.class, "group"), group)
                                              .set(field(Classroom.class, "school"), this.school(schoolName)).create();
         //@formatter:on
-        final Classroom saved = TestSecurityContext.runAuthenticated(() -> this.classroomsRepository.save(classroom));
+        final Classroom saved = TestSecurityContext.runAuthenticated(() -> this.classroomRepository.save(classroom));
         this.scenarioContext.putLocation("classroom", "/v0/classrooms/" + saved.getId());
         this.scenarioContext.putLocation("classroom:" + course + " " + group, "/v0/classrooms/" + saved.getId());
     }
@@ -100,6 +114,12 @@ public class EntityFixtures {
         }
     }
 
+    private School school(final String name) {
+        final String location = this.scenarioContext.getLocation("school:" + name);
+        final UUID id = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
+        return this.schoolRepository.findById(id).orElseThrow();
+    }
+
     @Given("a teacher named {string} {string} exists at school {string} with e-mail {string}")
     public void aTeacherExistsAtSchool(
             final String name,
@@ -108,13 +128,13 @@ public class EntityFixtures {
             final String mail
     ) {
         //@formatter:off
+        final Person person = Person.builder().id(UUID.randomUUID()).name(name).surname(surname).mail(mail).build();
         final Teacher teacher = Teacher.builder()
-                                       .id(UUID.randomUUID())
-                                       .contactInfo(ContactInfo.builder().name(name).surname(surname).mail(mail).build())
+                                       .person(person)
                                        .school(this.school(schoolName))
                                        .build();
         //@formatter:on
-        final Teacher saved = TestSecurityContext.runAuthenticated(() -> this.teachersRepository.save(teacher));
+        final Teacher saved = TestSecurityContext.runAuthenticated(() -> this.teacherRepository.save(teacher));
         this.scenarioContext.putLocation("teacher:" + name + " " + surname, "/v0/teachers/" + saved.getId());
     }
 
@@ -126,10 +146,11 @@ public class EntityFixtures {
         }
     }
 
-    private School school(final String name) {
-        final String location = this.scenarioContext.getLocation("school:" + name);
-        final UUID id = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
-        return this.schoolsRepository.findById(id).orElseThrow();
+    @Given("a person named {string} {string} exists with e-mail {string}")
+    public void aPersonExists(final String name, final String surname, final String mail) {
+        final Person person = Person.builder().id(UUID.randomUUID()).name(name).surname(surname).mail(mail).build();
+        final Person saved  = TestSecurityContext.runAuthenticated(() -> this.personRepository.save(person));
+        this.scenarioContext.putLocation("person:" + name + " " + surname, "/v0/persons/" + saved.getId());
     }
 
 }

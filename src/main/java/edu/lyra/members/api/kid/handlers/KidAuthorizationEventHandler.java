@@ -3,7 +3,7 @@ package edu.lyra.members.api.kid.handlers;
 import java.util.UUID;
 
 import edu.lyra.members.api.kid.Kid;
-import edu.lyra.members.api.parent.ParentsRepository;
+import edu.lyra.members.api.parent.ParentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
@@ -18,10 +18,10 @@ import static java.util.Optional.ofNullable;
 @RepositoryEventHandler
 class KidAuthorizationEventHandler {
 
-    private final ParentsRepository parentsRepository;
+    private final ParentRepository parentRepository;
 
-    KidAuthorizationEventHandler(final ParentsRepository parentsRepository) {
-        this.parentsRepository = parentsRepository;
+    KidAuthorizationEventHandler(final ParentRepository parentRepository) {
+        this.parentRepository = parentRepository;
     }
 
     @HandleBeforeCreate
@@ -32,7 +32,7 @@ class KidAuthorizationEventHandler {
             throw new AccessDeniedException("JWT authentication required");
         }
         kid.setParent(ofNullable(jwtAuth.getToken().getSubject()).map(UUID::fromString)
-                                                                 .flatMap(this.parentsRepository::findById).orElseThrow(
+                                                                 .flatMap(this.parentRepository::findById).orElseThrow(
                         () -> new AccessDeniedException("Authenticated user cannot register this kid")));
     }
 

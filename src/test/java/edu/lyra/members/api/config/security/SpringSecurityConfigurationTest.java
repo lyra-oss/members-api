@@ -3,15 +3,14 @@ package edu.lyra.members.api.config.security;
 import java.util.Optional;
 import java.util.UUID;
 
-import edu.lyra.members.api.contactinfo.ContactInfo;
 import edu.lyra.members.api.kid.Kid;
-import edu.lyra.members.api.kid.KidsRepository;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
-import edu.lyra.members.api.parent.ParentsRepository;
+import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.school.School;
-import edu.lyra.members.api.school.SchoolsRepository;
+import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.Teacher;
-import edu.lyra.members.api.teacher.TeachersRepository;
+import edu.lyra.members.api.teacher.TeacherRepository;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -60,19 +59,23 @@ class SpringSecurityConfigurationTest {
     private RepositoryRestConfiguration restConfiguration;
 
     @MockitoSpyBean
-    private ParentsRepository parentsRepository;
+    private ParentRepository  parentRepository;
     @MockitoSpyBean
-    private KidsRepository    kidsRepository;
+    private KidRepository     kidRepository;
     @MockitoSpyBean
-    private SchoolsRepository schoolsRepository;
+    private SchoolRepository  schoolRepository;
     @MockitoSpyBean
-    private TeachersRepository teachersRepository;
+    private TeacherRepository teacherRepository;
 
     @Test
     void testCreateParentOk()
             throws Exception {
         final UUID parentId = randomUUID();
-        doAnswer(inv -> inv.getArgument(0)).when(parentsRepository).save(any(Parent.class));
+        doAnswer(inv -> {
+            final Parent saved = inv.getArgument(0);
+            saved.setId(saved.getPerson().getId());
+            return saved;
+        }).when(parentRepository).save(any(Parent.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/parents")
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
@@ -110,19 +113,10 @@ class SpringSecurityConfigurationTest {
     @Test
     void testCreateKidOk()
             throws Exception {
-        //@formatter:off
-        final UUID parentId = randomUUID();
-        final Parent parent = Parent.builder()
-                                    .id(parentId)
-                                    .contactInfo(ContactInfo.builder()
-                                                            .name("Esteban")
-                                                            .surname("Cristóbal")
-                                                            .mail("esteban.cristobal@example.com")
-                                                            .build())
-                                    .build();
-        //@formatter:on
-        doReturn(Optional.of(parent)).when(parentsRepository).findById(parentId);
-        doReturn(Instancio.create(Kid.class)).when(kidsRepository).save(any(Kid.class));
+        final UUID   parentId = randomUUID();
+        final Parent parent   = Parent.builder().id(parentId).build();
+        doReturn(Optional.of(parent)).when(parentRepository).findById(parentId);
+        doReturn(Instancio.create(Kid.class)).when(kidRepository).save(any(Kid.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/kids")
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
@@ -132,7 +126,7 @@ class SpringSecurityConfigurationTest {
            .andExpect(status().isCreated());
         //@formatter:on
         final ArgumentCaptor<Kid> kidCaptor = ArgumentCaptor.forClass(Kid.class);
-        verify(kidsRepository).save(kidCaptor.capture());
+        verify(kidRepository).save(kidCaptor.capture());
         assertEquals(parent, kidCaptor.getValue().getParent());
     }
 
@@ -159,7 +153,7 @@ class SpringSecurityConfigurationTest {
     @Test
     void testCreateKidKo_parentNotFound()
             throws Exception {
-        doReturn(Optional.empty()).when(parentsRepository).findById(any(UUID.class));
+        doReturn(Optional.empty()).when(parentRepository).findById(any(UUID.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/kids")
                 .with(jwt().jwt(b -> b.subject(randomUUID().toString()))
@@ -173,7 +167,7 @@ class SpringSecurityConfigurationTest {
     @Test
     void testCreateSchoolOk()
             throws Exception {
-        doReturn(Instancio.create(School.class)).when(schoolsRepository).save(any(School.class));
+        doReturn(Instancio.create(School.class)).when(schoolRepository).save(any(School.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/schools")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_schools.create")))
@@ -211,8 +205,12 @@ class SpringSecurityConfigurationTest {
     void testCreateTeacherOk()
             throws Exception {
         final School school = Instancio.create(School.class);
-        doReturn(Optional.of(school)).when(schoolsRepository).findById(school.getId());
-        doAnswer(inv -> inv.getArgument(0)).when(teachersRepository).save(any(Teacher.class));
+        doReturn(Optional.of(school)).when(schoolRepository).findById(school.getId());
+        doAnswer(inv -> {
+            final Teacher saved = inv.getArgument(0);
+            saved.setId(saved.getPerson().getId());
+            return saved;
+        }).when(teacherRepository).save(any(Teacher.class));
         //@formatter:off
         mvc.perform(post(this.base() + "/teachers")
                 .with(jwt().jwt(b -> b.subject(randomUUID().toString()))

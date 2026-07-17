@@ -1,5 +1,6 @@
 package edu.lyra.members.api.parent.handlers;
 
+import edu.lyra.members.api.person.PersonRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -7,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 class ParentHandlersConfiguration {
 
     @Bean
-    ParentRegistrationHandler parentRegistrationHandler() {
-        return new ParentRegistrationHandler();
+    ParentRegistrationHandler parentRegistrationHandler(final PersonRepository personRepository) {
+        return new ParentRegistrationHandler(personRepository);
     }
 
     @Bean

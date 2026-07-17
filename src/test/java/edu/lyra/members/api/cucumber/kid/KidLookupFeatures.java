@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
-import edu.lyra.members.api.classroom.ClassroomsRepository;
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.jpa.Auditable;
 import edu.lyra.members.api.cucumber.AbstractResourceFeatures;
 import edu.lyra.members.api.cucumber.TestSecurityContext;
 import edu.lyra.members.api.kid.Kid;
-import edu.lyra.members.api.kid.KidsRepository;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
-import edu.lyra.members.api.parent.ParentsRepository;
+import edu.lyra.members.api.parent.ParentRepository;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -36,13 +36,13 @@ public class KidLookupFeatures
     private final Map<Integer, JsonNode> kidPages = new HashMap<>();
 
     @Autowired
-    private KidsRepository kidsRepository;
+    private KidRepository kidRepository;
 
     @Autowired
-    private ParentsRepository parentsRepository;
+    private ParentRepository parentRepository;
 
     @Autowired
-    private ClassroomsRepository classroomsRepository;
+    private ClassroomRepository classroomRepository;
 
     @Given("the following kids exist:")
     public void theFollowingKidsExist(final DataTable table) {
@@ -68,14 +68,14 @@ public class KidLookupFeatures
                                  .set(field(Kid.class, "parent"), this.parent(parentName))
                                  .create();
         //@formatter:on
-        final Kid saved = TestSecurityContext.runAuthenticated(() -> this.kidsRepository.save(kid));
+        final Kid saved = TestSecurityContext.runAuthenticated(() -> this.kidRepository.save(kid));
         this.scenarioContext.putLocation("kid:" + name + " " + surname, "/v0/kids/" + saved.getId());
     }
 
     private Parent parent(final String key) {
         final String location = this.scenarioContext.getLocation("parent:" + key);
         final UUID   id       = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
-        return this.parentsRepository.findById(id).orElseThrow();
+        return this.parentRepository.findById(id).orElseThrow();
     }
 
     @Given("kid {string} {string} is enrolled in classroom for course {int} group {string}")
@@ -87,19 +87,19 @@ public class KidLookupFeatures
     ) {
         final Kid kid = this.kid(name, surname);
         kid.setClassroom(this.classroom(course, group));
-        TestSecurityContext.runAuthenticated(() -> this.kidsRepository.save(kid));
+        TestSecurityContext.runAuthenticated(() -> this.kidRepository.save(kid));
     }
 
     private Kid kid(final String name, final String surname) {
         final String location = this.scenarioContext.getLocation("kid:" + name + " " + surname);
         final UUID   id       = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
-        return this.kidsRepository.findById(id).orElseThrow();
+        return this.kidRepository.findById(id).orElseThrow();
     }
 
     private Classroom classroom(final int course, final String group) {
         final String location = this.scenarioContext.getLocation("classroom:" + course + " " + group);
         final UUID   id       = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
-        return this.classroomsRepository.findById(id).orElseThrow();
+        return this.classroomRepository.findById(id).orElseThrow();
     }
 
     @When("I request the list of kids")

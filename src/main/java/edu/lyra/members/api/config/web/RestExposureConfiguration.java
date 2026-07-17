@@ -3,6 +3,7 @@ package edu.lyra.members.api.config.web;
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.parent.Parent;
+import edu.lyra.members.api.person.Person;
 import edu.lyra.members.api.school.School;
 import edu.lyra.members.api.teacher.Teacher;
 import org.jspecify.annotations.NonNull;
@@ -11,6 +12,7 @@ import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
@@ -36,6 +38,9 @@ class RestExposureConfiguration
               .withItemExposure((_, httpMethods) -> httpMethods.disable(PUT));
         config.getExposureConfiguration().forDomainType(Classroom.class)
               .withItemExposure((_, httpMethods) -> httpMethods.disable(PUT));
+        config.getExposureConfiguration().forDomainType(Person.class)
+              .withCollectionExposure((_, httpMethods) -> httpMethods.disable(POST))
+              .withItemExposure((_, httpMethods) -> httpMethods.disable(PUT, PATCH, DELETE));
     }
 
 }

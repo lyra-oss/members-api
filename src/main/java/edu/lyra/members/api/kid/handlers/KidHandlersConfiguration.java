@@ -1,6 +1,6 @@
 package edu.lyra.members.api.kid.handlers;
 
-import edu.lyra.members.api.parent.ParentsRepository;
+import edu.lyra.members.api.parent.ParentRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 class KidHandlersConfiguration {
 
     @Bean
-    KidAuthorizationEventHandler kidAuthorizationEventHandler(final ParentsRepository parentsRepository) {
-        return new KidAuthorizationEventHandler(parentsRepository);
+    KidAuthorizationEventHandler kidAuthorizationEventHandler(final ParentRepository parentRepository) {
+        return new KidAuthorizationEventHandler(parentRepository);
     }
 
     @Bean

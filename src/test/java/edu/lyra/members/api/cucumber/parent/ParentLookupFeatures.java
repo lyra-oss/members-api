@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import edu.lyra.members.api.contactinfo.ContactInfo;
 import edu.lyra.members.api.cucumber.AbstractResourceFeatures;
 import edu.lyra.members.api.cucumber.TestSecurityContext;
 import edu.lyra.members.api.parent.Parent;
-import edu.lyra.members.api.parent.ParentsRepository;
+import edu.lyra.members.api.parent.ParentRepository;
+import edu.lyra.members.api.person.Person;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -26,16 +26,12 @@ public class ParentLookupFeatures
         extends AbstractResourceFeatures {
 
     @Autowired
-    private ParentsRepository parentsRepository;
+    private ParentRepository parentRepository;
 
     public void parentExistsWithMail(final String name, final String surname, final String mail) {
-        //@formatter:off
-        final Parent parent = Parent.builder()
-                                    .id(UUID.randomUUID())
-                                    .contactInfo(ContactInfo.builder().name(name).surname(surname).mail(mail).build())
-                                    .build();
-        //@formatter:on
-        final Parent saved = TestSecurityContext.runAuthenticated(() -> this.parentsRepository.save(parent));
+        final Person person = Person.builder().id(UUID.randomUUID()).name(name).surname(surname).mail(mail).build();
+        final Parent parent = Parent.builder().person(person).build();
+        final Parent saved  = TestSecurityContext.runAuthenticated(() -> this.parentRepository.save(parent));
         this.scenarioContext.putLocation("parent:" + name + " " + surname, "/v0/parents/" + saved.getId());
     }
 

@@ -3,11 +3,11 @@ package edu.lyra.members.api.cucumber.parent;
 import java.util.List;
 import java.util.UUID;
 
-import edu.lyra.members.api.contactinfo.ContactInfo;
 import edu.lyra.members.api.cucumber.AbstractResourceFeatures;
-import edu.lyra.members.api.kid.KidsRepository;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
-import edu.lyra.members.api.parent.ParentsRepository;
+import edu.lyra.members.api.parent.ParentRepository;
+import edu.lyra.members.api.person.Person;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -29,16 +29,16 @@ public class ParentCreationFeatures
     private final ObjectNode body = OBJECT_MAPPER.createObjectNode();
 
     @Autowired
-    private KidsRepository kidsRepository;
+    private KidRepository kidRepository;
 
     @Autowired
-    private ParentsRepository parentsRepository;
+    private ParentRepository parentRepository;
 
     @Before
     public void cleanRepositories() {
         this.body.removeAll();
-        this.kidsRepository.deleteAll();
-        this.parentsRepository.deleteAll();
+        this.kidRepository.deleteAll();
+        this.parentRepository.deleteAll();
     }
 
     @Given("my name is {string}")
@@ -133,30 +133,27 @@ public class ParentCreationFeatures
 
     @And("I already have an account")
     public void iAlreadyHaveAnAccount() {
-        //@formatter:off
-        final Parent parentEntity = Parent.builder()
-                                    .id(UUID.randomUUID())
-                                    .contactInfo(ContactInfo.builder()
-                                                            .name(this.body.get("name").asString())
-                                                            .surname(this.body.get("surname").asString())
-                                                            .mail(this.body.get("mail").asString())
-                                                            .build())
-                                    .build();
         //@formatter:on
-        this.saveAsSelf(parentEntity);
+        final UUID subject = UUID.randomUUID();
+        final Person person = Person.builder().id(subject).name(this.body.get("name").asString())
+                                    .surname(this.body.get("surname").asString()).mail(this.body.get("mail").asString())
+                                    .build();
+        final Parent parentEntity = Parent.builder().person(person).build();
+        //@formatter:on
+        this.saveAsSelf(subject, parentEntity);
     }
 
-    private void saveAsSelf(final Parent parent) {
+    private void saveAsSelf(final UUID subject, final Parent parent) {
         final Authentication previousAuthentication = SecurityContextHolder.getContext().getAuthentication();
         //@formatter:off
         final Jwt jwt = Jwt.withTokenValue("token")
                            .header("alg", "none")
-                           .subject(parent.getId().toString())
+                           .subject(subject.toString())
                            .build();
         //@formatter:on
         SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, List.of()));
         try {
-            this.parentsRepository.save(parent);
+            this.parentRepository.save(parent);
         } finally {
             SecurityContextHolder.getContext().setAuthentication(previousAuthentication);
         }

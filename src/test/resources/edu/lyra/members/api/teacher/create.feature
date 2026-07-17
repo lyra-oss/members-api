@@ -24,9 +24,9 @@ Feature: Teachers' creation
         Then I receive an error stating that "<field>" field is incorrect because "size must be between 0 and 100"
 
         Examples:
-            | field               | name                       | surname                    |
-            | contactInfo.name    | longer than 100 characters | "Ibáñez"                   |
-            | contactInfo.surname | "Marta"                    | longer than 100 characters |
+            | field          | name                       | surname                    |
+            | person.name    | longer than 100 characters | "Ibáñez"                   |
+            | person.surname | "Marta"                    | longer than 100 characters |
 
     Scenario: Cannot create teacher account when the e-mail address is longer than 200 characters
         Given the teacher's name is "Marta"
@@ -34,7 +34,7 @@ Feature: Teachers' creation
         And the teacher's e-mail address is longer than 200 characters
         And the teacher teaches at school "Gloria Fuertes"
         When I click on "Create teacher account"
-        Then I receive an error stating that "contactInfo.mail" field is incorrect because "size must be between 0 and 200"
+        Then I receive an error stating that "person.mail" field is incorrect because "size must be between 0 and 200"
 
     Scenario: Cannot create teacher account when the e-mail address format is invalid
         Given the teacher's name is "Marta"
@@ -42,7 +42,7 @@ Feature: Teachers' creation
         And the teacher's e-mail address is "not-an-email"
         And the teacher teaches at school "Gloria Fuertes"
         When I click on "Create teacher account"
-        Then I receive an error stating that "contactInfo.mail" field is incorrect because "must be a well-formed email address"
+        Then I receive an error stating that "person.mail" field is incorrect because "must be a well-formed email address"
 
     Scenario Outline: Cannot create teacher account when the name <condition>
         Given the teacher's name <condition>
@@ -50,7 +50,7 @@ Feature: Teachers' creation
         And the teacher's e-mail address is "marta.ibanez@example.com"
         And the teacher teaches at school "Gloria Fuertes"
         When I click on "Create teacher account"
-        Then I receive an error stating that "contactInfo.name" field is incorrect because "must not be blank"
+        Then I receive an error stating that "person.name" field is incorrect because "must not be blank"
 
         Examples:
             | condition                |
@@ -65,7 +65,7 @@ Feature: Teachers' creation
         And the teacher's e-mail address is "marta.ibanez@example.com"
         And the teacher teaches at school "Gloria Fuertes"
         When I click on "Create teacher account"
-        Then I receive an error stating that "contactInfo.surname" field is incorrect because "must not be blank"
+        Then I receive an error stating that "person.surname" field is incorrect because "must not be blank"
 
         Examples:
             | condition                |
@@ -80,7 +80,7 @@ Feature: Teachers' creation
         And the teacher's e-mail address <condition>
         And the teacher teaches at school "Gloria Fuertes"
         When I click on "Create teacher account"
-        Then I receive an error stating that "contactInfo.mail" field is incorrect because "must not be blank"
+        Then I receive an error stating that "person.mail" field is incorrect because "must not be blank"
 
         Examples:
             | condition                |

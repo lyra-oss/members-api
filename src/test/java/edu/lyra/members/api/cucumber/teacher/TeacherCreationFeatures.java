@@ -2,14 +2,14 @@ package edu.lyra.members.api.cucumber.teacher;
 
 import java.util.UUID;
 
-import edu.lyra.members.api.contactinfo.ContactInfo;
 import edu.lyra.members.api.cucumber.AbstractResourceFeatures;
 import edu.lyra.members.api.cucumber.EntityFixtures;
 import edu.lyra.members.api.cucumber.TestSecurityContext;
+import edu.lyra.members.api.person.Person;
 import edu.lyra.members.api.school.School;
-import edu.lyra.members.api.school.SchoolsRepository;
+import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.Teacher;
-import edu.lyra.members.api.teacher.TeachersRepository;
+import edu.lyra.members.api.teacher.TeacherRepository;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -27,15 +27,15 @@ public class TeacherCreationFeatures
     private final ObjectNode body = OBJECT_MAPPER.createObjectNode();
 
     @Autowired
-    private SchoolsRepository schoolsRepository;
+    private SchoolRepository schoolRepository;
 
     @Autowired
-    private TeachersRepository teachersRepository;
+    private TeacherRepository teacherRepository;
 
     @Before
     public void cleanTeachers() {
         this.body.removeAll();
-        this.teachersRepository.deleteAll();
+        this.teacherRepository.deleteAll();
     }
 
     @Given("the teacher's name is {string}")
@@ -136,32 +136,32 @@ public class TeacherCreationFeatures
     @And("the teacher is already registered")
     public void theTeacherIsAlreadyRegistered() {
         //@formatter:off
+        final Person person = Person.builder().id(UUID.randomUUID())
+                                    .name(this.body.get("name").asString())
+                                    .surname(this.body.get("surname").asString())
+                                    .mail(this.body.get("mail").asString())
+                                    .build();
         final Teacher teacher = Teacher.builder()
-                                       .id(UUID.randomUUID())
-                                       .contactInfo(ContactInfo.builder()
-                                                               .name(this.body.get("name").asString())
-                                                               .surname(this.body.get("surname").asString())
-                                                               .mail(this.body.get("mail").asString())
-                                                               .build())
+                                       .person(person)
                                        .school(this.school(this.body.get("school").asString()))
                                        .build();
         //@formatter:on
-        TestSecurityContext.runAuthenticated(() -> this.teachersRepository.save(teacher));
+        TestSecurityContext.runAuthenticated(() -> this.teacherRepository.save(teacher));
+    }
+
+    private School school(final String location) {
+        final UUID id = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
+        return this.schoolRepository.findById(id).orElseThrow();
     }
 
     private String schoolLocation(final String name) {
         final String key = "school:" + name;
         if(this.scenarioContext.getLocation(key) == null) {
             final School saved = TestSecurityContext.runAuthenticated(
-                    () -> this.schoolsRepository.save(EntityFixtures.newSchool(name)));
+                    () -> this.schoolRepository.save(EntityFixtures.newSchool(name)));
             this.scenarioContext.putLocation(key, "/v0/schools/" + saved.getId());
         }
         return this.scenarioContext.getLocation(key);
-    }
-
-    private School school(final String location) {
-        final UUID id = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
-        return this.schoolsRepository.findById(id).orElseThrow();
     }
 
     @When("I click on \"Create teacher account\"")

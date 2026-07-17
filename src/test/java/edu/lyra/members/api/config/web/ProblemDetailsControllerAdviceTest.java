@@ -96,7 +96,7 @@ class ProblemDetailsControllerAdviceTest {
     @Test
     void testRepositoryConstraintViolationErrorResponse() {
         final MapBindingResult errors = new MapBindingResult(new HashMap<>(), "Parent");
-        errors.addError(new FieldError("Parent", "contactInfo.surname", "must not be blank"));
+        errors.addError(new FieldError("Parent", "surname", "must not be blank"));
         final RepositoryConstraintViolationException ex       = new RepositoryConstraintViolationException(errors);
         final ResponseEntity<ProblemDetail>          response = advice.handleRepositoryConstraintViolationException(ex);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -109,7 +109,7 @@ class ProblemDetailsControllerAdviceTest {
         //@formatter:off
         assertThat(problemDetail.getProperties()).containsEntry("errors",
                 List.of(Map.of("entity", "Parent",
-                               "property", "contactInfo.surname",
+                               "property", "surname",
                                "message", "must not be blank")));
         //@formatter:on
     }

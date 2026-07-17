@@ -2,7 +2,7 @@ package edu.lyra.members.api.cucumber.classroom;
 
 import java.util.UUID;
 
-import edu.lyra.members.api.classroom.ClassroomsRepository;
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.cucumber.AbstractResourceFeatures;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
@@ -31,11 +31,11 @@ public class ClassroomCreationFeatures
     private static final MediaType URI_LIST = MediaType.parseMediaType("text/uri-list");
 
     @Autowired
-    private ClassroomsRepository classroomsRepository;
+    private ClassroomRepository classroomRepository;
 
     @Before(order = 0)
     public void cleanClassrooms() {
-        this.classroomsRepository.deleteAll();
+        this.classroomRepository.deleteAll();
     }
 
     @Given("teacher {string} has been added to the classroom")

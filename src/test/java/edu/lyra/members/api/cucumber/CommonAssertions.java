@@ -16,8 +16,7 @@ public class CommonAssertions {
     @Then("I receive an error stating that {string} field is incorrect because {string}")
     public void receiveErrorForField(final String expectedField, final String expectedMessage)
             throws Exception {
-        this.scenarioContext.getResultActions()
-                            .andExpect(status().isBadRequest())
+        this.scenarioContext.getResultActions().andExpect(status().isBadRequest())
                             .andExpect(jsonPath(ERROR_MESSAGE.formatted(expectedField, expectedMessage)).exists());
     }
 
@@ -31,6 +30,18 @@ public class CommonAssertions {
     public void receiveNotFoundError()
             throws Exception {
         this.scenarioContext.getResultActions().andExpect(status().isNotFound());
+    }
+
+    @Then("I receive a bad request error")
+    public void receiveBadRequestError()
+            throws Exception {
+        this.scenarioContext.getResultActions().andExpect(status().isBadRequest());
+    }
+
+    @Then("I receive a conflict error")
+    public void receiveConflictError()
+            throws Exception {
+        this.scenarioContext.getResultActions().andExpect(status().isConflict());
     }
 
 }

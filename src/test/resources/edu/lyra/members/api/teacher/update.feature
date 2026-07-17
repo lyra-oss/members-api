@@ -42,4 +42,4 @@ Feature: Teacher account updates
     Scenario: Cannot update a teacher's account when the surname is left blank
         Given I am authenticated as an admin with "teachers.update" scope
         When I update teacher "Pablo" "Ruiz"'s surname to ""
-        Then I receive an error stating that "contactInfo.surname" field is incorrect because "must not be blank"
+        Then I receive an error stating that "person.surname" field is incorrect because "must not be blank"

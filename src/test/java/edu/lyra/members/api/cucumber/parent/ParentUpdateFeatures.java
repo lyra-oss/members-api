@@ -8,9 +8,9 @@ import edu.lyra.members.api.config.jpa.Auditable;
 import edu.lyra.members.api.cucumber.AbstractResourceFeatures;
 import edu.lyra.members.api.cucumber.TestSecurityContext;
 import edu.lyra.members.api.kid.Kid;
-import edu.lyra.members.api.kid.KidsRepository;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
-import edu.lyra.members.api.parent.ParentsRepository;
+import edu.lyra.members.api.parent.ParentRepository;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -32,10 +32,10 @@ public class ParentUpdateFeatures
     private static final MediaType URI_LIST = MediaType.parseMediaType("text/uri-list");
 
     @Autowired
-    private ParentsRepository parentsRepository;
+    private ParentRepository parentRepository;
 
     @Autowired
-    private KidsRepository kidsRepository;
+    private KidRepository kidRepository;
 
     @When("I update parent {string} {string}'s surname to {string}")
     public void updateParentSurname(final String name, final String surname, final String newSurname)
@@ -79,7 +79,7 @@ public class ParentUpdateFeatures
                                  .set(field(Kid.class, "parent"), (Parent) null)
                                  .set(field(Kid.class, "classroom"), (Classroom) null)
                                  .create();
-        final Kid saved = TestSecurityContext.runAuthenticated(creator.getId(), () -> this.kidsRepository.save(kid));
+        final Kid saved = TestSecurityContext.runAuthenticated(creator.getId(), () -> this.kidRepository.save(kid));
         //@formatter:on
         this.scenarioContext.putLocation("kid:" + name + " " + surname, "/v0/kids/" + saved.getId());
     }
@@ -87,7 +87,7 @@ public class ParentUpdateFeatures
     private Parent parent(final String key) {
         final String location = this.scenarioContext.getLocation("parent:" + key);
         final UUID   id       = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
-        return this.parentsRepository.findById(id).orElseThrow();
+        return this.parentRepository.findById(id).orElseThrow();
     }
 
     @When("I bind kid {string} {string} to parent {string}")

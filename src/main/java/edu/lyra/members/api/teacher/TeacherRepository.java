@@ -1,4 +1,4 @@
-package edu.lyra.members.api.classroom;
+package edu.lyra.members.api.teacher;
 
 import java.util.UUID;
 
@@ -9,5 +9,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface ClassroomsRepository
-        extends CrudRepository<Classroom, UUID>, ListPagingAndSortingRepository<Classroom, UUID> {}
+public interface TeacherRepository
+        extends CrudRepository<Teacher, UUID>, ListPagingAndSortingRepository<Teacher, UUID> {}

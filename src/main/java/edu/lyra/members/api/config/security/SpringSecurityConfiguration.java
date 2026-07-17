@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
@@ -29,17 +30,21 @@ class SpringSecurityConfiguration {
     private static final String SCHOOLS    = "/schools";
     private static final String TEACHERS   = "/teachers";
     private static final String CLASSROOMS = "/classrooms";
+    private static final String PERSONS = "/persons";
 
     private static final String PARENTS_ANY    = PARENTS + "/**";
     private static final String KIDS_ANY       = KIDS + "/**";
     private static final String SCHOOLS_ANY    = SCHOOLS + "/**";
     private static final String TEACHERS_ANY   = TEACHERS + "/**";
     private static final String CLASSROOMS_ANY = CLASSROOMS + "/**";
+    private static final String PERSONS_ANY = PERSONS + "/**";
 
-    private static final String PARENTS_KIDS        = PARENTS + "/*/kids";
-    private static final String CLASSROOMS_TUTOR    = CLASSROOMS + "/*/tutor";
-    private static final String CLASSROOMS_TEACHERS = CLASSROOMS + "/*/teachers";
-    private static final String CLASSROOMS_KIDS     = CLASSROOMS + "/*/kids";
+    private static final String PARENTS_KIDS         = PARENTS + "/*/kids";
+    private static final String CLASSROOMS_TUTOR     = CLASSROOMS + "/*/tutor";
+    private static final String CLASSROOMS_TEACHERS  = CLASSROOMS + "/*/teachers";
+    private static final String CLASSROOMS_KIDS      = CLASSROOMS + "/*/kids";
+    private static final String PERSONS_PARENT_ROLE  = PERSONS + "/*/parent";
+    private static final String PERSONS_TEACHER_ROLE = PERSONS + "/*/teacher";
 
     private static final String SCOPE_PREFIX = "SCOPE_";
 
@@ -57,6 +62,8 @@ class SpringSecurityConfiguration {
     private static final String SCOPE_SCHOOLS_READ      = SCOPE_PREFIX + "schools.read";
     private static final String SCOPE_TEACHERS_READ     = SCOPE_PREFIX + "teachers.read";
     private static final String SCOPE_CLASSROOMS_READ   = SCOPE_PREFIX + "classrooms.read";
+
+    private static final String ROLE_ADMIN = "admin";
 
     @Bean
     SecurityFilterChain securityFilterChain(
@@ -93,6 +100,14 @@ class SpringSecurityConfiguration {
                                    .hasAuthority(SCOPE_CLASSROOMS_UPDATE)
                            .requestMatchers(POST, base + PARENTS_KIDS)
                                    .hasAuthority(SCOPE_PARENTS_UPDATE)
+                           .requestMatchers(PUT, base + PERSONS_PARENT_ROLE)
+                                   .hasAuthority(SCOPE_PARENTS_CREATE)
+                           .requestMatchers(DELETE, base + PERSONS_PARENT_ROLE)
+                                   .hasAuthority(SCOPE_PARENTS_CREATE)
+                           .requestMatchers(PUT, base + PERSONS_TEACHER_ROLE)
+                                   .hasAuthority(SCOPE_TEACHERS_CREATE)
+                           .requestMatchers(DELETE, base + PERSONS_TEACHER_ROLE)
+                                   .hasAuthority(SCOPE_TEACHERS_CREATE)
                            .requestMatchers(GET, base + PARENTS, base + PARENTS_ANY)
                                    .hasAuthority(SCOPE_PARENTS_READ)
                            .requestMatchers(GET, base + KIDS, base + KIDS_ANY)
@@ -103,6 +118,8 @@ class SpringSecurityConfiguration {
                                    .hasAuthority(SCOPE_TEACHERS_READ)
                            .requestMatchers(GET, base + CLASSROOMS, base + CLASSROOMS_ANY)
                                    .hasAuthority(SCOPE_CLASSROOMS_READ)
+                           .requestMatchers(GET, base + PERSONS, base + PERSONS_ANY)
+                                   .hasRole(ROLE_ADMIN)
                            .anyRequest()
                                    .authenticated())
                    .oauth2ResourceServer(oauth2 -> oauth2
