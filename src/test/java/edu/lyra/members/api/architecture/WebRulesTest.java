@@ -1,0 +1,75 @@
+package edu.lyra.members.api.architecture;
+
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+
+/**
+ * Keeps the HTTP surface consistent with how Spring Data REST is wired here:
+ * <ul>
+ *     <li>controllers are {@code @RepositoryRestController}s (never plain {@code @RestController}s, which would escape
+ *         the configured base path and the repository event/validation pipeline);</li>
+ *     <li>request-mapped controller methods stay package-private — they are invoked by Spring, never called across
+ *         package boundaries;</li>
+ *     <li>{@code @Handle*} event-handler methods are public, as Spring Data REST requires to reflectively invoke
+ *         them.</li>
+ * </ul>
+ * Scoped to main source only.
+ */
+@AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
+class WebRulesTest {
+
+    private static final DescribedPredicate<JavaMethod> ARE_REQUEST_MAPPED =
+            new DescribedPredicate<>("are request-mapped") {
+
+                @Override
+                public boolean test(final JavaMethod method) {
+                    return method.isAnnotatedWith(RequestMapping.class) || method.isAnnotatedWith(GetMapping.class) ||
+                           method.isAnnotatedWith(PostMapping.class) || method.isAnnotatedWith(PutMapping.class) ||
+                           method.isAnnotatedWith(PatchMapping.class) || method.isAnnotatedWith(DeleteMapping.class);
+                }
+            };
+
+    private static final DescribedPredicate<JavaMethod> ARE_REPOSITORY_EVENT_HANDLER_METHODS =
+            new DescribedPredicate<>("are Spring Data REST @Handle* methods") {
+
+                @Override
+                public boolean test(final JavaMethod method) {
+                    return method.getAnnotations().stream().anyMatch(
+                            annotation -> annotation.getRawType().getName().startsWith(
+                                    "org.springframework.data.rest.core.annotation.Handle"));
+                }
+            };
+
+    @ArchTest
+    static final ArchRule noPlainRestControllers =
+            noClasses().should().beAnnotatedWith("org.springframework.web.bind.annotation.RestController")
+                       .as("controllers should be @RepositoryRestController, not plain @RestController");
+
+    @ArchTest
+    static final ArchRule mappedControllerMethodsAreNotPublic =
+            methods().that(ARE_REQUEST_MAPPED)
+                     .and().areDeclaredInClassesThat().areAnnotatedWith(RepositoryRestController.class)
+                     .should().notBePublic();
+
+    @ArchTest
+    static final ArchRule handlerMethodsArePublic =
+            methods().that(ARE_REPOSITORY_EVENT_HANDLER_METHODS)
+                     .and().areDeclaredInClassesThat().areAnnotatedWith(RepositoryEventHandler.class)
+                     .should().bePublic();
+
+}
