@@ -22,6 +22,42 @@ import static org.springframework.http.HttpMethod.PUT;
 @Configuration
 class SpringSecurityConfiguration {
 
+    private static final String ACTUATOR = "/actuator/**";
+
+    private static final String PARENTS    = "/parents";
+    private static final String KIDS       = "/kids";
+    private static final String SCHOOLS    = "/schools";
+    private static final String TEACHERS   = "/teachers";
+    private static final String CLASSROOMS = "/classrooms";
+
+    private static final String PARENTS_ANY    = PARENTS + "/**";
+    private static final String KIDS_ANY       = KIDS + "/**";
+    private static final String SCHOOLS_ANY    = SCHOOLS + "/**";
+    private static final String TEACHERS_ANY   = TEACHERS + "/**";
+    private static final String CLASSROOMS_ANY = CLASSROOMS + "/**";
+
+    private static final String PARENTS_KIDS        = PARENTS + "/*/kids";
+    private static final String CLASSROOMS_TUTOR    = CLASSROOMS + "/*/tutor";
+    private static final String CLASSROOMS_TEACHERS = CLASSROOMS + "/*/teachers";
+    private static final String CLASSROOMS_KIDS     = CLASSROOMS + "/*/kids";
+
+    private static final String SCOPE_PREFIX = "SCOPE_";
+
+    private static final String SCOPE_PARENTS_CREATE    = SCOPE_PREFIX + "parents.create";
+    private static final String SCOPE_KIDS_CREATE       = SCOPE_PREFIX + "kids.create";
+    private static final String SCOPE_SCHOOLS_CREATE    = SCOPE_PREFIX + "schools.create";
+    private static final String SCOPE_TEACHERS_CREATE   = SCOPE_PREFIX + "teachers.create";
+    private static final String SCOPE_PARENTS_UPDATE    = SCOPE_PREFIX + "parents.update";
+    private static final String SCOPE_KIDS_UPDATE       = SCOPE_PREFIX + "kids.update";
+    private static final String SCOPE_SCHOOLS_UPDATE    = SCOPE_PREFIX + "schools.update";
+    private static final String SCOPE_TEACHERS_UPDATE   = SCOPE_PREFIX + "teachers.update";
+    private static final String SCOPE_CLASSROOMS_UPDATE = SCOPE_PREFIX + "classrooms.update";
+    private static final String SCOPE_PARENTS_READ      = SCOPE_PREFIX + "parents.read";
+    private static final String SCOPE_KIDS_READ         = SCOPE_PREFIX + "kids.read";
+    private static final String SCOPE_SCHOOLS_READ      = SCOPE_PREFIX + "schools.read";
+    private static final String SCOPE_TEACHERS_READ     = SCOPE_PREFIX + "teachers.read";
+    private static final String SCOPE_CLASSROOMS_READ   = SCOPE_PREFIX + "classrooms.read";
+
     @Bean
     SecurityFilterChain securityFilterChain(
             final HttpSecurity http,
@@ -31,32 +67,44 @@ class SpringSecurityConfiguration {
         final String base = restConfiguration.getBasePath().toString();
         //@formatter:off
         return http.authorizeHttpRequests(auth -> auth
-                           .requestMatchers("/actuator/**").permitAll()
-                           .requestMatchers(POST, base + "/parents").hasAuthority("SCOPE_parents.create")
-                           .requestMatchers(POST, base + "/kids").hasAuthority("SCOPE_kids.create")
-                           .requestMatchers(POST, base + "/schools").hasAuthority("SCOPE_schools.create")
-                           .requestMatchers(POST, base + "/teachers").hasAuthority("SCOPE_teachers.create")
-                           .requestMatchers(PATCH, base + "/parents/**").hasAuthority("SCOPE_parents.update")
-                           .requestMatchers(PATCH, base + "/kids/**").hasAuthority("SCOPE_kids.update")
-                           .requestMatchers(PATCH, base + "/schools/**").hasAuthority("SCOPE_schools.update")
-                           .requestMatchers(PATCH, base + "/teachers/**").hasAuthority("SCOPE_teachers.update")
-                           .requestMatchers(PATCH, base + "/classrooms/**").hasAuthority("SCOPE_classrooms.update")
-                           .requestMatchers(PUT, base + "/classrooms/*/tutor")
-                                   .hasAuthority("SCOPE_classrooms.update")
-                           .requestMatchers(POST, base + "/classrooms/*/teachers", base + "/classrooms/*/kids")
-                                   .hasAuthority("SCOPE_classrooms.update")
-                           .requestMatchers(POST, base + "/parents/*/kids").hasAuthority("SCOPE_parents.update")
-                           .requestMatchers(GET, base + "/parents", base + "/parents/**")
-                                   .hasAuthority("SCOPE_parents.read")
-                           .requestMatchers(GET, base + "/kids", base + "/kids/**")
-                                   .hasAuthority("SCOPE_kids.read")
-                           .requestMatchers(GET, base + "/schools", base + "/schools/**")
-                                   .hasAuthority("SCOPE_schools.read")
-                           .requestMatchers(GET, base + "/teachers", base + "/teachers/**")
-                                   .hasAuthority("SCOPE_teachers.read")
-                           .requestMatchers(GET, base + "/classrooms", base + "/classrooms/**")
-                                   .hasAuthority("SCOPE_classrooms.read")
-                           .anyRequest().authenticated())
+                           .requestMatchers(ACTUATOR)
+                                   .permitAll()
+                           .requestMatchers(POST, base + PARENTS)
+                                   .hasAuthority(SCOPE_PARENTS_CREATE)
+                           .requestMatchers(POST, base + KIDS)
+                                   .hasAuthority(SCOPE_KIDS_CREATE)
+                           .requestMatchers(POST, base + SCHOOLS)
+                                   .hasAuthority(SCOPE_SCHOOLS_CREATE)
+                           .requestMatchers(POST, base + TEACHERS)
+                                   .hasAuthority(SCOPE_TEACHERS_CREATE)
+                           .requestMatchers(PATCH, base + PARENTS_ANY)
+                                   .hasAuthority(SCOPE_PARENTS_UPDATE)
+                           .requestMatchers(PATCH, base + KIDS_ANY)
+                                   .hasAuthority(SCOPE_KIDS_UPDATE)
+                           .requestMatchers(PATCH, base + SCHOOLS_ANY)
+                                   .hasAuthority(SCOPE_SCHOOLS_UPDATE)
+                           .requestMatchers(PATCH, base + TEACHERS_ANY)
+                                   .hasAuthority(SCOPE_TEACHERS_UPDATE)
+                           .requestMatchers(PATCH, base + CLASSROOMS_ANY)
+                                   .hasAuthority(SCOPE_CLASSROOMS_UPDATE)
+                           .requestMatchers(PUT, base + CLASSROOMS_TUTOR)
+                                   .hasAuthority(SCOPE_CLASSROOMS_UPDATE)
+                           .requestMatchers(POST, base + CLASSROOMS_TEACHERS, base + CLASSROOMS_KIDS)
+                                   .hasAuthority(SCOPE_CLASSROOMS_UPDATE)
+                           .requestMatchers(POST, base + PARENTS_KIDS)
+                                   .hasAuthority(SCOPE_PARENTS_UPDATE)
+                           .requestMatchers(GET, base + PARENTS, base + PARENTS_ANY)
+                                   .hasAuthority(SCOPE_PARENTS_READ)
+                           .requestMatchers(GET, base + KIDS, base + KIDS_ANY)
+                                   .hasAuthority(SCOPE_KIDS_READ)
+                           .requestMatchers(GET, base + SCHOOLS, base + SCHOOLS_ANY)
+                                   .hasAuthority(SCOPE_SCHOOLS_READ)
+                           .requestMatchers(GET, base + TEACHERS, base + TEACHERS_ANY)
+                                   .hasAuthority(SCOPE_TEACHERS_READ)
+                           .requestMatchers(GET, base + CLASSROOMS, base + CLASSROOMS_ANY)
+                                   .hasAuthority(SCOPE_CLASSROOMS_READ)
+                           .anyRequest()
+                                   .authenticated())
                    .oauth2ResourceServer(oauth2 -> oauth2
                            .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                    .addFilterAfter(new JwtMdcFilter(), BearerTokenAuthenticationFilter.class)

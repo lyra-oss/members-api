@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import tools.jackson.databind.node.ObjectNode;
 
+import static java.time.Month.DECEMBER;
+
 import static org.instancio.Select.field;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -73,7 +75,7 @@ public class ParentUpdateFeatures
                                  .ignore(field(Auditable.class, "updatedBy"))
                                  .set(field(Kid.class, "name"), name)
                                  .set(field(Kid.class, "surname"), surname)
-                                 .set(field(Kid.class, "birthdate"), LocalDate.of(2019, 12, 12))
+                                 .set(field(Kid.class, "birthdate"), LocalDate.of(2019, DECEMBER, 12))
                                  .set(field(Kid.class, "parent"), (Parent) null)
                                  .set(field(Kid.class, "classroom"), (Classroom) null)
                                  .create();
