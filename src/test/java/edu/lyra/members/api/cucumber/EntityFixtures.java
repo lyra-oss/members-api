@@ -1,0 +1,135 @@
+package edu.lyra.members.api.cucumber;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.classroom.ClassroomsRepository;
+import edu.lyra.members.api.config.jpa.Auditable;
+import edu.lyra.members.api.contactinfo.ContactInfo;
+import edu.lyra.members.api.school.School;
+import edu.lyra.members.api.school.SchoolsRepository;
+import edu.lyra.members.api.teacher.Teacher;
+import edu.lyra.members.api.teacher.TeachersRepository;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import org.instancio.Instancio;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.instancio.Select.field;
+
+public class EntityFixtures {
+
+    @Autowired
+    private SchoolsRepository schoolsRepository;
+
+    @Autowired
+    private ClassroomsRepository classroomsRepository;
+
+    @Autowired
+    private TeachersRepository teachersRepository;
+
+    @Autowired
+    private ScenarioContext scenarioContext;
+
+    public static School newSchool(final String name) {
+        //@formatter:off
+        return Instancio.of(School.class)
+                         .ignore(field(School.class, "id"))
+                         .ignore(field(School.class, "classrooms"))
+                         .ignore(field(School.class, "teachers"))
+                         .ignore(field(Auditable.class, "version"))
+                         .ignore(field(Auditable.class, "createdDate"))
+                         .ignore(field(Auditable.class, "createdBy"))
+                         .ignore(field(Auditable.class, "lastModifiedDate"))
+                         .ignore(field(Auditable.class, "updatedBy"))
+                         .set(field(School.class, "name"), name)
+                         .create();
+        //@formatter:on
+    }
+
+    @Before(order = 0)
+    public void cleanSchools() {
+        this.classroomsRepository.deleteAll();
+        this.teachersRepository.deleteAll();
+        this.schoolsRepository.deleteAll();
+    }
+
+    @Given("a school named {string} exists")
+    public void aSchoolNamedExists(final String name) {
+        final School saved = TestSecurityContext.runAuthenticated(() -> this.schoolsRepository.save(newSchool(name)));
+        this.scenarioContext.putLocation("school:" + name, "/v0/schools/" + saved.getId());
+    }
+
+    @Given("the following schools exist:")
+    public void theFollowingSchoolsExist(final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aSchoolNamedExists(row.get("name"));
+        }
+    }
+
+    @Given("a classroom for course {int} group {string} exists at school {string}")
+    public void aClassroomExistsAtSchool(final int course, final String group, final String schoolName) {
+        //@formatter:off
+        final Classroom classroom = Instancio.of(Classroom.class).ignore(field(Classroom.class, "id"))
+                                             .ignore(field(Classroom.class, "tutor"))
+                                             .ignore(field(Classroom.class, "teachers"))
+                                             .ignore(field(Classroom.class, "kids"))
+                                             .ignore(field(Auditable.class, "version"))
+                                             .ignore(field(Auditable.class, "createdDate"))
+                                             .ignore(field(Auditable.class, "createdBy"))
+                                             .ignore(field(Auditable.class, "lastModifiedDate"))
+                                             .ignore(field(Auditable.class, "updatedBy"))
+                                             .set(field(Classroom.class, "course"), course)
+                                             .set(field(Classroom.class, "group"), group)
+                                             .set(field(Classroom.class, "school"), this.school(schoolName)).create();
+        //@formatter:on
+        final Classroom saved = TestSecurityContext.runAuthenticated(() -> this.classroomsRepository.save(classroom));
+        this.scenarioContext.putLocation("classroom", "/v0/classrooms/" + saved.getId());
+        this.scenarioContext.putLocation("classroom:" + course + " " + group, "/v0/classrooms/" + saved.getId());
+    }
+
+    @Given("the following classrooms exist at school {string}:")
+    public void theFollowingClassroomsExistAtSchool(final String schoolName, final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aClassroomExistsAtSchool(Integer.parseInt(row.get("course")), row.get("group"), schoolName);
+        }
+    }
+
+    @Given("a teacher named {string} {string} exists at school {string} with e-mail {string}")
+    public void aTeacherExistsAtSchool(
+            final String name,
+            final String surname,
+            final String schoolName,
+            final String mail
+    ) {
+        //@formatter:off
+        final Teacher teacher = Teacher.builder()
+                                       .id(UUID.randomUUID())
+                                       .contactInfo(ContactInfo.builder().name(name).surname(surname).mail(mail).build())
+                                       .school(this.school(schoolName))
+                                       .build();
+        //@formatter:on
+        final Teacher saved = TestSecurityContext.runAuthenticated(() -> this.teachersRepository.save(teacher));
+        this.scenarioContext.putLocation("teacher:" + name + " " + surname, "/v0/teachers/" + saved.getId());
+    }
+
+    @Given("the following teachers exist at school {string}:")
+    public void theFollowingTeachersExistAtSchool(final String schoolName, final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aTeacherExistsAtSchool(row.get("name"), row.get("surname"), schoolName, row.get("mail"));
+        }
+    }
+
+    private School school(final String name) {
+        final String location = this.scenarioContext.getLocation("school:" + name);
+        final UUID id = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
+        return this.schoolsRepository.findById(id).orElseThrow();
+    }
+
+}

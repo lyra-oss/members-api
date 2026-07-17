@@ -1,0 +1,96 @@
+package edu.lyra.members.api.classroom;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.lyra.members.api.config.jpa.Auditable;
+import edu.lyra.members.api.kid.Kid;
+import edu.lyra.members.api.school.School;
+import edu.lyra.members.api.teacher.Teacher;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.ToString.Exclude;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import static jakarta.persistence.CascadeType.ALL;
+
+@Getter
+@ToString
+@NoArgsConstructor
+@Entity
+@EntityListeners(AuditingEntityListener.class)
+@Table(
+        name = "CLASSROOMS",
+        uniqueConstraints = @UniqueConstraint(columnNames = { "COURSE", "GROUP_NAME", "SCHOOL_ID" })
+)
+public class Classroom
+        extends Auditable {
+
+    @JsonIgnore
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "ID", nullable = false, updatable = false)
+    private UUID id;
+
+    @Positive
+    @Max(6)
+    @Column(name = "COURSE", length = 1, nullable = false)
+    private int course;
+
+    @Pattern(regexp = "^[A-Z]$")
+    @Column(name = "GROUP_NAME", length = 1, nullable = false)
+    private String group;
+
+    @ManyToOne
+    private School school;
+
+    @Setter
+    @ManyToOne
+    private Teacher tutor;
+
+    @Exclude
+    @ManyToMany
+    @JoinTable(
+            name = "CLASSROOM_TEACHERS",
+            joinColumns = @JoinColumn(name = "CLASSROOM_ID"),
+            inverseJoinColumns = @JoinColumn(name = "TEACHER_ID")
+    )
+    private Set<Teacher> teachers = new HashSet<>();
+
+    @Exclude
+    @OneToMany(cascade = ALL)
+    @JoinColumn(name = "CLASSROOM_ID")
+    private Set<Kid> kids = new HashSet<>();
+
+    @JsonIgnore
+    @Transient
+    private UUID previousTutorId;
+
+    @PostLoad
+    private void capturePreviousTutorId() {
+        this.previousTutorId = this.tutor == null ? null : this.tutor.getId();
+    }
+
+}
