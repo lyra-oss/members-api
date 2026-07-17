@@ -1,4 +1,4 @@
-package edu.lyra.members.api.config.jpa;
+package edu.lyra.members.api.config.security;
 
 import java.util.Optional;
 
@@ -9,6 +9,11 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 import static java.util.Optional.ofNullable;
 
+/**
+ * Resolves the auditor stamped onto {@code @CreatedBy}/{@code @LastModifiedBy} columns from the authenticated
+ * principal's JWT subject. Auditing is a security concern — it records <em>who</em> acted — so identity resolution
+ * lives here in {@code config.security}, wired into JPA auditing by {@link SecurityAuditingConfiguration}.
+ */
 class SecurityAuditorAware
         implements AuditorAware<String> {
 

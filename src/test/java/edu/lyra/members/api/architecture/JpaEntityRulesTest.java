@@ -12,12 +12,14 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
+import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import edu.lyra.members.api.config.jpa.Auditable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -27,10 +29,12 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.repository.Repository;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-@AnalyzeClasses(packages = "edu.lyra.members.api")
+@AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class JpaEntityRulesTest {
 
     private static final List<Class<? extends Annotation>> AUDITING_FIELD_ANNOTATIONS =
@@ -162,6 +166,20 @@ class JpaEntityRulesTest {
                          }
                      });
     //@formatter:on
+
+    @ArchTest
+    static final ArchRule jpaEntitiesExtendAuditable =
+            classes().that().areAnnotatedWith(Entity.class).should().beAssignableTo(Auditable.class);
+
+    @ArchTest
+    static final ArchRule jpaEntitiesDoNotDependOnInfrastructure =
+            //@formatter:off
+            noClasses().that().areAnnotatedWith(Entity.class)
+                       .should().dependOnClassesThat().areAssignableTo(Repository.class)
+                       .orShould().dependOnClassesThat().resideInAnyPackage("..rest..", "..handlers..")
+                       .orShould().dependOnClassesThat().resideInAPackage("org.springframework.security..")
+                       .as("JPA entities should stay free of persistence, web and security infrastructure");
+            //@formatter:on
 
     private static String getterNameFor(final JavaField field) {
         final String name = field.getName();

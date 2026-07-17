@@ -4,6 +4,7 @@ import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
+import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -27,8 +28,9 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 /**
  * Enforces that observable entry points into the system — Spring controllers and Spring Data REST event handlers — are
  * actually observable: every such class must be annotated with {@code @Slf4j} and log at least one line.
+ * Scoped to main source only.
  */
-@AnalyzeClasses(packages = "edu.lyra.members.api")
+@AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class LoggingRulesTest {
 
     private static final String NOT_ANNOTATED_WITH_SLF4J_MESSAGE =
