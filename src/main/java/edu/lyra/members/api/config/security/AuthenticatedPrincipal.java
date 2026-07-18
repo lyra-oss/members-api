@@ -41,7 +41,7 @@ public class AuthenticatedPrincipal {
      * @return {@code true} if the current {@link Authentication} carries the {@code ROLE_admin} authority
      */
     public boolean isAdmin() {
-        return hasRole("admin");
+        return AuthenticatedPrincipal.hasRole("admin");
     }
 
     /**
@@ -55,7 +55,8 @@ public class AuthenticatedPrincipal {
      * @return {@code true} if the principal has {@code role} and its id equals {@code id}
      */
     public boolean isSelf(final String role, final UUID id) {
-        return hasRole(role) && currentId().map(current -> Objects.equals(current, id)).orElse(false);
+        return AuthenticatedPrincipal.hasRole(role) &&
+               AuthenticatedPrincipal.currentId().map(current -> Objects.equals(current, id)).orElse(false);
     }
 
     /**
@@ -68,7 +69,7 @@ public class AuthenticatedPrincipal {
      * @see #currentId()
      */
     public UUID requireCurrentId() {
-        return currentId().orElseThrow(
+        return AuthenticatedPrincipal.currentId().orElseThrow(
                 () -> new AccessDeniedException("JWT authentication with a valid \"sub\" claim is required"));
     }
 

@@ -21,9 +21,11 @@ class ParentDeleteEventHandler {
             throw new AccessDeniedException("Authenticated user cannot delete this parent");
         }
         if(! parent.getKids().isEmpty()) {
+            //@formatter:off
             throw new ParentHasKidsException(
-                    "Parent %s still has %d kid(s) linked; remove or reassign them before deleting this parent".formatted(
-                            parent.getId(), parent.getKids().size()));
+                    "Parent %s still has %d kid(s) linked; remove or reassign them before deleting this parent"
+                            .formatted(parent.getId(), parent.getKids().size()));
+            //@formatter:on
         }
     }
 

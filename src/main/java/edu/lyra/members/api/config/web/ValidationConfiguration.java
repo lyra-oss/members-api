@@ -17,7 +17,8 @@ class ValidationConfiguration
     }
 
     @Override
-    public void configureValidatingRepositoryEventListener(final @NonNull ValidatingRepositoryEventListener validatingListener) {
+    public void configureValidatingRepositoryEventListener(
+            final @NonNull ValidatingRepositoryEventListener validatingListener) {
         validatingListener.addValidator("beforeCreate", this.validator);
         validatingListener.addValidator("beforeSave", this.validator);
     }

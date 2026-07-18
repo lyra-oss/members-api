@@ -4,29 +4,200 @@
         "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <!--
-    Enforces that every public class/interface/enum/record and every public method in main source has Javadoc.
+    House style for main sources, derived from the conventions already established across the codebase.
     Deliberately does not run against src/test/java (see maven-checkstyle-plugin's default
-    includeTestSourceDirectory=false in pom.xml): test code is not expected to carry Javadoc.
+    includeTestSourceDirectory=false in pom.xml): test code keeps its own laxer standard.
 
     The architecture test package (src/test/java/edu/lyra/members/api/architecture) is the one
     exception: it has its own checkstyle-architecture.xml, wired up as a separate execution in
     pom.xml, which requires a Javadoc comment on every @ArchTest rule field.
+
+    Naming and architectural conventions (controller/handler/repository naming and packaging,
+    exception placement, no field injection, logging, security-context confinement, ...) are owned by
+    the ArchUnit suite in src/test/java/edu/lyra/members/api/architecture; this file owns the
+    lexical/formatting layer ArchUnit cannot see.
+
+    Notable deviations from Checkstyle's defaults, matching deliberate house style:
+    - control-flow keywords hug their parenthesis (if(, for(, while(, switch(, catch() and the unary
+      not operator is followed by a space (! condition) - both enforced via RegexpSinglelineJava,
+      since no built-in check covers that direction;
+    - wrapped expressions break AFTER the operator (OperatorWrap option=eol);
+    - static imports go LAST (ImportOrder option=bottom), java.* first in both regular and static
+      groups;
+    - column-aligned field declarations are allowed (no SingleSpaceSeparator);
+    - HideUtilityClassConstructor is omitted: Lombok's @UtilityClass generates the private
+      constructor after the source is parsed.
 -->
 <module name="Checker">
 
     <property name="charset" value="UTF-8"/>
 
+    <module name="FileTabCharacter"/>
+    <module name="NewlineAtEndOfFile"/>
+    <module name="RegexpSingleline">
+        <property name="format" value="\s+$"/>
+        <property name="message" value="Trailing whitespace"/>
+    </module>
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="fileExtensions" value="java"/>
+        <property name="ignorePattern" value="^package.*|^import.*"/>
+    </module>
+
     <module name="TreeWalker">
 
+        <!-- Javadoc -->
         <module name="MissingJavadocType">
             <property name="scope" value="public"/>
         </module>
-
         <module name="MissingJavadocMethod">
             <property name="scope" value="public"/>
             <property name="tokens" value="METHOD_DEF"/>
             <property name="allowedAnnotations" value="Override"/>
         </module>
+        <module name="JavadocType">
+            <property name="scope" value="public"/>
+            <property name="authorFormat" value="\S"/>
+        </module>
+        <module name="JavadocStyle"/>
+        <module name="NonEmptyAtclauseDescription"/>
+        <module name="InvalidJavadocPosition"/>
+
+        <!-- Imports: java.* group, blank line, everything else alphabetical; static imports last,
+             sub-grouped the same way -->
+        <module name="AvoidStarImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+        <module name="ImportOrder">
+            <property name="option" value="bottom"/>
+            <property name="groups" value="java,*"/>
+            <property name="staticGroups" value="java,*"/>
+            <property name="separated" value="true"/>
+            <property name="separatedStaticGroups" value="true"/>
+            <property name="ordered" value="true"/>
+            <property name="sortStaticImportsAlphabetically" value="true"/>
+        </module>
+
+        <!-- final everywhere -->
+        <module name="FinalParameters">
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF, LITERAL_CATCH, FOR_EACH_CLAUSE"/>
+        </module>
+        <module name="FinalLocalVariable">
+            <property name="tokens" value="VARIABLE_DEF"/>
+        </module>
+
+        <!-- Fields and methods are always qualified: this. for instance members, the class name for
+             static ones (Lombok @UtilityClass members included) -->
+        <module name="RequireThis">
+            <property name="checkFields" value="true"/>
+            <property name="checkMethods" value="true"/>
+            <property name="validateOnlyOverlapping" value="false"/>
+        </module>
+
+        <!-- House keyword/operator spacing (see file header) -->
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="\b(if|for|while|switch|catch)\s+\("/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message"
+                      value="No space between keyword and '(': write if(, for(, while(, switch(, catch("/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="[(\s]![a-zA-Z_(]"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Space after unary '!': write '! condition'"/>
+        </module>
+
+        <!-- Blocks -->
+        <module name="NeedBraces"/>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+        <module name="EmptyCatchBlock"/>
+        <module name="AvoidNestedBlocks"/>
+
+        <!-- Class design -->
+        <module name="OneTopLevelClass"/>
+        <module name="OuterTypeFilename"/>
+        <module name="InterfaceIsType"/>
+        <module name="MutableException"/>
+
+        <!-- Coding best practices -->
+        <module name="EqualsHashCode"/>
+        <module name="CovariantEquals"/>
+        <module name="StringLiteralEquality"/>
+        <module name="EqualsAvoidNull"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="EmptyStatement"/>
+        <module name="OneStatementPerLine"/>
+        <module name="MultipleVariableDeclarations"/>
+        <module name="DefaultComesLast"/>
+        <module name="FallThrough"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="NoFinalizer"/>
+        <module name="NoClone"/>
+        <module name="IllegalCatch"/>
+        <module name="IllegalThrows"/>
+        <module name="UpperEll"/>
+        <module name="ArrayTypeStyle"/>
+        <module name="AvoidDoubleBraceInitialization"/>
+        <module name="UnnecessarySemicolonAfterTypeMemberDeclaration"/>
+        <module name="UnnecessarySemicolonInEnumeration"/>
+        <module name="UnnecessarySemicolonInTryWithResources"/>
+        <module name="UnnecessaryParentheses"/>
+        <module name="MissingOverride"/>
+        <module name="ModifierOrder"/>
+        <module name="MagicNumber">
+            <property name="ignoreAnnotation" value="true"/>
+        </module>
+
+        <!-- Naming -->
+        <module name="ConstantName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="MethodName"/>
+        <module name="PackageName"/>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName"/>
+        <module name="TypeName"/>
+
+        <!-- Whitespace: keyword tokens excluded from WhitespaceAround to honor the if( style -->
+        <module name="WhitespaceAround">
+            <property name="tokens"
+                      value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN,
+                             COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAMBDA, LAND, LE, LITERAL_RETURN,
+                             LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN,
+                             QUESTION, SL, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN, TYPE_EXTENSION_AND"/>
+            <property name="allowEmptyTypes" value="true"/>
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="allowEmptyLambdas" value="true"/>
+        </module>
+        <module name="NoWhitespaceAfter">
+            <property name="tokens"
+                      value="AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, DOT, ARRAY_DECLARATOR, INDEX_OP"/>
+        </module>
+        <module name="NoWhitespaceBefore"/>
+        <module name="GenericWhitespace"/>
+        <module name="MethodParamPad"/>
+        <module name="ParenPad"/>
+        <module name="TypecastParenPad"/>
+        <module name="OperatorWrap">
+            <property name="option" value="eol"/>
+        </module>
+        <module name="EmptyLineSeparator">
+            <property name="allowNoEmptyLineBetweenFields" value="true"/>
+            <property name="allowMultipleEmptyLines" value="false"/>
+        </module>
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="lineWrappingIndentation" value="8"/>
+        </module>
+        <module name="CommentsIndentation"/>
+        <module name="AnnotationLocation"/>
 
     </module>
 

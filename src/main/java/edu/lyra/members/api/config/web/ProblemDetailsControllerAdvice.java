@@ -36,6 +36,8 @@ import static org.springframework.http.ResponseEntity.status;
 class ProblemDetailsControllerAdvice
         extends ResponseEntityExceptionHandler {
 
+    private static final int MAX_DETAIL_LENGTH = 100;
+
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ProblemDetail> handleDuplicateKeyException(final DuplicateKeyException ex) {
         //@formatter:off
@@ -64,7 +66,8 @@ class ProblemDetailsControllerAdvice
     }
 
     @ExceptionHandler(TeacherAssignedToClassroomException.class)
-    public ResponseEntity<ProblemDetail> handleTeacherAssignedToClassroomException(final TeacherAssignedToClassroomException ex) {
+    public ResponseEntity<ProblemDetail> handleTeacherAssignedToClassroomException(
+            final TeacherAssignedToClassroomException ex) {
         //@formatter:off
         return ProblemDetailBuilder.forStatus(CONFLICT)
                 .type("https://lyra.sagittec.com/problems/teacher-assigned-to-classroom")
@@ -101,7 +104,8 @@ class ProblemDetailsControllerAdvice
      * @return a 409 Conflict {@link ProblemDetail} response describing the violation
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(final DataIntegrityViolationException ex) {
+    public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(
+            final DataIntegrityViolationException ex) {
         //@formatter:off
         return ProblemDetailBuilder.forStatus(CONFLICT)
                 .type("https://lyra.sagittec.com/problems/referential-integrity-violation")
@@ -121,7 +125,8 @@ class ProblemDetailsControllerAdvice
     }
 
     @ExceptionHandler(RepositoryConstraintViolationException.class)
-    public ResponseEntity<ProblemDetail> handleRepositoryConstraintViolationException(final RepositoryConstraintViolationException ex) {
+    public ResponseEntity<ProblemDetail> handleRepositoryConstraintViolationException(
+            final RepositoryConstraintViolationException ex) {
         //@formatter:off
         final List<Object> errors = ex.getErrors().getFieldErrors().stream()
                                        .map(this::toErrorEntry)
@@ -145,7 +150,7 @@ class ProblemDetailsControllerAdvice
 
     private String humanize(final Throwable ex) {
         final String msg = ex.getMessage();
-        return (msg != null && msg.length() > 100) ? msg.substring(0, 100) + "…" : msg;
+        return (msg != null && msg.length() > MAX_DETAIL_LENGTH) ? msg.substring(0, MAX_DETAIL_LENGTH) + "…" : msg;
     }
 
     private static final class ProblemDetailBuilder {
@@ -164,27 +169,27 @@ class ProblemDetailsControllerAdvice
         }
 
         private ProblemDetailBuilder type(final String type) {
-            problemDetail.setType(create(type));
+            this.problemDetail.setType(create(type));
             return this;
         }
 
         private ProblemDetailBuilder title(final String title) {
-            problemDetail.setTitle(title);
+            this.problemDetail.setTitle(title);
             return this;
         }
 
         private ProblemDetailBuilder detail(final String detail) {
-            problemDetail.setDetail(detail);
+            this.problemDetail.setDetail(detail);
             return this;
         }
 
         private ProblemDetailBuilder property(final String name, final Object value) {
-            problemDetail.setProperty(name, value);
+            this.problemDetail.setProperty(name, value);
             return this;
         }
 
         private ResponseEntity<ProblemDetail> build() {
-            return status(status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
+            return status(this.status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(this.problemDetail);
         }
 
     }
