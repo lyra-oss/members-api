@@ -11,7 +11,7 @@ import static java.util.Objects.isNull;
 class TeacherSchoolMembership {
 
     void verifyBelongsToSchool(final School school, final Teacher teacher) {
-        if(! (isNull(teacher) || isNull(school) || isSameSchool(school, teacher))) {
+        if(! (isNull(teacher) || isNull(school) || TeacherSchoolMembership.isSameSchool(school, teacher))) {
             throw new SchoolMismatchException(
                     "Teacher %s does not belong to the classroom's school".formatted(teacher.getId()));
         }
