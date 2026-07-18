@@ -15,10 +15,10 @@ import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_
 class SpringBeanRulesTest {
 
     /**
-     * Outside of the "config" package, classes may not be annotated with {@code @Component} or
-     * {@code @Service}; beans must instead be registered explicitly via {@code @Bean} methods in a
-     * {@code @Configuration} class, keeping bean wiring explicit rather than relying on component
-     * scanning.
+     * Outside of the "config" package, classes may not be annotated with @Component
+     * or @Service; beans must instead be registered explicitly via @Bean methods in
+     * a @Configuration class, keeping bean wiring explicit rather than relying on
+     * component scanning.
      */
     @ArchTest
     static final ArchRule sliceBeansAreNotComponentScanned =
@@ -31,23 +31,23 @@ class SpringBeanRulesTest {
             //@formatter:on
 
     /**
-     * {@code @Configuration} classes must not be public, since they are only meant to be loaded by
-     * Spring, not referenced directly from other code.
+     * Configuration classes (@Configuration) must not be public, since they are only
+     * meant to be loaded by Spring, not referenced directly from other code.
      */
     @ArchTest
     static final ArchRule configurationClassesAreNotPublic =
             noClasses().that().areAnnotatedWith(Configuration.class).should().bePublic();
 
     /**
-     * {@code @Bean} methods must not be public, for the same reason: they exist for Spring's
-     * container to call, not for direct external invocation.
+     * Bean methods (@Bean) must not be public, for the same reason: they exist for
+     * Spring's container to call, not for direct external invocation.
      */
     @ArchTest
     static final ArchRule beanMethodsAreNotPublic =
             methods().that().areAnnotatedWith(Bean.class).should().notBePublic();
 
     /**
-     * Forbids field injection ({@code @Autowired} on fields); dependencies must be injected via
+     * Forbids field injection (@Autowired on fields); dependencies must be injected via
      * constructors so they can be made immutable and are visible at construction time.
      */
     @ArchTest

@@ -16,7 +16,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 class NamingRulesTest {
 
     /**
-     * Every {@code @RepositoryRestController} class must have a simple name ending in "Controller".
+     * Every @RepositoryRestController class must have a simple name ending in "Controller".
      */
     @ArchTest
     static final ArchRule repositoryRestControllersAreNamedController =
@@ -24,8 +24,8 @@ class NamingRulesTest {
                      .should().haveSimpleNameEndingWith("Controller");
 
     /**
-     * The inverse of the rule above: any class named {@code *Controller} must actually be a
-     * {@code @RepositoryRestController}, so the name is never misleading.
+     * The inverse of the rule above: any class named *Controller must actually be
+     * a @RepositoryRestController, so the name is never misleading.
      */
     @ArchTest
     static final ArchRule controllersAreRepositoryRestControllers =
@@ -33,7 +33,7 @@ class NamingRulesTest {
                      .should().beAnnotatedWith(RepositoryRestController.class);
 
     /**
-     * Every {@code @RepositoryRestController} must live in a "..rest" package.
+     * Every @RepositoryRestController must live in a "..rest" package.
      */
     @ArchTest
     static final ArchRule controllersLiveInRestPackages =
@@ -41,7 +41,7 @@ class NamingRulesTest {
                      .should().resideInAPackage("..rest");
 
     /**
-     * Every {@code @RepositoryEventHandler} class must have a simple name ending in "Handler".
+     * Every @RepositoryEventHandler class must have a simple name ending in "Handler".
      */
     @ArchTest
     static final ArchRule repositoryEventHandlersAreNamedHandler =
@@ -49,8 +49,8 @@ class NamingRulesTest {
                      .should().haveSimpleNameEndingWith("Handler");
 
     /**
-     * The inverse of the rule above: any class named {@code *Handler} must actually be a
-     * {@code @RepositoryEventHandler}, so the name is never misleading.
+     * The inverse of the rule above: any class named *Handler must actually be
+     * a @RepositoryEventHandler, so the name is never misleading.
      */
     @ArchTest
     static final ArchRule handlersAreRepositoryEventHandlers =
@@ -58,7 +58,7 @@ class NamingRulesTest {
                      .should().beAnnotatedWith(RepositoryEventHandler.class);
 
     /**
-     * Every {@code @RepositoryEventHandler} must live in a "..handlers" package.
+     * Every @RepositoryEventHandler must live in a "..handlers" package.
      */
     @ArchTest
     static final ArchRule handlersLiveInHandlersPackages =
@@ -66,7 +66,7 @@ class NamingRulesTest {
                      .should().resideInAPackage("..handlers");
 
     /**
-     * Every Spring Data {@code Repository} must be declared as an interface (never a class) with a
+     * Every Spring Data Repository must be declared as an interface (never a class) with a
      * simple name ending in "Repository".
      */
     @ArchTest
@@ -76,7 +76,7 @@ class NamingRulesTest {
                      .andShould().haveSimpleNameEndingWith("Repository");
 
     /**
-     * Spring Data {@code @Repository} beans must live directly in their aggregate's package, not
+     * Spring Data @Repository beans must live directly in their aggregate's package, not
      * inside its "..rest" or "..handlers" sub-packages.
      */
     @ArchTest
@@ -85,7 +85,7 @@ class NamingRulesTest {
                      .should().resideOutsideOfPackages("..rest", "..handlers");
 
     /**
-     * Every {@code @Entity} must also carry an explicit {@code @Table} annotation, so the backing
+     * Every @Entity must also carry an explicit @Table annotation, so the backing
      * table name is never left to JPA's default naming strategy.
      */
     @ArchTest

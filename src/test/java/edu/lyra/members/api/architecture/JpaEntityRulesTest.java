@@ -65,7 +65,7 @@ class JpaEntityRulesTest {
             "%s id field '%s' is not annotated with @%s";
 
     /**
-     * Every {@code @Entity} must be annotated with {@code @EntityListeners(AuditingEntityListener.class)},
+     * Every @Entity must be annotated with @EntityListeners(AuditingEntityListener.class),
      * so JPA auditing (created/modified by and date) is actually wired up rather than silently inert.
      */
     @ArchTest
@@ -85,8 +85,8 @@ class JpaEntityRulesTest {
     //@formatter:on
 
     /**
-     * Every {@code @Entity} must rely on Lombok to generate a no-args constructor ({@code @NoArgsConstructor},
-     * which JPA requires) and a getter for every field ({@code @Getter}), instead of hand-written boilerplate
+     * Every @Entity must rely on Lombok to generate a no-args constructor (@NoArgsConstructor,
+     * which JPA requires) and a getter for every field (@Getter), instead of hand-written boilerplate
      * that can drift out of sync with the fields.
      */
     @ArchTest
@@ -119,9 +119,9 @@ class JpaEntityRulesTest {
     //@formatter:on
 
     /**
-     * Every {@code @Entity} must declare all five standard auditing fields — {@code @Version},
-     * {@code @CreatedDate}, {@code @CreatedBy}, {@code @LastModifiedDate} and {@code @LastModifiedBy} —
-     * so optimistic locking and audit trails behave consistently across every entity.
+     * Every @Entity must declare all five standard auditing fields: @Version, @CreatedDate,
+     * plus @CreatedBy, @LastModifiedDate and @LastModifiedBy, so optimistic locking and
+     * audit trails behave consistently across every entity.
      */
     @ArchTest
     static final ArchRule jpaEntitiesDeclareAllAuditingFields =
@@ -145,8 +145,8 @@ class JpaEntityRulesTest {
     //@formatter:on
 
     /**
-     * Every {@code @Entity} must declare exactly one identifier field of type {@code UUID}, annotated
-     * with {@code @Id}, {@code @JsonIgnore} (so it never leaks into API responses) and {@code @Column},
+     * Every @Entity must declare exactly one identifier field of type UUID, annotated
+     * with @Id, @JsonIgnore (so it never leaks into API responses) and @Column,
      * keeping primary keys consistent across the domain model.
      */
     @ArchTest
@@ -187,7 +187,7 @@ class JpaEntityRulesTest {
     //@formatter:on
 
     /**
-     * Every {@code @Entity} must extend the shared {@link Auditable} base class.
+     * Every @Entity must extend the shared Auditable base class.
      */
     @ArchTest
     static final ArchRule jpaEntitiesExtendAuditable =
