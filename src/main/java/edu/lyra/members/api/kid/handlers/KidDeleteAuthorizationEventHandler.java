@@ -16,7 +16,7 @@ class KidDeleteAuthorizationEventHandler {
     @HandleBeforeDelete
     public void authorizeKidDelete(final Kid kid) {
         log.debug("Authorizing deletion of kid {}", kid.getId());
-        if(AuthenticatedPrincipal.hasRole("admin") || this.isOwnKid(kid) || this.isTutorOf(kid.getClassroom())) {
+        if(AuthenticatedPrincipal.isAdmin() || this.isOwnKid(kid) || this.isTutorOf(kid.getClassroom())) {
             return;
         }
         throw new AccessDeniedException("Authenticated user cannot delete this kid");
@@ -24,17 +24,14 @@ class KidDeleteAuthorizationEventHandler {
 
     private boolean isOwnKid(final Kid kid) {
         final Parent parent = kid.getParent();
-        return AuthenticatedPrincipal.hasRole("parent") && parent != null &&
-               AuthenticatedPrincipal.currentId().map(current -> current.equals(parent.getId())).orElse(false);
+        return parent != null && AuthenticatedPrincipal.isSelf("parent", parent.getId());
     }
 
     private boolean isTutorOf(final Classroom classroom) {
         if(classroom == null || classroom.getTutor() == null) {
             return false;
         }
-        return AuthenticatedPrincipal.hasRole("teacher") &&
-               AuthenticatedPrincipal.currentId().map(current -> current.equals(classroom.getTutor().getId()))
-                                     .orElse(false);
+        return AuthenticatedPrincipal.isSelf("teacher", classroom.getTutor().getId());
     }
 
 }

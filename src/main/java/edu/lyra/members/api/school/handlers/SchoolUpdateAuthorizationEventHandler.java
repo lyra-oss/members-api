@@ -14,7 +14,7 @@ class SchoolUpdateAuthorizationEventHandler {
     @HandleBeforeSave
     public void authorizeSchoolUpdate(final School school) {
         log.debug("Authorizing update of school {}", school.getId());
-        if(! AuthenticatedPrincipal.hasRole("admin")) {
+        if(! AuthenticatedPrincipal.isAdmin()) {
             throw new AccessDeniedException("Authenticated user cannot update this school");
         }
     }

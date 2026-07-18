@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
 import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import edu.lyra.members.api.parent.Parent;
@@ -23,7 +22,7 @@ import org.springframework.core.convert.ConversionException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,9 +41,9 @@ class PersonRoleController {
     @Qualifier("defaultConversionService")
     private final ConversionService conversionService;
 
+    @PreAuthorize("hasRole('admin')")
     @PutMapping("/persons/{id}/parent")
     ResponseEntity<Void> grantParentRole(final @PathVariable UUID id) {
-        this.requireAdmin();
         return this.personRepository.findById(id).map(person -> {
             if(this.parentRepository.existsById(id)) {
                 log.debug("Person {} is already a parent; leaving the parent role unchanged", id);
@@ -59,16 +58,9 @@ class PersonRoleController {
         });
     }
 
-    private void requireAdmin() {
-        if(! AuthenticatedPrincipal.hasRole("admin")) {
-            log.debug("Authenticated principal is not an admin; refusing role management");
-            throw new AccessDeniedException("Only an admin can manage a person's roles");
-        }
-    }
-
+    @PreAuthorize("hasRole('admin')")
     @PutMapping("/persons/{id}/teacher")
     ResponseEntity<Void> grantTeacherRole(final @PathVariable UUID id, final @RequestBody Map<String, Object> body) {
-        this.requireAdmin();
         final Optional<Person> person = this.personRepository.findById(id);
         if(person.isEmpty()) {
             log.debug("Person {} not found; cannot grant the teacher role", id);
@@ -97,9 +89,9 @@ class PersonRoleController {
         }
     }
 
+    @PreAuthorize("hasRole('admin')")
     @DeleteMapping("/persons/{id}/parent")
     ResponseEntity<Void> revokeParentRole(final @PathVariable UUID id) {
-        this.requireAdmin();
         return this.parentRepository.findById(id).map(parent -> {
             if(! parent.getKids().isEmpty()) {
                 log.debug("Parent {} still has kids; refusing to revoke the parent role", id);
@@ -116,9 +108,9 @@ class PersonRoleController {
         });
     }
 
+    @PreAuthorize("hasRole('admin')")
     @DeleteMapping("/persons/{id}/teacher")
     ResponseEntity<Void> revokeTeacherRole(final @PathVariable UUID id) {
-        this.requireAdmin();
         return this.teacherRepository.findById(id).map(teacher -> {
             if(this.classroomRepository.existsByTutorIdOrTeachersId(id)) {
                 log.debug("Teacher {} is still referenced by a classroom; refusing to revoke the teacher role", id);

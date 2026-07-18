@@ -15,9 +15,8 @@ class ParentDeleteEventHandler {
     @HandleBeforeDelete
     public void authorizeParentDelete(final Parent parent) {
         log.debug("Authorizing deletion of parent {}", parent.getId());
-        final boolean isAdmin = AuthenticatedPrincipal.hasRole("admin");
-        final boolean isSelf = AuthenticatedPrincipal.hasRole("parent") &&
-                               AuthenticatedPrincipal.currentId().map(id -> id.equals(parent.getId())).orElse(false);
+        final boolean isAdmin = AuthenticatedPrincipal.isAdmin();
+        final boolean isSelf = AuthenticatedPrincipal.isSelf("parent", parent.getId());
         if(! (isAdmin || isSelf)) {
             throw new AccessDeniedException("Authenticated user cannot delete this parent");
         }

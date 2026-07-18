@@ -21,7 +21,7 @@ class ClassroomUpdateAuthorizationEventHandler {
     }
 
     private void authorize(final Classroom classroom) {
-        if(AuthenticatedPrincipal.hasRole("admin") || this.isPreviousTutor(classroom)) {
+        if(AuthenticatedPrincipal.isAdmin() || this.isPreviousTutor(classroom)) {
             return;
         }
         throw new AccessDeniedException("Authenticated user cannot update this classroom");
@@ -29,11 +29,7 @@ class ClassroomUpdateAuthorizationEventHandler {
 
     private boolean isPreviousTutor(final Classroom classroom) {
         final UUID previousTutorId = classroom.getPreviousTutorId();
-        if(previousTutorId == null) {
-            return false;
-        }
-        return AuthenticatedPrincipal.hasRole("teacher") &&
-               AuthenticatedPrincipal.currentId().map(previousTutorId::equals).orElse(false);
+        return previousTutorId != null && AuthenticatedPrincipal.isSelf("teacher", previousTutorId);
     }
 
     @HandleBeforeLinkSave

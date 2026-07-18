@@ -23,12 +23,11 @@ class ParentUpdateAuthorizationEventHandler {
     }
 
     private boolean isAdmin() {
-        return AuthenticatedPrincipal.hasRole("admin");
+        return AuthenticatedPrincipal.isAdmin();
     }
 
     private boolean isSelf(final Parent parent) {
-        return AuthenticatedPrincipal.hasRole("parent") &&
-               AuthenticatedPrincipal.currentId().map(id -> id.equals(parent.getId())).orElse(false);
+        return AuthenticatedPrincipal.isSelf("parent", parent.getId());
     }
 
     @HandleBeforeLinkSave
