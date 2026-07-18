@@ -81,10 +81,6 @@ class JpaAuditingTest {
         return subject;
     }
 
-    /**
-     * A parent's own row only changes with role-specific edits (e.g. kids); editing identity now touches
-     * {@link Person}'s row instead, so it is {@link Person}'s auditing fields — not the role's — that refresh.
-     */
     @Test
     void keepsCreationAuditInfoAndRefreshesModificationAuditInfoOnPersonUpdate() {
         authenticate();

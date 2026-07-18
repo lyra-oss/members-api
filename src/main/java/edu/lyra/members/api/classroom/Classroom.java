@@ -37,6 +37,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
+/**
+ * A single course/group at a {@link School}, with an optional tutor and enrolled {@link Kid}s.
+ *
+ * @author Esteban Cristóbal Rodríguez
+ * @see Auditable
+ */
 @Getter
 @ToString
 @NoArgsConstructor
@@ -80,11 +86,6 @@ public class Classroom
     )
     private Set<Teacher> teachers = new HashSet<>();
 
-    /**
-     * Deliberately excludes {@link jakarta.persistence.CascadeType#REMOVE}: a classroom with kids still enrolled must
-     * not be deletable at all (see delete-authorization handlers), so the generated {@code KIDS.CLASSROOM_ID} foreign
-     * key is left to enforce that at the database level rather than having Hibernate cascade the deletion away.
-     */
     @Exclude
     @OneToMany(cascade = { PERSIST, MERGE })
     @JoinColumn(name = "CLASSROOM_ID")

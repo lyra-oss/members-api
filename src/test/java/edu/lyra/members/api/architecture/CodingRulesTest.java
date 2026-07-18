@@ -10,13 +10,6 @@ import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_JODATIME;
 
-/**
- * ArchUnit's catalogue of common hygiene rules, adopted alongside the standard-streams rule already in
- * {@code GeneralRulesTest}: logging goes through SLF4J (never {@code java.util.logging}), exceptions thrown are
- * specific (never bare {@code RuntimeException}/{@code Exception}), no deprecated API is used — valuable on a codebase
- * tracking Spring Boot majors this closely — and dates use {@code java.time}, never Joda-Time. Scoped to main source
- * only.
- */
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class CodingRulesTest {
 

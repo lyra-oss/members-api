@@ -30,6 +30,14 @@ import static java.util.Optional.ofNullable;
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
+/**
+ * The teacher role held by a {@link Person} at a {@link School}, sharing that person's primary key and delegating its
+ * identity fields ({@code name}, {@code surname}, {@code mail}) straight through to it.
+ *
+ * @author Esteban Cristóbal Rodríguez
+ * @see Auditable
+ * @see Person
+ */
 @Getter
 @ToString
 @NoArgsConstructor
@@ -66,15 +74,24 @@ public class Teacher
         this.school = school;
     }
 
+    /**
+     * @return the teacher's id
+     */
     public UUID getId() {
         final UUID personId = this.person != null ? this.person.getId() : null;
         return ofNullable(this.id).orElse(personId);
     }
 
+    /**
+     * @return the teacher's given name
+     */
     public String getName() {
         return this.person.getName();
     }
 
+    /**
+     * @param name the given name to set
+     */
     public void setName(final String name) {
         this.person().setName(name);
     }
@@ -86,18 +103,30 @@ public class Teacher
         return this.person;
     }
 
+    /**
+     * @return the teacher's surname
+     */
     public String getSurname() {
         return this.person.getSurname();
     }
 
+    /**
+     * @param surname the surname to set
+     */
     public void setSurname(final String surname) {
         this.person().setSurname(surname);
     }
 
+    /**
+     * @return the teacher's email address
+     */
     public String getMail() {
         return this.person.getMail();
     }
 
+    /**
+     * @param mail the email address to set
+     */
     public void setMail(final String mail) {
         this.person().setMail(mail);
     }

@@ -29,12 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-/**
- * Lets an admin grant or revoke a role — {@code parent}, {@code teacher} — on an existing {@link Person}, so the same
- * human can hold either role, both, or neither, independently of how they first registered. Self-service acquisition
- * still happens through {@code POST /parents} and {@code POST /teachers}; this is for an admin assigning a role to a
- * person after the fact (e.g. a registered parent who also teaches).
- */
 @Slf4j
 @RequiredArgsConstructor
 @RepositoryRestController
@@ -94,12 +88,6 @@ class PersonRoleController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * The {@code school} value is a HAL URI reference (e.g. {@code /v0/schools/<id>}), matching how every other
-     * association in this API — including a teacher's own {@code school} at self-registration — is addressed. Resolved
-     * through Spring Data REST's own {@link org.springframework.data.rest.core.UriToEntityConverter}, registered on the
-     * {@code defaultConversionService} bean, rather than parsing the URI by hand.
-     */
     private Optional<School> school(final Map<String, Object> body) {
         try {
             return Optional.ofNullable(body.get("school"))

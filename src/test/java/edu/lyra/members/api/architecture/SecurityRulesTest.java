@@ -7,15 +7,6 @@ import com.tngtech.archunit.lang.ArchRule;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-/**
- * Confines all reading of the authenticated principal to {@code config.security}: everything else — vertical slices
- * and even the rest of {@code config} — must go through the {@code AuthenticatedPrincipal} facade rather than reaching
- * into {@link org.springframework.security.core.context.SecurityContextHolder} or {@code JwtAuthenticationToken}
- * directly. This keeps authorization (and auditor) identity resolution in one place instead of copy-pasted (and
- * drifting) across handlers, controllers and configurations. The facade, the MDC filter and the security-sourced JPA
- * auditor are the only permitted callers, and they all live here. Scoped to main source only, since test code
- * legitimately builds and installs its own security context.
- */
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class SecurityRulesTest {
 

@@ -11,13 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 
-/**
- * Resolves the {@link Person} behind a self-registering teacher: reuses the person already known for the authenticated
- * subject (e.g. someone already registered as a parent becoming a teacher too, in which case the identity fields in
- * this payload are ignored), or builds a new, not-yet-persisted one from this payload's contact info — either way,
- * persistence happens once, atomically with the {@link Teacher} row, via the {@code cascade} on
- * {@link Teacher#getPerson()}.
- */
 @Slf4j
 @RequiredArgsConstructor
 @RepositoryEventHandler

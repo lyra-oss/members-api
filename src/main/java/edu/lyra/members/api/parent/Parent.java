@@ -33,6 +33,14 @@ import static java.util.Optional.ofNullable;
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
+/**
+ * The parent role held by a {@link Person}, sharing that person's primary key and delegating its identity fields
+ * ({@code name}, {@code surname}, {@code mail}) straight through to it.
+ *
+ * @author Esteban Cristóbal Rodríguez
+ * @see Auditable
+ * @see Person
+ */
 @Getter
 @ToString
 @NoArgsConstructor
@@ -63,25 +71,29 @@ public class Parent
         this.person = person;
     }
 
-    /**
-     * Deliberately excludes {@link jakarta.persistence.CascadeType#REMOVE}: a parent with kids still linked must not be
-     * deletable at all (see delete-authorization handlers), so the generated {@code KIDS.PARENT_ID} foreign key is left
-     * to enforce that at the database level rather than having Hibernate cascade the deletion away.
-     */
     @Exclude
     @OneToMany(cascade = { PERSIST, MERGE })
     @JoinColumn(name = "PARENT_ID")
     private Set<Kid> kids = new HashSet<>();
 
+    /**
+     * @return the parent's id
+     */
     public UUID getId() {
         final UUID personId = this.person != null ? this.person.getId() : null;
         return ofNullable(this.id).orElse(personId);
     }
 
+    /**
+     * @return the parent's given name
+     */
     public String getName() {
         return this.person.getName();
     }
 
+    /**
+     * @param name the given name to set
+     */
     public void setName(final String name) {
         this.person().setName(name);
     }
@@ -93,18 +105,30 @@ public class Parent
         return this.person;
     }
 
+    /**
+     * @return the parent's surname
+     */
     public String getSurname() {
         return this.person.getSurname();
     }
 
+    /**
+     * @param surname the surname to set
+     */
     public void setSurname(final String surname) {
         this.person().setSurname(surname);
     }
 
+    /**
+     * @return the parent's email address
+     */
     public String getMail() {
         return this.person.getMail();
     }
 
+    /**
+     * @param mail the email address to set
+     */
     public void setMail(final String mail) {
         this.person().setMail(mail);
     }

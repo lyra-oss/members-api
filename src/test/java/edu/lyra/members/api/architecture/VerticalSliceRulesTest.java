@@ -18,20 +18,11 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-/**
- * Enforces the vertical-slice package layout: every top-level package under {@code edu.lyra.members.api} other than
- * {@code config} and {@code exceptions} is a vertical (aggregate) slice, exposing only its entity, repository and any
- * declared exception as public, cross-package contract; everything under its {@code .handlers}/{@code .rest}
- * sub-packages is an implementation detail, and {@code config} must not reach into any vertical's internals. New
- * aggregates and new {@code config} sub-packages are covered automatically — nothing here needs updating when one is
- * added. Scoped to main source only, since test-code visibility is intentionally not held to the same rule.
- */
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class VerticalSliceRulesTest {
 
     private static final String BASE_PACKAGE = "edu.lyra.members.api";
 
-    /** Top-level packages under {@link #BASE_PACKAGE} that are shared kernel/neutral ground, not a vertical slice. */
     private static final Set<String> NON_VERTICAL_TOP_LEVEL_PACKAGES = Set.of("config", "exceptions");
 
     private static final String INTERNAL_PACKAGE_SUFFIX_HANDLERS = ".handlers";

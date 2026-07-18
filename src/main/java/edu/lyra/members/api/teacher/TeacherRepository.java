@@ -7,6 +7,11 @@ import org.springframework.data.repository.ListPagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Spring Data repository for {@link Teacher}.
+ *
+ * @author Esteban Cristóbal Rodríguez
+ */
 @Repository
 @Transactional
 public interface TeacherRepository

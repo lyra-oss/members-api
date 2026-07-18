@@ -23,6 +23,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  * The identity of a human known to Lyra, independent of the roles ({@code Parent}, {@code Teacher}) they perform. Its
  * {@link #id} is the identity provider's subject claim, shared as the primary key of every role a person holds (see
  * {@code Parent}/{@code Teacher}, which map their own {@code @Id} onto this one via {@code @MapsId}).
+ *
+ * @author Esteban Cristóbal Rodríguez
+ * @see Auditable
  */
 @Getter
 @ToString

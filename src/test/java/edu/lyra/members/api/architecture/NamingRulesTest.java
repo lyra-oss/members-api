@@ -12,21 +12,6 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
-/**
- * Ties each building block to its name, its Spring annotation and its package, in both directions, so a class whose
- * name says one thing but whose annotation or placement says another is caught. The conventions pinned here are the
- * ones every existing slice already follows:
- * <ul>
- *     <li>web entry points are {@code @RepositoryRestController}s named {@code *Controller} living in a {@code .rest}
- *         sub-package;</li>
- *     <li>Spring Data REST event handlers are {@code @RepositoryEventHandler}s named {@code *Handler} living in a
- *         {@code .handlers} sub-package;</li>
- *     <li>repositories are {@code @Repository} interfaces named {@code *Repository} sitting in their aggregate root
- *         package, never in a {@code .rest}/{@code .handlers} internals package;</li>
- *     <li>JPA entities are named after their aggregate and carry an explicit {@code @Table} mapping.</li>
- * </ul>
- * Scoped to main source only: the same names in test code (e.g. {@code *ControllerTest}) are not held to these rules.
- */
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class NamingRulesTest {
 

@@ -47,7 +47,6 @@ class KidUpdateAuthorizationEventHandlerTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    /** A kid whose parent/classroom on the incoming object match what {@code @PostLoad} would have captured. */
     private static Kid aKidUnchanged(final Parent parent, final Classroom classroom) {
         //@formatter:off
         return Instancio.of(Kid.class)

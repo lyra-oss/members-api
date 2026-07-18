@@ -17,10 +17,6 @@ class JpaRepositoryRulesTest {
     static final ArchRule repositoriesAreTransactional =
             classes().that().areAnnotatedWith(Repository.class).should().beAnnotatedWith(Transactional.class);
 
-    /**
-     * Transactional demarcation uses Spring's {@code @Transactional}, whose attributes the Spring proxy honours; the
-     * identically-named {@code jakarta.transaction.Transactional} is a classic silent mix-up and is banned outright.
-     */
     @ArchTest
     static final ArchRule noJakartaTransactional =
             noClasses().should().beAnnotatedWith("jakarta.transaction.Transactional")

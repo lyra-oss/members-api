@@ -28,6 +28,12 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+/**
+ * A child enrolled at Lyra, linked to a {@link Parent} and optionally a {@link Classroom}.
+ *
+ * @author Esteban Cristóbal Rodríguez
+ * @see Auditable
+ */
 @Getter
 @ToString
 @NoArgsConstructor

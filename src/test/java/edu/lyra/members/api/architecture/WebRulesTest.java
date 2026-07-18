@@ -18,18 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-/**
- * Keeps the HTTP surface consistent with how Spring Data REST is wired here:
- * <ul>
- *     <li>controllers are {@code @RepositoryRestController}s (never plain {@code @RestController}s, which would escape
- *         the configured base path and the repository event/validation pipeline);</li>
- *     <li>request-mapped controller methods stay package-private — they are invoked by Spring, never called across
- *         package boundaries;</li>
- *     <li>{@code @Handle*} event-handler methods are public, as Spring Data REST requires to reflectively invoke
- *         them.</li>
- * </ul>
- * Scoped to main source only.
- */
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class WebRulesTest {
 

@@ -61,11 +61,6 @@ public class EntityFixtures {
         this.schoolRepository.deleteAll();
     }
 
-    /**
-     * Runs after every other scenario-setup {@code @Before} hook (Cucumber's default order is 10000) since a
-     * {@link Person} can only be deleted once nothing still references it via the shared-primary-key {@code parent}/
-     * {@code teacher} role rows those hooks clear.
-     */
     @Before(order = 20000)
     public void cleanPersons() {
         this.personRepository.deleteAll();

@@ -12,6 +12,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
+/**
+ * Base class for JPA entities that carries the optimistic-locking version column plus the standard
+ * creation/modification audit columns, populated automatically by Spring Data JPA auditing.
+ *
+ * @author Esteban Cristóbal Rodríguez
+ */
 @Getter
 @MappedSuperclass
 public abstract class Auditable {

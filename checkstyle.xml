@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Enforces that every public class/interface/enum/record and every public method in main source has Javadoc.
+    Deliberately does not run against src/test/java (see maven-checkstyle-plugin's default
+    includeTestSourceDirectory=false in pom.xml): test code is not expected to carry Javadoc.
+-->
+<module name="Checker">
+
+    <property name="charset" value="UTF-8"/>
+
+    <module name="TreeWalker">
+
+        <module name="MissingJavadocType">
+            <property name="scope" value="public"/>
+        </module>
+
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="tokens" value="METHOD_DEF"/>
+            <property name="allowedAnnotations" value="Override"/>
+        </module>
+
+    </module>
+
+</module>

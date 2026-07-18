@@ -96,6 +96,9 @@ class ProblemDetailsControllerAdvice
      * exception above, but the database's own foreign-key constraints (deliberately left without cascading removal; see
      * the affected entities' collection mappings) back that up independently, in case application logic is ever
      * bypassed or wrong.
+     *
+     * @param ex the referential-integrity violation raised by the persistence layer
+     * @return a 409 Conflict {@link ProblemDetail} response describing the violation
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(final DataIntegrityViolationException ex) {

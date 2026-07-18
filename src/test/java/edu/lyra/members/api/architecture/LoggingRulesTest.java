@@ -25,11 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
-/**
- * Enforces that observable entry points into the system — Spring controllers and Spring Data REST event handlers — are
- * actually observable: every such class must be annotated with {@code @Slf4j} and log at least one line.
- * Scoped to main source only.
- */
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class LoggingRulesTest {
 
@@ -105,11 +100,6 @@ class LoggingRulesTest {
                      });
     //@formatter:on
 
-    /**
-     * Considers not only calls made directly from the mapped method's own body, but also calls made from lambdas
-     * declared within it: the compiler lowers those to synthetic {@code lambda$<methodName>$<n>} methods on the same
-     * class, which ArchUnit reports as separate {@link JavaMethod}s with their own, otherwise-uncredited call sets.
-     */
     private static boolean logsWithinMethod(final JavaClass javaClass, final JavaMethod method) {
         final String lambdaPrefix = "lambda$" + method.getName() + "$";
         //@formatter:off

@@ -28,6 +28,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
+/**
+ * A school, the shared organizational anchor for its {@link Classroom}s and {@link Teacher}s.
+ *
+ * @author Esteban Cristóbal Rodríguez
+ * @see Auditable
+ */
 @Getter
 @ToString
 @NoArgsConstructor
@@ -48,12 +54,6 @@ public class School
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
 
-    /**
-     * Deliberately excludes {@link jakarta.persistence.CascadeType#REMOVE}: a school with classrooms or teachers still
-     * linked must not be deletable at all (see delete-authorization handlers), so the generated
-     * {@code CLASSROOMS.SCHOOL_ID}/{@code TEACHERS.SCHOOL_ID} foreign keys are left to enforce that at the database
-     * level rather than having Hibernate cascade the deletion away.
-     */
     @Exclude
     @OneToMany(cascade = { PERSIST, MERGE })
     @JoinColumn(name = "SCHOOL_ID")
