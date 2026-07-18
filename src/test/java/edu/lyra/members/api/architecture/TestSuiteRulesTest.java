@@ -14,6 +14,10 @@ class TestSuiteRulesTest {
     /**
      * Every subclass of BaseIT must have a simple name ending in "IT", which is the naming
      * convention the Failsafe plugin uses to discover and run integration tests.
+     *
+     * <p>Compliant: {@code class PersonControllerIT extends BaseIT}
+     *
+     * <p>Violation: {@code class PersonControllerTest extends BaseIT} (Failsafe never runs it)
      */
     @ArchTest
     static final ArchRule integrationTestsAreNamedIT =
@@ -26,6 +30,12 @@ class TestSuiteRulesTest {
      * "architecture" package (not in a sub-package of it), which PIT mutation testing excludes,
      * keeping architecture-rule fields out of scope of mutation coverage and all together in one
      * place.
+     *
+     * <p>Compliant: {@code @ArchTest} field in {@code edu.lyra.members.api.architecture.NamingRulesTest}
+     *
+     * <p>Violation: {@code @ArchTest} field in {@code edu.lyra.members.api.person.PersonRulesTest}
+     * (outside the "architecture" package) or in
+     * {@code edu.lyra.members.api.architecture.custom.CustomRulesTest} (a sub-package of it)
      */
     @ArchTest
     static final ArchRule archTestsLiveInTheArchitecturePackage =

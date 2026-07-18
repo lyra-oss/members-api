@@ -41,6 +41,10 @@ class VerticalSliceRulesTest {
     /**
      * Classes in any "..handlers" or "..rest" package must not be public, since they are internal
      * wiring for their vertical slice and should never be referenced directly from other slices.
+     *
+     * <p>Compliant: {@code class PersonController} in {@code person.rest} (package-private)
+     *
+     * <p>Violation: {@code public class PersonController} in {@code person.rest}
      */
     @ArchTest
     static final ArchRule handlersAndRestPackagesContainNoPublicClasses =
@@ -50,6 +54,12 @@ class VerticalSliceRulesTest {
      * Classes in a "..handlers" or "..rest" package may only be accessed by other classes within the
      * same aggregate (vertical slice), preventing one feature's internal wiring from leaking into
      * another feature.
+     *
+     * <p>Compliant: {@code person.rest.PersonController} is only accessed from other classes in
+     * {@code person} or one of its sub-packages
+     *
+     * <p>Violation: {@code membership.MembershipService} accesses {@code person.rest.PersonController}
+     * directly, reaching into another aggregate's internal wiring
      */
     @ArchTest
     static final ArchRule handlersAndRestPackagesAreOnlyAccessedWithinTheirOwnAggregate =
@@ -75,6 +85,12 @@ class VerticalSliceRulesTest {
      * Classes in the shared "config" package (the "kernel") must not depend on classes that live in a
      * vertical/aggregate package — except for Spring Data REST's {@code RepositoryRestConfigurer}
      * extension points — keeping shared infrastructure free of feature-specific coupling.
+     *
+     * <p>Compliant: {@code config.web.WebConfiguration} depends only on other {@code config} classes
+     * and framework/JDK types
+     *
+     * <p>Violation: {@code config.SomeConfiguration} imports {@code person.Person}, a class from a
+     * vertical (aggregate) package
      */
     @ArchTest
     static final ArchRule kernelPackagesDoNotDependOnVerticalPackages =

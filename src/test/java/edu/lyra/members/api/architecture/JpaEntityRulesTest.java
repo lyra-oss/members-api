@@ -67,6 +67,19 @@ class JpaEntityRulesTest {
     /**
      * Every {@code @Entity} must be annotated with {@code @EntityListeners(AuditingEntityListener.class)},
      * so JPA auditing (created/modified by and date) is actually wired up rather than silently inert.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @Entity
+     * @EntityListeners(AuditingEntityListener.class)
+     * class Member extends Auditable { ... }
+     * }</pre>
+     *
+     * <p>Violation:
+     * <pre>{@code
+     * @Entity
+     * class Member extends Auditable { ... } // no @EntityListeners
+     * }</pre>
      */
     @ArchTest
     static final ArchRule jpaEntitiesAreAnnotatedWithEntityListeners =
@@ -88,6 +101,35 @@ class JpaEntityRulesTest {
      * Every {@code @Entity} must rely on Lombok to generate a no-args constructor ({@code @NoArgsConstructor},
      * which JPA requires) and a getter for every field ({@code @Getter}), instead of hand-written boilerplate
      * that can drift out of sync with the fields.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @Entity
+     * @Getter
+     * @NoArgsConstructor
+     * class Member extends Auditable {
+     *     private String name;
+     * }
+     * }</pre>
+     *
+     * <p>Violation (missing {@code @NoArgsConstructor}):
+     * <pre>{@code
+     * @Entity
+     * @Getter
+     * class Member extends Auditable {
+     *     private String name;
+     *     Member(final String name) { this.name = name; }
+     * }
+     * }</pre>
+     *
+     * <p>Violation (missing {@code @Getter}, so field {@code name} has no getter):
+     * <pre>{@code
+     * @Entity
+     * @NoArgsConstructor
+     * class Member extends Auditable {
+     *     private String name;
+     * }
+     * }</pre>
      */
     @ArchTest
     static final ArchRule jpaEntitiesUseLombok =
@@ -122,6 +164,29 @@ class JpaEntityRulesTest {
      * Every {@code @Entity} must declare all five standard auditing fields — {@code @Version},
      * {@code @CreatedDate}, {@code @CreatedBy}, {@code @LastModifiedDate} and {@code @LastModifiedBy} —
      * so optimistic locking and audit trails behave consistently across every entity.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @Entity
+     * class Member extends Auditable {
+     *     @Version               private long version;
+     *     @CreatedDate           private Instant createdDate;
+     *     @CreatedBy             private String createdBy;
+     *     @LastModifiedDate      private Instant lastModifiedDate;
+     *     @LastModifiedBy        private String lastModifiedBy;
+     * }
+     * }</pre>
+     *
+     * <p>Violation ({@code @Version} is missing):
+     * <pre>{@code
+     * @Entity
+     * class Member extends Auditable {
+     *     @CreatedDate           private Instant createdDate;
+     *     @CreatedBy             private String createdBy;
+     *     @LastModifiedDate      private Instant lastModifiedDate;
+     *     @LastModifiedBy        private String lastModifiedBy;
+     * }
+     * }</pre>
      */
     @ArchTest
     static final ArchRule jpaEntitiesDeclareAllAuditingFields =
@@ -148,6 +213,33 @@ class JpaEntityRulesTest {
      * Every {@code @Entity} must declare exactly one identifier field of type {@code UUID}, annotated
      * with {@code @Id}, {@code @JsonIgnore} (so it never leaks into API responses) and {@code @Column},
      * keeping primary keys consistent across the domain model.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @Entity
+     * class Member extends Auditable {
+     *     @Id @JsonIgnore @Column
+     *     private UUID id;
+     * }
+     * }</pre>
+     *
+     * <p>Violation (wrong type):
+     * <pre>{@code
+     * @Entity
+     * class Member extends Auditable {
+     *     @Id @JsonIgnore @Column
+     *     private Long id;
+     * }
+     * }</pre>
+     *
+     * <p>Violation (missing {@code @JsonIgnore}, so it leaks into API responses):
+     * <pre>{@code
+     * @Entity
+     * class Member extends Auditable {
+     *     @Id @Column
+     *     private UUID id;
+     * }
+     * }</pre>
      */
     @ArchTest
     static final ArchRule jpaEntitiesHaveUuidIdField =
@@ -188,6 +280,10 @@ class JpaEntityRulesTest {
 
     /**
      * Every {@code @Entity} must extend the shared {@link Auditable} base class.
+     *
+     * <p>Compliant: {@code class Member extends Auditable { ... }}
+     *
+     * <p>Violation: {@code class Member { ... }}
      */
     @ArchTest
     static final ArchRule jpaEntitiesExtendAuditable =
@@ -197,6 +293,22 @@ class JpaEntityRulesTest {
      * Entities must stay plain domain objects: they may not depend on Spring Data repositories, on
      * "..rest.." or "..handlers.." classes, or on Spring Security, keeping persistence, web and
      * security concerns out of the domain model.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @Entity
+     * class Member extends Auditable {
+     *     private String name; // only depends on JDK/domain types
+     * }
+     * }</pre>
+     *
+     * <p>Violation (depends on a repository):
+     * <pre>{@code
+     * @Entity
+     * class Member extends Auditable {
+     *     Member(final MemberRepository repository) { ... }
+     * }
+     * }</pre>
      */
     @ArchTest
     static final ArchRule jpaEntitiesDoNotDependOnInfrastructure =

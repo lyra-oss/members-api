@@ -17,6 +17,10 @@ class NamingRulesTest {
 
     /**
      * Every {@code @RepositoryRestController} class must have a simple name ending in "Controller".
+     *
+     * <p>Compliant: {@code @RepositoryRestController class PersonController}
+     *
+     * <p>Violation: {@code @RepositoryRestController class PersonEndpoint}
      */
     @ArchTest
     static final ArchRule repositoryRestControllersAreNamedController =
@@ -26,6 +30,10 @@ class NamingRulesTest {
     /**
      * The inverse of the rule above: any class named {@code *Controller} must actually be a
      * {@code @RepositoryRestController}, so the name is never misleading.
+     *
+     * <p>Compliant: {@code @RepositoryRestController class PersonController}
+     *
+     * <p>Violation: {@code class PersonController} (missing the annotation)
      */
     @ArchTest
     static final ArchRule controllersAreRepositoryRestControllers =
@@ -34,6 +42,10 @@ class NamingRulesTest {
 
     /**
      * Every {@code @RepositoryRestController} must live in a "..rest" package.
+     *
+     * <p>Compliant: {@code edu.lyra.members.api.person.rest.PersonController}
+     *
+     * <p>Violation: {@code edu.lyra.members.api.person.PersonController}
      */
     @ArchTest
     static final ArchRule controllersLiveInRestPackages =
@@ -42,6 +54,10 @@ class NamingRulesTest {
 
     /**
      * Every {@code @RepositoryEventHandler} class must have a simple name ending in "Handler".
+     *
+     * <p>Compliant: {@code @RepositoryEventHandler class PersonHandler}
+     *
+     * <p>Violation: {@code @RepositoryEventHandler class PersonEvents}
      */
     @ArchTest
     static final ArchRule repositoryEventHandlersAreNamedHandler =
@@ -51,6 +67,10 @@ class NamingRulesTest {
     /**
      * The inverse of the rule above: any class named {@code *Handler} must actually be a
      * {@code @RepositoryEventHandler}, so the name is never misleading.
+     *
+     * <p>Compliant: {@code @RepositoryEventHandler class PersonHandler}
+     *
+     * <p>Violation: {@code class PersonHandler} (missing the annotation)
      */
     @ArchTest
     static final ArchRule handlersAreRepositoryEventHandlers =
@@ -59,6 +79,10 @@ class NamingRulesTest {
 
     /**
      * Every {@code @RepositoryEventHandler} must live in a "..handlers" package.
+     *
+     * <p>Compliant: {@code edu.lyra.members.api.person.handlers.PersonHandler}
+     *
+     * <p>Violation: {@code edu.lyra.members.api.person.PersonHandler}
      */
     @ArchTest
     static final ArchRule handlersLiveInHandlersPackages =
@@ -68,6 +92,10 @@ class NamingRulesTest {
     /**
      * Every Spring Data {@code Repository} must be declared as an interface (never a class) with a
      * simple name ending in "Repository".
+     *
+     * <p>Compliant: {@code interface MemberRepository extends JpaRepository<Member, UUID>}
+     *
+     * <p>Violation: {@code interface MemberDao extends JpaRepository<Member, UUID>}
      */
     @ArchTest
     static final ArchRule springDataRepositoriesAreInterfacesNamedRepository =
@@ -78,6 +106,10 @@ class NamingRulesTest {
     /**
      * Spring Data {@code @Repository} beans must live directly in their aggregate's package, not
      * inside its "..rest" or "..handlers" sub-packages.
+     *
+     * <p>Compliant: {@code edu.lyra.members.api.person.PersonRepository}
+     *
+     * <p>Violation: {@code edu.lyra.members.api.person.rest.PersonRepository}
      */
     @ArchTest
     static final ArchRule repositoriesLiveInTheirAggregateRoot =
@@ -87,6 +119,10 @@ class NamingRulesTest {
     /**
      * Every {@code @Entity} must also carry an explicit {@code @Table} annotation, so the backing
      * table name is never left to JPA's default naming strategy.
+     *
+     * <p>Compliant: {@code @Entity @Table(name = "members") class Member}
+     *
+     * <p>Violation: {@code @Entity class Member} (no {@code @Table})
      */
     @ArchTest
     static final ArchRule entitiesDeclareAnExplicitTable =

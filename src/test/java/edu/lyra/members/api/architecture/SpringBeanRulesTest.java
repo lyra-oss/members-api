@@ -19,6 +19,23 @@ class SpringBeanRulesTest {
      * {@code @Service}; beans must instead be registered explicitly via {@code @Bean} methods in a
      * {@code @Configuration} class, keeping bean wiring explicit rather than relying on component
      * scanning.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @Configuration
+     * class PersonSliceConfiguration {
+     *     @Bean
+     *     PersonService personService(final PersonRepository repository) {
+     *         return new PersonService(repository);
+     *     }
+     * }
+     * }</pre>
+     *
+     * <p>Violation:
+     * <pre>{@code
+     * @Service
+     * class PersonService { ... } // component-scanned outside 'config'
+     * }</pre>
      */
     @ArchTest
     static final ArchRule sliceBeansAreNotComponentScanned =
@@ -33,6 +50,10 @@ class SpringBeanRulesTest {
     /**
      * {@code @Configuration} classes must not be public, since they are only meant to be loaded by
      * Spring, not referenced directly from other code.
+     *
+     * <p>Compliant: {@code @Configuration class WebConfiguration}
+     *
+     * <p>Violation: {@code @Configuration public class WebConfiguration}
      */
     @ArchTest
     static final ArchRule configurationClassesAreNotPublic =
@@ -41,6 +62,10 @@ class SpringBeanRulesTest {
     /**
      * {@code @Bean} methods must not be public, for the same reason: they exist for Spring's
      * container to call, not for direct external invocation.
+     *
+     * <p>Compliant: {@code @Bean PersonService personService() { ... }}
+     *
+     * <p>Violation: {@code @Bean public PersonService personService() { ... }}
      */
     @ArchTest
     static final ArchRule beanMethodsAreNotPublic =
@@ -49,6 +74,22 @@ class SpringBeanRulesTest {
     /**
      * Forbids field injection ({@code @Autowired} on fields); dependencies must be injected via
      * constructors so they can be made immutable and are visible at construction time.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * class PersonService {
+     *     private final PersonRepository repository;
+     *     PersonService(final PersonRepository repository) { this.repository = repository; }
+     * }
+     * }</pre>
+     *
+     * <p>Violation:
+     * <pre>{@code
+     * class PersonService {
+     *     @Autowired
+     *     private PersonRepository repository;
+     * }
+     * }</pre>
      */
     @ArchTest
     static final ArchRule constructorInjectionOnly = NO_CLASSES_SHOULD_USE_FIELD_INJECTION;

@@ -46,6 +46,10 @@ class WebRulesTest {
     /**
      * Forbids {@code @RestController} entirely; controllers must be {@code @RepositoryRestController}
      * instead, so all HTTP endpoints go through Spring Data REST's exposure mechanism.
+     *
+     * <p>Compliant: {@code @RepositoryRestController class PersonController}
+     *
+     * <p>Violation: {@code @RestController class PersonController}
      */
     @ArchTest
     static final ArchRule noPlainRestControllers =
@@ -56,6 +60,24 @@ class WebRulesTest {
      * Request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) declared in a
      * {@code @RepositoryRestController} must not be public, since Spring Data REST invokes them
      * reflectively rather than through direct calls.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @RepositoryRestController
+     * class PersonController {
+     *     @GetMapping
+     *     Person get(final UUID id) { ... }
+     * }
+     * }</pre>
+     *
+     * <p>Violation:
+     * <pre>{@code
+     * @RepositoryRestController
+     * class PersonController {
+     *     @GetMapping
+     *     public Person get(final UUID id) { ... }
+     * }
+     * }</pre>
      */
     @ArchTest
     static final ArchRule mappedControllerMethodsAreNotPublic =
@@ -67,6 +89,24 @@ class WebRulesTest {
      * Methods annotated with a Spring Data REST {@code @Handle*} annotation in a
      * {@code @RepositoryEventHandler} must be public, since Spring Data REST needs to invoke them
      * directly.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @RepositoryEventHandler
+     * class PersonHandler {
+     *     @HandleBeforeSave
+     *     public void beforeSave(final Person person) { ... }
+     * }
+     * }</pre>
+     *
+     * <p>Violation:
+     * <pre>{@code
+     * @RepositoryEventHandler
+     * class PersonHandler {
+     *     @HandleBeforeSave
+     *     private void beforeSave(final Person person) { ... }
+     * }
+     * }</pre>
      */
     @ArchTest
     static final ArchRule handlerMethodsArePublic =
