@@ -28,34 +28,12 @@ class SpringSecurityConfiguration {
 
     private static final String ACTUATOR = "/actuator/**";
 
-    private static final String PARENTS    = "/parents";
-    private static final String KIDS       = "/kids";
-    private static final String SCHOOLS    = "/schools";
-    private static final String TEACHERS   = "/teachers";
-    private static final String CLASSROOMS = "/classrooms";
-    private static final String PERSONS = "/persons";
-
-    private static final String PARENTS_ANY    = PARENTS + "/**";
-    private static final String KIDS_ANY       = KIDS + "/**";
-    private static final String SCHOOLS_ANY    = SCHOOLS + "/**";
-    private static final String TEACHERS_ANY   = TEACHERS + "/**";
-    private static final String CLASSROOMS_ANY = CLASSROOMS + "/**";
-    private static final String PERSONS_ANY = PERSONS + "/**";
-
-    private static final String PARENTS_KIDS         = PARENTS + "/*/kids";
-    private static final String CLASSROOMS_TUTOR     = CLASSROOMS + "/*/tutor";
-    private static final String CLASSROOMS_TEACHERS  = CLASSROOMS + "/*/teachers";
-    private static final String CLASSROOMS_KIDS      = CLASSROOMS + "/*/kids";
-    private static final String PERSONS_PARENT_ROLE  = PERSONS + "/*/parent";
-    private static final String PERSONS_TEACHER_ROLE = PERSONS + "/*/teacher";
-
-    private static final String SCOPE_PREFIX = "SCOPE_";
-
     private static final String ENTITY_PARENTS    = "parents";
     private static final String ENTITY_KIDS       = "kids";
     private static final String ENTITY_SCHOOLS    = "schools";
     private static final String ENTITY_TEACHERS   = "teachers";
     private static final String ENTITY_CLASSROOMS = "classrooms";
+    private static final String ENTITY_PERSONS    = "persons";
 
     private static final String OP_CREATE = "create";
     private static final String OP_UPDATE = "update";
@@ -63,6 +41,29 @@ class SpringSecurityConfiguration {
     private static final String OP_READ   = "read";
 
     private static final String ROLE_ADMIN = "admin";
+
+    private static final String PARENTS    = path(ENTITY_PARENTS);
+    private static final String KIDS       = path(ENTITY_KIDS);
+    private static final String SCHOOLS    = path(ENTITY_SCHOOLS);
+    private static final String TEACHERS   = path(ENTITY_TEACHERS);
+    private static final String CLASSROOMS = path(ENTITY_CLASSROOMS);
+    private static final String PERSONS    = path(ENTITY_PERSONS);
+
+    private static final String PARENTS_ANY    = anyPath(ENTITY_PARENTS);
+    private static final String KIDS_ANY       = anyPath(ENTITY_KIDS);
+    private static final String SCHOOLS_ANY    = anyPath(ENTITY_SCHOOLS);
+    private static final String TEACHERS_ANY   = anyPath(ENTITY_TEACHERS);
+    private static final String CLASSROOMS_ANY = anyPath(ENTITY_CLASSROOMS);
+    private static final String PERSONS_ANY    = anyPath(ENTITY_PERSONS);
+
+    private static final String PARENTS_KIDS         = subPath(ENTITY_PARENTS, ENTITY_KIDS);
+    private static final String CLASSROOMS_TUTOR     = subPath(ENTITY_CLASSROOMS, "tutor");
+    private static final String CLASSROOMS_TEACHERS  = subPath(ENTITY_CLASSROOMS, ENTITY_TEACHERS);
+    private static final String CLASSROOMS_KIDS      = subPath(ENTITY_CLASSROOMS, ENTITY_KIDS);
+    private static final String PERSONS_PARENT_ROLE  = subPath(ENTITY_PERSONS, "parent");
+    private static final String PERSONS_TEACHER_ROLE = subPath(ENTITY_PERSONS, "teacher");
+
+    private static final String SCOPE_PREFIX = "SCOPE_";
 
     @Bean
     SecurityFilterChain securityFilterChain(
@@ -154,6 +155,18 @@ class SpringSecurityConfiguration {
 
     private static String scope(final String entity, final String operation) {
         return new StringJoiner(".", SCOPE_PREFIX, "").add(entity).add(operation).toString();
+    }
+
+    private static String path(final String entity) {
+        return "/" + entity;
+    }
+
+    private static String anyPath(final String entity) {
+        return path(entity) + "/**";
+    }
+
+    private static String subPath(final String entity, final String subResource) {
+        return path(entity) + "/*/" + subResource;
     }
 
 }
