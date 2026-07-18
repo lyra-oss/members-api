@@ -355,6 +355,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>javadoc-doclint-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -381,11 +390,37 @@
                             <goal>check</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>checkstyle-check-architecture-tests</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <configLocation>checkstyle-architecture.xml</configLocation>
+                            <includeMainSourceDirectory>false</includeMainSourceDirectory>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                            <testSourceDirectories>
+                                <testSourceDirectory>
+                                    ${project.basedir}/src/test/java/edu/lyra/members/api/architecture
+                                </testSourceDirectory>
+                            </testSourceDirectories>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

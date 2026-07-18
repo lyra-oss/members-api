@@ -7,6 +7,10 @@
     Enforces that every public class/interface/enum/record and every public method in main source has Javadoc.
     Deliberately does not run against src/test/java (see maven-checkstyle-plugin's default
     includeTestSourceDirectory=false in pom.xml): test code is not expected to carry Javadoc.
+
+    The architecture test package (src/test/java/edu/lyra/members/api/architecture) is the one
+    exception: it has its own checkstyle-architecture.xml, wired up as a separate execution in
+    pom.xml, which requires a Javadoc comment on every @ArchTest rule field.
 -->
 <module name="Checker">
 

@@ -12,10 +12,32 @@ import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_
 @AnalyzeClasses(packages = "edu.lyra.members.api")
 class GeneralRulesTest {
 
+    /**
+     * Every {@code @Configuration} class must have a simple name ending in "Configuration", so
+     * Spring configuration classes are easy to spot by name alone.
+     *
+     * <p>Compliant: {@code @Configuration class SecurityConfiguration}
+     *
+     * <p>Violation: {@code @Configuration class SecuritySetup}
+     */
     @ArchTest
     static final ArchRule springConfigurationClassName =
             classes().that().areAnnotatedWith(Configuration.class).should().haveSimpleNameEndingWith("Configuration");
 
+    /**
+     * Forbids calling {@code System.out}/{@code System.err} directly; use a logger instead so output
+     * is consistently captured and formatted.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * log.debug("saving {}", person);
+     * }</pre>
+     *
+     * <p>Violation:
+     * <pre>{@code
+     * System.out.println("saving " + person);
+     * }</pre>
+     */
     @ArchTest
     static final ArchRule noClassesAccessStandardStreams = NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;
 

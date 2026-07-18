@@ -57,6 +57,37 @@ class LoggingRulesTest {
                 }
             };
 
+    /**
+     * Every Spring controller ({@code @RestController}, {@code @Controller} or
+     * {@code @RepositoryRestController}) must have an SLF4J logger ({@code @Slf4j}), and every one of
+     * its request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) must log at least
+     * one line, so every inbound request leaves a trace.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @Slf4j
+     * @RepositoryRestController
+     * class PersonController {
+     *     @GetMapping
+     *     Person get(final UUID id) {
+     *         log.info("fetching person {}", id);
+     *         return ...;
+     *     }
+     * }
+     * }</pre>
+     *
+     * <p>Violation (mapped method does not log):
+     * <pre>{@code
+     * @Slf4j
+     * @RepositoryRestController
+     * class PersonController {
+     *     @GetMapping
+     *     Person get(final UUID id) {
+     *         return ...; // no log line
+     *     }
+     * }
+     * }</pre>
+     */
     @ArchTest
     static final ArchRule controllersLogTheirMappedMethods =
             //@formatter:off
@@ -80,6 +111,33 @@ class LoggingRulesTest {
                      });
     //@formatter:on
 
+    /**
+     * Every Spring Data REST {@code @RepositoryEventHandler} must have an SLF4J logger and log at
+     * least one line somewhere in the class, so repository lifecycle events (before/after save,
+     * delete, etc.) are traceable.
+     *
+     * <p>Compliant:
+     * <pre>{@code
+     * @Slf4j
+     * @RepositoryEventHandler
+     * class PersonHandler {
+     *     @HandleBeforeSave
+     *     void beforeSave(final Person person) {
+     *         log.info("saving {}", person);
+     *     }
+     * }
+     * }</pre>
+     *
+     * <p>Violation (no {@code log.*(...)} call anywhere in the class):
+     * <pre>{@code
+     * @Slf4j
+     * @RepositoryEventHandler
+     * class PersonHandler {
+     *     @HandleBeforeSave
+     *     void beforeSave(final Person person) { ... }
+     * }
+     * }</pre>
+     */
     @ArchTest
     static final ArchRule repositoryEventHandlersLogTheirEvents =
             //@formatter:off
