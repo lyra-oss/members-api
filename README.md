@@ -33,13 +33,13 @@ Keycloak). Configure it with:
 Every mutating or read endpoint requires the caller's access token to carry the matching OAuth2 scope, exposed
 as a `SCOPE_*` authority:
 
-| Resource   | Create scope      | Read scope        | Update scope        |
-|------------|-------------------|-------------------|---------------------|
-| Parents    | `parents.create`  | `parents.read`    | `parents.update`    |
-| Kids       | `kids.create`     | `kids.read`       | `kids.update`       |
-| Schools    | `schools.create`  | `schools.read`    | `schools.update`    |
-| Teachers   | `teachers.create` | `teachers.read`   | `teachers.update`   |
-| Classrooms | —                 | `classrooms.read` | `classrooms.update` |
+| Resource   | Create scope      | Read scope        | Update scope        | Delete scope        |
+|------------|-------------------|-------------------|---------------------|---------------------|
+| Parents    | `parents.create`  | `parents.read`    | `parents.update`    | `parents.delete`    |
+| Kids       | `kids.create`     | `kids.read`       | `kids.update`       | `kids.delete`       |
+| Schools    | `schools.create`  | `schools.read`    | `schools.update`    | `schools.delete`    |
+| Teachers   | `teachers.create` | `teachers.read`   | `teachers.update`   | `teachers.delete`   |
+| Classrooms | —                 | `classrooms.read` | `classrooms.update` | `classrooms.delete` |
 
 `classrooms.update` also gates the classroom's teaching-staff and roster endpoints (adding/removing a teacher,
 setting the tutor, enrolling a kid), and `parents.update` gates binding an existing kid to a parent
