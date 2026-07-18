@@ -19,7 +19,7 @@ class KidUpdateAuthorizationEventHandler {
     @HandleBeforeSave
     public void authorizeKidUpdate(final Kid kid) {
         log.debug("Authorizing update of kid {}", kid.getId());
-        if(AuthenticatedPrincipal.hasRole("admin")) {
+        if(AuthenticatedPrincipal.isAdmin()) {
             return;
         }
         if(! Objects.equals(kid.getPreviousParentId(), id(kid.getParent()))) {
@@ -49,14 +49,11 @@ class KidUpdateAuthorizationEventHandler {
         if(classroom == null || classroom.getTutor() == null) {
             return false;
         }
-        return AuthenticatedPrincipal.hasRole("teacher") &&
-               AuthenticatedPrincipal.currentId().map(current -> current.equals(classroom.getTutor().getId()))
-                                     .orElse(false);
+        return AuthenticatedPrincipal.isSelf("teacher", classroom.getTutor().getId());
     }
 
     private boolean isOwnKid(final Kid kid) {
-        return AuthenticatedPrincipal.hasRole("parent") &&
-               AuthenticatedPrincipal.currentId().map(current -> current.equals(id(kid.getParent()))).orElse(false);
+        return AuthenticatedPrincipal.isSelf("parent", id(kid.getParent()));
     }
 
 }

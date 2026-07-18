@@ -15,7 +15,7 @@ class ClassroomDeleteEventHandler {
     @HandleBeforeDelete
     public void authorizeClassroomDelete(final Classroom classroom) {
         log.debug("Authorizing deletion of classroom {}", classroom.getId());
-        if(! (AuthenticatedPrincipal.hasRole("admin") || this.isTutor(classroom))) {
+        if(! (AuthenticatedPrincipal.isAdmin() || this.isTutor(classroom))) {
             throw new AccessDeniedException("Authenticated user cannot delete this classroom");
         }
         if(! classroom.getKids().isEmpty()) {
@@ -31,9 +31,7 @@ class ClassroomDeleteEventHandler {
         if(classroom.getTutor() == null) {
             return false;
         }
-        return AuthenticatedPrincipal.hasRole("teacher") &&
-               AuthenticatedPrincipal.currentId().map(current -> current.equals(classroom.getTutor().getId()))
-                                     .orElse(false);
+        return AuthenticatedPrincipal.isSelf("teacher", classroom.getTutor().getId());
     }
 
 }

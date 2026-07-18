@@ -22,9 +22,8 @@ class TeacherDeleteEventHandler {
     @HandleBeforeDelete
     public void authorizeTeacherDelete(final Teacher teacher) {
         log.debug("Authorizing deletion of teacher {}", teacher.getId());
-        final boolean isAdmin = AuthenticatedPrincipal.hasRole("admin");
-        final boolean isSelf = AuthenticatedPrincipal.hasRole("teacher") &&
-                               AuthenticatedPrincipal.currentId().map(id -> id.equals(teacher.getId())).orElse(false);
+        final boolean isAdmin = AuthenticatedPrincipal.isAdmin();
+        final boolean isSelf = AuthenticatedPrincipal.isSelf("teacher", teacher.getId());
         if(! (isAdmin || isSelf)) {
             throw new AccessDeniedException("Authenticated user cannot delete this teacher");
         }

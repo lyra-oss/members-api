@@ -14,9 +14,8 @@ class TeacherUpdateAuthorizationEventHandler {
     @HandleBeforeSave
     public void authorizeTeacherUpdate(final Teacher teacher) {
         log.debug("Authorizing update of teacher {}", teacher.getId());
-        final boolean isAdmin = AuthenticatedPrincipal.hasRole("admin");
-        final boolean isSelf = AuthenticatedPrincipal.hasRole("teacher") &&
-                               AuthenticatedPrincipal.currentId().map(id -> id.equals(teacher.getId())).orElse(false);
+        final boolean isAdmin = AuthenticatedPrincipal.isAdmin();
+        final boolean isSelf = AuthenticatedPrincipal.isSelf("teacher", teacher.getId());
         if(! (isAdmin || isSelf)) {
             throw new AccessDeniedException("Authenticated user cannot update this teacher");
         }

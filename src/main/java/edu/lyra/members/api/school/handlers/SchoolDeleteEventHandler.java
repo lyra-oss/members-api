@@ -15,7 +15,7 @@ class SchoolDeleteEventHandler {
     @HandleBeforeDelete
     public void authorizeSchoolDelete(final School school) {
         log.debug("Authorizing deletion of school {}", school.getId());
-        if(! AuthenticatedPrincipal.hasRole("admin")) {
+        if(! AuthenticatedPrincipal.isAdmin()) {
             throw new AccessDeniedException("Authenticated user cannot delete this school");
         }
         if(! school.getClassrooms().isEmpty() || ! school.getTeachers().isEmpty()) {
