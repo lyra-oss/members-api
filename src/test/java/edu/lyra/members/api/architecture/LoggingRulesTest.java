@@ -57,6 +57,12 @@ class LoggingRulesTest {
                 }
             };
 
+    /**
+     * Every Spring controller ({@code @RestController}, {@code @Controller} or
+     * {@code @RepositoryRestController}) must have an SLF4J logger ({@code @Slf4j}), and every one of
+     * its request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) must log at least
+     * one line, so every inbound request leaves a trace.
+     */
     @ArchTest
     static final ArchRule controllersLogTheirMappedMethods =
             //@formatter:off
@@ -80,6 +86,11 @@ class LoggingRulesTest {
                      });
     //@formatter:on
 
+    /**
+     * Every Spring Data REST {@code @RepositoryEventHandler} must have an SLF4J logger and log at
+     * least one line somewhere in the class, so repository lifecycle events (before/after save,
+     * delete, etc.) are traceable.
+     */
     @ArchTest
     static final ArchRule repositoryEventHandlersLogTheirEvents =
             //@formatter:off

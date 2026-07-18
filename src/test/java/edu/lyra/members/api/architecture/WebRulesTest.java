@@ -43,17 +43,31 @@ class WebRulesTest {
                 }
             };
 
+    /**
+     * Forbids {@code @RestController} entirely; controllers must be {@code @RepositoryRestController}
+     * instead, so all HTTP endpoints go through Spring Data REST's exposure mechanism.
+     */
     @ArchTest
     static final ArchRule noPlainRestControllers =
             noClasses().should().beAnnotatedWith("org.springframework.web.bind.annotation.RestController")
                        .as("controllers should be @RepositoryRestController, not plain @RestController");
 
+    /**
+     * Request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) declared in a
+     * {@code @RepositoryRestController} must not be public, since Spring Data REST invokes them
+     * reflectively rather than through direct calls.
+     */
     @ArchTest
     static final ArchRule mappedControllerMethodsAreNotPublic =
             methods().that(ARE_REQUEST_MAPPED)
                      .and().areDeclaredInClassesThat().areAnnotatedWith(RepositoryRestController.class)
                      .should().notBePublic();
 
+    /**
+     * Methods annotated with a Spring Data REST {@code @Handle*} annotation in a
+     * {@code @RepositoryEventHandler} must be public, since Spring Data REST needs to invoke them
+     * directly.
+     */
     @ArchTest
     static final ArchRule handlerMethodsArePublic =
             methods().that(ARE_REPOSITORY_EVENT_HANDLER_METHODS)

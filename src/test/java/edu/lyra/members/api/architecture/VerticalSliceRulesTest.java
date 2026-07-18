@@ -38,10 +38,19 @@ class VerticalSliceRulesTest {
                 }
             };
 
+    /**
+     * Classes in any "..handlers" or "..rest" package must not be public, since they are internal
+     * wiring for their vertical slice and should never be referenced directly from other slices.
+     */
     @ArchTest
     static final ArchRule handlersAndRestPackagesContainNoPublicClasses =
             noClasses().that().resideInAnyPackage("..handlers", "..rest").should().bePublic();
 
+    /**
+     * Classes in a "..handlers" or "..rest" package may only be accessed by other classes within the
+     * same aggregate (vertical slice), preventing one feature's internal wiring from leaking into
+     * another feature.
+     */
     @ArchTest
     static final ArchRule handlersAndRestPackagesAreOnlyAccessedWithinTheirOwnAggregate =
             //@formatter:off
@@ -62,6 +71,11 @@ class VerticalSliceRulesTest {
                      });
     //@formatter:on
 
+    /**
+     * Classes in the shared "config" package (the "kernel") must not depend on classes that live in a
+     * vertical/aggregate package — except for Spring Data REST's {@code RepositoryRestConfigurer}
+     * extension points — keeping shared infrastructure free of feature-specific coupling.
+     */
     @ArchTest
     static final ArchRule kernelPackagesDoNotDependOnVerticalPackages =
             //@formatter:off

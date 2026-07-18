@@ -381,6 +381,23 @@
                             <goal>check</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>checkstyle-check-architecture-tests</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <configLocation>checkstyle-architecture.xml</configLocation>
+                            <includeMainSourceDirectory>false</includeMainSourceDirectory>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                            <testSourceDirectories>
+                                <testSourceDirectory>
+                                    ${project.basedir}/src/test/java/edu/lyra/members/api/architecture
+                                </testSourceDirectory>
+                            </testSourceDirectories>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

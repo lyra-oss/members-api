@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Enforces that every @ArchTest rule field in src/test/java/edu/lyra/members/api/architecture carries
+    an explanatory Javadoc comment, since ArchUnit rule expressions are otherwise hard to read at a
+    glance. Scoped to that single package only via this execution's testSourceDirectories in pom.xml -
+    it deliberately does not run over the rest of the test tree (see checkstyle.xml, which excludes
+    test sources entirely).
+
+    JavadocVariable with accessModifiers=package only flags fields with no access modifier
+    (package-private), which is exactly how every @ArchTest rule field in this package is declared;
+    the private helper constants and predicates in the same classes are untouched.
+-->
+<module name="Checker">
+
+    <property name="charset" value="UTF-8"/>
+
+    <module name="TreeWalker">
+
+        <module name="JavadocVariable">
+            <property name="accessModifiers" value="package"/>
+        </module>
+
+    </module>
+
+</module>

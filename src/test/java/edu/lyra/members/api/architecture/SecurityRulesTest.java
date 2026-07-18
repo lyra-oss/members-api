@@ -12,6 +12,11 @@ class SecurityRulesTest {
 
     private static final String SECURITY_PACKAGE = "..config.security..";
 
+    /**
+     * Only classes inside "config.security" may depend on Spring Security's SecurityContextHolder;
+     * everywhere else must obtain the current user via AuthenticatedPrincipal instead, keeping
+     * security-context access centralized.
+     */
     @ArchTest
     static final ArchRule securityContextIsAccessedOnlyInTheSecurityPackage =
             //@formatter:off
@@ -22,6 +27,10 @@ class SecurityRulesTest {
                            + "everything else should use AuthenticatedPrincipal");
             //@formatter:on
 
+    /**
+     * Only classes inside "config.security" may depend on JwtAuthenticationToken; everywhere else
+     * must use AuthenticatedPrincipal instead of unwrapping JWTs directly.
+     */
     @ArchTest
     static final ArchRule jwtAuthenticationIsUnwrappedOnlyInTheSecurityPackage =
             //@formatter:off
