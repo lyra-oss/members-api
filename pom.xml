@@ -355,18 +355,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <doclint>all</doclint>
-                    <!--
-                        Report-only for now: the main source tree currently has ~113 pre-existing doclint
-                        warnings (mostly missing comments on JPA entity fields and generated constructors
-                        that Checkstyle's MissingJavadocType/MissingJavadocMethod never catches, since
-                        those checks don't look at fields and run before Lombok generates methods). Once
-                        those are cleaned up, flip failOnWarnings to true to make doclint issues fail the
-                        build the same way Checkstyle already does for missing Javadoc.
-                    -->
-                    <failOnWarnings>false</failOnWarnings>
-                </configuration>
+                <!--
+                    No <configuration> needed: the javadoc tool already runs full doclint checks by
+                    default (verified: identical output with and without an explicit doclint=all), and
+                    failOnWarnings already defaults to false. That's report-only for now on purpose: main
+                    source has ~113 pre-existing doclint warnings (mostly missing comments on JPA entity
+                    fields and Lombok-generated constructors that Checkstyle's MissingJavadocType/
+                    MissingJavadocMethod never catches, since those checks don't look at fields and run
+                    before Lombok generates methods). Once those are cleaned up, set failOnWarnings=true
+                    to make doclint issues fail the build the same way Checkstyle already does for missing
+                    Javadoc.
+                -->
                 <executions>
                     <execution>
                         <id>javadoc-doclint-check</id>
