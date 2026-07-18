@@ -162,7 +162,7 @@ class SpringSecurityConfiguration {
 
     private static String path(final String... segments) {
         final StringJoiner joiner = new StringJoiner("/", "/", "");
-        for (final String segment : segments) {
+        for(final String segment : segments) {
             joiner.add(segment);
         }
         return joiner.toString();
