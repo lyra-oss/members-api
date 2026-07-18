@@ -26,8 +26,11 @@ import static org.springframework.http.HttpMethod.PUT;
 @EnableMethodSecurity
 class SpringSecurityConfiguration {
 
-    private static final String ACTUATOR = "/actuator/**";
+    private static final String SCOPE_PREFIX = "SCOPE_";
+    private static final String ANY_SEGMENT  = "*";
+    private static final String ANY_SUBPATH  = "**";
 
+    private static final String ENTITY_ACTUATOR   = "actuator";
     private static final String ENTITY_PARENTS    = "parents";
     private static final String ENTITY_KIDS       = "kids";
     private static final String ENTITY_SCHOOLS    = "schools";
@@ -42,9 +45,7 @@ class SpringSecurityConfiguration {
 
     private static final String ROLE_ADMIN = "admin";
 
-    private static final String ANY_SEGMENT = "*";
-    private static final String ANY_SUBPATH = "**";
-
+    private static final String ACTUATOR   = path(ENTITY_ACTUATOR, ANY_SUBPATH);
     private static final String PARENTS    = path(ENTITY_PARENTS);
     private static final String KIDS       = path(ENTITY_KIDS);
     private static final String SCHOOLS    = path(ENTITY_SCHOOLS);
@@ -65,8 +66,6 @@ class SpringSecurityConfiguration {
     private static final String CLASSROOMS_KIDS      = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_KIDS);
     private static final String PERSONS_PARENT_ROLE  = path(ENTITY_PERSONS, ANY_SEGMENT, "parent");
     private static final String PERSONS_TEACHER_ROLE = path(ENTITY_PERSONS, ANY_SEGMENT, "teacher");
-
-    private static final String SCOPE_PREFIX = "SCOPE_";
 
     @Bean
     SecurityFilterChain securityFilterChain(
