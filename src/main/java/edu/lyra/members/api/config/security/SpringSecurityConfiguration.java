@@ -42,6 +42,9 @@ class SpringSecurityConfiguration {
 
     private static final String ROLE_ADMIN = "admin";
 
+    private static final String ANY_SEGMENT = "*";
+    private static final String ANY_SUBPATH = "**";
+
     private static final String PARENTS    = path(ENTITY_PARENTS);
     private static final String KIDS       = path(ENTITY_KIDS);
     private static final String SCHOOLS    = path(ENTITY_SCHOOLS);
@@ -49,19 +52,19 @@ class SpringSecurityConfiguration {
     private static final String CLASSROOMS = path(ENTITY_CLASSROOMS);
     private static final String PERSONS    = path(ENTITY_PERSONS);
 
-    private static final String PARENTS_ANY    = path(ENTITY_PARENTS, "**");
-    private static final String KIDS_ANY       = path(ENTITY_KIDS, "**");
-    private static final String SCHOOLS_ANY    = path(ENTITY_SCHOOLS, "**");
-    private static final String TEACHERS_ANY   = path(ENTITY_TEACHERS, "**");
-    private static final String CLASSROOMS_ANY = path(ENTITY_CLASSROOMS, "**");
-    private static final String PERSONS_ANY    = path(ENTITY_PERSONS, "**");
+    private static final String PARENTS_ANY    = path(ENTITY_PARENTS, ANY_SUBPATH);
+    private static final String KIDS_ANY       = path(ENTITY_KIDS, ANY_SUBPATH);
+    private static final String SCHOOLS_ANY    = path(ENTITY_SCHOOLS, ANY_SUBPATH);
+    private static final String TEACHERS_ANY   = path(ENTITY_TEACHERS, ANY_SUBPATH);
+    private static final String CLASSROOMS_ANY = path(ENTITY_CLASSROOMS, ANY_SUBPATH);
+    private static final String PERSONS_ANY    = path(ENTITY_PERSONS, ANY_SUBPATH);
 
-    private static final String PARENTS_KIDS         = path(ENTITY_PARENTS, "*", ENTITY_KIDS);
-    private static final String CLASSROOMS_TUTOR     = path(ENTITY_CLASSROOMS, "*", "tutor");
-    private static final String CLASSROOMS_TEACHERS  = path(ENTITY_CLASSROOMS, "*", ENTITY_TEACHERS);
-    private static final String CLASSROOMS_KIDS      = path(ENTITY_CLASSROOMS, "*", ENTITY_KIDS);
-    private static final String PERSONS_PARENT_ROLE  = path(ENTITY_PERSONS, "*", "parent");
-    private static final String PERSONS_TEACHER_ROLE = path(ENTITY_PERSONS, "*", "teacher");
+    private static final String PARENTS_KIDS         = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS);
+    private static final String CLASSROOMS_TUTOR     = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor");
+    private static final String CLASSROOMS_TEACHERS  = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_TEACHERS);
+    private static final String CLASSROOMS_KIDS      = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_KIDS);
+    private static final String PERSONS_PARENT_ROLE  = path(ENTITY_PERSONS, ANY_SEGMENT, "parent");
+    private static final String PERSONS_TEACHER_ROLE = path(ENTITY_PERSONS, ANY_SEGMENT, "teacher");
 
     private static final String SCOPE_PREFIX = "SCOPE_";
 
