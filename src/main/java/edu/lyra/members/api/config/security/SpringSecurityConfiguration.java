@@ -49,19 +49,19 @@ class SpringSecurityConfiguration {
     private static final String CLASSROOMS = path(ENTITY_CLASSROOMS);
     private static final String PERSONS    = path(ENTITY_PERSONS);
 
-    private static final String PARENTS_ANY    = anyPath(ENTITY_PARENTS);
-    private static final String KIDS_ANY       = anyPath(ENTITY_KIDS);
-    private static final String SCHOOLS_ANY    = anyPath(ENTITY_SCHOOLS);
-    private static final String TEACHERS_ANY   = anyPath(ENTITY_TEACHERS);
-    private static final String CLASSROOMS_ANY = anyPath(ENTITY_CLASSROOMS);
-    private static final String PERSONS_ANY    = anyPath(ENTITY_PERSONS);
+    private static final String PARENTS_ANY    = path(ENTITY_PARENTS, "**");
+    private static final String KIDS_ANY       = path(ENTITY_KIDS, "**");
+    private static final String SCHOOLS_ANY    = path(ENTITY_SCHOOLS, "**");
+    private static final String TEACHERS_ANY   = path(ENTITY_TEACHERS, "**");
+    private static final String CLASSROOMS_ANY = path(ENTITY_CLASSROOMS, "**");
+    private static final String PERSONS_ANY    = path(ENTITY_PERSONS, "**");
 
-    private static final String PARENTS_KIDS         = subPath(ENTITY_PARENTS, ENTITY_KIDS);
-    private static final String CLASSROOMS_TUTOR     = subPath(ENTITY_CLASSROOMS, "tutor");
-    private static final String CLASSROOMS_TEACHERS  = subPath(ENTITY_CLASSROOMS, ENTITY_TEACHERS);
-    private static final String CLASSROOMS_KIDS      = subPath(ENTITY_CLASSROOMS, ENTITY_KIDS);
-    private static final String PERSONS_PARENT_ROLE  = subPath(ENTITY_PERSONS, "parent");
-    private static final String PERSONS_TEACHER_ROLE = subPath(ENTITY_PERSONS, "teacher");
+    private static final String PARENTS_KIDS         = path(ENTITY_PARENTS, "*", ENTITY_KIDS);
+    private static final String CLASSROOMS_TUTOR     = path(ENTITY_CLASSROOMS, "*", "tutor");
+    private static final String CLASSROOMS_TEACHERS  = path(ENTITY_CLASSROOMS, "*", ENTITY_TEACHERS);
+    private static final String CLASSROOMS_KIDS      = path(ENTITY_CLASSROOMS, "*", ENTITY_KIDS);
+    private static final String PERSONS_PARENT_ROLE  = path(ENTITY_PERSONS, "*", "parent");
+    private static final String PERSONS_TEACHER_ROLE = path(ENTITY_PERSONS, "*", "teacher");
 
     private static final String SCOPE_PREFIX = "SCOPE_";
 
@@ -157,16 +157,12 @@ class SpringSecurityConfiguration {
         return new StringJoiner(".", SCOPE_PREFIX, "").add(entity).add(operation).toString();
     }
 
-    private static String path(final String entity) {
-        return "/" + entity;
-    }
-
-    private static String anyPath(final String entity) {
-        return path(entity) + "/**";
-    }
-
-    private static String subPath(final String entity, final String subResource) {
-        return path(entity) + "/*/" + subResource;
+    private static String path(final String... segments) {
+        final StringJoiner joiner = new StringJoiner("/", "/", "");
+        for (final String segment : segments) {
+            joiner.add(segment);
+        }
+        return joiner.toString();
     }
 
 }
