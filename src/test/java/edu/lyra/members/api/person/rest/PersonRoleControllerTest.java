@@ -26,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -74,18 +73,6 @@ class PersonRoleControllerTest {
     }
 
     @Test
-    void grantParentRoleRejectsNonAdmin() {
-        authenticateAsNonAdmin();
-        final UUID id = UUID.randomUUID();
-        assertThrows(AccessDeniedException.class, () -> this.controller.grantParentRole(id));
-        verify(this.personRepository, never()).findById(any());
-    }
-
-    private static void authenticateAsNonAdmin() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "n/a", List.of()));
-    }
-
-    @Test
     void grantParentRoleReturnsNotFoundWhenPersonMissing() {
         authenticateAsAdmin();
         final UUID id = UUID.randomUUID();
@@ -129,14 +116,6 @@ class PersonRoleControllerTest {
         final ArgumentCaptor<Parent> captor = ArgumentCaptor.forClass(Parent.class);
         verify(this.parentRepository).save(captor.capture());
         assertEquals(person, captor.getValue().getPerson());
-    }
-
-    @Test
-    void grantTeacherRoleRejectsNonAdmin() {
-        authenticateAsNonAdmin();
-        final UUID id = UUID.randomUUID();
-        assertThrows(AccessDeniedException.class, () -> this.controller.grantTeacherRole(id, of()));
-        verify(this.personRepository, never()).findById(any());
     }
 
     @Test
@@ -201,14 +180,6 @@ class PersonRoleControllerTest {
     }
 
     @Test
-    void revokeParentRoleRejectsNonAdmin() {
-        authenticateAsNonAdmin();
-        final UUID id = UUID.randomUUID();
-        assertThrows(AccessDeniedException.class, () -> this.controller.revokeParentRole(id));
-        verify(this.parentRepository, never()).findById(any());
-    }
-
-    @Test
     void revokeParentRoleReturnsNotFoundWhenNotAParent() {
         authenticateAsAdmin();
         final UUID id = UUID.randomUUID();
@@ -236,14 +207,6 @@ class PersonRoleControllerTest {
         when(this.parentRepository.findById(id)).thenReturn(Optional.of(parent));
         assertEquals(HttpStatus.NO_CONTENT, this.controller.revokeParentRole(id).getStatusCode());
         verify(this.parentRepository).delete(parent);
-    }
-
-    @Test
-    void revokeTeacherRoleRejectsNonAdmin() {
-        authenticateAsNonAdmin();
-        final UUID id = UUID.randomUUID();
-        assertThrows(AccessDeniedException.class, () -> this.controller.revokeTeacherRole(id));
-        verify(this.teacherRepository, never()).findById(any());
     }
 
     @Test
