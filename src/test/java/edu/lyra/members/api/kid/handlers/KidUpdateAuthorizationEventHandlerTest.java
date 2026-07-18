@@ -6,6 +6,7 @@ import java.util.UUID;
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.parent.Parent;
+import edu.lyra.members.api.person.PersonRole;
 import edu.lyra.members.api.teacher.Teacher;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -63,13 +64,13 @@ class KidUpdateAuthorizationEventHandlerTest {
     }
 
     private static Classroom aClassroomWithTutor(final UUID tutorId) {
-        final Teacher tutor = Instancio.of(Teacher.class).set(field(Teacher.class, "id"), tutorId).create();
+        final Teacher tutor = Instancio.of(Teacher.class).set(field(PersonRole.class, "id"), tutorId).create();
         return Instancio.of(Classroom.class).set(field(Classroom.class, "tutor"), tutor)
                         .ignore(field(Classroom.class, "teachers")).ignore(field(Classroom.class, "kids")).create();
     }
 
     private static Parent aParentWithId(final UUID id) {
-        return Instancio.of(Parent.class).set(field(Parent.class, "id"), id).ignore(field(Parent.class, "kids"))
+        return Instancio.of(Parent.class).set(field(PersonRole.class, "id"), id).ignore(field(Parent.class, "kids"))
                         .create();
     }
 

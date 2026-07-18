@@ -3,6 +3,7 @@ package edu.lyra.members.api.teacher.handlers;
 import java.util.List;
 import java.util.UUID;
 
+import edu.lyra.members.api.person.PersonRole;
 import edu.lyra.members.api.teacher.Teacher;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -48,7 +49,7 @@ class TeacherUpdateAuthorizationEventHandlerTest {
     }
 
     private static Teacher aTeacherWithId(final UUID id) {
-        return Instancio.of(Teacher.class).set(field(Teacher.class, "id"), id).create();
+        return Instancio.of(Teacher.class).set(field(PersonRole.class, "id"), id).create();
     }
 
     @Test
