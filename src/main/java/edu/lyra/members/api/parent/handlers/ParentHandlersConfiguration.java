@@ -17,4 +17,9 @@ class ParentHandlersConfiguration {
         return new ParentUpdateAuthorizationEventHandler();
     }
 
+    @Bean
+    ParentDeleteEventHandler parentDeleteEventHandler() {
+        return new ParentDeleteEventHandler();
+    }
+
 }

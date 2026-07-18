@@ -34,7 +34,13 @@ public class ParentCreationFeatures
     @Autowired
     private ParentRepository parentRepository;
 
-    @Before
+    /**
+     * Runs before the default-order {@code @Before} hooks that clean classrooms/teachers/schools (order 0): now that
+     * {@code Parent.kids}/{@code Classroom.kids} no longer cascade {@code REMOVE} (the database foreign keys enforce
+     * that instead), kids and parents from the previous scenario must be gone before those deletes are attempted, or
+     * they would fail with a foreign-key violation.
+     */
+    @Before(order = - 10)
     public void cleanRepositories() {
         this.body.removeAll();
         this.kidRepository.deleteAll();

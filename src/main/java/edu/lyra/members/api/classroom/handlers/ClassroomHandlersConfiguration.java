@@ -16,4 +16,9 @@ class ClassroomHandlersConfiguration {
         return new ClassroomUpdateAuthorizationEventHandler();
     }
 
+    @Bean
+    ClassroomDeleteEventHandler classroomDeleteEventHandler() {
+        return new ClassroomDeleteEventHandler();
+    }
+
 }

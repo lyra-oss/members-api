@@ -11,4 +11,9 @@ class SchoolHandlersConfiguration {
         return new SchoolUpdateAuthorizationEventHandler();
     }
 
+    @Bean
+    SchoolDeleteEventHandler schoolDeleteEventHandler() {
+        return new SchoolDeleteEventHandler();
+    }
+
 }

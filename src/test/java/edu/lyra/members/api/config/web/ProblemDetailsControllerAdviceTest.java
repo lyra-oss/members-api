@@ -6,12 +6,17 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import edu.lyra.members.api.exceptions.ClassroomHasKidsException;
+import edu.lyra.members.api.exceptions.ParentHasKidsException;
+import edu.lyra.members.api.exceptions.SchoolHasReferencesException;
 import edu.lyra.members.api.exceptions.SchoolMismatchException;
+import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -70,6 +75,79 @@ class ProblemDetailsControllerAdviceTest {
         assertThat(problemDetail.getType()).isEqualTo(create("https://lyra.sagittec.com/problems/school-mismatch"));
         assertThat(problemDetail.getTitle()).isEqualTo("Teacher does not belong to classroom's school");
         assertThat(problemDetail.getDetail()).isEqualTo("teacher does not belong to school");
+        assertThat(problemDetail.getProperties()).containsKey("timestamp");
+    }
+
+    @Test
+    void testParentHasKidsErrorResponse() {
+        final ResponseEntity<ProblemDetail> response =
+                advice.handleParentHasKidsException(new ParentHasKidsException("parent still has 2 kid(s) linked"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        final ProblemDetail problemDetail = response.getBody();
+        assertThat(problemDetail).isNotNull();
+        assertThat(problemDetail.getType()).isEqualTo(create("https://lyra.sagittec.com/problems/parent-has-kids"));
+        assertThat(problemDetail.getTitle()).isEqualTo("Parent still has kids linked");
+        assertThat(problemDetail.getDetail()).isEqualTo("parent still has 2 kid(s) linked");
+        assertThat(problemDetail.getProperties()).containsKey("timestamp");
+    }
+
+    @Test
+    void testTeacherAssignedToClassroomErrorResponse() {
+        final ResponseEntity<ProblemDetail> response = advice.handleTeacherAssignedToClassroomException(
+                new TeacherAssignedToClassroomException("teacher still tutors a classroom"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        final ProblemDetail problemDetail = response.getBody();
+        assertThat(problemDetail).isNotNull();
+        assertThat(problemDetail.getType()).isEqualTo(
+                create("https://lyra.sagittec.com/problems/teacher-assigned-to-classroom"));
+        assertThat(problemDetail.getTitle()).isEqualTo("Teacher is still assigned to a classroom");
+        assertThat(problemDetail.getDetail()).isEqualTo("teacher still tutors a classroom");
+        assertThat(problemDetail.getProperties()).containsKey("timestamp");
+    }
+
+    @Test
+    void testClassroomHasKidsErrorResponse() {
+        final ResponseEntity<ProblemDetail> response = advice.handleClassroomHasKidsException(
+                new ClassroomHasKidsException("classroom still has 3 kid(s) enrolled"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        final ProblemDetail problemDetail = response.getBody();
+        assertThat(problemDetail).isNotNull();
+        assertThat(problemDetail.getType()).isEqualTo(create("https://lyra.sagittec.com/problems/classroom-has-kids"));
+        assertThat(problemDetail.getTitle()).isEqualTo("Classroom still has kids enrolled");
+        assertThat(problemDetail.getDetail()).isEqualTo("classroom still has 3 kid(s) enrolled");
+        assertThat(problemDetail.getProperties()).containsKey("timestamp");
+    }
+
+    @Test
+    void testSchoolHasReferencesErrorResponse() {
+        final ResponseEntity<ProblemDetail> response = advice.handleSchoolHasReferencesException(
+                new SchoolHasReferencesException("school still has 1 classroom(s) and 2 teacher(s) linked"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        final ProblemDetail problemDetail = response.getBody();
+        assertThat(problemDetail).isNotNull();
+        assertThat(problemDetail.getType()).isEqualTo(
+                create("https://lyra.sagittec.com/problems/school-has-references"));
+        assertThat(problemDetail.getTitle()).isEqualTo("School still has classrooms or teachers linked");
+        assertThat(problemDetail.getDetail()).isEqualTo("school still has 1 classroom(s) and 2 teacher(s) linked");
+        assertThat(problemDetail.getProperties()).containsKey("timestamp");
+    }
+
+    @Test
+    void testDataIntegrityViolationErrorResponse() {
+        final ResponseEntity<ProblemDetail> response = advice.handleDataIntegrityViolationException(
+                new DataIntegrityViolationException("foreign key constraint violated"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        final ProblemDetail problemDetail = response.getBody();
+        assertThat(problemDetail).isNotNull();
+        assertThat(problemDetail.getType()).isEqualTo(
+                create("https://lyra.sagittec.com/problems/referential-integrity-violation"));
+        assertThat(problemDetail.getTitle()).isEqualTo("Referential integrity constraint violation");
+        assertThat(problemDetail.getDetail()).isEqualTo("foreign key constraint violated");
         assertThat(problemDetail.getProperties()).containsKey("timestamp");
     }
 

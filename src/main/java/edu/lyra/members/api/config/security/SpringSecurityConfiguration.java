@@ -57,6 +57,11 @@ class SpringSecurityConfiguration {
     private static final String SCOPE_SCHOOLS_UPDATE    = SCOPE_PREFIX + "schools.update";
     private static final String SCOPE_TEACHERS_UPDATE   = SCOPE_PREFIX + "teachers.update";
     private static final String SCOPE_CLASSROOMS_UPDATE = SCOPE_PREFIX + "classrooms.update";
+    private static final String SCOPE_PARENTS_DELETE    = SCOPE_PREFIX + "parents.delete";
+    private static final String SCOPE_KIDS_DELETE       = SCOPE_PREFIX + "kids.delete";
+    private static final String SCOPE_SCHOOLS_DELETE    = SCOPE_PREFIX + "schools.delete";
+    private static final String SCOPE_TEACHERS_DELETE   = SCOPE_PREFIX + "teachers.delete";
+    private static final String SCOPE_CLASSROOMS_DELETE = SCOPE_PREFIX + "classrooms.delete";
     private static final String SCOPE_PARENTS_READ      = SCOPE_PREFIX + "parents.read";
     private static final String SCOPE_KIDS_READ         = SCOPE_PREFIX + "kids.read";
     private static final String SCOPE_SCHOOLS_READ      = SCOPE_PREFIX + "schools.read";
@@ -108,6 +113,16 @@ class SpringSecurityConfiguration {
                                    .hasAuthority(SCOPE_TEACHERS_CREATE)
                            .requestMatchers(DELETE, base + PERSONS_TEACHER_ROLE)
                                    .hasAuthority(SCOPE_TEACHERS_CREATE)
+                           .requestMatchers(DELETE, base + PARENTS_ANY)
+                                   .hasAuthority(SCOPE_PARENTS_DELETE)
+                           .requestMatchers(DELETE, base + KIDS_ANY)
+                                   .hasAuthority(SCOPE_KIDS_DELETE)
+                           .requestMatchers(DELETE, base + SCHOOLS_ANY)
+                                   .hasAuthority(SCOPE_SCHOOLS_DELETE)
+                           .requestMatchers(DELETE, base + TEACHERS_ANY)
+                                   .hasAuthority(SCOPE_TEACHERS_DELETE)
+                           .requestMatchers(DELETE, base + CLASSROOMS_ANY)
+                                   .hasAuthority(SCOPE_CLASSROOMS_DELETE)
                            .requestMatchers(GET, base + PARENTS, base + PARENTS_ANY)
                                    .hasAuthority(SCOPE_PARENTS_READ)
                            .requestMatchers(GET, base + KIDS, base + KIDS_ANY)

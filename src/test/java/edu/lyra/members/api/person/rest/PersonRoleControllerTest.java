@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
+import edu.lyra.members.api.exceptions.ParentHasKidsException;
+import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
@@ -221,7 +223,7 @@ class PersonRoleControllerTest {
         final Parent parent = mock(Parent.class);
         when(parent.getKids()).thenReturn(Set.of(mock(Kid.class)));
         when(this.parentRepository.findById(id)).thenReturn(Optional.of(parent));
-        assertEquals(HttpStatus.CONFLICT, this.controller.revokeParentRole(id).getStatusCode());
+        assertThrows(ParentHasKidsException.class, () -> this.controller.revokeParentRole(id));
         verify(this.parentRepository, never()).delete(any());
     }
 
@@ -259,7 +261,7 @@ class PersonRoleControllerTest {
         final Teacher teacher = mock(Teacher.class);
         when(this.teacherRepository.findById(id)).thenReturn(Optional.of(teacher));
         when(this.classroomRepository.existsByTutorIdOrTeachersId(id)).thenReturn(true);
-        assertEquals(HttpStatus.CONFLICT, this.controller.revokeTeacherRole(id).getStatusCode());
+        assertThrows(TeacherAssignedToClassroomException.class, () -> this.controller.revokeTeacherRole(id));
         verify(this.teacherRepository, never()).delete(any());
     }
 

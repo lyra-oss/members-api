@@ -30,7 +30,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import static java.util.Optional.ofNullable;
 
-import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
@@ -64,8 +63,13 @@ public class Parent
         this.person = person;
     }
 
+    /**
+     * Deliberately excludes {@link jakarta.persistence.CascadeType#REMOVE}: a parent with kids still linked must not be
+     * deletable at all (see delete-authorization handlers), so the generated {@code KIDS.PARENT_ID} foreign key is left
+     * to enforce that at the database level rather than having Hibernate cascade the deletion away.
+     */
     @Exclude
-    @OneToMany(cascade = ALL)
+    @OneToMany(cascade = { PERSIST, MERGE })
     @JoinColumn(name = "PARENT_ID")
     private Set<Kid> kids = new HashSet<>();
 

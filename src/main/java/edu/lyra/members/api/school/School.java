@@ -25,7 +25,8 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
 
 @Getter
 @ToString
@@ -47,13 +48,19 @@ public class School
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
 
+    /**
+     * Deliberately excludes {@link jakarta.persistence.CascadeType#REMOVE}: a school with classrooms or teachers still
+     * linked must not be deletable at all (see delete-authorization handlers), so the generated
+     * {@code CLASSROOMS.SCHOOL_ID}/{@code TEACHERS.SCHOOL_ID} foreign keys are left to enforce that at the database
+     * level rather than having Hibernate cascade the deletion away.
+     */
     @Exclude
-    @OneToMany(cascade = ALL)
+    @OneToMany(cascade = { PERSIST, MERGE })
     @JoinColumn(name = "SCHOOL_ID")
     private Set<Classroom> classrooms = new HashSet<>();
 
     @Exclude
-    @OneToMany(mappedBy = "school", cascade = ALL)
+    @OneToMany(mappedBy = "school", cascade = { PERSIST, MERGE })
     private Set<Teacher> teachers = new HashSet<>();
 
 }

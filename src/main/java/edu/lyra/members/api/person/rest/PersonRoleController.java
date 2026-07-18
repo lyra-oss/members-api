@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
+import edu.lyra.members.api.exceptions.ParentHasKidsException;
+import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.Person;
@@ -113,7 +115,9 @@ class PersonRoleController {
         return this.parentRepository.findById(id).map(parent -> {
             if(! parent.getKids().isEmpty()) {
                 log.debug("Parent {} still has kids; refusing to revoke the parent role", id);
-                return ResponseEntity.status(409).<Void>build();
+                throw new ParentHasKidsException(
+                        ("Parent %s still has %d kid(s) linked; remove or reassign them before revoking the parent " +
+                         "role").formatted(id, parent.getKids().size()));
             }
             this.parentRepository.delete(parent);
             log.debug("Revoked the parent role from person {}", id);
@@ -130,7 +134,9 @@ class PersonRoleController {
         return this.teacherRepository.findById(id).map(teacher -> {
             if(this.classroomRepository.existsByTutorIdOrTeachersId(id)) {
                 log.debug("Teacher {} is still referenced by a classroom; refusing to revoke the teacher role", id);
-                return ResponseEntity.status(409).<Void>build();
+                throw new TeacherAssignedToClassroomException(
+                        ("Teacher %s still tutors or teaches at least one classroom; unassign them before revoking " +
+                         "the teacher role").formatted(id));
             }
             this.teacherRepository.delete(teacher);
             log.debug("Revoked the teacher role from person {}", id);

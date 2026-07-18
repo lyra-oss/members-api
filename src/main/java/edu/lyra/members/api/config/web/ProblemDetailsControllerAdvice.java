@@ -3,8 +3,13 @@ package edu.lyra.members.api.config.web;
 import java.util.List;
 import java.util.Map;
 
+import edu.lyra.members.api.exceptions.ClassroomHasKidsException;
+import edu.lyra.members.api.exceptions.ParentHasKidsException;
+import edu.lyra.members.api.exceptions.SchoolHasReferencesException;
 import edu.lyra.members.api.exceptions.SchoolMismatchException;
+import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -50,6 +55,57 @@ class ProblemDetailsControllerAdvice
                                    .type("https://lyra.sagittec.com/problems/school-mismatch")
                                    .title("Teacher does not belong to classroom's school").detail(this.humanize(ex))
                                    .build();
+    }
+
+    @ExceptionHandler(ParentHasKidsException.class)
+    public ResponseEntity<ProblemDetail> handleParentHasKidsException(final ParentHasKidsException ex) {
+        return ProblemDetailBuilder.forStatus(CONFLICT).type("https://lyra.sagittec.com/problems/parent-has-kids")
+                                   .title("Parent still has kids linked").detail(this.humanize(ex)).build();
+    }
+
+    @ExceptionHandler(TeacherAssignedToClassroomException.class)
+    public ResponseEntity<ProblemDetail> handleTeacherAssignedToClassroomException(final TeacherAssignedToClassroomException ex) {
+        //@formatter:off
+        return ProblemDetailBuilder.forStatus(CONFLICT)
+                .type("https://lyra.sagittec.com/problems/teacher-assigned-to-classroom")
+                .title("Teacher is still assigned to a classroom")
+                .detail(this.humanize(ex))
+                .build();
+        //@formatter:on
+    }
+
+    @ExceptionHandler(ClassroomHasKidsException.class)
+    public ResponseEntity<ProblemDetail> handleClassroomHasKidsException(final ClassroomHasKidsException ex) {
+        return ProblemDetailBuilder.forStatus(CONFLICT).type("https://lyra.sagittec.com/problems/classroom-has-kids")
+                                   .title("Classroom still has kids enrolled").detail(this.humanize(ex)).build();
+    }
+
+    @ExceptionHandler(SchoolHasReferencesException.class)
+    public ResponseEntity<ProblemDetail> handleSchoolHasReferencesException(final SchoolHasReferencesException ex) {
+        //@formatter:off
+        return ProblemDetailBuilder.forStatus(CONFLICT)
+                .type("https://lyra.sagittec.com/problems/school-has-references")
+                .title("School still has classrooms or teachers linked")
+                .detail(this.humanize(ex))
+                .build();
+        //@formatter:on
+    }
+
+    /**
+     * A last-resort safety net: the delete-authorization handlers already reject these deletions with a precise
+     * exception above, but the database's own foreign-key constraints (deliberately left without cascading removal; see
+     * the affected entities' collection mappings) back that up independently, in case application logic is ever
+     * bypassed or wrong.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(final DataIntegrityViolationException ex) {
+        //@formatter:off
+        return ProblemDetailBuilder.forStatus(CONFLICT)
+                .type("https://lyra.sagittec.com/problems/referential-integrity-violation")
+                .title("Referential integrity constraint violation")
+                .detail(this.humanize(ex))
+                .build();
+        //@formatter:on
     }
 
     @ExceptionHandler(ConversionFailedException.class)

@@ -17,4 +17,9 @@ class KidHandlersConfiguration {
         return new KidUpdateAuthorizationEventHandler();
     }
 
+    @Bean
+    KidDeleteAuthorizationEventHandler kidDeleteAuthorizationEventHandler() {
+        return new KidDeleteAuthorizationEventHandler();
+    }
+
 }
