@@ -73,7 +73,7 @@ class VerticalSliceRulesTest {
 
     /**
      * Classes in the shared "config" package (the "kernel") must not depend on classes that live in a
-     * vertical/aggregate package — except for Spring Data REST's RepositoryRestConfigurer
+     * vertical/aggregate package — except for Spring Data REST's {@code RepositoryRestConfigurer}
      * extension points — keeping shared infrastructure free of feature-specific coupling.
      */
     @ArchTest

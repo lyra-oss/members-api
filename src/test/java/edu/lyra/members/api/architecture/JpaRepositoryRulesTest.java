@@ -14,15 +14,15 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 class JpaRepositoryRulesTest {
 
     /**
-     * Every Spring Data @Repository must also be annotated with @Transactional.
+     * Every Spring Data {@code @Repository} must also be annotated with {@code @Transactional}.
      */
     @ArchTest
     static final ArchRule repositoriesAreTransactional =
             classes().that().areAnnotatedWith(Repository.class).should().beAnnotatedWith(Transactional.class);
 
     /**
-     * Forbids the Jakarta @Transactional annotation anywhere; use Spring's
-     * org.springframework.transaction.annotation.Transactional instead, since only the Spring
+     * Forbids the Jakarta {@code @Transactional} annotation anywhere; use Spring's
+     * {@code org.springframework.transaction.annotation.Transactional} instead, since only the Spring
      * annotation is proxy-aware in this codebase.
      */
     @ArchTest

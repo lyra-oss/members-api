@@ -22,7 +22,7 @@ class TestSuiteRulesTest {
                      .as("integration tests (subtypes of BaseIT) must be named *IT so Failsafe runs them");
 
     /**
-     * Every @ArchTest field must be declared in a class that lives directly in the
+     * Every {@code @ArchTest} field must be declared in a class that lives directly in the
      * "architecture" package (not in a sub-package of it), which PIT mutation testing excludes,
      * keeping architecture-rule fields out of scope of mutation coverage and all together in one
      * place.

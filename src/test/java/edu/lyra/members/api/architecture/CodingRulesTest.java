@@ -27,13 +27,13 @@ class CodingRulesTest {
     static final ArchRule noGenericExceptions = NO_CLASSES_SHOULD_THROW_GENERIC_EXCEPTIONS;
 
     /**
-     * Forbids calling any API marked @Deprecated.
+     * Forbids calling any API marked {@code @Deprecated}.
      */
     @ArchTest
     static final ArchRule noDeprecatedApi = DEPRECATED_API_SHOULD_NOT_BE_USED;
 
     /**
-     * Forbids using Joda-Time; the codebase standardises on java.time instead.
+     * Forbids using Joda-Time; the codebase standardises on {@code java.time} instead.
      */
     @ArchTest
     static final ArchRule noJodaTime = NO_CLASSES_SHOULD_USE_JODATIME;
