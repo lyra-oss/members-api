@@ -3,6 +3,7 @@ package edu.lyra.members.api.config.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.StringJoiner;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,10 +63,6 @@ class SpringSecurityConfiguration {
     private static final String OP_READ   = "read";
 
     private static final String ROLE_ADMIN = "admin";
-
-    private static String scope(final String entity, final String operation) {
-        return SCOPE_PREFIX + entity + "." + operation;
-    }
 
     @Bean
     SecurityFilterChain securityFilterChain(
@@ -153,6 +150,10 @@ class SpringSecurityConfiguration {
             return authorities;
         });
         return converter;
+    }
+
+    private static String scope(final String entity, final String operation) {
+        return new StringJoiner(".", SCOPE_PREFIX, "").add(entity).add(operation).toString();
     }
 
 }
