@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.person.PersonRole;
 import edu.lyra.members.api.teacher.Teacher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -103,7 +104,7 @@ class ClassroomUpdateAuthorizationEventHandlerTest {
     }
 
     private static Teacher aTeacher(final UUID id) {
-        return of(Teacher.class).set(field(Teacher.class, "id"), id).create();
+        return of(Teacher.class).set(field(PersonRole.class, "id"), id).create();
     }
 
     @Test

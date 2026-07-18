@@ -8,6 +8,7 @@ import java.util.UUID;
 import edu.lyra.members.api.config.jpa.Auditable;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.parent.Parent;
+import edu.lyra.members.api.person.PersonRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.access.AccessDeniedException;
@@ -52,7 +53,7 @@ class ParentUpdateAuthorizationEventHandlerTest {
     }
 
     private static Parent aParentWithId(final UUID id) {
-        return of(Parent.class).set(field(Parent.class, "id"), id).ignore(field(Parent.class, "kids")).create();
+        return of(Parent.class).set(field(PersonRole.class, "id"), id).ignore(field(Parent.class, "kids")).create();
     }
 
     @Test
