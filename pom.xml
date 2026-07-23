@@ -43,7 +43,7 @@
         <okhttp.version>5.4.0</okhttp.version>
         <archunit.version>1.4.2</archunit.version>
         <postgresql.version>42.7.13</postgresql.version>
-        <tomcat-embed-core.version>11.0.23</tomcat-embed-core.version>
+        <tomcat-embed-core.version>11.0.24</tomcat-embed-core.version>
         <logback-core.version>1.5.38</logback-core.version>
         <jackson-databind.version>3.1.5</jackson-databind.version>
         <instancio.version>5.6.0</instancio.version>
