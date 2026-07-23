@@ -53,7 +53,7 @@
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
-        <pitest-maven-plugin.version>1.25.7</pitest-maven-plugin.version>
+        <pitest-maven-plugin.version>1.25.8</pitest-maven-plugin.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <rewrite-maven-plugin.version>6.44.0</rewrite-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
