@@ -38,7 +38,7 @@ class ProblemDetailsControllerAdviceTest {
 
     static Stream<Arguments> messageTruncationScenarios() {
         return Stream.of(arguments("short message", "short message"), arguments("a".repeat(100), "a".repeat(100)),
-                         arguments("a".repeat(101), "a".repeat(100) + "…"));
+                         arguments("a".repeat(101), "a".repeat(100) + "…"), arguments(null, null));
     }
 
     @Test

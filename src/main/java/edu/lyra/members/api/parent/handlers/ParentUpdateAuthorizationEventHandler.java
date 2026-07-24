@@ -42,21 +42,18 @@ class ParentUpdateAuthorizationEventHandler {
         throw new AccessDeniedException("Authenticated user cannot bind this kid to this parent");
     }
 
+    // "kids" is a Set<Kid>, so Spring Data REST always resolves the linked side of a @HandleBeforeLinkSave as a
+    // Collection<Kid> - never a bare Kid or any other type.
+    @SuppressWarnings("unchecked")
     private boolean allCreatedByCurrentPrincipal(final Object linked) {
-        return AuthenticatedPrincipal.currentId().map(id -> this.matchesCreator(linked, id.toString())).orElse(false);
+        return AuthenticatedPrincipal.currentId()
+                                     .map(id -> this.allCreatedBy((Iterable<Kid>) linked, id.toString()))
+                                     .orElse(false);
     }
 
-    private boolean matchesCreator(final Object linked, final String subject) {
-        return switch(linked) {
-            case Kid kid -> subject.equals(kid.getCreatedBy());
-            case Iterable<?> kids -> this.allMatch(kids, subject);
-            default -> false;
-        };
-    }
-
-    private boolean allMatch(final Iterable<?> kids, final String subject) {
-        for(final Object candidate : kids) {
-            if(! (candidate instanceof Kid kid) || ! subject.equals(kid.getCreatedBy())) {
+    private boolean allCreatedBy(final Iterable<Kid> kids, final String subject) {
+        for(final Kid kid : kids) {
+            if(! subject.equals(kid.getCreatedBy())) {
                 return false;
             }
         }

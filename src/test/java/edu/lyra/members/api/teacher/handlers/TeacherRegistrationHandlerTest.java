@@ -59,7 +59,7 @@ class TeacherRegistrationHandlerTest {
         teacher.setMail("ignored@example.com");
         this.handler.assignPerson(teacher);
         assertSame(existingPerson, teacher.getPerson());
-        assertEquals(subject, teacher.getId());
+        assertEquals(subject, teacher.getPerson().getId());
     }
 
     private static void authenticateAs(final UUID subject) {
@@ -86,8 +86,17 @@ class TeacherRegistrationHandlerTest {
         assertEquals("Marta", teacher.getPerson().getName());
         assertEquals("Ibáñez", teacher.getPerson().getSurname());
         assertEquals("marta.ibanez@example.com", teacher.getPerson().getMail());
-        assertEquals(subject, teacher.getId());
         verify(this.personRepository, never()).save(any());
+    }
+
+    @Test
+    void buildsAFreshPersonWhenTheSubjectIsUnknownAndNoPersonFieldsWereProvided() {
+        final UUID subject = UUID.randomUUID();
+        when(this.personRepository.findById(subject)).thenReturn(Optional.empty());
+        authenticateAs(subject);
+        final Teacher teacher = new Teacher();
+        this.handler.assignPerson(teacher);
+        assertEquals(subject, teacher.getPerson().getId());
     }
 
     @Test

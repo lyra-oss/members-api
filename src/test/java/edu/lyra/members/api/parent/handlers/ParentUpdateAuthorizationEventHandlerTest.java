@@ -88,7 +88,7 @@ class ParentUpdateAuthorizationEventHandlerTest {
     void allowsAdminToBindAnyKid() {
         authenticateAs(randomUUID(), "admin");
         final Kid kid = aKidCreatedBy(randomUUID().toString());
-        assertDoesNotThrow(() -> this.handler.authorizeKidBinding(aParent(), kid));
+        assertDoesNotThrow(() -> this.handler.authorizeKidBinding(aParent(), Set.of(kid)));
     }
 
     private static Kid aKidCreatedBy(final String createdBy) {
@@ -100,7 +100,7 @@ class ParentUpdateAuthorizationEventHandlerTest {
         final UUID id = randomUUID();
         authenticateAs(id, "parent");
         final Kid kid = aKidCreatedBy(id.toString());
-        assertDoesNotThrow(() -> this.handler.authorizeKidBinding(aParentWithId(id), kid));
+        assertDoesNotThrow(() -> this.handler.authorizeKidBinding(aParentWithId(id), Set.of(kid)));
     }
 
     @Test
@@ -117,7 +117,7 @@ class ParentUpdateAuthorizationEventHandlerTest {
         authenticateAs(id, "parent");
         final Kid    kid    = aKidCreatedBy(randomUUID().toString());
         final Parent parent = aParentWithId(id);
-        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, kid));
+        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, Set.of(kid)));
     }
 
     @Test
@@ -126,7 +126,7 @@ class ParentUpdateAuthorizationEventHandlerTest {
         authenticateAs(id, "parent");
         final Kid    kid    = aKidCreatedBy(id.toString());
         final Parent parent = aParent();
-        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, kid));
+        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, Set.of(kid)));
     }
 
     @Test
@@ -143,15 +143,7 @@ class ParentUpdateAuthorizationEventHandlerTest {
         authenticateAs(randomUUID(), "teacher");
         final Kid    kid    = aKidCreatedBy(randomUUID().toString());
         final Parent parent = aParent();
-        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, kid));
-    }
-
-    @Test
-    void rejectsBindingWhenLinkedIsNeitherKidNorCollection() {
-        final UUID id = randomUUID();
-        authenticateAs(id, "parent");
-        final Parent parent = aParentWithId(id);
-        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, ""));
+        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, Set.of(kid)));
     }
 
 }

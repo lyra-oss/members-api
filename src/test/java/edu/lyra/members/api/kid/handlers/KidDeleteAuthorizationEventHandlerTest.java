@@ -114,6 +114,20 @@ class KidDeleteAuthorizationEventHandlerTest {
     }
 
     @Test
+    void rejectsDeletingAKidInAClassroomWithNoTutorAssigned() {
+        authenticateAs(UUID.randomUUID(), "teacher");
+        //@formatter:off
+        final Classroom classroom = Instancio.of(Classroom.class)
+                                              .set(field(Classroom.class, "tutor"), (Teacher) null)
+                                              .ignore(field(Classroom.class, "teachers"))
+                                              .ignore(field(Classroom.class, "kids"))
+                                              .create();
+        //@formatter:on
+        final Kid kid = aKid(aParent(), classroom);
+        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidDelete(kid));
+    }
+
+    @Test
     void rejectsUnauthenticatedDelete() {
         SecurityContextHolder.clearContext();
         final Kid kid = aKid(aParent(), aClassroomWithTutor(UUID.randomUUID()));

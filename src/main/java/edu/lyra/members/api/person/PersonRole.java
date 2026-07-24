@@ -18,8 +18,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import static java.util.Optional.ofNullable;
-
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
@@ -33,20 +31,18 @@ import static jakarta.persistence.CascadeType.PERSIST;
  * @see Person
  */
 @Getter
+@Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
 public abstract class PersonRole
         extends Auditable {
 
-    @Setter
-    @Getter(AccessLevel.NONE)
     @JsonIgnore
     @Id
     @Column(name = "ID", nullable = false)
     private UUID id;
 
-    @Setter
     @Valid
     @NotNull
     @JsonIgnore
@@ -58,14 +54,6 @@ public abstract class PersonRole
     protected PersonRole(final UUID id, final Person person) {
         this.id     = id;
         this.person = person;
-    }
-
-    /**
-     * @return the role holder's id
-     */
-    public UUID getId() {
-        final UUID personId = this.person != null ? this.person.getId() : null;
-        return ofNullable(this.id).orElse(personId);
     }
 
     /**
