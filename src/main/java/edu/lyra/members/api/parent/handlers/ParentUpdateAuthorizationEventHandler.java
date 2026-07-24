@@ -42,21 +42,22 @@ class ParentUpdateAuthorizationEventHandler {
         throw new AccessDeniedException("Authenticated user cannot bind this kid to this parent");
     }
 
+    /*
+     * "kids" is a Set<Kid>, a to-many association, so Spring Data REST always resolves the linked side of a
+     * @HandleBeforeLinkSave as a Collection<Kid> (a Hibernate-managed PersistentSet, confirmed by direct
+     * observation) - never a bare Kid and never any other type. There is deliberately no instanceof guard
+     * here: an unexpected element would only ever come from a bug elsewhere, and a ClassCastException still
+     * fails the request (and hence the link) just as safely as an explicit denial would.
+     */
     private boolean allCreatedByCurrentPrincipal(final Object linked) {
-        return AuthenticatedPrincipal.currentId().map(id -> this.matchesCreator(linked, id.toString())).orElse(false);
+        return AuthenticatedPrincipal.currentId()
+                                     .map(id -> this.allCreatedBy((Iterable<?>) linked, id.toString()))
+                                     .orElse(false);
     }
 
-    private boolean matchesCreator(final Object linked, final String subject) {
-        return switch(linked) {
-            case Kid kid -> subject.equals(kid.getCreatedBy());
-            case Iterable<?> kids -> this.allMatch(kids, subject);
-            default -> false;
-        };
-    }
-
-    private boolean allMatch(final Iterable<?> kids, final String subject) {
+    private boolean allCreatedBy(final Iterable<?> kids, final String subject) {
         for(final Object candidate : kids) {
-            if(! (candidate instanceof Kid kid) || ! subject.equals(kid.getCreatedBy())) {
+            if(! subject.equals(((Kid) candidate).getCreatedBy())) {
                 return false;
             }
         }

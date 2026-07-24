@@ -11,20 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class PersonRoleTest {
 
     @Test
-    void getIdReturnsTheExplicitlyAssignedIdWhenNoPersonIsSet() {
+    void getIdReturnsTheAssignedId() {
         final UUID id = UUID.randomUUID();
         assertEquals(id, Parent.builder().id(id).build().getId());
     }
 
     @Test
-    void getIdFallsBackToThePersonsIdWhenNotExplicitlyAssigned() {
-        final UUID   personId = UUID.randomUUID();
-        final Person person   = Person.builder().id(personId).build();
-        assertEquals(personId, Parent.builder().person(person).build().getId());
-    }
-
-    @Test
-    void getIdReturnsNullWhenNeitherAnIdNorAPersonIsSet() {
+    void getIdReturnsNullForATransientInstance() {
         assertNull(Parent.builder().build().getId());
     }
 

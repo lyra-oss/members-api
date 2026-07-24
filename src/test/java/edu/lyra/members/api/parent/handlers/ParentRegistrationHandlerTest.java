@@ -65,7 +65,7 @@ class ParentRegistrationHandlerTest {
         parent.setMail("ignored@example.com");
         this.handler.assignPerson(parent);
         assertSame(existingPerson, parent.getPerson());
-        assertEquals(subject, parent.getId());
+        assertEquals(subject, parent.getPerson().getId());
     }
 
     private static void authenticateAs(final UUID subject) {
@@ -92,7 +92,6 @@ class ParentRegistrationHandlerTest {
         assertEquals("Esteban", parent.getPerson().getName());
         assertEquals("Cristóbal", parent.getPerson().getSurname());
         assertEquals("esteban.cristobal@example.com", parent.getPerson().getMail());
-        assertEquals(subject, parent.getId());
         verify(this.personRepository, never()).save(any());
     }
 
@@ -104,7 +103,6 @@ class ParentRegistrationHandlerTest {
         final Parent parent = new Parent();
         this.handler.assignPerson(parent);
         assertEquals(subject, parent.getPerson().getId());
-        assertEquals(subject, parent.getId());
     }
 
     @Test

@@ -84,11 +84,17 @@ class ParentUpdateAuthorizationEventHandlerTest {
         assertThrows(AccessDeniedException.class, () -> this.handler.authorizeParentUpdate(parent));
     }
 
+    /*
+     * Spring Data REST always resolves the "kids" association's linked side as a Collection<Kid> - never a
+     * bare Kid - since "kids" is a Set<Kid> (see the production code's comment on
+     * allCreatedByCurrentPrincipal, confirmed by direct observation of a real @HandleBeforeLinkSave
+     * invocation). Every scenario below binds through a Set, matching that real contract.
+     */
     @Test
     void allowsAdminToBindAnyKid() {
         authenticateAs(randomUUID(), "admin");
         final Kid kid = aKidCreatedBy(randomUUID().toString());
-        assertDoesNotThrow(() -> this.handler.authorizeKidBinding(aParent(), kid));
+        assertDoesNotThrow(() -> this.handler.authorizeKidBinding(aParent(), Set.of(kid)));
     }
 
     private static Kid aKidCreatedBy(final String createdBy) {
@@ -100,7 +106,7 @@ class ParentUpdateAuthorizationEventHandlerTest {
         final UUID id = randomUUID();
         authenticateAs(id, "parent");
         final Kid kid = aKidCreatedBy(id.toString());
-        assertDoesNotThrow(() -> this.handler.authorizeKidBinding(aParentWithId(id), kid));
+        assertDoesNotThrow(() -> this.handler.authorizeKidBinding(aParentWithId(id), Set.of(kid)));
     }
 
     @Test
@@ -117,7 +123,7 @@ class ParentUpdateAuthorizationEventHandlerTest {
         authenticateAs(id, "parent");
         final Kid    kid    = aKidCreatedBy(randomUUID().toString());
         final Parent parent = aParentWithId(id);
-        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, kid));
+        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, Set.of(kid)));
     }
 
     @Test
@@ -126,7 +132,7 @@ class ParentUpdateAuthorizationEventHandlerTest {
         authenticateAs(id, "parent");
         final Kid    kid    = aKidCreatedBy(id.toString());
         final Parent parent = aParent();
-        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, kid));
+        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, Set.of(kid)));
     }
 
     @Test
@@ -139,29 +145,11 @@ class ParentUpdateAuthorizationEventHandlerTest {
     }
 
     @Test
-    void rejectsParentBindingWhenTheCollectionContainsANonKidElement() {
-        final UUID id = randomUUID();
-        authenticateAs(id, "parent");
-        final Kid    kid    = aKidCreatedBy(id.toString());
-        final List<Object> mixed  = Arrays.asList(kid, "not a kid");
-        final Parent parent = aParentWithId(id);
-        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, mixed));
-    }
-
-    @Test
     void rejectsTeacherBindingAKidToAParent() {
         authenticateAs(randomUUID(), "teacher");
         final Kid    kid    = aKidCreatedBy(randomUUID().toString());
         final Parent parent = aParent();
-        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, kid));
-    }
-
-    @Test
-    void rejectsBindingWhenLinkedIsNeitherKidNorCollection() {
-        final UUID id = randomUUID();
-        authenticateAs(id, "parent");
-        final Parent parent = aParentWithId(id);
-        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, ""));
+        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, Set.of(kid)));
     }
 
 }

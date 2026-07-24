@@ -18,8 +18,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import static java.util.Optional.ofNullable;
-
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
@@ -61,11 +59,12 @@ public abstract class PersonRole
     }
 
     /**
-     * @return the role holder's id
+     * @return the role holder's id, or {@code null} for a transient (not yet saved) instance - {@code id} is the
+     * entity's own {@code @Id}/{@code @MapsId} column, always populated once loaded from or persisted to the
+     * database; a not-yet-saved role's eventual id can be read from {@code getPerson().getId()} instead
      */
     public UUID getId() {
-        final UUID personId = this.person != null ? this.person.getId() : null;
-        return ofNullable(this.id).orElse(personId);
+        return this.id;
     }
 
     /**
