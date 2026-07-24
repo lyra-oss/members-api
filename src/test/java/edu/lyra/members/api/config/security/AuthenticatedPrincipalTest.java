@@ -25,19 +25,6 @@ class AuthenticatedPrincipalTest {
         SecurityContextHolder.clearContext();
     }
 
-    private static void authenticateWithAuthorities(final String... authorities) {
-        final List<SimpleGrantedAuthority> granted =
-                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "n/a", granted));
-    }
-
-    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
-        final List<SimpleGrantedAuthority> granted =
-                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
-        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
-    }
-
     @Test
     void hasRoleReturnsFalseWhenUnauthenticated() {
         assertFalse(AuthenticatedPrincipal.hasRole("admin"));
@@ -110,6 +97,19 @@ class AuthenticatedPrincipalTest {
     void currentIdReturnsEmptyWhenNotAuthenticatedWithAJwt() {
         authenticateWithAuthorities();
         assertTrue(AuthenticatedPrincipal.currentId().isEmpty());
+    }
+
+    private static void authenticateWithAuthorities(final String... authorities) {
+        final List<SimpleGrantedAuthority> granted =
+                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "n/a", granted));
+    }
+
+    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
+        final List<SimpleGrantedAuthority> granted =
+                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
     }
 
 }

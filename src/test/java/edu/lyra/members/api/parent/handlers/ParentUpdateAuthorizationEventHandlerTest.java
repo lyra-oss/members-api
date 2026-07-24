@@ -84,12 +84,6 @@ class ParentUpdateAuthorizationEventHandlerTest {
         assertThrows(AccessDeniedException.class, () -> this.handler.authorizeParentUpdate(parent));
     }
 
-    /*
-     * Spring Data REST always resolves the "kids" association's linked side as a Collection<Kid> - never a
-     * bare Kid - since "kids" is a Set<Kid> (see the production code's comment on
-     * allCreatedByCurrentPrincipal, confirmed by direct observation of a real @HandleBeforeLinkSave
-     * invocation). Every scenario below binds through a Set, matching that real contract.
-     */
     @Test
     void allowsAdminToBindAnyKid() {
         authenticateAs(randomUUID(), "admin");

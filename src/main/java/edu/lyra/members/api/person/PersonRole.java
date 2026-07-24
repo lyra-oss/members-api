@@ -31,20 +31,18 @@ import static jakarta.persistence.CascadeType.PERSIST;
  * @see Person
  */
 @Getter
+@Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
 public abstract class PersonRole
         extends Auditable {
 
-    @Setter
-    @Getter(AccessLevel.NONE)
     @JsonIgnore
     @Id
     @Column(name = "ID", nullable = false)
     private UUID id;
 
-    @Setter
     @Valid
     @NotNull
     @JsonIgnore
@@ -56,15 +54,6 @@ public abstract class PersonRole
     protected PersonRole(final UUID id, final Person person) {
         this.id     = id;
         this.person = person;
-    }
-
-    /**
-     * @return the role holder's id, or {@code null} for a transient (not yet saved) instance - {@code id} is the
-     * entity's own {@code @Id}/{@code @MapsId} column, always populated once loaded from or persisted to the
-     * database; a not-yet-saved role's eventual id can be read from {@code getPerson().getId()} instead
-     */
-    public UUID getId() {
-        return this.id;
     }
 
     /**
