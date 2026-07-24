@@ -97,6 +97,17 @@ class ParentRegistrationHandlerTest {
     }
 
     @Test
+    void buildsAFreshPersonWhenTheSubjectIsUnknownAndNoPersonFieldsWereProvided() {
+        final UUID subject = UUID.randomUUID();
+        when(this.personRepository.findById(subject)).thenReturn(Optional.empty());
+        authenticateAs(subject);
+        final Parent parent = new Parent();
+        this.handler.assignPerson(parent);
+        assertEquals(subject, parent.getPerson().getId());
+        assertEquals(subject, parent.getId());
+    }
+
+    @Test
     void rejectsMissingSubjectClaim() {
         //@formatter:off
         final Jwt jwt = Jwt.withTokenValue("token")

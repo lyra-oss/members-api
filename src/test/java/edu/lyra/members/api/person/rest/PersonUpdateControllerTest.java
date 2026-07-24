@@ -97,6 +97,18 @@ class PersonUpdateControllerTest {
     }
 
     @Test
+    void patchParentLeavesSurnameUnchangedWhenNotProvided() {
+        final UUID   id     = UUID.randomUUID();
+        final Person person = aPerson(id);
+        final Parent parent = Parent.builder().person(person).build();
+        when(this.parentRepository.findById(id)).thenReturn(Optional.of(parent));
+        this.controller.patchParent(id, Map.of("name", "New", "mail", "new@example.com"));
+        assertEquals("New", person.getName());
+        assertEquals("OldSurname", person.getSurname());
+        assertEquals("new@example.com", person.getMail());
+    }
+
+    @Test
     void patchParentReturnsNotFoundWhenParentDoesNotExist() {
         final UUID id = UUID.randomUUID();
         when(this.parentRepository.findById(id)).thenReturn(Optional.empty());

@@ -161,6 +161,17 @@ class PersonRoleControllerTest {
     }
 
     @Test
+    void grantTeacherRoleRejectsASchoolValueThatIsNotAValidUri() {
+        authenticateAsAdmin();
+        final UUID id = UUID.randomUUID();
+        when(this.personRepository.findById(id)).thenReturn(Optional.of(aPerson(id)));
+        when(this.teacherRepository.existsById(id)).thenReturn(false);
+        final var response = this.controller.grantTeacherRole(id, of("school", "not a valid uri"));
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(this.teacherRepository, never()).save(any());
+    }
+
+    @Test
     void grantTeacherRoleSavesANewTeacherWithTheResolvedSchool() {
         authenticateAsAdmin();
         final UUID   id     = UUID.randomUUID();

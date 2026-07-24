@@ -91,6 +91,17 @@ class TeacherRegistrationHandlerTest {
     }
 
     @Test
+    void buildsAFreshPersonWhenTheSubjectIsUnknownAndNoPersonFieldsWereProvided() {
+        final UUID subject = UUID.randomUUID();
+        when(this.personRepository.findById(subject)).thenReturn(Optional.empty());
+        authenticateAs(subject);
+        final Teacher teacher = new Teacher();
+        this.handler.assignPerson(teacher);
+        assertEquals(subject, teacher.getPerson().getId());
+        assertEquals(subject, teacher.getId());
+    }
+
+    @Test
     void rejectsMissingSubjectClaim() {
         //@formatter:off
         final Jwt jwt = Jwt.withTokenValue("token")

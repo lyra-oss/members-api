@@ -139,6 +139,16 @@ class ParentUpdateAuthorizationEventHandlerTest {
     }
 
     @Test
+    void rejectsParentBindingWhenTheCollectionContainsANonKidElement() {
+        final UUID id = randomUUID();
+        authenticateAs(id, "parent");
+        final Kid    kid    = aKidCreatedBy(id.toString());
+        final List<Object> mixed  = Arrays.asList(kid, "not a kid");
+        final Parent parent = aParentWithId(id);
+        assertThrows(AccessDeniedException.class, () -> this.handler.authorizeKidBinding(parent, mixed));
+    }
+
+    @Test
     void rejectsTeacherBindingAKidToAParent() {
         authenticateAs(randomUUID(), "teacher");
         final Kid    kid    = aKidCreatedBy(randomUUID().toString());

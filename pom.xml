@@ -37,6 +37,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Sonar settings -->
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+        <!-- The Spring Boot entry point has no branching logic of its own to cover; see the architecture
+             test enforcing that *Application classes stay minimal. -->
+        <sonar.coverage.exclusions>**/MembersApiApplication.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
         <cucumber.version>7.34.4</cucumber.version>
         <opentelemetry.version>1.64.0</opentelemetry.version>
@@ -458,6 +461,7 @@
                     </targetClasses>
                     <excludedClasses>
                         <param>**.*Configuration</param>
+                        <param>**.*Application</param>
                     </excludedClasses>
                     <excludedTestClasses>
                         <param>**.*IT</param>

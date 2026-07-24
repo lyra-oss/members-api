@@ -179,6 +179,22 @@ class KidUpdateAuthorizationEventHandlerTest {
     }
 
     @Test
+    void allowsTutorToUpdateFieldsOfAKidWithNoParentAssigned() {
+        final UUID tutorId = UUID.randomUUID();
+        authenticateAs(tutorId, "teacher");
+        final Classroom classroom = aClassroomWithTutor(tutorId);
+        //@formatter:off
+        final Kid kid = Instancio.of(Kid.class)
+                                 .set(field(Kid.class, "parent"), (Parent) null)
+                                 .set(field(Kid.class, "previousParentId"), (UUID) null)
+                                 .set(field(Kid.class, "classroom"), classroom)
+                                 .set(field(Kid.class, "previousClassroomId"), classroom.getId())
+                                 .create();
+        //@formatter:on
+        assertDoesNotThrow(() -> this.handler.authorizeKidUpdate(kid));
+    }
+
+    @Test
     void rejectsUnauthenticatedUpdate() {
         SecurityContextHolder.clearContext();
         final Kid kid = aKidUnchanged(aParent(), aClassroomWithTutor(UUID.randomUUID()));
