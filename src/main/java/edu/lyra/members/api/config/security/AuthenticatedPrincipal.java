@@ -38,6 +38,8 @@ public class AuthenticatedPrincipal {
     }
 
     /**
+     * Checks whether the authenticated principal has been granted the {@code ROLE_admin} authority.
+     *
      * @return {@code true} if the current {@link Authentication} carries the {@code ROLE_admin} authority
      */
     public boolean isAdmin() {
