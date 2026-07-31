@@ -59,7 +59,6 @@
             <property name="scope" value="public"/>
             <property name="authorFormat" value="\S"/>
         </module>
-        <module name="SummaryJavadoc"/>
         <module name="NonEmptyAtclauseDescription"/>
         <module name="InvalidJavadocPosition"/>
 

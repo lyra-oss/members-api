@@ -57,8 +57,6 @@ public abstract class PersonRole
     }
 
     /**
-     * Returns the role holder's given name.
-     *
      * @return the role holder's given name
      */
     public String getName() {
@@ -66,8 +64,6 @@ public abstract class PersonRole
     }
 
     /**
-     * Sets the role holder's given name.
-     *
      * @param name the given name to set
      */
     public void setName(final String name) {
@@ -82,8 +78,6 @@ public abstract class PersonRole
     }
 
     /**
-     * Returns the role holder's surname.
-     *
      * @return the role holder's surname
      */
     public String getSurname() {
@@ -91,8 +85,6 @@ public abstract class PersonRole
     }
 
     /**
-     * Sets the role holder's surname.
-     *
      * @param surname the surname to set
      */
     public void setSurname(final String surname) {
@@ -100,8 +92,6 @@ public abstract class PersonRole
     }
 
     /**
-     * Returns the role holder's email address.
-     *
      * @return the role holder's email address
      */
     public String getMail() {
@@ -109,8 +99,6 @@ public abstract class PersonRole
     }
 
     /**
-     * Sets the role holder's email address.
-     *
      * @param mail the email address to set
      */
     public void setMail(final String mail) {
