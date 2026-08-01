@@ -420,6 +420,13 @@
                     <consoleOutput>true</consoleOutput>
                     <failOnViolation>true</failOnViolation>
                     <violationSeverity>warning</violationSeverity>
+                    <!-- Without this, the javadoc:javadoc "doclint-check" execution forks a fresh
+                         generate-sources lifecycle pass late in the build, by which point the real compile
+                         has already registered target/generated-sources/annotations as a compile source
+                         root - so this validate-bound check goal runs a second time and, unlike its first
+                         run before anything was compiled, now sees (and flags) MapStruct's generated
+                         *MapperImpl.java files. -->
+                    <excludeGeneratedSources>true</excludeGeneratedSources>
                 </configuration>
                 <executions>
                     <execution>
