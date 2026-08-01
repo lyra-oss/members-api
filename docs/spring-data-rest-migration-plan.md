@@ -2,32 +2,33 @@
 
 Status: **plan / feasibility assessment** — no production code changed yet.
 
+Guiding principle, agreed with the maintainer: **the easiest code that satisfies the contract wins.**
+Where this plan had two options, the simpler one is now chosen outright rather than left open.
+
 ## 1. Verdict
 
 The migration is feasible and low-risk *in terms of behaviour*, because the Gherkin suite
 (24 feature files, 163 scenarios, plus 4 Keycloak-backed `*IT` tests) pins the HTTP contract
 end-to-end and is written entirely against `MockMvc`/OkHttp — not against Spring Data REST APIs.
-That suite is the safety net: it can stay almost entirely untouched and go from green to green.
+That suite is the safety net.
 
-It is *not* a small job. Spring Data REST is not just generating controllers here; it is silently
-providing seven things this codebase depends on:
+It is not a small job. Spring Data REST silently provides seven things this codebase depends on:
 
 1. CRUD endpoints for 6 aggregates (~35 routes).
 2. HAL rendering — `_embedded.<rel>`, `_links.self`, `page` metadata.
 3. **URI-as-foreign-key** in JSON bodies (`"school": "/v0/schools/{id}"`) via `UriToEntityConverter`.
 4. **`text/uri-list` association endpoints** (`POST /classrooms/{id}/teachers`, `PUT .../tutor`, …).
-5. The **repository event model** (`@HandleBeforeCreate/Save/Delete/LinkSave`) — which is where *all*
+5. The **repository event model** (`@HandleBeforeCreate/Save/Delete/LinkSave`) — where *all*
    authorization and every business invariant currently lives.
 6. Entity validation via `ValidatingRepositoryEventListener`, producing the `errors[]` ProblemDetail shape.
 7. The `/v0` base path, wired into `SpringSecurityConfiguration` via `RepositoryRestConfiguration`.
 
-Every one of those has to be rebuilt by hand. The good news is that the codebase is already
-half-migrated: `KidsCollectionController`, `PersonUpdateController` and `PersonRoleController` are
-hand-written controllers that exist precisely because Spring Data REST got in the way — which is
-direct evidence for the premise behind this migration.
+The codebase is already half-migrated: `KidsCollectionController`, `PersonUpdateController` and
+`PersonRoleController` are hand-written controllers that exist precisely because Spring Data REST got
+in the way — direct evidence for the premise behind this migration.
 
-Rough size: **~60–75 new/modified main classes**, ~8 ArchUnit rule files rewritten, 1 `pom.xml`
-change, ~20 lines of Gherkin touched (see §5.4 for the one contract decision that forces it).
+Size: **~70 new/modified main classes**, **17 ArchUnit rule files** (14 rewritten/extended, 3 new,
+~55 rules total), 2 Checkstyle configs, ~40 test files touched, 16 lines of Gherkin.
 
 ---
 
@@ -38,94 +39,144 @@ change, ~20 lines of Gherkin touched (see §5.4 for the one contract decision th
 | Class | Why |
 |---|---|
 | `config/web/RestExposureConfiguration` | `RepositoryRestConfigurer`; exposure rules become explicit routes |
-| `config/web/ValidationConfiguration` | `ValidatingRepositoryEventListener` → explicit validation in the service layer |
-| all 14 `*/handlers/*EventHandler` + `*Handler` classes | `@RepositoryEventHandler` disappears; logic moves, does not vanish |
+| `config/web/ValidationConfiguration` | `ValidatingRepositoryEventListener` → `@Valid` on request DTOs |
+| all 14 `*/handlers/*EventHandler` + `*Handler` classes | logic moves to `*Policy`, does not vanish |
 | all 6 `*/handlers/*HandlersConfiguration` | replaced by slice configurations |
 
-`classroom/handlers/TeacherSchoolMembership` is pure domain logic and survives as-is (relocated).
+`classroom/handlers/TeacherSchoolMembership` is pure domain logic and survives, relocated.
 
 ### 2.2 Behaviour that must move, not disappear
 
-This is the crux of the migration — the `handlers` package is the authorization layer:
+The `handlers` package *is* the authorization layer:
 
 | Current handler | Becomes |
 |---|---|
-| `KidAuthorizationEventHandler` (beforeCreate) | `KidService.create` resolves the authenticated parent, 403 if none |
-| `KidUpdateAuthorizationEventHandler` (beforeSave) | `KidAccessPolicy.authorizeUpdate(kid, newParent, newClassroom)` |
-| `KidDeleteAuthorizationEventHandler` | `KidAccessPolicy.authorizeDelete` |
-| `ParentRegistrationHandler` | `ParentService.register` — binds JWT subject → `Person` |
-| `ParentUpdateAuthorizationEventHandler` (beforeSave + **beforeLinkSave**) | `ParentAccessPolicy.authorizeUpdate` / `.authorizeKidBinding` |
-| `ParentDeleteEventHandler` | `ParentAccessPolicy.authorizeDelete` + `ParentHasKidsException` guard |
-| `TeacherRegistrationHandler` / `TeacherUpdate…` / `TeacherDelete…` | `TeacherService` + `TeacherAccessPolicy` |
-| `SchoolUpdate…` / `SchoolDelete…` | `SchoolAccessPolicy` |
-| `ClassroomUpdateAuthorizationEventHandler` (beforeSave + beforeLinkSave) | `ClassroomAccessPolicy` |
-| `ClassroomTeacherAssignmentEventHandler` | `ClassroomService` invariant check on create + staff mutation |
+| `KidAuthorizationEventHandler` (beforeCreate) | `KidAdapter.create` resolves the authenticated parent, 403 if none |
+| `KidUpdateAuthorizationEventHandler` (beforeSave) | `KidPolicy.authorizeUpdate(kid, newParent, newClassroom)` |
+| `KidDeleteAuthorizationEventHandler` | `KidPolicy.authorizeDelete` |
+| `ParentRegistrationHandler` | `ParentAdapter.register` — binds JWT subject → `Person` |
+| `ParentUpdateAuthorizationEventHandler` (beforeSave + **beforeLinkSave**) | `ParentPolicy.authorizeUpdate` / `.authorizeKidBinding` |
+| `ParentDeleteEventHandler` | `ParentPolicy.authorizeDelete` + `ParentHasKidsException` guard |
+| `TeacherRegistrationHandler` / `TeacherUpdate…` / `TeacherDelete…` | `TeacherAdapter` + `TeacherPolicy` |
+| `SchoolUpdate…` / `SchoolDelete…` | `SchoolPolicy` |
+| `ClassroomUpdateAuthorizationEventHandler` (beforeSave + beforeLinkSave) | `ClassroomPolicy` |
+| `ClassroomTeacherAssignmentEventHandler` | `ClassroomAdapter` invariant check on create + staff mutation |
 
 **Order of operations must be preserved exactly**, because the scenarios assert the distinction:
 `load → 404 if absent → authorize → 403 → invariant → 409/422 → validate → 400 → persist → 2xx`.
-E.g. `kid/update.feature` "Cannot update a kid that does not exist" expects 404, while
-"A parent cannot update another parent's kid" expects 403 — so the lookup must precede the
-authorization check.
+`kid/update.feature` expects 404 for a missing kid but 403 for another parent's kid, so the lookup
+must precede authorization.
 
-### 2.3 A simplification the migration buys us
+### 2.3 Simplifications the migration buys
 
-`Kid.previousParentId`, `Kid.previousClassroomId` and `Classroom.previousTutorId` are `@Transient`
-`@PostLoad` fields that exist *only* because Spring Data REST mutates a loaded entity in place, so
-the `beforeSave` handler can no longer see the pre-merge value. With explicit services the old and
-new values are both in scope at the call site. **All three fields and both `@PostLoad` methods can
-be deleted**, along with the `@JsonIgnore` noise on them.
+- `Kid.previousParentId`, `Kid.previousClassroomId`, `Classroom.previousTutorId` are `@Transient`
+  `@PostLoad` fields that exist *only* because Spring Data REST mutates a loaded entity in place.
+  With explicit adapters the old and new values are both in scope at the call site.
+  **All three fields and both `@PostLoad` methods are deleted.**
+- **Bean Validation annotations leave the entities** (§5.4) — `@NotBlank`, `@Size`, `@Email`,
+  `@Past`, `@Positive`, `@Max`, `@Pattern`, `@Valid`, `@NotNull` across 6 entities.
+- **Jackson annotations leave the entities** — every `@JsonIgnore` on ids, audit fields and
+  transients becomes dead once DTOs own the wire format.
+
+Net effect: entities become plain JPA mappings, which is what `JpaEntityRulesTest` should have been
+able to assume all along.
 
 ---
 
 ## 3. Target architecture
 
-Layering per vertical slice, honouring the existing `VerticalSliceRulesTest` conventions
-(internal sub-packages are package-private and only reachable from their own aggregate):
+### 3.1 The adapter layer
+
+Confirmed direction: **an adapter sits between the controller and the repository** and owns the
+entity ⇄ representation translation, matching the original brief ("Jackson and MapStruct for JSON
+mapping and adapters"). Layering per slice:
+
+```
+Controller ──► Adapter ──► Repository
+   HTTP only     │           data access
+                 ├── Mapper  (MapStruct, pure field mapping)
+                 └── Policy  (authorization)
+```
 
 ```
 edu.lyra.members.api.<aggregate>/
-├── <Aggregate>.java                    JPA entity            (domain, unchanged)
-├── <Aggregate>Repository.java          Spring Data JPA       (data access)
-├── <Aggregate>Service.java             application service   (public inbound port of the slice)
-├── policy/                             ← new internal package (was: handlers/)
-│   └── <Aggregate>AccessPolicy.java    authorization + invariants
-└── rest/                               ← internal, package-private
-    ├── <Aggregate>Controller.java      HTTP mapping only
-    ├── <Aggregate>Resource.java        response DTO   @Relation(collectionRelation = "<rel>")
-    ├── <Aggregate>CreateRequest.java   request DTO
-    ├── <Aggregate>PatchRequest.java    request DTO
-    ├── <Aggregate>Mapper.java          MapStruct
-    ├── <Aggregate>ModelAssembler.java  HATEOAS links
+├── <Aggregate>.java                       JPA entity — plain mapping, no Jackson, no validation
+├── <Aggregate>Repository.java             Spring Data JPA
+└── rest/                                  internal to the slice, package-private
+    ├── <Aggregate>Controller.java         @RequestMapping type-level, registered as a @Bean
+    ├── <Aggregate>Adapter.java            repo + policy + mapper orchestration; builds links
+    ├── <Aggregate>Mapper.java             MapStruct, entity ⇄ model/request
+    ├── <Aggregate>Model.java              extends RepresentationModel<…>, @Relation   (outbound)
+    ├── <Aggregate>Request.java            record, Jakarta constraints                 (inbound, create)
+    ├── <Aggregate>PatchRequest.java       record                                      (inbound, patch)
+    ├── <Aggregate>Policy.java             authorization
     └── <Aggregate>RestConfiguration.java  explicit @Bean wiring
 ```
 
-**Decoupling rules this enforces (per the brief):**
+The old `..handlers` package disappears entirely — one internal package per slice instead of two.
 
-- The controller never touches a repository — only its own `<Aggregate>Service`.
-- The repository never leaves the slice: cross-slice access goes service → service.
-  (`PersonRoleController` currently reaches into `ParentRepository`, `TeacherRepository` and
-  `ClassroomRepository` directly; it becomes `PersonService` → `ParentService`/`TeacherService`.)
-- JPA entities never reach the wire: MapStruct maps entity ⇄ DTO at the `rest` boundary.
+### 3.2 Inbound vs outbound: the asymmetry is deliberate
 
-### 3.1 Shared web infrastructure (`config/web/`)
+| Direction | Type | Coupling |
+|---|---|---|
+| **inbound** (`*Request`) | `record` | Jackson + Jakarta Validation only. **No Spring HATEOAS** — clients never send links |
+| **outbound** (`*Model`) | class `extends RepresentationModel<XModel>` | Spring HATEOAS; carries `_links` built with `WebMvcLinkBuilder` |
 
-| New component | Purpose |
+This resolves the tension from the previous revision. My earlier recommendation to keep response
+models as plain records was driven by a MapStruct concern that is smaller than I stated: MapStruct
+derives target properties from setters, and `RepresentationModel` exposes links only through
+`getLinks()` (returning `Links`, which is not a `Collection`) and `add(…)`, so it most likely is not
+seen as a writable property at all. **If** the processor does flag it, the fix is one
+`@Mapping(target = "links", ignore = true)` per mapping method. That is not a reason to give up
+hypermedia on the model. Confirm either way in the Phase 0 spike.
+
+### 3.3 How the pieces cooperate
+
+`<Aggregate>Adapter implements RepresentationModelAssembler<X, XModel>`, so it plugs straight into
+`PagedResourcesAssembler.toModel(page, adapter)` — the same call `KidsCollectionController` already
+makes today with `PersistentEntityResourceAssembler`. `toModel(X)` calls the MapStruct mapper for
+the fields and then adds links. One class, idiomatic, no separate assembler type.
+
+| Concern | Spring Data REST (today) | Target |
+|---|---|---|
+| item payload | `PersistentEntityResource` | `XModel extends RepresentationModel<XModel>` |
+| collection payload | `PagedModel<PersistentEntityResource>` | `PagedModel<XModel>` |
+| assembling | `PersistentEntityResourceAssembler` | `XAdapter implements RepresentationModelAssembler` |
+| paging | `PagedResourcesAssembler` | `PagedResourcesAssembler` *(unchanged)* |
+| link building | implicit | `WebMvcLinkBuilder.linkTo(methodOn(…))` |
+| relation naming | derived from entity | `@Relation` on `XModel` |
+
+**Mappers stay pure.** URI→entity resolution (§5.1) happens in the *adapter*, which then hands the
+mapper an already-resolved entity. That keeps `XMapper` free of repositories and of
+`AuthenticatedPrincipal`, which is worth an ArchUnit rule (§7.3) and makes mapper unit tests trivial.
+
+### 3.4 Cross-slice access
+
+Repositories stay `public` and remain the cross-slice port — `PersonRoleAdapter` legitimately needs
+`ParentRepository` and `TeacherRepository`. Inventing a per-slice service interface purely to route
+that would add a layer for one call site, against the simplicity guideline. The decoupling the brief
+asks for is enforced instead by "**controllers never touch repositories; only adapters do**"
+(§7.1/§7.4), which is the constraint that actually matters.
+
+### 3.5 Shared web infrastructure (`config/web/`)
+
+| Component | Purpose |
 |---|---|
 | `ApiBasePath` (`@ConfigurationProperties`) | replaces `RepositoryRestConfiguration.getBasePath()`; feeds security config *and* link building |
 | `UriListHttpMessageConverter` | Spring MVC has **no** `text/uri-list` support out of the box |
 | `EntityUriResolver` | `/v0/schools/{uuid}` → `UUID`; replaces `UriToEntityConverter` and the `@Qualifier("defaultConversionService")` injection |
-| `ProblemDetailsControllerAdvice` (modified) | must now handle `MethodArgumentNotValidException` / `ConstraintViolationException` instead of `RepositoryConstraintViolationException` |
-| `RootController` (optional) | Spring Data REST serves a `GET /v0/` index of collection links; reimplement to keep HAL discoverability |
+| `ProblemDetailsControllerAdvice` *(modified)* | handles `MethodArgumentNotValidException` instead of `RepositoryConstraintViolationException` |
+| `RootController` | reinstates the `GET /v0/` index of collection links |
 
 ---
 
 ## 4. Endpoint inventory to reproduce
 
-Derived from `SpringSecurityConfiguration`, the step definitions and the `*IT` tests. ~35 routes.
+~35 routes, from `SpringSecurityConfiguration`, the step definitions and the `*IT` tests.
 
 | Method | Path | Status | Notes |
 |---|---|---|---|
-| GET | `/v0/parents`, `/v0/parents/{id}` | 200 | paged HAL |
+| GET | `/v0/parents`, `/{id}` | 200 | paged HAL |
 | POST | `/v0/parents` | 201 + `Location` | binds JWT subject to `Person` |
 | PATCH | `/v0/parents/{id}` | 204 / 404 | delegating `name`/`surname`/`mail` |
 | DELETE | `/v0/parents/{id}` | 204 / 409 | 409 if kids linked |
@@ -133,138 +184,113 @@ Derived from `SpringSecurityConfiguration`, the step definitions and the `*IT` t
 | GET | `/v0/kids` | 200 | **visibility-filtered** (admin / parent / teacher / none) |
 | GET | `/v0/kids/{id}` | 200 / 404 | |
 | POST | `/v0/kids` | 201 + `Location` | assigns authenticated parent |
-| PATCH | `/v0/kids/{id}` | 204 / 403 / 404 | `parent` + `classroom` given **as URIs** |
+| PATCH | `/v0/kids/{id}` | 204 / 403 / 404 | `parent`, `classroom` **as URIs** |
 | DELETE | `/v0/kids/{id}` | 204 | |
 | GET | `/v0/schools`, `/{id}` | 200 | |
-| POST/PATCH/DELETE | `/v0/schools[/{id}]` | 201/204/409 | 409 if classrooms or teachers linked |
+| POST / PATCH / DELETE | `/v0/schools[/{id}]` | 201 / 204 / 409 | 409 if classrooms or teachers linked |
 | GET | `/v0/teachers`, `/{id}` | 200 | |
 | POST | `/v0/teachers` | 201 | `school` as URI |
-| PATCH/DELETE | `/v0/teachers/{id}` | 204 / 409 | 409 if tutoring/teaching |
+| PATCH / DELETE | `/v0/teachers/{id}` | 204 / 409 | 409 if tutoring/teaching |
 | GET | `/v0/classrooms`, `/{id}` | 200 | |
-| POST | `/v0/classrooms` | 201 / 422 | `school` + `tutor` as URIs; 422 on school mismatch |
-| PATCH/DELETE | `/v0/classrooms/{id}` | 204 / 409 | 409 if kids enrolled |
+| POST | `/v0/classrooms` | 201 / 422 | `school` + `tutor` as URIs |
+| PATCH / DELETE | `/v0/classrooms/{id}` | 204 / 409 | 409 if kids enrolled |
 | GET | `/v0/classrooms/{id}/teachers` | 200 | `_embedded.teachers` |
 | POST | `/v0/classrooms/{id}/teachers` | 204 / 404 / 422 | **`text/uri-list`** |
 | GET | `/v0/classrooms/{id}/tutor` | 200 / **404 when unset** | |
 | PUT | `/v0/classrooms/{id}/tutor` | 204 / 422 | **`text/uri-list`** |
 | POST | `/v0/classrooms/{id}/kids` | 204 | **`text/uri-list`** |
 | GET | `/v0/persons`, `/{id}` | 200 | admin only |
-| PUT/DELETE | `/v0/persons/{id}/{parent,teacher}` | 204 / 400 / 404 / 409 | already hand-written |
+| PUT / DELETE | `/v0/persons/{id}/{parent,teacher}` | 204 / 400 / 404 / 409 | already hand-written |
 
-Spring Data REST additionally exposes association GETs that no test covers — `/parents/{id}/kids`,
-`/kids/{id}/parent`, `/kids/{id}/classroom`, `/teachers/{id}/school`, `/schools/{id}/classrooms`,
-`/schools/{id}/teachers`, `/classrooms/{id}/school` — plus `/v0/profile` (ALPS metadata).
-**Decision required:** reproduce, or drop and document as a breaking change. Recommendation: keep the
-navigable GETs that back `_links` rels we emit; drop `/profile` (ALPS has no consumer here).
+**Decided:** reproduce the association GETs that back emitted `_links` rels
+(`/parents/{id}/kids`, `/kids/{id}/parent`, `/kids/{id}/classroom`, `/teachers/{id}/school`,
+`/schools/{id}/classrooms`, `/schools/{id}/teachers`, `/classrooms/{id}/school`); **drop
+`/v0/profile`** (ALPS, no consumer). Reinstate `GET /v0/` as a link index.
 
 ---
 
-## 5. The hard parts — compatibility risks and decisions
+## 5. Compatibility risks and decisions
 
 ### 5.1 Association-by-URI in request bodies
 
 `POST /v0/teachers` sends `{"name":…, "school":"/v0/schools/{uuid}"}`; `PATCH /v0/kids/{id}` sends
-`{"parent":"/v0/parents/{uuid}"}`. This is `UriToEntityConverter`.
+`{"parent":"/v0/parents/{uuid}"}` — this is `UriToEntityConverter`.
 
-**Plan:** request DTOs declare these as `URI`. MapStruct resolves them through qualified methods
-backed by `EntityUriResolver` + the target slice's service:
+**Plan:** request records declare these as `URI`. The **adapter** resolves them via
+`EntityUriResolver` + the target repository, then passes resolved entities to the mapper. Mappers
+never see a URI, so they stay pure and dependency-free.
 
-```java
-@Mapper(uses = SchoolService.class)
-interface TeacherMapper {
-    @Mapping(target = "school", source = "school", qualifiedByName = "schoolFromUri")
-    Teacher toEntity(TeacherCreateRequest request);
-}
-```
-
-Unresolvable URI must yield 400 (`person/roles.feature` — "Cannot make a person a teacher without a
-school" expects 400), and *absent* `school` must yield the field error `school` / "must not be null"
-(`teacher/create.feature`). Two different codes from two different causes — worth an explicit test.
+Unresolvable URI → 400 (`person/roles.feature`, "teacher without a school"); *absent* `school` →
+field error `school` / "must not be null" (`teacher/create.feature`). Two codes, two causes, one
+explicit test each.
 
 ### 5.2 `text/uri-list`
 
-Five endpoints consume it. Spring MVC ships no converter. Add `UriListHttpMessageConverter` in
-`config/web` and declare `consumes = "text/uri-list"`. Body is newline-separated URIs; the tests
-always send exactly one, but the converter should return a `List<URI>` and the endpoints should
-accept a collection to match Spring Data REST's actual semantics.
+Five endpoints consume it; Spring MVC ships no converter. Add `UriListHttpMessageConverter`
+returning `List<URI>` and declare `consumes = "text/uri-list"`. Tests always send one URI, but
+Spring Data REST's semantics are a list, so accept a list.
 
 ### 5.3 PATCH partial-merge semantics
 
-Spring Data REST's `DomainObjectReader` merges only the properties present in the body. Replicating
-that with DTOs means distinguishing *absent* from *explicitly null*.
+`DomainObjectReader` merges only properties present in the body. Replicating it means distinguishing
+*absent* from *explicitly null*.
 
 **Plan:** MapStruct `@MappingTarget` +
-`@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)`, i.e.
-`null` = "not supplied".
+`@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)` — `null`
+means "not supplied".
 
-**Known narrowing:** this makes it impossible to `PATCH` a field to `null`. Checked against every
-scenario — explicit nulls only ever appear on **create** (`parent/create.feature`,
-`teacher/create.feature`), never on PATCH — so no scenario regresses. If nulling-out is wanted later,
-switch those DTO fields to `JsonNullable<T>`. Document the narrowing in the README.
+**Known narrowing:** a field cannot be `PATCH`ed to `null`. Checked against every scenario: explicit
+nulls appear only on **create** (`parent/create.feature`, `teacher/create.feature`), never on PATCH.
+No scenario regresses. Document it in the README; switch the affected fields to `JsonNullable<T>` only
+if a client ever needs it.
 
-### 5.4 Validation error paths — the one deliberate contract change
+### 5.4 Validation — **decided: validate the request DTO**
 
-Today the JSR-380 validator runs against the **entity**, so a bad parent/teacher name reports the
-path `person.name` (because `PersonRole.setName` delegates into the nested `Person`). School and
-classroom report plain `name` / `course` / `group`. The Gherkin asserts both forms:
+Per the simplicity guideline, validation moves to the edge:
 
-```gherkin
-Then I receive an error stating that "person.surname" field is incorrect because "must not be blank"
-Then I receive an error stating that "name" field is incorrect because "must not be blank"
-```
+- `@Valid @RequestBody XRequest` with Jakarta constraints **on the record components**.
+- **All Bean Validation annotations are removed from the entities** (§2.3). The database keeps
+  `nullable`/`length`/`unique` as the real backstop, and `DataIntegrityViolationException` → 409 is
+  already wired.
+- `ProblemDetailsControllerAdvice` overrides `handleMethodArgumentNotValid` to emit the existing
+  `errors[{entity, property, message}]` array, so `CommonAssertions`'
+  `$.errors[?(@.property == '…' && @.message == '…')]` JSONPath keeps working unchanged.
 
-`person.*` is a leaked persistence detail — the wire format has no `person` object at all. Two options:
+**Contract change:** error paths lose the leaked `person.` prefix. `person.name` → `name`,
+`person.surname` → `surname`, `person.mail` → `mail`. The wire format has no `person` object, so this
+is a correction, not a regression. Constraint *messages* are unchanged ("must not be blank",
+"size must be between 0 and 100", "must be a well-formed email address"), because the same
+annotations produce them.
 
-- **(A) Keep entity-level validation.** Validate the mapped entity in the service before save and
-  re-emit the same `errors[{entity,property,message}]` array. Contract stays byte-identical, zero
-  Gherkin churn, and the whole suite stays a pure regression net.
-- **(B) Validate the DTO** with `@Valid @RequestBody`. Paths become `name`/`surname`/`mail`, which
-  matches what clients actually send. ~20 Gherkin lines change.
+**Exactly 16 Gherkin lines change**, in 4 files — all mechanical:
 
-**Recommendation: (A) during the migration, (B) as an immediate follow-up commit.** Doing them
-together destroys the ability to tell "the migration broke something" from "we changed the contract
-on purpose". Either way `ProblemDetailsControllerAdvice` must grow a
-`handleMethodArgumentNotValid`/`ConstraintViolationException` handler emitting the existing shape.
+| File | Lines |
+|---|---|
+| `parent/create.feature` | 26, 27 (Examples table), 34, 41, 48, 62, 76 |
+| `parent/update.feature` | 43 |
+| `teacher/create.feature` | 28, 29 (Examples table), 37, 45, 53, 68, 83 |
+| `teacher/update.feature` | 45 |
 
-### 5.5 Representation model — Spring HATEOAS
+No other feature file mentions `person.`. School (`name`), classroom (`course`, `group`) and teacher
+(`school`) paths are already flat and stay identical.
 
-**Decided: hypermedia is Spring HATEOAS (`spring-boot-starter-hateoas`), not Spring Data REST's
-`PersistentEntityResource`.** Concretely:
+**Do this in the Teacher/Parent slice commits, not as a big-bang** — each edit lands next to the code
+that causes it, so review can see cause and effect.
 
-| Concern | Spring Data REST (today) | Spring HATEOAS (target) |
-|---|---|---|
-| item payload | `PersistentEntityResource` | `EntityModel<XResource>` |
-| collection payload | `PagedModel<PersistentEntityResource>` | `PagedModel<EntityModel<XResource>>` |
-| assembling | `PersistentEntityResourceAssembler` | `RepresentationModelAssembler<X, EntityModel<XResource>>` |
-| paging | `PagedResourcesAssembler` | `PagedResourcesAssembler` *(unchanged — Spring Data Web)* |
-| link building | implicit | `WebMvcLinkBuilder.linkTo(methodOn(…))` |
-| relation naming | derived from the entity | `@Relation` on the DTO |
+### 5.5 HAL relation names — silent breakage risk
 
-`KidsCollectionController` already returns `PagedModel<…>` built by `PagedResourcesAssembler`, so its
-migration is close to mechanical: swap `PersistentEntityResourceAssembler` for `KidModelAssembler`.
+Tests assert `_embedded.kids`, `_embedded.schools`, `_embedded.teachers`, `_embedded.classrooms`.
+Spring HATEOAS derives the rel from the model class name, so `KidModel` emits `_embedded.kidModelList`.
+**Every `*Model` needs `@Relation(collectionRelation = "kids", itemRelation = "kid")`.** An ArchUnit
+rule (§7.2) turns this from a Cucumber-only failure into a fast one.
 
-**DTOs stay plain `record`s wrapped in `EntityModel`** — do *not* extend `RepresentationModel<Self>`.
-That base class exposes a `links` property, which MapStruct treats as an unmapped target and reports
-as an error; every mapper would need `@Mapping(target = "links", ignore = true)`. Records keep the
-mappers clean, and `@Relation` on the record is still honoured through the `EntityModel` wrapper
-because the HAL embedded mapper resolves rels from the *content* type.
+`PagedModel`'s `page: {size, totalElements, totalPages, number}` block comes from
+`PagedResourcesAssembler` (Spring Data Web, not Spring Data REST) and survives unchanged.
 
-**Relation names are a silent breakage risk.** Tests assert `_embedded.kids`, `_embedded.schools`,
-`_embedded.teachers`, `_embedded.classrooms`. Spring HATEOAS derives the rel from the DTO class name,
-so `KidResource` would emit `_embedded.kidResourceList`. **Every response DTO needs
-`@Relation(collectionRelation = "kids", itemRelation = "kid")`.** Cheap, but easy to forget, and it
-fails only in the Cucumber run.
-
-`PagedModel`'s `page: {size, totalElements, totalPages, number}` block is produced identically by
-`PagedResourcesAssembler` — `kid/read.feature` and `school/read.feature` depend on it and it survives
-unchanged.
-
-**Verify in the Phase 0 spike:** this project is on Spring Boot 4.1 / Jackson 3 (`tools.jackson`,
-`jackson-databind` 3.1.5). Confirm Boot's `HypermediaAutoConfiguration` still makes HAL the default
-JSON representation under Jackson 3, and that responses render as HAL without an explicit
-`@EnableHypermediaSupport(type = HAL)`. Spring Data REST currently answers `application/hal+json`;
-no test asserts the content type, so either media type passes, but the `_links`/`_embedded`
-*structure* is asserted everywhere and must not regress.
+**Verify in Phase 0:** Boot 4.1 / Jackson 3 (`tools.jackson`, `jackson-databind` 3.1.5) — confirm
+`HypermediaAutoConfiguration` still makes HAL the default JSON representation without an explicit
+`@EnableHypermediaSupport(type = HAL)`. No test asserts the content type, but the `_links`/`_embedded`
+*structure* is asserted everywhere.
 
 ### 5.6 Base path `/v0` and link generation — **spike this first**
 
@@ -272,49 +298,42 @@ no test asserts the content type, so either media type passes, but the `_links`/
 `build-helper:parse-version`, and `SpringSecurityConfiguration` reads it back out of
 `RepositoryRestConfiguration`. Both ends need replacing.
 
-The risk: `WebMvcLinkBuilder.linkTo(methodOn(…))` builds links from the `@RequestMapping`
-*annotation values*, so a prefix added via `PathMatchConfigurer.addPathPrefix(…)` may not appear in
-generated `self` links — and `kid/read.feature`, `school/read.feature`, `classroom/bind/teacher.feature`
-all assert `selfLink.endsWith("/v0/…")`.
+Risk: `WebMvcLinkBuilder.linkTo(methodOn(…))` builds from `@RequestMapping` *annotation values*, so a
+prefix added via `PathMatchConfigurer.addPathPrefix(…)` may not reach generated `self` links — and
+`kid/read.feature`, `school/read.feature`, `classroom/bind/teacher.feature` all assert
+`selfLink.endsWith("/v0/…")`. Ordered preference:
 
-**Plan:** prove this in a one-hour spike before committing to a design. Ordered preference:
-
-1. `@RequestMapping("${lyra.api.base-path}/kids")` — placeholder resolved by MVC; **verify Spring
-   HATEOAS resolves it too**.
+1. `@RequestMapping("${lyra.api.base-path}/kids")` — verify Spring HATEOAS resolves the placeholder too.
 2. `addPathPrefix` + verify link output.
-3. Fallback (always works): assemblers build links from the `ApiBasePath` bean via
-   `UriComponentsBuilder` instead of `methodOn`.
+3. Fallback (always works): the adapter builds links from `ApiBasePath` via `UriComponentsBuilder`.
 
 ### 5.7 Controller stereotype vs. the explicit-`@Bean` convention
 
-`SpringBeanRulesTest.sliceBeansAreNotComponentScanned` bans `@Component`/`@Service` outside `config`;
-every slice bean is declared in a `@Configuration`. A plain `@RestController` is meta-annotated
-`@Component`, so it would be component-scanned — and if *also* declared as a `@Bean` you get two
-beans and an ambiguous-mapping failure at startup.
+`SpringBeanRulesTest.sliceBeansAreNotComponentScanned` bans `@Component`/`@Service` outside `config`.
+A plain `@RestController` is meta-annotated `@Component`, so it would be component-scanned — and if
+*also* declared as a `@Bean` you get two beans and an ambiguous-mapping failure at startup.
 
-**Recommendation:** annotate controllers with class-level `@RequestMapping` + `@ResponseBody` and
-**no stereotype**, registered explicitly as `@Bean`s. `RequestMappingHandlerMapping.isHandler()`
-accepts a type annotated with either `@Controller` *or* `@RequestMapping`, so this works and
-preserves the codebase's explicit-wiring philosophy. Verify in the same spike as §5.6 (Spring
-Framework 7). Fallback: plain `@RestController` + component scanning, dropping the `@Bean` wiring
-for controllers only.
+**Decided:** class-level `@RequestMapping` + `@ResponseBody`, **no stereotype**, registered as a
+`@Bean`. `RequestMappingHandlerMapping.isHandler()` accepts a type annotated with `@Controller`
+*or* `@RequestMapping`, so this works and preserves the explicit-wiring philosophy. Verify on Spring
+Framework 7 in the Phase 0 spike; fallback is `@RestController` + component scanning for controllers only.
 
-Related: **do not use MapStruct `componentModel = "spring"`** — it emits `@Component` on the
-generated `*MapperImpl`, which ArchUnit *will* see in `target/classes` and reject. Use the default
-component model and expose each mapper via `Mappers.getMapper(X.class)` in a `@Bean` method.
+Related: **never use MapStruct `componentModel = "spring"`** — it emits `@Component` on the generated
+`*MapperImpl`, which ArchUnit sees in `target/classes`. The existing `sliceBeansAreNotComponentScanned`
+rule already catches this, which is a nice free guard rail. Use the default component model and expose
+each mapper via `Mappers.getMapper(X.class)` in a `@Bean` method.
 
 ### 5.8 Optimistic locking / ETag
 
-Spring Data REST emits `ETag` from `@Version` and honours `If-Match` on PATCH/DELETE. Nothing tests
-it, but it is a real capability loss. Flag it; reimplement only if a client depends on it.
+**Decided: do not reimplement.** Spring Data REST emits `ETag` from `@Version` and honours `If-Match`;
+nothing tests it and no known client uses it. Note the loss in the README; revisit if a client asks.
 
 ### 5.9 Transaction boundaries
 
-`@Transactional` currently sits on the repositories, so every `save()` is its own transaction and
-constraint violations surface inside the call. Introducing service-level `@Transactional` moves the
-flush to the service boundary. Still inside the request, so `ProblemDetailsControllerAdvice` keeps
-catching `DataIntegrityViolationException` → 409 (`…/create.feature` duplicate scenarios) — but the
-timing changes, so re-run the duplicate-creation scenarios attentively.
+`@Transactional` currently sits on repositories, so every `save()` is its own transaction. Adapter-level
+`@Transactional` moves the flush to the adapter boundary — still inside the request, so
+`ProblemDetailsControllerAdvice` keeps catching `DataIntegrityViolationException` → 409. Timing
+changes, so re-run the duplicate-creation scenarios attentively.
 
 ---
 
@@ -326,110 +345,340 @@ timing changes, so re-run the duplicate-creation scenarios attentively.
 + org.mapstruct:mapstruct
 ```
 
-`spring-boot-starter-hateoas` pulls in `spring-boot-starter-web` transitively, so the web starter
-does not need declaring separately.
+`spring-boot-starter-hateoas` pulls in `spring-boot-starter-web` transitively.
 
-- Add `mapstruct-processor` to `maven-compiler-plugin/annotationProcessorPaths`
-  **after** `lombok`, plus `lombok-mapstruct-binding` — without it Lombok-generated accessors are
-  invisible to MapStruct and every mapper silently maps nothing.
-- `application.properties`: drop `spring.data.rest.base-path`, add `lyra.api.base-path` (keep the
+- Add `mapstruct-processor` to `maven-compiler-plugin/annotationProcessorPaths` **after** `lombok`,
+  plus `lombok-mapstruct-binding` — without it Lombok-generated accessors are invisible to MapStruct
+  and every mapper silently maps nothing.
+- `application.properties`: drop `spring.data.rest.base-path`; add `lyra.api.base-path` (keeping the
   `@parsedVersion.majorVersion@` filter) and `spring.data.web.pageable.default-page-size=20` to match
   Spring Data REST's default.
-- **Quality gates:** `sonar.qualitygate.wait=true` is on, and pitest targets `edu.lyra.members.api.*`
+- **Quality gates:** `sonar.qualitygate.wait=true` is on and pitest targets `edu.lyra.members.api.*`,
   excluding only `**.*Configuration` / `**.*Application`. MapStruct's generated `*MapperImpl` classes
-  will otherwise be counted for coverage and mutation. `javax.annotation.processing.Generated` is
+  would otherwise count for coverage and mutation; `javax.annotation.processing.Generated` is
   `SOURCE`-retention, so JaCoCo's auto-ignore does **not** apply. Add `**/*MapperImpl` to
   `sonar.coverage.exclusions` and to the pitest `excludedClasses`.
-- `spring-boot-starter-webmvc-test` is already a test dependency — no test-scope change needed.
 
 ---
 
-## 7. ArchUnit rules to rewrite
+## 7. Architecture tests (ArchUnit)
 
-The architecture suite is deeply coupled to Spring Data REST and will fail hard on day one. This is
-a feature, not a problem — but budget for it.
+The suite is deeply coupled to Spring Data REST and will fail hard on day one. Below is the complete
+change set: **14 existing files** (7 unchanged, 7 rewritten or extended) plus **3 new files**.
+`checkstyle-architecture.xml` requires Javadoc on every `@ArchTest` field, so each new rule needs the
+house Compliant/Violation Javadoc block.
+
+Unchanged: `ApplicationRulesTest`, `CodingRulesTest`, `ExceptionRulesTest`, `GeneralRulesTest`,
+`SpringBeanRulesTest`, `TestSuiteRulesTest`, `SecurityRulesTest` (extended below, not rewritten).
+
+### 7.1 `WebRulesTest` — rewritten
+
+| Rule | Fate |
+|---|---|
+| `noPlainRestControllers` | **kept, new rationale**: still forbids `@RestController`/`@Controller`, now because controllers are `@RequestMapping`-only `@Bean`s (§5.7), not because of Spring Data REST |
+| `mappedControllerMethodsAreNotPublic` | **retargeted** at type-level `@RequestMapping` classes |
+| `handlerMethodsArePublic` | **deleted** — `@RepositoryEventHandler` is gone |
+| *new* `controllersDoNotDependOnRepositories` | the core decoupling rule: `noClasses().that().haveSimpleNameEndingWith("Controller").should().dependOnClassesThat().areAssignableTo(Repository.class)` |
+| *new* `controllersDoNotDependOnEntities` | enforces the DTO boundary — no `@Entity` type in a controller |
+| *new* `controllersDoNotDependOnPersistence` | no `jakarta.persistence..` in a controller |
+| *new* `controllersAreNotTransactional` | transactions belong to the adapter, not the HTTP edge |
+| *new* `controllersDoNotBuildProblemDetails` | error shaping stays centralised in `ProblemDetailsControllerAdvice` |
+
+### 7.2 `RepresentationRulesTest` — **new file**
+
+Guards the inbound/outbound asymmetry of §3.2 and the `@Relation` trap of §5.5.
+
+| Rule | Intent |
+|---|---|
+| `responseModelsExtendRepresentationModel` | `*Model` must be assignable to `org.springframework.hateoas.RepresentationModel` |
+| `responseModelsDeclareTheirRelation` | `*Model` must be annotated `@Relation` — **turns a Cucumber-only `_embedded.kidModelList` failure into a fast unit failure** |
+| `requestDtosAreRecords` | `*Request` must be records |
+| `requestDtosDoNotDependOnHateoas` | `*Request` must not depend on `org.springframework.hateoas..` — inbound payloads carry no links |
+| `representationsDoNotDependOnEntitiesOrRepositories` | neither `*Model` nor `*Request` may reference an `@Entity` or a `Repository` |
+| `representationsLiveInRestPackages` | both reside in `..rest` |
+| `representationsDoNotDependOnPersistence` | no `jakarta.persistence..` |
+
+### 7.3 `AdapterRulesTest` — **new file**
+
+| Rule | Intent |
+|---|---|
+| `adaptersLiveInRestPackages` | `*Adapter` resides in `..rest` |
+| `adaptersAssembleRepresentations` | `*Adapter` implements `RepresentationModelAssembler` (§3.3) |
+| `onlyAdaptersDependOnRepositories` | within `..rest`, only `*Adapter` may touch a `Repository` — the layer boundary |
+| `mappersAreMapStructInterfaces` | `*Mapper` is an interface annotated `@Mapper` |
+| `mappersArePure` | `*Mapper` must not depend on repositories, `AuthenticatedPrincipal`, or `org.springframework.security..` (§3.3) |
+| `mappersDoNotUseSpringComponentModel` | belt-and-braces for §5.7; also caught by `SpringBeanRulesTest` |
+| `policiesLiveInRestPackages` | `*Policy` resides in `..rest` |
+| `onlyPoliciesThrowAccessDenied` | `AccessDeniedException` is thrown only from `*Policy` — one place owns 403 |
+
+### 7.4 `JpaRepositoryRulesTest` — extended
+
+Existing `repositoriesAreTransactional` and `noJakartaTransactional` stay.
+
+| *new* rule | Intent |
+|---|---|
+| `repositoriesAreOnlyAccessedByAdapters` | repositories are reachable from `*Adapter` classes and other repositories only — the data-access decoupling the brief asks for, expressed without inventing a service layer (§3.4) |
+| `repositoriesDoNotDependOnWeb` | no `..rest` or `org.springframework.web..` dependency from a repository |
+
+### 7.5 `JpaEntityRulesTest` — extended, one rule relaxed
+
+| Rule | Fate |
+|---|---|
+| `jpaEntitiesAreAnnotatedWithEntityListeners`, `jpaEntitiesUseLombok`, `jpaEntitiesDeclareAllAuditingFields`, `jpaEntitiesExtendAuditable` | unchanged |
+| `jpaEntitiesHaveUuidIdField` | **relaxed**: drop the `@JsonIgnore` requirement from `ID_FIELD_ANNOTATIONS`; keep `@Id`, `@Column`, UUID type. Superseded by the stronger rule below |
+| `jpaEntitiesDoNotDependOnInfrastructure` | **extended** to also forbid `org.springframework.hateoas..` |
+| *new* `jpaEntitiesCarryNoJacksonAnnotations` | no `com.fasterxml.jackson..` / `tools.jackson..` annotation anywhere on an entity — DTOs own the wire format (§2.3) |
+| *new* `jpaEntitiesCarryNoBeanValidationAnnotations` | no `jakarta.validation..` annotation — validation lives on request DTOs (§5.4) |
+
+These two new rules are what make the §2.3 cleanup stick instead of drifting back.
+
+### 7.6 `NamingRulesTest` — rewritten
+
+Six of eight rules reference Spring Data REST. The house pattern is a bidirectional pair per type
+(name ⇒ annotation, annotation ⇒ name); keep it for each new component type.
+
+| Rule | Fate |
+|---|---|
+| `repositoryRestControllersAreNamedController` / `controllersAreRepositoryRestControllers` / `controllersLiveInRestPackages` | **retargeted** at type-level `@RequestMapping` |
+| `repositoryEventHandlersAreNamedHandler` / `handlersAreRepositoryEventHandlers` / `handlersLiveInHandlersPackages` | **deleted** |
+| `springDataRepositoriesAreInterfacesNamedRepository`, `repositoriesLiveInTheirAggregateRoot`, `entitiesDeclareAnExplicitTable` | unchanged, minus the `..handlers` reference |
+| *new* | `*Adapter` ⇄ implements `RepresentationModelAssembler`, in `..rest` |
+| *new* | `*Mapper` ⇄ `@Mapper`, in `..rest` |
+| *new* | `*Model` ⇄ extends `RepresentationModel`, in `..rest` |
+| *new* | `*Request` ⇄ record, in `..rest` |
+| *new* | `*Policy` in `..rest` |
+
+### 7.7 `LoggingRulesTest` — retargeted
+
+- `IS_SPRING_CONTROLLER` predicate: drop `@RepositoryRestController`, add type-level `@RequestMapping`.
+- `repositoryEventHandlersLogTheirEvents` → `adaptersAndPoliciesLogTheirDecisions`: every `*Adapter`
+  and `*Policy` carries `@Slf4j` and logs at least one line. This preserves the current property that
+  every authorization decision is traceable — the handlers all log today.
+
+### 7.8 `VerticalSliceRulesTest` — simplified
+
+- `kernelPackagesDoNotDependOnVerticalPackages`: **drop the `RepositoryRestConfigurer` exemption.**
+  It exists only for `RestExposureConfiguration`, which is deleted, so `config` becomes genuinely
+  feature-free — a strictly stronger rule for free.
+- Remove `..handlers` from `handlersAndRestPackagesContainNoPublicClasses`,
+  `handlersAndRestPackagesAreOnlyAccessedWithinTheirOwnAggregate` and `INTERNAL_PACKAGE_SUFFIX_*`;
+  rename both rules to the `..rest`-only form.
+
+### 7.9 `PersonRulesTest` — updated
+
+`REGISTRATION_HANDLERS` names `parent.handlers.ParentRegistrationHandler` and
+`teacher.handlers.TeacherRegistrationHandler`, neither of which will exist. Re-point at
+`parent.rest.ParentAdapter` and `teacher.rest.TeacherAdapter`. The rule fails loudly rather than
+silently if this is forgotten, which is the right failure mode.
+
+### 7.10 `SecurityRulesTest` — extended
+
+Existing two rules unchanged.
+
+| *new* rule | Intent |
+|---|---|
+| `preAuthorizeOnlyInRestPackages` | `@PreAuthorize` appears only in `..rest` — authorization stays at the boundary, next to the `SecurityFilterChain` matchers |
+
+### 7.11 `MigrationGuardRulesTest` — **new file**
+
+One rule, high value, deletable once the team is confident:
+
+```java
+noClasses().should().dependOnClassesThat().resideInAPackage("org.springframework.data.rest..")
+```
+
+Prevents Spring Data REST creeping back in through a stray import while the migration is in flight
+and after. Paired with a Checkstyle `IllegalImport` (§8) so it fails at two independent gates.
+
+### 7.12 Considered and rejected
+
+- **`slices().…should().beFreeOfCycles()`** — attractive and normally best practice, but `Parent` holds
+  `Set<Kid>` while `Kid` holds `Parent`, and `Classroom`/`Teacher`/`School` are similarly entangled by
+  design. The rule would fail on day one for reasons this migration does not cause and should not try
+  to fix. Revisit as a separate piece of work.
+- **Repositories as package-private** — would enforce §3.4 at compile time, but breaks the legitimate
+  cross-slice use in `PersonRoleAdapter` and would force a service layer for one call site.
+
+---
+
+## 8. Checkstyle
+
+`checkstyle.xml` deliberately owns "the lexical/formatting layer ArchUnit cannot see", so changes stay
+lexical. Everything below is additive — no existing module is removed or loosened.
+
+### 8.1 `checkstyle.xml`
+
+| Module | Why now |
+|---|---|
+| **`IllegalImport`** with `illegalPkgs="org.springframework.data.rest"` | the second, independent gate against Spring Data REST returning (§7.11). Fails with a clear message at `validate` time, before tests run |
+| **`RecordComponentName`** | the codebase has **no records today**; request DTOs introduce them and no naming check currently covers their components |
+| **`RecordTypeParameterName`** | same reason, completes the record naming set |
+| **`UnusedLocalVariable`** | adapters and mappers add a lot of intermediate locals; cheap hygiene, no expected churn on existing code |
+
+### 8.2 `checkstyle.xml` — proposed with a caveat
+
+| Module | Caveat |
+|---|---|
+| **`ClassFanOutComplexity`** (`max=25`) | Not currently enabled. Adapters legitimately collaborate with a repository, a mapper, a policy, a resolver and several models, so this is exactly the class that can quietly become a god object. A generous ceiling catches that without churn — but **measure against the finished Phase 2 slice before fixing the number**, and do not enable it before then |
+| **`OverloadMethodsDeclarationOrder`** | Good practice, but `PersonRoleController` and `TeacherSchoolMembership` already use overloads; verify against main sources before enabling |
+
+### 8.3 `checkstyle-architecture.xml`
+
+Mechanism unchanged (`JavadocVariable`, `accessModifiers=package`, scoped to the architecture package
+via its own execution). No config edit is needed — but note that it now applies to **~20 new
+`@ArchTest` fields across 3 new files**, each of which needs the house Javadoc block with Compliant
+and Violation examples. Budget for it; it is a meaningful share of §7's cost.
+
+### 8.4 Rejected
+
+- **Per-package Checkstyle executions** (e.g. banning `jakarta.persistence` imports inside `**/rest/**`
+  via a third config + `includes`): ArchUnit expresses this better and already does (§7.1, §7.2).
+  Two mechanisms for one rule is the opposite of the simplicity guideline.
+- **`MissingJavadocType` widening to package scope**: every new `..rest` class is package-private by
+  design, so widening the scope would demand Javadoc on ~40 new classes for no reader benefit.
+
+---
+
+## 9. Unit tests
+
+Currently 27 unit-test files (~3 400 lines) outside the Cucumber, architecture and `*IT` trees.
+Because pitest targets `edu.lyra.members.api.*` and `sonar.qualitygate.wait=true` is on, new adapters
+and controllers **must** arrive with unit tests or the build fails on mutation score — this list is
+not optional polish.
+
+### 9.1 Removed (1 file)
+
+| File | Why |
+|---|---|
+| `kid/KidsAssociationMethodsTest` | A `@SpringBootTest` that walks Spring Data REST's `ResourceMappings`/`RepositoryRestConfiguration` metadata to prove every `Kid` association endpoint rejects POST/PUT/PATCH. The metadata API disappears with the framework. **Replaced by** `kid/rest/KidAssociationRoutesTest` (§9.3) asserting the same guarantee through HTTP status codes instead of framework internals — a better test besides |
+
+### 9.2 Updated (18 files)
+
+**Direct Spring Data REST coupling (4):**
 
 | File | Change |
 |---|---|
-| `WebRulesTest` | `noPlainRestControllers` **inverts** (currently *forbids* `@RestController`); `mappedControllerMethodsAreNotPublic` re-targeted at the new controller marker; `handlerMethodsArePublic` deleted |
-| `NamingRulesTest` | 6 of 8 rules reference `@RepositoryRestController`/`@RepositoryEventHandler`; re-target at the new controller marker and `*Policy`/`*Service` conventions |
-| `VerticalSliceRulesTest` | drop the `RepositoryRestConfigurer` exemption in `kernelPackagesDoNotDependOnVerticalPackages` (it exists only for `RestExposureConfiguration`, which is deleted — `config` becomes genuinely feature-free); add `.policy` to the internal-package suffixes |
-| `LoggingRulesTest` | `IS_SPRING_CONTROLLER` must recognise the new marker; `repositoryEventHandlersLogTheirEvents` → policies/services |
-| `JpaEntityRulesTest` | `jpaEntitiesHaveUuidIdField` requires `@JsonIgnore` on ids — now redundant since DTOs guarantee no leakage. Keep (harmless) or relax deliberately |
-| `SpringBeanRulesTest` | unchanged if §5.7's recommendation is followed |
-| *new* | repositories may only be accessed from within their own aggregate (enforces §3's data-access decoupling) |
-| *new* | JPA entities must not appear in any controller signature (enforces the DTO boundary) |
+| `config/security/SpringSecurityConfigurationTest` | autowires `RepositoryRestConfiguration` for the base path → `ApiBasePath` |
+| `config/web/ProblemDetailsControllerAdviceTest` | `testRepositoryConstraintViolationErrorResponse` → `MethodArgumentNotValidException`; **add** cases for `HttpMessageNotReadableException` (malformed JSON → 400) and unresolvable association URI → 400 |
+| `person/rest/PersonUpdateControllerTest` | drop `verify(eventPublisher).publishEvent(any(BeforeSaveEvent.class))` / `AfterSaveEvent`; assert the policy was consulted instead |
+| `person/rest/PersonRoleControllerTest` | `@Qualifier("defaultConversionService") ConversionService` → `EntityUriResolver` |
 
-`checkstyle-architecture.xml` requires Javadoc on every `@ArchTest` field — new rules need it too.
+**The 14 handler tests → policy/adapter tests.** These are plain JUnit + Mockito + Instancio with
+`SecurityContextHolder` set up by hand; the assertions (`AccessDeniedException`, `ParentHasKidsException`,
+`SchoolMismatchException`, …) are about *behaviour*, not about Spring Data REST, so they port cheaply:
+
+| From | To | Extra work |
+|---|---|---|
+| `school/handlers/SchoolUpdateAuthorizationEventHandlerTest` | `school/rest/SchoolPolicyTest` | rename only |
+| `school/handlers/SchoolDeleteEventHandlerTest` | `school/rest/SchoolPolicyTest` | merge into one policy test |
+| `teacher/handlers/TeacherUpdateAuthorizationEventHandlerTest` | `teacher/rest/TeacherPolicyTest` | rename only |
+| `teacher/handlers/TeacherDeleteEventHandlerTest` | `teacher/rest/TeacherPolicyTest` | rename only |
+| `teacher/handlers/TeacherRegistrationHandlerTest` | `teacher/rest/TeacherAdapterTest` | becomes an adapter registration test |
+| `parent/handlers/ParentUpdateAuthorizationEventHandlerTest` | `parent/rest/ParentPolicyTest` | `authorizeKidBinding(parent, Object linked)` loses the untyped `Object` + `@SuppressWarnings("unchecked")` — signature becomes `(Parent, Collection<Kid>)` |
+| `parent/handlers/ParentDeleteEventHandlerTest` | `parent/rest/ParentPolicyTest` | rename only |
+| `parent/handlers/ParentRegistrationHandlerTest` | `parent/rest/ParentAdapterTest` | becomes an adapter registration test |
+| `kid/handlers/KidUpdateAuthorizationEventHandlerTest` | `kid/rest/KidPolicyTest` | **signature change**: `previousParentId`/`previousClassroomId` are deleted (§2.3), so the policy takes `(kid, newParent, newClassroom)` explicitly. The largest port at 204 lines, and the one to review most carefully |
+| `kid/handlers/KidDeleteAuthorizationEventHandlerTest` | `kid/rest/KidPolicyTest` | rename only |
+| `classroom/handlers/ClassroomUpdateAuthorizationEventHandlerTest` | `classroom/rest/ClassroomPolicyTest` | **signature change**: `previousTutorId` deleted → policy takes the current tutor explicitly |
+| `classroom/handlers/ClassroomDeleteEventHandlerTest` | `classroom/rest/ClassroomPolicyTest` | rename only |
+| `classroom/handlers/ClassroomTeacherAssignmentEventHandlerTest` | `classroom/rest/ClassroomAdapterTest` | invariant check moves to the adapter |
+
+**Unchanged in substance (2):** `kid/rest/ParentKidVisibilityStrategyTest` and
+`TeacherKidVisibilityStrategyTest` — the visibility strategies survive the migration untouched.
+
+**Untouched entirely (8):** the remaining `config/security/*` tests and `JpaAuditingTest` are
+framework-agnostic.
+
+### 9.3 Added (~26 files)
+
+**Shared web infrastructure (4):**
+
+| Test | Cases |
+|---|---|
+| `UriListHttpMessageConverterTest` | single URI; multiple URIs; trailing newline; blank lines; comment lines (`#`); non-`text/uri-list` content type not supported; empty body |
+| `EntityUriResolverTest` | valid absolute and relative URI; wrong collection prefix; non-UUID last segment; trailing slash; unknown id → empty; `null` |
+| `ApiBasePathTest` | property binding from `lyra.api.base-path`; prefix appears in a built link |
+| `RootControllerTest` | `GET /v0/` returns a link per collection |
+
+**Per aggregate × 6 (Parent, Kid, School, Teacher, Classroom, Person) — 18 files:**
+
+| Test | Cases |
+|---|---|
+| `<X>MapperTest` | request → entity; entity → model (fields only, no links); patch with `@MappingTarget` leaves absent fields untouched; null handling. Fast, no Spring context |
+| `<X>AdapterTest` | 404 when the entity is absent; **policy consulted before any mutation** (the §2.2 ordering contract, pinned at unit level rather than only in Cucumber); mapper invoked; `self` link present and `/v0`-prefixed; `@Relation` rel on collections |
+| `<X>ControllerTest` | status codes and headers in isolation with a mocked adapter: 201 + `Location`, 204, 400, 403, 404, 409, 422; `text/uri-list` endpoints reject `application/json` |
+
+**Route-shape guards (2):**
+
+| Test | Cases |
+|---|---|
+| `kid/rest/KidAssociationRoutesTest` | replaces `KidsAssociationMethodsTest`: POST/PUT/PATCH on `/v0/kids/{id}/parent` and `/v0/kids/{id}/classroom` → 405; GET → 200. Same guarantee, no framework internals |
+| `config/web/DisabledMethodsTest` | the item-level `PUT`s that `RestExposureConfiguration` disables today (parents, kids, teachers, schools, classrooms) and `POST /v0/persons` → 405, so the exposure rules survive as explicit assertions rather than vanishing with their configuration class |
+
+`DisabledMethodsTest` is worth calling out: `RestExposureConfiguration` is currently the *only*
+statement that those methods are closed, and no scenario covers them. Deleting it without this test
+would silently widen the API.
+
+### 9.4 Not changed
+
+Cucumber step definitions, `ScenarioContext`, `EntityFixtures`, `TestSecurityContext` and all four
+`*IT` tests stay as they are — they speak raw HTTP and reach the database through repositories, both
+of which survive. Any diff there during Phases 0–4 is a signal that the contract moved.
 
 ---
 
-## 8. Phased execution
+## 10. Phased execution
 
 Each phase ends green. Cucumber is the gate throughout.
 
-**Phase 0 — spikes (½ day).** On a throwaway branch, stand up one hard-coded `@RequestMapping`
-endpoint returning `PagedModel<EntityModel<SchoolResource>>` and resolve three questions:
-§5.5 (HAL is the default representation under Boot 4.1 / Jackson 3, and `@Relation` drives
-`_embedded.schools`), §5.6 (the `/v0` prefix appears in generated `self` links), and §5.7 (a
-`@RequestMapping`-only `@Bean` is picked up as a handler). Everything downstream depends on these
-three answers — none of them is worth discovering in Phase 3.
+**Phase 0 — spikes (½ day).** One hard-coded `@RequestMapping` endpoint returning
+`PagedModel<SchoolModel>` answering four questions: §5.5 (HAL default under Boot 4.1 / Jackson 3, and
+`@Relation` drives `_embedded.schools`), §5.6 (the `/v0` prefix reaches generated `self` links),
+§5.7 (a `@RequestMapping`-only `@Bean` is picked up as a handler), and §3.2 (whether MapStruct flags
+`links` on a `RepresentationModel` subclass). None is worth discovering in Phase 3.
 
 **Phase 1 — infrastructure, no behaviour change (1 day).** Swap the starters; add MapStruct and its
-processor path; add `ApiBasePath`, `UriListHttpMessageConverter`, `EntityUriResolver`; re-point
-`SpringSecurityConfiguration` off `RepositoryRestConfiguration`. Spring Data REST is still on the
-classpath and still serving — nothing breaks yet.
+processor path; add `ApiBasePath`, `UriListHttpMessageConverter`, `EntityUriResolver` with their unit
+tests (§9.3); re-point `SpringSecurityConfiguration` and `SpringSecurityConfigurationTest` off
+`RepositoryRestConfiguration`. Spring Data REST is still serving — nothing breaks yet.
 
-**Phase 2 — walking skeleton on one slice (1–2 days).** Migrate **School** first: smallest surface
-(4 features, 19 scenarios), no `text/uri-list`, no `Person` delegation, no visibility rules. Build
-the full stack — service, policy, DTOs, mapper, assembler, controller, slice config — and make
-`school/*.feature` pass with `RestExposureConfiguration` shadowing the generated `/v0/schools`
-routes. This proves the pattern end to end, including HAL rels and `page` metadata.
+**Phase 2 — walking skeleton on School (1–2 days).** Smallest surface: 19 scenarios, no
+`text/uri-list`, no `Person` delegation, no visibility rules. Build controller, adapter, mapper, model,
+requests, policy and slice config, plus the three new test classes, and make `school/*.feature` pass
+with `RestExposureConfiguration` still shadowing the generated routes. Then **measure the adapter's
+fan-out and fix the `ClassFanOutComplexity` ceiling** (§8.2). This phase decides the pattern.
 
-**Phase 3 — remaining slices (4–6 days), hardest last.**
-1. **Teacher** — introduces association-by-URI (`school`) and `Person` delegation.
-2. **Parent** — `Person` delegation + `text/uri-list` kid binding + the created-by check.
+**Phase 3 — remaining slices (5–7 days), hardest last.**
+1. **Teacher** — association-by-URI (`school`), `Person` delegation; **8 Gherkin lines** (§5.4).
+2. **Parent** — `Person` delegation, `text/uri-list` kid binding, created-by check; **8 Gherkin lines**.
 3. **Classroom** — school-mismatch invariant (422), tutor/teachers/kids sub-resources, 3 × `text/uri-list`.
-4. **Kid** — visibility strategies, URI-based re-parenting/enrolment, the most intricate
-   authorization rules (`kid/update.feature` alone has 11 scenarios).
-5. **Person** — mostly existing code; convert `@RepositoryRestController` → the new marker and drop
-   the `BeforeSaveEvent`/`AfterSaveEvent` publishing in `PersonUpdateController`.
+4. **Kid** — visibility strategies, URI-based re-parenting and enrolment, the most intricate policy
+   (`kid/update.feature` alone has 11 scenarios); `KidPolicyTest` is the largest port.
+5. **Person** — mostly existing code; convert the controllers and drop the `BeforeSaveEvent`/
+   `AfterSaveEvent` publishing.
 
-**Phase 4 — remove Spring Data REST (½ day).** Delete the starter, `RestExposureConfiguration`,
-`ValidationConfiguration` and all `*/handlers/**`. Rewrite the ArchUnit suite (§7). Delete the
-`previous*Id` transients (§2.3). This is the commit where it can no longer be half-migrated.
+**Phase 4 — remove Spring Data REST (1–1½ days).** Delete the starter, both `RepositoryRestConfigurer`s
+and all `*/handlers/**`. Add `DisabledMethodsTest` and `KidAssociationRoutesTest` **before** deleting
+`RestExposureConfiguration` and `KidsAssociationMethodsTest`, so the guarantees never lapse. Strip
+Jackson and Bean Validation annotations and the `previous*Id` transients from the entities (§2.3).
+Land the ArchUnit rewrite (§7) and the Checkstyle additions (§8) — including `MigrationGuardRulesTest`
+and the `IllegalImport`, which are what stop it coming back.
 
-**Phase 5 — contract cleanup (½ day, optional).** Apply §5.4 option (B) and update the ~20 Gherkin
-lines, as a separate reviewable commit.
-
-**Total: ~8–11 working days.**
-
----
-
-## 9. Test strategy
-
-- **Gherkin: do not touch** through Phases 0–4, except §5.4-(B) in Phase 5. Any change to a
-  `.feature` file during the migration is a red flag — it means the contract moved.
-- **Step definitions: do not touch.** They already speak raw HTTP (`get("/v0/kids")`,
-  `contentType("text/uri-list")`) and reach the DB through repositories, both of which survive.
-- **`*IT` tests: do not touch.** They assert `Location` headers and `_embedded.kids` against a real
-  Keycloak — the strongest end-to-end signal available. `KidIT` in particular exercises
-  create-parent → create-kid → parent-scoped list.
-- **Existing unit tests for handlers** (`*EventHandlerTest`, 13 files) port to the new policy classes
-  more or less mechanically — the assertions are about `AccessDeniedException`, not about
-  Spring Data REST.
-- **New unit tests needed:** mappers (URI ⇄ entity round-trip), `UriListHttpMessageConverter`,
-  `EntityUriResolver` (malformed URI → 400), assemblers (rel names + `self` href shape).
+**Total: ~9–12 working days**, of which roughly a quarter is the rules-and-tests work in §7–§9.
 
 ---
 
-## 10. Open decisions for you
+## 11. Decisions taken
 
-1. **§5.4** — keep `person.*` validation paths during the migration and clean up after (recommended),
-   or change the contract in one go?
-2. **§4** — reproduce the untested association GETs and `/v0/profile`, or drop them as a documented
-   breaking change?
-3. **§5.8** — is `ETag`/`If-Match` optimistic locking worth reimplementing, or is no client using it?
-4. **§3** — should repositories become slice-private (new ArchUnit rule), forcing `PersonRoleController`'s
-   cross-slice reads through services? Recommended, but it is a wider refactor than the migration
-   strictly needs.
+Recorded so the rationale is not re-litigated mid-migration.
+
+| # | Decision | Rationale |
+|---|---|---|
+| 1 | Hypermedia via **Spring HATEOAS**; `*Model extends RepresentationModel`, `*Request` stays a plain record | maintainer's call; inbound payloads have no links to carry (§3.2) |
+| 2 | An **adapter layer** sits between controllers and repositories and owns the translation | maintainer's call; matches the original brief's "MapStruct for adapters" (§3.1) |
+| 3 | **Validate request DTOs, not entities**; drop Bean Validation from entities; change 16 Gherkin lines | simplest code; `person.` was a leaked persistence detail (§5.4) |
+| 4 | Repositories stay public and cross-slice; decoupling enforced by "controllers never touch repositories" | avoids a service layer that would exist for one call site (§3.4) |
+| 5 | Reproduce association GETs; **drop `/v0/profile`**; reinstate `GET /v0/` | ALPS has no consumer here (§4) |
+| 6 | **No `ETag`/`If-Match`** reimplementation | untested, no known client; documented as a loss (§5.8) |
+| 7 | Controllers are `@RequestMapping`-only `@Bean`s, no stereotype | preserves the explicit-wiring convention (§5.7) |
+| 8 | **No slice cycle-freedom rule** | the entity graph is cyclic by design; out of scope (§7.12) |
