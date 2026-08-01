@@ -30,8 +30,14 @@ The codebase is already half-migrated: `KidsCollectionController`, `PersonUpdate
 in the way — direct evidence for the premise behind this migration.
 
 Size: **~68 new/modified main classes**, **17 ArchUnit rule files** (14 rewritten/extended, 3 new,
-~55 rules total), 2 Checkstyle configs, ~38 test files touched, 16 lines of Gherkin, 11 step-definition
-methods and 1 `*IT` method.
+~55 rules total), 2 Checkstyle configs, ~38 test files touched, 17 lines of Gherkin (16 for validation
+paths, 1 for a scope tightening), 12 step-definition methods and 1 `*IT` method.
+
+> **Read §11 first.** The security audit found **three live defects in `main`** that this migration
+> did not cause: `POST /v0/classrooms` is not scope-gated at all, no `*.delete` scope exists in the
+> identity provider so every DELETE endpoint is unreachable in a real deployment, and association
+> reads leak across scopes. They are fixable in a separate commit before Phase 1 and should not wait
+> for the migration.
 
 ---
 
@@ -287,7 +293,7 @@ Each becomes `location.substring(location.lastIndexOf('/') + 1)`, a helper these
 **Be honest about the safety cost.** For these endpoints this stops being a like-for-like migration
 and becomes a deliberate API redesign, with two consequences:
 
-1. Any existing client breaks. Confirm there is none before starting.
+1. Any existing client breaks. **Confirmed: there are none**, so this cost is zero.
 2. Where a step definition changes, the scenario stops being an independent regression net — a bug in
    the controller and a matching bug in the step definition would cancel out. `TeacherIT` normally
    backstops this, but it changes too.
@@ -716,6 +722,11 @@ of which survive. Any diff there during Phases 0–4 is a signal that the contra
 
 Each phase ends green. Cucumber is the gate throughout.
 
+**Phase −1 — live security fixes, on `main`, before anything else (½ day).** Independent of the
+migration and reviewable on its own: add the `POST /v0/classrooms` matcher (F1), add the seven missing
+scopes to `lyra-realm.json` (F2), narrow `/actuator/**` to health and info (F5), and add an `*IT`
+delete so F2 stays fixed. Do **not** bury these in a 70-class refactor.
+
 **Phase 0 — spikes (½ day).** One hard-coded `@RequestMapping` endpoint returning
 `PagedModel<SchoolModel>` answering four questions: §5.5 (HAL default under Boot 4.1 / Jackson 3, and
 `@Relation` drives `_embedded.schools`), §5.6 (the `/v0` prefix reaches generated `self` links),
@@ -744,20 +755,193 @@ fan-out and fix the `ClassFanOutComplexity` ceiling** (§8.2). This phase decide
 5. **Person** — mostly existing code; convert the controllers and drop the `BeforeSaveEvent`/
    `AfterSaveEvent` publishing.
 
-**Phase 4 — remove Spring Data REST (1–1½ days).** Delete the starter, both `RepositoryRestConfigurer`s
-and all `*/handlers/**`. Add `DisabledMethodsTest` and `KidAssociationRoutesTest` **before** deleting
-`RestExposureConfiguration` and `KidsAssociationMethodsTest`, so the guarantees never lapse. Strip
+**Phase 4 — remove Spring Data REST (1½–2 days).** Switch the chain to `.anyRequest().denyAll()` with
+the `DispatcherType.ERROR` allowance (§11.4) and land `EndpointCoverageTest` — the route table is
+final at this point, so this is where fail-closed becomes permanent. Delete the starter, both
+`RepositoryRestConfigurer`s and all `*/handlers/**`. Add `DisabledMethodsTest` and
+`KidAssociationRoutesTest` **before** deleting `RestExposureConfiguration` and
+`KidsAssociationMethodsTest`, so the guarantees never lapse. Strip
 Jackson and Bean Validation annotations and the `previous*Id` transients from the entities (§2.3).
 Land the ArchUnit rewrite (§7) and the Checkstyle additions (§8) — including `MigrationGuardRulesTest`
 and the `IllegalImport`, which are what stop it coming back.
 
-**Total: ~9–11 working days**, of which roughly a quarter is the rules-and-tests work in §7–§9.
-§5.1 is close to effort-neutral: it deletes two infrastructure classes and their tests, and adds
-11 step-definition edits plus new security matchers.
+**Total: ~10–12 working days** — Phase −1 (½ day) plus ~9–11 for the migration itself, of which
+roughly a quarter is the rules-and-tests work in §7–§9. §5.1 is close to effort-neutral: it deletes
+two infrastructure classes and their tests, and adds 11 step-definition edits plus new matchers.
+The §11 security work adds about a day, most of it filling out `SpringSecurityConfigurationTest` to
+one allow/deny pair per route.
 
 ---
 
-## 11. Decisions taken
+## 11. Security — every endpoint, every scope
+
+Treated as P0. The audit below covers the **complete** endpoint surface of §4, not just what changes.
+Three of the five findings are live in `main` today and are not caused by this migration.
+
+### 11.1 Findings
+
+**F1 — `POST /v0/classrooms` is not scope-gated. (live)**
+`SpringSecurityConfiguration` has `POST` matchers for parents, kids, schools and teachers — **not for
+classrooms**. The request falls through to `.anyRequest().authenticated()`, so **any authenticated
+token can create a classroom**. `classroom/create.feature` already declares the intent
+(`Given I am authenticated with "classrooms.create" scope`) but the chain never enforces it: the
+scenario passes because the scope happens to be present, and a token *without* it would succeed
+identically. The README's scope table records Classrooms create as "—", which the feature file
+contradicts.
+
+**F2 — no `*.delete` scope exists in the identity provider. (live)**
+`src/test/resources/keycloak/lyra-realm.json` defines exactly 14 scopes, and **not one is a delete
+scope**; `classrooms.create` and `persons.read` are absent too. The chain demands `parents.delete`,
+`kids.delete`, `schools.delete`, `teachers.delete` and `classrooms.delete`, so **all five DELETE
+endpoints are unreachable against the real IdP** — every request 403s. Neither suite catches it:
+Cucumber mints JWTs with arbitrary authorities via `jwt().authorities(…)`, and no `*IT` exercises a
+delete.
+
+**F3 — association reads leak across scopes. (live)**
+`GET /v0/classrooms/{id}/teachers` and `…/tutor` require only `classrooms.read` yet return teacher
+representations, so `classrooms.read` is a backdoor to the teacher directory. Each association GET
+being reinstated in §4 adds another instance — `/parents/{id}/kids` returns kid data under
+`parents.read`, `/schools/{id}/teachers` returns teacher data under `schools.read`, and so on.
+
+**F4 — the chain fails open. (structural)**
+`.anyRequest().authenticated()` means any route nobody remembered to enumerate is reachable by any
+valid token. F1 is an instance of it, and so was the `PUT /classrooms/{id}/teachers/{teacherId}` hole
+in §5.2.1. Every future endpoint inherits the same failure mode.
+
+**F5 — `/actuator/**` is entirely `permitAll`.** Only the health probes and `info` need to be
+anonymous; everything else the actuator may expose should not be.
+
+### 11.2 The rules the matrix follows
+
+Stated once so the table is derivable rather than memorised:
+
+1. **Write** on aggregate X → `SCOPE_x.<create|update|delete>`.
+2. **Read** returning X's representation → `SCOPE_x.read`.
+3. **Association read** returning Y's representation under X's path → **both** `x.read` **and**
+   `y.read`. This is what closes F3.
+4. **Association write** on X referencing Y by id → `x.update` **only**. The response is 204 with no
+   body, so nothing about Y is disclosed; requiring `y.read` would add ceremony to close only a weak
+   existence oracle (400 vs 204). Recorded deliberately rather than by omission.
+5. **Record-level entitlement** (admin / parent / teacher) stays *out* of the chain — it depends on
+   the record, not the route, and is enforced in `*Policy` via `AuthenticatedPrincipal`. The chain
+   answers "may this token touch this kind of resource at all"; the policy answers "may this caller
+   touch *this* one".
+6. **Default deny**, so a missing rule fails closed.
+
+### 11.3 The complete matrix
+
+Rows marked **new** did not exist or were not enforced before.
+
+| Method | Path | Required authority |
+|---|---|---|
+| GET | `/actuator/health/**`, `/actuator/info` | *anonymous* |
+| any | `/actuator/**` (anything else) | `denyAll` — **new** (F5) |
+| — | `DispatcherType.ERROR` | *permit* — **new** (§11.4) |
+| GET | `/v0/` | authenticated — **new** (root index) |
+| GET | `/v0/parents`, `/v0/parents/{id}` | `parents.read` |
+| GET | `/v0/parents/{id}/kids` | `parents.read` **+ `kids.read`** — **new** (F3) |
+| POST | `/v0/parents` | `parents.create` |
+| PATCH | `/v0/parents/{id}` | `parents.update` |
+| DELETE | `/v0/parents/{id}` | `parents.delete` |
+| PUT | `/v0/parents/{id}/kids/{kidId}` | `parents.update` — **new** (§5.2.1) |
+| GET | `/v0/kids`, `/v0/kids/{id}` | `kids.read` |
+| GET | `/v0/kids/{id}/parent` | `kids.read` **+ `parents.read`** — **new** |
+| GET | `/v0/kids/{id}/classroom` | `kids.read` **+ `classrooms.read`** — **new** |
+| POST | `/v0/kids` | `kids.create` |
+| PATCH | `/v0/kids/{id}` | `kids.update` |
+| DELETE | `/v0/kids/{id}` | `kids.delete` |
+| GET | `/v0/schools`, `/v0/schools/{id}` | `schools.read` |
+| GET | `/v0/schools/{id}/classrooms` | `schools.read` **+ `classrooms.read`** — **new** |
+| GET | `/v0/schools/{id}/teachers` | `schools.read` **+ `teachers.read`** — **new** |
+| POST | `/v0/schools` | `schools.create` |
+| PATCH | `/v0/schools/{id}` | `schools.update` |
+| DELETE | `/v0/schools/{id}` | `schools.delete` |
+| GET | `/v0/teachers`, `/v0/teachers/{id}` | `teachers.read` |
+| GET | `/v0/teachers/{id}/school` | `teachers.read` **+ `schools.read`** — **new** |
+| POST | `/v0/teachers` | `teachers.create` |
+| PATCH | `/v0/teachers/{id}` | `teachers.update` |
+| DELETE | `/v0/teachers/{id}` | `teachers.delete` |
+| GET | `/v0/classrooms`, `/v0/classrooms/{id}` | `classrooms.read` |
+| GET | `/v0/classrooms/{id}/school` | `classrooms.read` **+ `schools.read`** — **new** |
+| GET | `/v0/classrooms/{id}/teachers` | `classrooms.read` **+ `teachers.read`** — **new** (F3) |
+| GET | `/v0/classrooms/{id}/tutor` | `classrooms.read` **+ `teachers.read`** — **new** (F3) |
+| POST | `/v0/classrooms` | **`classrooms.create`** — **new** (F1) |
+| PATCH | `/v0/classrooms/{id}` | `classrooms.update` |
+| DELETE | `/v0/classrooms/{id}` | `classrooms.delete` |
+| PUT | `/v0/classrooms/{id}/tutor` | `classrooms.update` |
+| PUT | `/v0/classrooms/{id}/teachers/{teacherId}` | `classrooms.update` — **new** (§5.2.1) |
+| PUT | `/v0/classrooms/{id}/kids/{kidId}` | `classrooms.update` — **new** (§5.2.1) |
+| GET | `/v0/persons`, `/v0/persons/{id}` | **`persons.read`** + `ROLE_admin` — **new scope** |
+| PUT / DELETE | `/v0/persons/{id}/parent` | `parents.create` + `ROLE_admin` |
+| PUT / DELETE | `/v0/persons/{id}/teacher` | `teachers.create` + `ROLE_admin` |
+| **any** | **anything else** | **`denyAll`** — **new** (F4) |
+
+The `ROLE_admin` half of the `persons` rows stays where it already is, as `@PreAuthorize` on the
+controller; the chain owns the scope. Two layers, each in its natural place, neither duplicated.
+
+### 11.4 Chain construction notes
+
+- **`.anyRequest().denyAll()`** replaces `.authenticated()`. This is the single highest-value change:
+  it converts F1, F4 and the §5.2.1 hole from silent holes into startup-visible 403s.
+- **`.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()` must come first.** Boot's default
+  `spring.security.filter.dispatcher-types` is `REQUEST, ASYNC, ERROR`, so under `denyAll` the
+  `/error` dispatch would itself be denied and every 4xx would render as an empty 403 instead of the
+  intended ProblemDetail. This bites hard and is easy to misdiagnose.
+- **AND-composition:** there is no `hasAllAuthorities`. Use
+  `.access(AuthorizationManagers.allOf(AuthorityAuthorizationManager.hasAuthority("SCOPE_classrooms.read"),
+  AuthorityAuthorizationManager.hasAuthority("SCOPE_teachers.read")))`.
+- **Specific before wildcard**, since matching is first-match-wins: `/classrooms/*/teachers/*` and
+  `/classrooms/*/tutor` must precede `/classrooms/**`. The same ordering constraint is what makes a
+  future association `DELETE` demand `classrooms.delete` if registered carelessly (§5.2.1).
+- The base path comes from `ApiBasePath`, not `RepositoryRestConfiguration` (§5.6).
+- The existing `path(...)`/`scope(...)` helpers extend naturally; add `ANY_SEGMENT`-based constants
+  for the new two-segment association paths.
+
+### 11.5 Identity-provider changes (fixes F2)
+
+`src/test/resources/keycloak/lyra-realm.json` needs **seven** new client scopes:
+`parents.delete`, `kids.delete`, `schools.delete`, `teachers.delete`, `classrooms.delete`,
+`classrooms.create`, `persons.read` — assigned to the test clients that need them. Without this,
+every DELETE endpoint stays unreachable in any real deployment and the new `classrooms.create` gate
+would lock out legitimate callers.
+
+Worth checking the production realm too: this file is the test fixture, but its shape suggests the
+same scopes were never provisioned anywhere.
+
+### 11.6 Test coverage
+
+| Test | Change |
+|---|---|
+| `SpringSecurityConfigurationTest` | today it covers a handful of creates plus actuator health. Extend to **one allow/deny pair per row** of §11.3. This is the file that would have caught F1 |
+| `EndpointCoverageTest` *(new)* | enumerate every `RequestMappingHandlerMapping` entry and assert each is matched by a rule **other than** the `denyAll` fallback. Turns F4 from "hope someone remembers" into a failing build, permanently |
+| `*IT` | add a delete for at least one aggregate, so the realm's delete scopes are exercised against real Keycloak. This is the **only** place F2 can be caught — Cucumber cannot, because it fabricates authorities |
+| ArchUnit | `preAuthorizeOnlyInRestPackages` (§7.10) keeps role checks at the boundary |
+
+`EndpointCoverageTest` is the structural fix; everything else in this section is a point fix.
+
+### 11.7 Gherkin and step-definition impact
+
+- **F1:** zero — `classroom/create.feature` already grants `classrooms.create`.
+- **F3: one line.** `classroom/bind/teacher.feature`'s Background becomes
+  `Given I am authenticated with "classrooms.read teachers.read" scope`. It affects 3 scenarios —
+  "Get a classroom's teachers", "Get a classroom's tutor", and "Cannot get a classroom's tutor when
+  none has been assigned" (whose expected 404 would otherwise become a 403).
+- **One step-definition change:** `AuthenticationFeatures.iAmAuthenticatedWithScope` splits its
+  argument on whitespace, so `"classrooms.read teachers.read"` grants both. That is how an OAuth2
+  scope string is written anyway, so the Gherkin stays readable and no new step is needed. Apply the
+  same split to the other three `I am authenticated…` steps for consistency.
+- The reinstated association GETs (`/parents/{id}/kids`, `/kids/{id}/parent`, …) have **no scenarios
+  at all** today. Add one read scenario each, or at minimum the `SpringSecurityConfigurationTest`
+  rows — otherwise they ship untested.
+
+### 11.8 Sequencing
+
+F1, F2 and F5 are **live defects independent of this migration**. Fix them in a **separate commit on
+`main` before Phase 1**, so the fix is reviewable on its own and does not arrive buried in a 70-class
+refactor. F3, F4 and the new matchers land with the slices that create them, and
+`EndpointCoverageTest` lands in Phase 4 once the route table is final.
+
+## 12. Decisions taken
 
 Recorded so the rationale is not re-litigated mid-migration.
 
@@ -769,6 +953,9 @@ Recorded so the rationale is not re-litigated mid-migration.
 | 4 | Repositories stay public and cross-slice; decoupling enforced by "controllers never touch repositories" | avoids a service layer that would exist for one call site (§3.4) |
 | 5 | Reproduce association GETs; **drop `/v0/profile`**; reinstate `GET /v0/` | ALPS has no consumer here (§4) |
 | 9 | **Drop URI-based association references and `text/uri-list`**; expose `id` on models; associations referenced by id; membership via `PUT …/{rel}/{id}` | neither is part of HATEOAS — one is an SDR idiom, the other has no standard basis; deletes 2 classes and 2 test classes; zero Gherkin churn (§5.1) |
+| 10 | **Breaking API changes are acceptable** | confirmed: there are no clients |
+| 11 | **The chain defaults to `denyAll`**; association *reads* need both scopes, association *writes* only the owner's write scope | a missing matcher must fail closed — that is what allowed F1 and the §5.2.1 hole; reads disclose the other aggregate's data, 204 writes do not (§11.2) |
+| 12 | **Live security defects are fixed on `main` first**, not inside the migration | F1/F2/F5 predate this work and should be reviewable without a 70-class diff (§11.8) |
 | 6 | **No `ETag`/`If-Match`** reimplementation | untested, no known client; documented as a loss (§5.8) |
 | 7 | Controllers are `@RequestMapping`-only `@Bean`s, no stereotype | preserves the explicit-wiring convention (§5.7) |
 | 8 | **No slice cycle-freedom rule** | the entity graph is cyclic by design; out of scope (§7.12) |
