@@ -4,9 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.school.School;
 import edu.lyra.members.api.school.SchoolRepository;
+import edu.lyra.members.api.teacher.Teacher;
+import edu.lyra.members.api.teacher.TeacherRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +47,12 @@ class SchoolAdapterTest {
     @Mock
     private SchoolRepository repository;
 
+    @Mock
+    private TeacherRepository teacherRepository;
+
+    @Mock
+    private ClassroomRepository classroomRepository;
+
     private final SchoolMapper mapper = Mappers.getMapper(SchoolMapper.class);
 
     private SchoolPolicy policy;
@@ -51,8 +61,11 @@ class SchoolAdapterTest {
 
     @BeforeEach
     void setUp() {
-        this.policy  = mock(SchoolPolicy.class);
-        this.adapter = new SchoolAdapter(this.repository, this.mapper, this.policy, new ApiBasePath("/v0"));
+        this.policy = mock(SchoolPolicy.class);
+        //@formatter:off
+        this.adapter = new SchoolAdapter(this.repository, this.teacherRepository, this.classroomRepository,
+                                         this.mapper, this.policy, new ApiBasePath("/v0"));
+        //@formatter:on
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
 
@@ -167,6 +180,40 @@ class SchoolAdapterTest {
         doThrow(new AccessDeniedException("nope")).when(this.policy).authorizeDelete(school);
         assertThrows(AccessDeniedException.class, () -> this.adapter.delete(id));
         verify(this.repository, never()).delete(any());
+    }
+
+    @Test
+    void findByTeacherReturnsEmptyWhenTheTeacherDoesNotExist() {
+        final UUID id = UUID.randomUUID();
+        when(this.teacherRepository.findById(id)).thenReturn(Optional.empty());
+        assertEquals(Optional.empty(), this.adapter.findByTeacher(id));
+    }
+
+    @Test
+    void findByTeacherReturnsTheTeachersSchool() {
+        final UUID    id      = UUID.randomUUID();
+        final School  school  = aSchool("Gloria Fuertes");
+        final Teacher teacher = new Teacher();
+        teacher.setSchool(school);
+        when(this.teacherRepository.findById(id)).thenReturn(Optional.of(teacher));
+        assertEquals("Gloria Fuertes", this.adapter.findByTeacher(id).orElseThrow().getName());
+    }
+
+    @Test
+    void findByClassroomReturnsEmptyWhenTheClassroomDoesNotExist() {
+        final UUID id = UUID.randomUUID();
+        when(this.classroomRepository.findById(id)).thenReturn(Optional.empty());
+        assertEquals(Optional.empty(), this.adapter.findByClassroom(id));
+    }
+
+    @Test
+    void findByClassroomReturnsTheClassroomsSchool() {
+        final UUID      id        = UUID.randomUUID();
+        final School    school    = aSchool("Gloria Fuertes");
+        final Classroom classroom = new Classroom();
+        classroom.setSchool(school);
+        when(this.classroomRepository.findById(id)).thenReturn(Optional.of(classroom));
+        assertEquals("Gloria Fuertes", this.adapter.findByClassroom(id).orElseThrow().getName());
     }
 
 }

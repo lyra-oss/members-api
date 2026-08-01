@@ -3,9 +3,13 @@ package edu.lyra.members.api.school.rest;
 import java.util.Optional;
 import java.util.UUID;
 
+import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.school.School;
 import edu.lyra.members.api.school.SchoolRepository;
+import edu.lyra.members.api.teacher.Teacher;
+import edu.lyra.members.api.teacher.TeacherRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -17,21 +21,27 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 class SchoolAdapter
         implements RepresentationModelAssembler<School, SchoolModel> {
 
-    private final SchoolRepository repository;
-    private final SchoolMapper     mapper;
-    private final SchoolPolicy     policy;
-    private final ApiBasePath      apiBasePath;
+    private final SchoolRepository    repository;
+    private final TeacherRepository   teacherRepository;
+    private final ClassroomRepository classroomRepository;
+    private final SchoolMapper        mapper;
+    private final SchoolPolicy        policy;
+    private final ApiBasePath         apiBasePath;
 
     SchoolAdapter(
             final SchoolRepository repository,
+            final TeacherRepository teacherRepository,
+            final ClassroomRepository classroomRepository,
             final SchoolMapper mapper,
             final SchoolPolicy policy,
             final ApiBasePath apiBasePath
     ) {
-        this.repository  = repository;
-        this.mapper      = mapper;
-        this.policy      = policy;
-        this.apiBasePath = apiBasePath;
+        this.repository          = repository;
+        this.teacherRepository   = teacherRepository;
+        this.classroomRepository = classroomRepository;
+        this.mapper              = mapper;
+        this.policy              = policy;
+        this.apiBasePath         = apiBasePath;
     }
 
     @Override
@@ -64,6 +74,14 @@ class SchoolAdapter
     PagedModel<SchoolModel> findAll(final Pageable pageable, final PagedResourcesAssembler<School> pagedAssembler) {
         final Page<School> page = this.repository.findAll(pageable);
         return pagedAssembler.toModel(page, this);
+    }
+
+    Optional<SchoolModel> findByTeacher(final UUID teacherId) {
+        return this.teacherRepository.findById(teacherId).map(Teacher::getSchool).map(this::toModel);
+    }
+
+    Optional<SchoolModel> findByClassroom(final UUID classroomId) {
+        return this.classroomRepository.findById(classroomId).map(Classroom::getSchool).map(this::toModel);
     }
 
     SchoolModel create(final SchoolRequest request) {

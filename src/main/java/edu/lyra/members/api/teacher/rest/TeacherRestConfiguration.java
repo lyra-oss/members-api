@@ -27,11 +27,15 @@ class TeacherRestConfiguration {
             final TeacherRepository teacherRepository,
             final SchoolRepository schoolRepository,
             final PersonRepository personRepository,
+            final ClassroomRepository classroomRepository,
             final TeacherMapper mapper,
             final TeacherPolicy policy,
             final ApiBasePath apiBasePath
     ) {
-        return new TeacherAdapter(teacherRepository, schoolRepository, personRepository, mapper, policy, apiBasePath);
+        //@formatter:off
+        return new TeacherAdapter(teacherRepository, schoolRepository, personRepository, classroomRepository, mapper,
+                                  policy, apiBasePath);
+        //@formatter:on
     }
 
 }

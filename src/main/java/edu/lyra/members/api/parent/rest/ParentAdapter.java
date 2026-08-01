@@ -72,6 +72,10 @@ class ParentAdapter
         return pagedAssembler.toModel(page, this);
     }
 
+    Optional<ParentModel> findByKid(final UUID kidId) {
+        return this.kidRepository.findById(kidId).map(Kid::getParent).map(this::toModel);
+    }
+
     // Mirrors the original ParentRegistrationHandler: if the authenticated subject already has a
     // Person record (e.g. they registered as a teacher first), that existing identity wins over
     // whatever name/surname/mail this request supplied; otherwise a new Person is created from the

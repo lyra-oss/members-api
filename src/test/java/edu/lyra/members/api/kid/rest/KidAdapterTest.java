@@ -299,4 +299,28 @@ class KidAdapterTest {
         verify(this.kidRepository, never()).delete(any());
     }
 
+    @Test
+    void findByParentReturnsEmptyWhenTheParentDoesNotExist() {
+        final UUID parentId = UUID.randomUUID();
+        when(this.parentRepository.existsById(parentId)).thenReturn(false);
+        final Pageable pageable = PageRequest.of(0, 20);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Kid> pagedAssembler = mock(PagedResourcesAssembler.class);
+        assertEquals(Optional.empty(), this.adapter.findByParent(parentId, pageable, pagedAssembler));
+    }
+
+    @Test
+    void findByParentReturnsThePagedKids() {
+        final UUID parentId = UUID.randomUUID();
+        when(this.parentRepository.existsById(parentId)).thenReturn(true);
+        final Pageable pageable = PageRequest.of(0, 20);
+        final Page<Kid> page = new PageImpl<>(List.of(aKid("Alicia")));
+        when(this.kidRepository.findByParentIdOrderByNameAsc(parentId, pageable)).thenReturn(page);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Kid> pagedAssembler = mock(PagedResourcesAssembler.class);
+        final PagedModel<KidModel> expected = PagedModel.empty();
+        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
+        assertEquals(expected, this.adapter.findByParent(parentId, pageable, pagedAssembler).orElseThrow());
+    }
+
 }

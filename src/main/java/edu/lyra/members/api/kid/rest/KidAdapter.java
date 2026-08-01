@@ -77,6 +77,18 @@ class KidAdapter
         return pagedAssembler.toModel(page, this);
     }
 
+    Optional<PagedModel<KidModel>> findByParent(
+            final UUID parentId,
+            final Pageable pageable,
+            final PagedResourcesAssembler<Kid> pagedAssembler
+    ) {
+        if(! this.parentRepository.existsById(parentId)) {
+            return Optional.empty();
+        }
+        final Page<Kid> page = this.kidRepository.findByParentIdOrderByNameAsc(parentId, pageable);
+        return Optional.of(pagedAssembler.toModel(page, this));
+    }
+
     // Mirrors the original KidAuthorizationEventHandler: a kid can only be registered under the
     // authenticated caller's own parent account.
     KidModel create(final KidRequest request) {

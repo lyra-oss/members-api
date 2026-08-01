@@ -3,6 +3,8 @@ package edu.lyra.members.api.teacher.rest;
 import java.util.Optional;
 import java.util.UUID;
 
+import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
 import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
@@ -23,27 +25,30 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 class TeacherAdapter
         implements RepresentationModelAssembler<Teacher, TeacherModel> {
 
-    private final TeacherRepository teacherRepository;
-    private final SchoolRepository  schoolRepository;
-    private final PersonRepository  personRepository;
-    private final TeacherMapper     mapper;
-    private final TeacherPolicy     policy;
-    private final ApiBasePath       apiBasePath;
+    private final TeacherRepository   teacherRepository;
+    private final SchoolRepository    schoolRepository;
+    private final PersonRepository    personRepository;
+    private final ClassroomRepository classroomRepository;
+    private final TeacherMapper       mapper;
+    private final TeacherPolicy       policy;
+    private final ApiBasePath         apiBasePath;
 
     TeacherAdapter(
             final TeacherRepository teacherRepository,
             final SchoolRepository schoolRepository,
             final PersonRepository personRepository,
+            final ClassroomRepository classroomRepository,
             final TeacherMapper mapper,
             final TeacherPolicy policy,
             final ApiBasePath apiBasePath
     ) {
-        this.teacherRepository = teacherRepository;
-        this.schoolRepository  = schoolRepository;
-        this.personRepository  = personRepository;
-        this.mapper            = mapper;
-        this.policy            = policy;
-        this.apiBasePath       = apiBasePath;
+        this.teacherRepository   = teacherRepository;
+        this.schoolRepository    = schoolRepository;
+        this.personRepository    = personRepository;
+        this.classroomRepository = classroomRepository;
+        this.mapper              = mapper;
+        this.policy              = policy;
+        this.apiBasePath         = apiBasePath;
     }
 
     @Override
@@ -71,6 +76,34 @@ class TeacherAdapter
     PagedModel<TeacherModel> findAll(final Pageable pageable, final PagedResourcesAssembler<Teacher> pagedAssembler) {
         final Page<Teacher> page = this.teacherRepository.findAll(pageable);
         return pagedAssembler.toModel(page, this);
+    }
+
+    Optional<PagedModel<TeacherModel>> findBySchool(
+            final UUID schoolId,
+            final Pageable pageable,
+            final PagedResourcesAssembler<Teacher> pagedAssembler
+    ) {
+        if(! this.schoolRepository.existsById(schoolId)) {
+            return Optional.empty();
+        }
+        final Page<Teacher> page = this.teacherRepository.findBySchoolId(schoolId, pageable);
+        return Optional.of(pagedAssembler.toModel(page, this));
+    }
+
+    Optional<PagedModel<TeacherModel>> findByClassroom(
+            final UUID classroomId,
+            final Pageable pageable,
+            final PagedResourcesAssembler<Teacher> pagedAssembler
+    ) {
+        if(! this.classroomRepository.existsById(classroomId)) {
+            return Optional.empty();
+        }
+        final Page<Teacher> page = this.teacherRepository.findByClassroomId(classroomId, pageable);
+        return Optional.of(pagedAssembler.toModel(page, this));
+    }
+
+    Optional<TeacherModel> findTutorOf(final UUID classroomId) {
+        return this.classroomRepository.findById(classroomId).map(Classroom::getTutor).map(this::toModel);
     }
 
     // Mirrors the original TeacherRegistrationHandler: if the authenticated subject already has a

@@ -433,4 +433,54 @@ class ClassroomAdapterTest {
         verify(this.kidRepository, never()).save(any());
     }
 
+    @Test
+    void findByKidReturnsEmptyWhenTheKidDoesNotExist() {
+        final UUID kidId = UUID.randomUUID();
+        when(this.kidRepository.findById(kidId)).thenReturn(Optional.empty());
+        assertEquals(Optional.empty(), this.adapter.findByKid(kidId));
+    }
+
+    @Test
+    void findByKidReturnsEmptyWhenTheKidHasNoClassroom() {
+        final Kid kid = new Kid();
+        ReflectionTestUtils.setField(kid, "id", UUID.randomUUID());
+        when(this.kidRepository.findById(kid.getId())).thenReturn(Optional.of(kid));
+        assertEquals(Optional.empty(), this.adapter.findByKid(kid.getId()));
+    }
+
+    @Test
+    void findByKidReturnsTheClassroom() {
+        final Classroom classroom = aClassroom(aSchool());
+        final Kid       kid       = new Kid();
+        ReflectionTestUtils.setField(kid, "id", UUID.randomUUID());
+        kid.setClassroom(classroom);
+        when(this.kidRepository.findById(kid.getId())).thenReturn(Optional.of(kid));
+        assertEquals(3, this.adapter.findByKid(kid.getId()).orElseThrow().getCourse());
+    }
+
+    @Test
+    void findBySchoolReturnsEmptyWhenTheSchoolDoesNotExist() {
+        final UUID schoolId = UUID.randomUUID();
+        when(this.schoolRepository.existsById(schoolId)).thenReturn(false);
+        final Pageable pageable = PageRequest.of(0, 20);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Classroom> pagedAssembler = mock(PagedResourcesAssembler.class);
+        assertEquals(Optional.empty(), this.adapter.findBySchool(schoolId, pageable, pagedAssembler));
+    }
+
+    @Test
+    void findBySchoolReturnsThePagedClassrooms() {
+        final School school   = aSchool();
+        final UUID   schoolId = school.getId();
+        when(this.schoolRepository.existsById(schoolId)).thenReturn(true);
+        final Pageable pageable = PageRequest.of(0, 20);
+        final Page<Classroom> page = new PageImpl<>(List.of(aClassroom(school)));
+        when(this.classroomRepository.findBySchoolId(schoolId, pageable)).thenReturn(page);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Classroom> pagedAssembler = mock(PagedResourcesAssembler.class);
+        final PagedModel<ClassroomModel> expected = PagedModel.empty();
+        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
+        assertEquals(expected, this.adapter.findBySchool(schoolId, pageable, pagedAssembler).orElseThrow());
+    }
+
 }

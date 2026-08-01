@@ -271,4 +271,27 @@ class ParentAdapterTest {
         verify(this.kidRepository, never()).save(any());
     }
 
+    @Test
+    void findByKidReturnsEmptyWhenTheKidDoesNotExist() {
+        final UUID kidId = UUID.randomUUID();
+        when(this.kidRepository.findById(kidId)).thenReturn(Optional.empty());
+        assertEquals(Optional.empty(), this.adapter.findByKid(kidId));
+    }
+
+    @Test
+    void findByKidReturnsEmptyWhenTheKidHasNoParent() {
+        final Kid kid = aKid();
+        when(this.kidRepository.findById(kid.getId())).thenReturn(Optional.of(kid));
+        assertEquals(Optional.empty(), this.adapter.findByKid(kid.getId()));
+    }
+
+    @Test
+    void findByKidReturnsTheParent() {
+        final Parent parent = aParent("Esteban");
+        final Kid    kid    = aKid();
+        kid.setParent(parent);
+        when(this.kidRepository.findById(kid.getId())).thenReturn(Optional.of(kid));
+        assertEquals("Esteban", this.adapter.findByKid(kid.getId()).orElseThrow().getName());
+    }
+
 }

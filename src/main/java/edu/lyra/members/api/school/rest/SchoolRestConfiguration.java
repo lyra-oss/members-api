@@ -1,7 +1,9 @@
 package edu.lyra.members.api.school.rest;
 
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.school.SchoolRepository;
+import edu.lyra.members.api.teacher.TeacherRepository;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +24,13 @@ class SchoolRestConfiguration {
     @Bean
     SchoolAdapter schoolAdapter(
             final SchoolRepository repository,
+            final TeacherRepository teacherRepository,
+            final ClassroomRepository classroomRepository,
             final SchoolMapper mapper,
             final SchoolPolicy policy,
             final ApiBasePath apiBasePath
     ) {
-        return new SchoolAdapter(repository, mapper, policy, apiBasePath);
+        return new SchoolAdapter(repository, teacherRepository, classroomRepository, mapper, policy, apiBasePath);
     }
 
 }

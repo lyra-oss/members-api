@@ -81,6 +81,22 @@ class ClassroomAdapter
         return pagedAssembler.toModel(page, this);
     }
 
+    Optional<ClassroomModel> findByKid(final UUID kidId) {
+        return this.kidRepository.findById(kidId).map(Kid::getClassroom).map(this::toModel);
+    }
+
+    Optional<PagedModel<ClassroomModel>> findBySchool(
+            final UUID schoolId,
+            final Pageable pageable,
+            final PagedResourcesAssembler<Classroom> pagedAssembler
+    ) {
+        if(! this.schoolRepository.existsById(schoolId)) {
+            return Optional.empty();
+        }
+        final Page<Classroom> page = this.classroomRepository.findBySchoolId(schoolId, pageable);
+        return Optional.of(pagedAssembler.toModel(page, this));
+    }
+
     ClassroomModel create(final ClassroomRequest request) {
         final School school = this.schoolRepository.findById(request.school()).orElseThrow(
                 () -> new UnresolvableReferenceException("No school found with id " + request.school()));

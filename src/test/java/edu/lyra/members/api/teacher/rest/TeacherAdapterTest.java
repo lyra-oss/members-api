@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
 import edu.lyra.members.api.person.Person;
@@ -59,6 +61,9 @@ class TeacherAdapterTest {
     @Mock
     private PersonRepository personRepository;
 
+    @Mock
+    private ClassroomRepository classroomRepository;
+
     private final TeacherMapper mapper = Mappers.getMapper(TeacherMapper.class);
 
     private TeacherPolicy policy;
@@ -68,8 +73,10 @@ class TeacherAdapterTest {
     @BeforeEach
     void setUp() {
         this.policy = mock(TeacherPolicy.class);
+        //@formatter:off
         this.adapter = new TeacherAdapter(this.teacherRepository, this.schoolRepository, this.personRepository,
-                                          this.mapper, this.policy, new ApiBasePath("/v0"));
+                                          this.classroomRepository, this.mapper, this.policy, new ApiBasePath("/v0"));
+        //@formatter:on
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
 
@@ -238,6 +245,79 @@ class TeacherAdapterTest {
         doThrow(new AccessDeniedException("nope")).when(this.policy).authorizeDelete(teacher);
         assertThrows(AccessDeniedException.class, () -> this.adapter.delete(id));
         verify(this.teacherRepository, never()).delete(any());
+    }
+
+    @Test
+    void findBySchoolReturnsEmptyWhenTheSchoolDoesNotExist() {
+        final UUID id = UUID.randomUUID();
+        when(this.schoolRepository.existsById(id)).thenReturn(false);
+        final Pageable pageable = PageRequest.of(0, 20);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Teacher> pagedAssembler = mock(PagedResourcesAssembler.class);
+        assertEquals(Optional.empty(), this.adapter.findBySchool(id, pageable, pagedAssembler));
+    }
+
+    @Test
+    void findBySchoolReturnsThePagedTeachers() {
+        final UUID id = UUID.randomUUID();
+        when(this.schoolRepository.existsById(id)).thenReturn(true);
+        final Pageable pageable = PageRequest.of(0, 20);
+        final Page<Teacher> page = new PageImpl<>(List.of(aTeacher("Marta")));
+        when(this.teacherRepository.findBySchoolId(id, pageable)).thenReturn(page);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Teacher> pagedAssembler = mock(PagedResourcesAssembler.class);
+        final PagedModel<TeacherModel> expected = PagedModel.empty();
+        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
+        assertEquals(expected, this.adapter.findBySchool(id, pageable, pagedAssembler).orElseThrow());
+    }
+
+    @Test
+    void findByClassroomReturnsEmptyWhenTheClassroomDoesNotExist() {
+        final UUID id = UUID.randomUUID();
+        when(this.classroomRepository.existsById(id)).thenReturn(false);
+        final Pageable pageable = PageRequest.of(0, 20);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Teacher> pagedAssembler = mock(PagedResourcesAssembler.class);
+        assertEquals(Optional.empty(), this.adapter.findByClassroom(id, pageable, pagedAssembler));
+    }
+
+    @Test
+    void findByClassroomReturnsThePagedTeachers() {
+        final UUID id = UUID.randomUUID();
+        when(this.classroomRepository.existsById(id)).thenReturn(true);
+        final Pageable pageable = PageRequest.of(0, 20);
+        final Page<Teacher> page = new PageImpl<>(List.of(aTeacher("Marta")));
+        when(this.teacherRepository.findByClassroomId(id, pageable)).thenReturn(page);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Teacher> pagedAssembler = mock(PagedResourcesAssembler.class);
+        final PagedModel<TeacherModel> expected = PagedModel.empty();
+        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
+        assertEquals(expected, this.adapter.findByClassroom(id, pageable, pagedAssembler).orElseThrow());
+    }
+
+    @Test
+    void findTutorOfReturnsEmptyWhenTheClassroomDoesNotExist() {
+        final UUID id = UUID.randomUUID();
+        when(this.classroomRepository.findById(id)).thenReturn(Optional.empty());
+        assertEquals(Optional.empty(), this.adapter.findTutorOf(id));
+    }
+
+    @Test
+    void findTutorOfReturnsEmptyWhenNoTutorIsSet() {
+        final UUID      id        = UUID.randomUUID();
+        final Classroom classroom = new Classroom();
+        when(this.classroomRepository.findById(id)).thenReturn(Optional.of(classroom));
+        assertEquals(Optional.empty(), this.adapter.findTutorOf(id));
+    }
+
+    @Test
+    void findTutorOfReturnsTheTutor() {
+        final UUID      id        = UUID.randomUUID();
+        final Teacher   tutor     = aTeacher("Marta");
+        final Classroom classroom = new Classroom();
+        classroom.setTutor(tutor);
+        when(this.classroomRepository.findById(id)).thenReturn(Optional.of(classroom));
+        assertEquals("Marta", this.adapter.findTutorOf(id).orElseThrow().getName());
     }
 
 }
