@@ -66,8 +66,6 @@ class SpringSecurityConfiguration {
     private static final String PERSONS_PARENT_ROLE  = path(ENTITY_PERSONS, ANY_SEGMENT, "parent");
     private static final String PERSONS_TEACHER_ROLE = path(ENTITY_PERSONS, ANY_SEGMENT, "teacher");
 
-    private static final String ROLE_ADMIN = "admin";
-
     private static final String SCOPE_PREFIX = "SCOPE_";
 
     private static final String OP_CREATE = "create";
@@ -141,7 +139,7 @@ class SpringSecurityConfiguration {
                            .requestMatchers(GET, base + CLASSROOMS, base + CLASSROOMS_ANY)
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_READ))
                            .requestMatchers(GET, base + PERSONS, base + PERSONS_ANY)
-                                   .hasRole(ROLE_ADMIN)
+                                   .hasAuthority(scope(ENTITY_PERSONS, OP_READ))
                            .anyRequest()
                                    .authenticated())
                    .oauth2ResourceServer(oauth2 -> oauth2

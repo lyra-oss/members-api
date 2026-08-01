@@ -64,8 +64,9 @@ public class PersonRoleFeatures
     }
 
     private ObjectNode schoolBody(final String schoolName) {
+        final String location = this.scenarioContext.getLocation("school:" + schoolName);
         final ObjectNode body = OBJECT_MAPPER.createObjectNode();
-        body.put("school", this.scenarioContext.getLocation("school:" + schoolName));
+        body.put("school", location.substring(location.lastIndexOf('/') + 1));
         return body;
     }
 
