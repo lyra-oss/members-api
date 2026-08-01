@@ -24,16 +24,18 @@ public class KidUpdateFeatures
     @When("I update kid {string} {string}'s parent to {string}")
     public void updateKidParent(final String name, final String surname, final String parentName)
             throws Exception {
+        final String parentLocation = this.scenarioContext.getLocation("parent:" + parentName);
         final ObjectNode body = OBJECT_MAPPER.createObjectNode();
-        body.put("parent", this.scenarioContext.getLocation("parent:" + parentName));
+        body.put("parent", parentLocation.substring(parentLocation.lastIndexOf('/') + 1));
         this.performWithBody(patch(this.scenarioContext.getLocation("kid:" + name + " " + surname)), body);
     }
 
     @When("I update kid {string} {string}'s classroom to course {int} group {string}")
     public void updateKidClassroom(final String name, final String surname, final int course, final String group)
             throws Exception {
+        final String classroomLocation = this.scenarioContext.getLocation("classroom:" + course + " " + group);
         final ObjectNode body = OBJECT_MAPPER.createObjectNode();
-        body.put("classroom", this.scenarioContext.getLocation("classroom:" + course + " " + group));
+        body.put("classroom", classroomLocation.substring(classroomLocation.lastIndexOf('/') + 1));
         this.performWithBody(patch(this.scenarioContext.getLocation("kid:" + name + " " + surname)), body);
     }
 

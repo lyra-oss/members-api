@@ -49,16 +49,19 @@ public class Kid
     @Column(name = "ID", nullable = false, updatable = false)
     private UUID id;
 
+    @Setter
     @NotBlank
     @Size(max = 100)
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
 
+    @Setter
     @NotBlank
     @Size(max = 100)
     @Column(name = "SURNAME", length = 100, nullable = false)
     private String surname;
 
+    @Setter
     @Past
     @NotNull
     @Column(name = "BIRTHDATE", nullable = false)
