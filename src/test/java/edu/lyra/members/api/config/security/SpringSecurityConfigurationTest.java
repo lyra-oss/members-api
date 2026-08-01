@@ -230,7 +230,7 @@ class SpringSecurityConfigurationTest {
         final ObjectNode classroomJson = OBJECT_MAPPER.createObjectNode();
         classroomJson.put("course", 1);
         classroomJson.put("group", "A");
-        classroomJson.put("school", this.base() + "/schools/" + school.getId());
+        classroomJson.put("school", school.getId().toString());
         return OBJECT_MAPPER.writeValueAsString(classroomJson);
     }
 

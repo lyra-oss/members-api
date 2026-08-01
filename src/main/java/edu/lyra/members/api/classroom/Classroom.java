@@ -61,15 +61,18 @@ public class Classroom
     @Column(name = "ID", nullable = false, updatable = false)
     private UUID id;
 
+    @Setter
     @Positive
     @Max(6)
     @Column(name = "COURSE", length = 1, nullable = false)
     private int course;
 
+    @Setter
     @Pattern(regexp = "^[A-Z]$")
     @Column(name = "GROUP_NAME", length = 1, nullable = false)
     private String group;
 
+    @Setter
     @ManyToOne
     private School school;
 
