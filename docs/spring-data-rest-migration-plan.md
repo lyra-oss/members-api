@@ -16,8 +16,10 @@ It is not a small job. Spring Data REST silently provides seven things this code
 
 1. CRUD endpoints for 6 aggregates (~35 routes).
 2. HAL rendering — `_embedded.<rel>`, `_links.self`, `page` metadata.
-3. **URI-as-foreign-key** in JSON bodies (`"school": "/v0/schools/{id}"`) via `UriToEntityConverter`.
-4. **`text/uri-list` association endpoints** (`POST /classrooms/{id}/teachers`, `PUT .../tutor`, …).
+3. **URI-as-foreign-key** in JSON bodies (`"school": "/v0/schools/{id}"`) via `UriToEntityConverter`
+   — **being dropped, not reproduced** (§5.1).
+4. **`text/uri-list` association endpoints** (`POST /classrooms/{id}/teachers`, `PUT .../tutor`, …)
+   — **being dropped, not reproduced** (§5.1).
 5. The **repository event model** (`@HandleBeforeCreate/Save/Delete/LinkSave`) — where *all*
    authorization and every business invariant currently lives.
 6. Entity validation via `ValidatingRepositoryEventListener`, producing the `errors[]` ProblemDetail shape.
@@ -27,8 +29,9 @@ The codebase is already half-migrated: `KidsCollectionController`, `PersonUpdate
 `PersonRoleController` are hand-written controllers that exist precisely because Spring Data REST got
 in the way — direct evidence for the premise behind this migration.
 
-Size: **~70 new/modified main classes**, **17 ArchUnit rule files** (14 rewritten/extended, 3 new,
-~55 rules total), 2 Checkstyle configs, ~40 test files touched, 16 lines of Gherkin.
+Size: **~68 new/modified main classes**, **17 ArchUnit rule files** (14 rewritten/extended, 3 new,
+~55 rules total), 2 Checkstyle configs, ~38 test files touched, 16 lines of Gherkin, 11 step-definition
+methods and 1 `*IT` method.
 
 ---
 
@@ -119,8 +122,8 @@ The old `..handlers` package disappears entirely — one internal package per sl
 
 | Direction | Type | Coupling |
 |---|---|---|
-| **inbound** (`*Request`) | `record` | Jackson + Jakarta Validation only. **No Spring HATEOAS** — clients never send links |
-| **outbound** (`*Model`) | class `extends RepresentationModel<XModel>` | Spring HATEOAS; carries `_links` built with `WebMvcLinkBuilder` |
+| **inbound** (`*Request`) | `record` | Jackson + Jakarta Validation only. **No Spring HATEOAS** — clients never send links. Associations are `UUID` fields (§5.1) |
+| **outbound** (`*Model`) | class `extends RepresentationModel<XModel>` | Spring HATEOAS; carries `_links` built with `WebMvcLinkBuilder`, **plus an exposed `id`** so clients can reference the resource without parsing hrefs (§5.1) |
 
 This resolves the tension from the previous revision. My earlier recommendation to keep response
 models as plain records was driven by a MapStruct concern that is smaller than I stated: MapStruct
@@ -163,10 +166,11 @@ asks for is enforced instead by "**controllers never touch repositories; only ad
 | Component | Purpose |
 |---|---|
 | `ApiBasePath` (`@ConfigurationProperties`) | replaces `RepositoryRestConfiguration.getBasePath()`; feeds security config *and* link building |
-| `UriListHttpMessageConverter` | Spring MVC has **no** `text/uri-list` support out of the box |
-| `EntityUriResolver` | `/v0/schools/{uuid}` → `UUID`; replaces `UriToEntityConverter` and the `@Qualifier("defaultConversionService")` injection |
 | `ProblemDetailsControllerAdvice` *(modified)* | handles `MethodArgumentNotValidException` instead of `RepositoryConstraintViolationException` |
 | `RootController` | reinstates the `GET /v0/` index of collection links |
+
+Deliberately **not** built, thanks to §5.1: no `text/uri-list` message converter and no URI→entity
+resolver. Association references are plain `UUID`s the adapter looks up directly.
 
 ---
 
@@ -180,25 +184,25 @@ asks for is enforced instead by "**controllers never touch repositories; only ad
 | POST | `/v0/parents` | 201 + `Location` | binds JWT subject to `Person` |
 | PATCH | `/v0/parents/{id}` | 204 / 404 | delegating `name`/`surname`/`mail` |
 | DELETE | `/v0/parents/{id}` | 204 / 409 | 409 if kids linked |
-| POST | `/v0/parents/{id}/kids` | 204 | **`text/uri-list`** |
+| **PUT** | **`/v0/parents/{id}/kids/{kidId}`** | 204 | *was* `POST …/kids` + `text/uri-list` (§5.1) |
 | GET | `/v0/kids` | 200 | **visibility-filtered** (admin / parent / teacher / none) |
 | GET | `/v0/kids/{id}` | 200 / 404 | |
 | POST | `/v0/kids` | 201 + `Location` | assigns authenticated parent |
-| PATCH | `/v0/kids/{id}` | 204 / 403 / 404 | `parent`, `classroom` **as URIs** |
+| PATCH | `/v0/kids/{id}` | 204 / 403 / 404 | `parent`, `classroom` **as ids** (§5.1) |
 | DELETE | `/v0/kids/{id}` | 204 | |
 | GET | `/v0/schools`, `/{id}` | 200 | |
 | POST / PATCH / DELETE | `/v0/schools[/{id}]` | 201 / 204 / 409 | 409 if classrooms or teachers linked |
 | GET | `/v0/teachers`, `/{id}` | 200 | |
-| POST | `/v0/teachers` | 201 | `school` as URI |
+| POST | `/v0/teachers` | 201 | `school` as id |
 | PATCH / DELETE | `/v0/teachers/{id}` | 204 / 409 | 409 if tutoring/teaching |
 | GET | `/v0/classrooms`, `/{id}` | 200 | |
-| POST | `/v0/classrooms` | 201 / 422 | `school` + `tutor` as URIs |
+| POST | `/v0/classrooms` | 201 / 422 | `school` + `tutor` as ids |
 | PATCH / DELETE | `/v0/classrooms/{id}` | 204 / 409 | 409 if kids enrolled |
 | GET | `/v0/classrooms/{id}/teachers` | 200 | `_embedded.teachers` |
-| POST | `/v0/classrooms/{id}/teachers` | 204 / 404 / 422 | **`text/uri-list`** |
+| **PUT** | **`/v0/classrooms/{id}/teachers/{teacherId}`** | 204 / 404 / 422 | *was* `POST` + `text/uri-list`; **needs a new security matcher** (§5.2.1) |
 | GET | `/v0/classrooms/{id}/tutor` | 200 / **404 when unset** | |
-| PUT | `/v0/classrooms/{id}/tutor` | 204 / 422 | **`text/uri-list`** |
-| POST | `/v0/classrooms/{id}/kids` | 204 | **`text/uri-list`** |
+| PUT | `/v0/classrooms/{id}/tutor` | 204 / 422 | body `{"teacher": "{uuid}"}` instead of `text/uri-list` |
+| **PUT** | **`/v0/classrooms/{id}/kids/{kidId}`** | 204 | *was* `POST` + `text/uri-list`; **needs a new security matcher** |
 | GET | `/v0/persons`, `/{id}` | 200 | admin only |
 | PUT / DELETE | `/v0/persons/{id}/{parent,teacher}` | 204 / 400 / 404 / 409 | already hand-written |
 
@@ -211,24 +215,104 @@ asks for is enforced instead by "**controllers never touch repositories; only ad
 
 ## 5. Compatibility risks and decisions
 
-### 5.1 Association-by-URI in request bodies
+### 5.1 Association references — **decided: drop URIs, use ids**
 
-`POST /v0/teachers` sends `{"name":…, "school":"/v0/schools/{uuid}"}`; `PATCH /v0/kids/{id}` sends
-`{"parent":"/v0/parents/{uuid}"}` — this is `UriToEntityConverter`.
+Spring Data REST expresses associations two ways, and **neither is required by HATEOAS**:
 
-**Plan:** request records declare these as `URI`. The **adapter** resolves them via
-`EntityUriResolver` + the target repository, then passes resolved entities to the mapper. Mappers
-never see a URI, so they stay pure and dependency-free.
+- **URI strings inside JSON bodies** — `POST /v0/teachers` sends `{"school": "/v0/schools/{uuid}"}`,
+  `PATCH /v0/kids/{id}` sends `{"parent": "/v0/parents/{uuid}"}`. This has **no standard basis at
+  all**; it is `UriToEntityConverter` being convenient. HAL specifies response format only and says
+  nothing about request bodies. (JSON:API, for contrast, uses `{"data": {"type": …, "id": …}}`.)
+- **`text/uri-list` association sub-resources** — the media type itself is real (RFC 2483 §5), but
+  "manage an association by POSTing a uri-list to a sub-resource" is a Spring Data REST invention,
+  not a REST or hypermedia convention.
 
-Unresolvable URI → 400 (`person/roles.feature`, "teacher without a school"); *absent* `school` →
-field error `school` / "must not be null" (`teacher/create.feature`). Two codes, two causes, one
-explicit test each.
+HATEOAS constrains *responses*: links tell a client what it may do next. It imposes nothing on how a
+client names a resource when writing. So both go.
 
-### 5.2 `text/uri-list`
+**There is a genuine argument for URI references that must be answered, not ignored:** today entity
+ids are `@JsonIgnore`d, so the *only* way a client learns a school's identity is `_links.self.href`.
+Switching to bare ids without changing responses would force every client to string-parse hrefs —
+strictly worse than what we have. The replacement is therefore a **pair**:
 
-Five endpoints consume it; Spring MVC ships no converter. Add `UriListHttpMessageConverter`
-returning `List<URI>` and declare `consumes = "text/uri-list"`. Tests always send one URI, but
-Spring Data REST's semantics are a list, so accept a list.
+| | Before | After |
+|---|---|---|
+| response | id hidden; identity only via `_links.self.href` | **`id` exposed on the model**, `_links.self` retained for navigation |
+| body reference | `"school": "/v0/schools/{uuid}"` | `"school": "{uuid}"` |
+| collection membership | `POST /classrooms/{id}/teachers`, `text/uri-list` | `PUT /classrooms/{id}/teachers/{teacherId}`, no body |
+| single-valued association | `PUT /classrooms/{id}/tutor`, `text/uri-list` | `PUT /classrooms/{id}/tutor` with `{"teacher": "{uuid}"}` |
+
+Exposing `id` alongside `_links` is what most HAL APIs do and nothing in HAL forbids it. Each
+cardinality then follows its natural REST idiom: a single-valued association is a reference you
+*replace*; a collection membership is an addressable *member*. Using `PUT` for membership also makes
+the operation idempotent, which `POST` never was.
+
+**What this deletes from the plan:**
+
+- `UriListHttpMessageConverter` and `UriListHttpMessageConverterTest` — gone entirely; no custom
+  media type, no parser.
+- `EntityUriResolver` and `EntityUriResolverTest` — gone; request records carry `UUID` fields and the
+  adapter calls `repository.findById` directly.
+- `PersonRoleController.school(Map<String, Object>)` and its
+  `@Qualifier("defaultConversionService") ConversionService` — replaced by a request record with a
+  `@NotNull UUID school`.
+
+**Validation behaviour is unchanged.** `@NotNull UUID school` yields field `school` / "must not be
+null" (`teacher/create.feature`), and a missing school on `PUT /persons/{id}/teacher` still yields
+400 (`person/roles.feature`) — now through `MethodArgumentNotValidException` rather than a caught
+`ConversionException`. An id that parses but matches nothing → 400, as before.
+
+### 5.2 Cost and consequences of §5.1
+
+**Zero Gherkin changes.** Every affected scenario is phrased behaviourally — "I add teacher
+\"Marta Ibáñez\" to the classroom", "I create a classroom … at school \"Gloria Fuertes\" with tutor
+\"Pablo Ruiz\"", "I bind kid … to parent …". No feature file mentions a URI or a media type.
+
+**11 step-definition methods across 5 files, plus 1 `*IT` method:**
+
+| File | Methods |
+|---|---|
+| `cucumber/classroom/ClassroomCreationFeatures` | 6 — `createClassroom`, `createClassroomWithTutor`, `performAddTeacher`, `addTeacherToNonExistentClassroom`, `performSetTutor`, `enrollKidInClassroom` |
+| `cucumber/kid/KidUpdateFeatures` | 2 — `body.put("parent", …)`, `body.put("classroom", …)` |
+| `cucumber/parent/ParentUpdateFeatures` | 1 — `bindKidToParent` |
+| `cucumber/person/PersonRoleFeatures` | 1 — `schoolBody` |
+| `cucumber/teacher/TeacherCreationFeatures` | 1 — the school field |
+| `TeacherIT` | 1 — sends the school `Location` header as the `school` value |
+
+The two `URI_LIST` `MediaType` constants (in `ClassroomCreationFeatures` and `ParentUpdateFeatures`)
+are deleted outright.
+
+Each becomes `location.substring(location.lastIndexOf('/') + 1)`, a helper these classes already have.
+
+**Be honest about the safety cost.** For these endpoints this stops being a like-for-like migration
+and becomes a deliberate API redesign, with two consequences:
+
+1. Any existing client breaks. Confirm there is none before starting.
+2. Where a step definition changes, the scenario stops being an independent regression net — a bug in
+   the controller and a matching bug in the step definition would cancel out. `TeacherIT` normally
+   backstops this, but it changes too.
+
+**Mitigation:** write the new `<X>ControllerTest` cases (§9.3) from the endpoint table in §4 *before*
+touching any step definition, so the expected status codes and paths are pinned by a test that was
+written against the spec rather than against the implementation.
+
+### 5.2.1 Security matcher ordering — a trap this creates
+
+`SpringSecurityConfiguration` matchers are **first-match-wins**, and the new association paths sit
+underneath existing wildcard rules. Two concrete hazards:
+
+- `PUT /v0/classrooms/{id}/teachers/{teacherId}` matches **no** current rule (there is a `PUT` rule
+  only for `…/tutor`), so it would fall through to `.anyRequest().authenticated()` — **any
+  authenticated caller could alter a classroom's teaching staff.** A `PUT` matcher for
+  `/classrooms/*/teachers/*`, `/classrooms/*/kids/*` and `/parents/*/kids/*` requiring
+  `classrooms.update` / `parents.update` must be added.
+- If association *removal* is ever added, `DELETE /v0/classrooms/{id}/teachers/{teacherId}` matches
+  the existing `DELETE base + CLASSROOMS_ANY` rule and would demand `classrooms.delete` — the wrong
+  scope for what is an update. The specific matcher must be registered **before** the wildcard.
+
+Removal endpoints are out of scope (no scenario covers them), but the ordering constraint is recorded
+here so whoever adds them does not trip over it. `SpringSecurityConfigurationTest` should gain a case
+for each new association path asserting the required authority.
 
 ### 5.3 PATCH partial-merge semantics
 
@@ -558,10 +642,10 @@ not optional polish.
 
 | File | Change |
 |---|---|
-| `config/security/SpringSecurityConfigurationTest` | autowires `RepositoryRestConfiguration` for the base path → `ApiBasePath` |
-| `config/web/ProblemDetailsControllerAdviceTest` | `testRepositoryConstraintViolationErrorResponse` → `MethodArgumentNotValidException`; **add** cases for `HttpMessageNotReadableException` (malformed JSON → 400) and unresolvable association URI → 400 |
+| `config/security/SpringSecurityConfigurationTest` | autowires `RepositoryRestConfiguration` for the base path → `ApiBasePath`; **add** a case per new association path asserting the required authority (§5.2.1) |
+| `config/web/ProblemDetailsControllerAdviceTest` | `testRepositoryConstraintViolationErrorResponse` → `MethodArgumentNotValidException`; **add** cases for `HttpMessageNotReadableException` (malformed JSON → 400) and unknown association id → 400 |
 | `person/rest/PersonUpdateControllerTest` | drop `verify(eventPublisher).publishEvent(any(BeforeSaveEvent.class))` / `AfterSaveEvent`; assert the policy was consulted instead |
-| `person/rest/PersonRoleControllerTest` | `@Qualifier("defaultConversionService") ConversionService` → `EntityUriResolver` |
+| `person/rest/PersonRoleControllerTest` | drop the `@Qualifier("defaultConversionService") ConversionService` mock and the `Map<String, Object>` body entirely — the endpoint takes a request record with a `@NotNull UUID school` (§5.1) |
 
 **The 14 handler tests → policy/adapter tests.** These are plain JUnit + Mockito + Instancio with
 `SecurityContextHolder` set up by hand; the assertions (`AccessDeniedException`, `ParentHasKidsException`,
@@ -591,14 +675,15 @@ framework-agnostic.
 
 ### 9.3 Added (~26 files)
 
-**Shared web infrastructure (4):**
+**Shared web infrastructure (2):**
 
 | Test | Cases |
 |---|---|
-| `UriListHttpMessageConverterTest` | single URI; multiple URIs; trailing newline; blank lines; comment lines (`#`); non-`text/uri-list` content type not supported; empty body |
-| `EntityUriResolverTest` | valid absolute and relative URI; wrong collection prefix; non-UUID last segment; trailing slash; unknown id → empty; `null` |
 | `ApiBasePathTest` | property binding from `lyra.api.base-path`; prefix appears in a built link |
 | `RootControllerTest` | `GET /v0/` returns a link per collection |
+
+§5.1 removes the two largest infrastructure tests before they are ever written — there is no
+`text/uri-list` converter and no URI resolver to test.
 
 **Per aggregate × 6 (Parent, Kid, School, Teacher, Classroom, Person) — 18 files:**
 
@@ -606,7 +691,7 @@ framework-agnostic.
 |---|---|
 | `<X>MapperTest` | request → entity; entity → model (fields only, no links); patch with `@MappingTarget` leaves absent fields untouched; null handling. Fast, no Spring context |
 | `<X>AdapterTest` | 404 when the entity is absent; **policy consulted before any mutation** (the §2.2 ordering contract, pinned at unit level rather than only in Cucumber); mapper invoked; `self` link present and `/v0`-prefixed; `@Relation` rel on collections |
-| `<X>ControllerTest` | status codes and headers in isolation with a mocked adapter: 201 + `Location`, 204, 400, 403, 404, 409, 422; `text/uri-list` endpoints reject `application/json` |
+| `<X>ControllerTest` | status codes and headers in isolation with a mocked adapter: 201 + `Location`, 204, 400, 403, 404, 409, 422; association `PUT`s are idempotent (twice → 204 both times); unknown association id → 400 |
 
 **Route-shape guards (2):**
 
@@ -637,21 +722,23 @@ Each phase ends green. Cucumber is the gate throughout.
 §5.7 (a `@RequestMapping`-only `@Bean` is picked up as a handler), and §3.2 (whether MapStruct flags
 `links` on a `RepresentationModel` subclass). None is worth discovering in Phase 3.
 
-**Phase 1 — infrastructure, no behaviour change (1 day).** Swap the starters; add MapStruct and its
-processor path; add `ApiBasePath`, `UriListHttpMessageConverter`, `EntityUriResolver` with their unit
-tests (§9.3); re-point `SpringSecurityConfiguration` and `SpringSecurityConfigurationTest` off
-`RepositoryRestConfiguration`. Spring Data REST is still serving — nothing breaks yet.
+**Phase 1 — infrastructure, no behaviour change (½–1 day).** Swap the starters; add MapStruct and its
+processor path; add `ApiBasePath` with its unit test; re-point `SpringSecurityConfiguration` and
+`SpringSecurityConfigurationTest` off `RepositoryRestConfiguration`. Spring Data REST is still
+serving — nothing breaks yet. Shorter than previously estimated because §5.1 removed two of the three
+infrastructure components.
 
 **Phase 2 — walking skeleton on School (1–2 days).** Smallest surface: 19 scenarios, no
-`text/uri-list`, no `Person` delegation, no visibility rules. Build controller, adapter, mapper, model,
+association sub-resources, no `Person` delegation, no visibility rules. Build controller, adapter, mapper, model,
 requests, policy and slice config, plus the three new test classes, and make `school/*.feature` pass
 with `RestExposureConfiguration` still shadowing the generated routes. Then **measure the adapter's
 fan-out and fix the `ClassFanOutComplexity` ceiling** (§8.2). This phase decides the pattern.
 
 **Phase 3 — remaining slices (5–7 days), hardest last.**
 1. **Teacher** — association-by-URI (`school`), `Person` delegation; **8 Gherkin lines** (§5.4).
-2. **Parent** — `Person` delegation, `text/uri-list` kid binding, created-by check; **8 Gherkin lines**.
-3. **Classroom** — school-mismatch invariant (422), tutor/teachers/kids sub-resources, 3 × `text/uri-list`.
+2. **Parent** — `Person` delegation, the kid-binding sub-resource, created-by check; **8 Gherkin lines**.
+3. **Classroom** — school-mismatch invariant (422), three association sub-resources (tutor, teachers,
+   kids) and the new security matchers they need (§5.2.1).
 4. **Kid** — visibility strategies, URI-based re-parenting and enrolment, the most intricate policy
    (`kid/update.feature` alone has 11 scenarios); `KidPolicyTest` is the largest port.
 5. **Person** — mostly existing code; convert the controllers and drop the `BeforeSaveEvent`/
@@ -664,7 +751,9 @@ Jackson and Bean Validation annotations and the `previous*Id` transients from th
 Land the ArchUnit rewrite (§7) and the Checkstyle additions (§8) — including `MigrationGuardRulesTest`
 and the `IllegalImport`, which are what stop it coming back.
 
-**Total: ~9–12 working days**, of which roughly a quarter is the rules-and-tests work in §7–§9.
+**Total: ~9–11 working days**, of which roughly a quarter is the rules-and-tests work in §7–§9.
+§5.1 is close to effort-neutral: it deletes two infrastructure classes and their tests, and adds
+11 step-definition edits plus new security matchers.
 
 ---
 
@@ -679,6 +768,7 @@ Recorded so the rationale is not re-litigated mid-migration.
 | 3 | **Validate request DTOs, not entities**; drop Bean Validation from entities; change 16 Gherkin lines | simplest code; `person.` was a leaked persistence detail (§5.4) |
 | 4 | Repositories stay public and cross-slice; decoupling enforced by "controllers never touch repositories" | avoids a service layer that would exist for one call site (§3.4) |
 | 5 | Reproduce association GETs; **drop `/v0/profile`**; reinstate `GET /v0/` | ALPS has no consumer here (§4) |
+| 9 | **Drop URI-based association references and `text/uri-list`**; expose `id` on models; associations referenced by id; membership via `PUT …/{rel}/{id}` | neither is part of HATEOAS — one is an SDR idiom, the other has no standard basis; deletes 2 classes and 2 test classes; zero Gherkin churn (§5.1) |
 | 6 | **No `ETag`/`If-Match`** reimplementation | untested, no known client; documented as a loss (§5.8) |
 | 7 | Controllers are `@RequestMapping`-only `@Bean`s, no stereotype | preserves the explicit-wiring convention (§5.7) |
 | 8 | **No slice cycle-freedom rule** | the entity graph is cyclic by design; out of scope (§7.12) |
