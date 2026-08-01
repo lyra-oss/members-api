@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
 
+import edu.lyra.members.api.config.web.ApiBasePath;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -74,10 +74,10 @@ class SpringSecurityConfiguration {
     @Bean
     SecurityFilterChain securityFilterChain(
             final HttpSecurity http,
-            final RepositoryRestConfiguration restConfiguration,
+            final ApiBasePath apiBasePath,
             final JwtAuthenticationConverter jwtAuthenticationConverter
     ) {
-        final String base = restConfiguration.getBasePath().toString();
+        final String base = apiBasePath.basePath();
         //@formatter:off
         return http.authorizeHttpRequests(auth -> auth
                            .requestMatchers(ACTUATOR_HEALTH, ACTUATOR_HEALTH_ANY, ACTUATOR_INFO)

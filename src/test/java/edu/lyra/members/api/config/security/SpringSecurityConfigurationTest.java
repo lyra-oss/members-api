@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
+import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
@@ -23,7 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -58,7 +58,7 @@ class SpringSecurityConfigurationTest {
     private MockMvc mvc;
 
     @Autowired
-    private RepositoryRestConfiguration restConfiguration;
+    private ApiBasePath apiBasePath;
 
     @MockitoSpyBean
     private ParentRepository    parentRepository;
@@ -91,7 +91,7 @@ class SpringSecurityConfigurationTest {
     }
 
     private String base() {
-        return restConfiguration.getBasePath().toString();
+        return apiBasePath.basePath();
     }
 
     private ObjectNode newParentJson() {
