@@ -207,7 +207,7 @@ resolver. Association references are plain `UUID`s the adapter looks up directly
 | GET | `/v0/classrooms/{id}/teachers` | 200 | `_embedded.teachers` |
 | **PUT** | **`/v0/classrooms/{id}/teachers/{teacherId}`** | 204 / 404 / 422 | *was* `POST` + `text/uri-list`; **needs a new security matcher** (§5.2.1) |
 | GET | `/v0/classrooms/{id}/tutor` | 200 / **404 when unset** | |
-| PUT | `/v0/classrooms/{id}/tutor` | 204 / 422 | body `{"teacher": "{uuid}"}` instead of `text/uri-list` |
+| **PUT** | **`/v0/classrooms/{id}/tutor/{teacherId}`** | 204 / 404 / 422 | *was* `PUT …/tutor` + `text/uri-list`; **path changed, needs a new security matcher** (§5.2.1) |
 | **PUT** | **`/v0/classrooms/{id}/kids/{kidId}`** | 204 | *was* `POST` + `text/uri-list`; **needs a new security matcher** |
 | GET | `/v0/persons`, `/{id}` | 200 | admin only |
 | PUT / DELETE | `/v0/persons/{id}/{parent,teacher}` | 204 / 400 / 404 / 409 | already hand-written |
@@ -246,12 +246,24 @@ strictly worse than what we have. The replacement is therefore a **pair**:
 | response | id hidden; identity only via `_links.self.href` | **`id` exposed on the model**, `_links.self` retained for navigation |
 | body reference | `"school": "/v0/schools/{uuid}"` | `"school": "{uuid}"` |
 | collection membership | `POST /classrooms/{id}/teachers`, `text/uri-list` | `PUT /classrooms/{id}/teachers/{teacherId}`, no body |
-| single-valued association | `PUT /classrooms/{id}/tutor`, `text/uri-list` | `PUT /classrooms/{id}/tutor` with `{"teacher": "{uuid}"}` |
+| single-valued association | `PUT /classrooms/{id}/tutor`, `text/uri-list` | `PUT /classrooms/{id}/tutor/{teacherId}`, no body |
 
-Exposing `id` alongside `_links` is what most HAL APIs do and nothing in HAL forbids it. Each
-cardinality then follows its natural REST idiom: a single-valued association is a reference you
-*replace*; a collection membership is an addressable *member*. Using `PUT` for membership also makes
-the operation idempotent, which `POST` never was.
+Exposing `id` alongside `_links` is what most HAL APIs do and nothing in HAL forbids it.
+
+**Every association write takes the same shape**, regardless of cardinality:
+
+```
+PUT /v0/{owner}/{ownerId}/{relation}/{targetId}      → 204, no request body
+```
+
+so `…/classrooms/{id}/teachers/{teacherId}`, `…/classrooms/{id}/tutor/{teacherId}`,
+`…/classrooms/{id}/kids/{kidId}` and `…/parents/{id}/kids/{kidId}` are one pattern, not two. A
+single-valued relation could equally have been `PUT …/tutor` with a small JSON body, but splitting the
+two cardinalities buys nothing and costs a second controller shape, a request record, a second
+security-matcher shape and a second test shape. `PUT …/tutor/{teacherId}` reads as "set the tutor
+relation to this teacher" and keeps one pattern end to end.
+
+`PUT` also makes every one of these idempotent, which `POST` never was.
 
 **What this deletes from the plan:**
 
@@ -262,6 +274,10 @@ the operation idempotent, which `POST` never was.
 - `PersonRoleController.school(Map<String, Object>)` and its
   `@Qualifier("defaultConversionService") ConversionService` — replaced by a request record with a
   `@NotNull UUID school`.
+- **Every request DTO for an association write.** With the uniform path form, no association endpoint
+  has a body at all: all four are `@PathVariable`-only, with no `@RequestBody`, no `@Valid` and no
+  record to declare. A 404 for an unknown target replaces what would have been a 400 for an unknown
+  id in a body.
 
 **Validation behaviour is unchanged.** `@NotNull UUID school` yields field `school` / "must not be
 null" (`teacher/create.feature`), and a missing school on `PUT /persons/{id}/teacher` still yields
@@ -305,20 +321,30 @@ written against the spec rather than against the implementation.
 ### 5.2.1 Security matcher ordering — a trap this creates
 
 `SpringSecurityConfiguration` matchers are **first-match-wins**, and the new association paths sit
-underneath existing wildcard rules. Two concrete hazards:
+underneath existing wildcard rules. Three concrete hazards:
 
-- `PUT /v0/classrooms/{id}/teachers/{teacherId}` matches **no** current rule (there is a `PUT` rule
-  only for `…/tutor`), so it would fall through to `.anyRequest().authenticated()` — **any
-  authenticated caller could alter a classroom's teaching staff.** A `PUT` matcher for
-  `/classrooms/*/teachers/*`, `/classrooms/*/kids/*` and `/parents/*/kids/*` requiring
-  `classrooms.update` / `parents.update` must be added.
-- If association *removal* is ever added, `DELETE /v0/classrooms/{id}/teachers/{teacherId}` matches
-  the existing `DELETE base + CLASSROOMS_ANY` rule and would demand `classrooms.delete` — the wrong
-  scope for what is an update. The specific matcher must be registered **before** the wildcard.
+- **`PUT /v0/classrooms/{id}/tutor/{teacherId}` silently orphans an existing matcher.** The current
+  rule is `PUT /v0/classrooms/*/tutor` — two segments. The new path has three, so the rule stops
+  matching *without being deleted*: it still reads as protection while protecting nothing. A dead
+  matcher is worse than a missing one, because it looks correct in review.
+- **`PUT /v0/classrooms/{id}/teachers/{teacherId}` matches no rule at all**, nor do
+  `/classrooms/*/kids/*` and `/parents/*/kids/*`. All four fall through to
+  `.anyRequest().authenticated()` — **any authenticated caller could alter a classroom's teaching
+  staff, its tutor or its roster.** Matchers requiring `classrooms.update` / `parents.update` must be
+  added for every one.
+- **If association *removal* is ever added**, `DELETE /v0/classrooms/{id}/teachers/{teacherId}`
+  matches the existing `DELETE /v0/classrooms/**` rule and would demand `classrooms.delete` — the
+  wrong scope for what is an update. Same for `…/tutor`, `…/kids/{kidId}` and
+  `/parents/{id}/kids/{kidId}`. The specific matchers must be registered **before** the wildcard.
 
-Removal endpoints are out of scope (no scenario covers them), but the ordering constraint is recorded
-here so whoever adds them does not trip over it. `SpringSecurityConfigurationTest` should gain a case
-for each new association path asserting the required authority.
+Removal endpoints are out of scope (no scenario covers them), but the constraint is recorded here so
+whoever adds them does not trip over it.
+
+All three hazards are instances of the same root cause — the chain fails open. **`denyAll` (§11.1 F4)
+turns every one of them from a silent hole into a 403 on the first request**, and
+`EndpointCoverageTest` (§11.6) catches the orphaned-matcher case at build time. This is the single
+best argument for that change: the tutor path here would otherwise be a live regression introduced by
+a refactor that looked purely cosmetic.
 
 ### 5.3 PATCH partial-merge semantics
 
@@ -697,7 +723,7 @@ framework-agnostic.
 |---|---|
 | `<X>MapperTest` | request → entity; entity → model (fields only, no links); patch with `@MappingTarget` leaves absent fields untouched; null handling. Fast, no Spring context |
 | `<X>AdapterTest` | 404 when the entity is absent; **policy consulted before any mutation** (the §2.2 ordering contract, pinned at unit level rather than only in Cucumber); mapper invoked; `self` link present and `/v0`-prefixed; `@Relation` rel on collections |
-| `<X>ControllerTest` | status codes and headers in isolation with a mocked adapter: 201 + `Location`, 204, 400, 403, 404, 409, 422; association `PUT`s are idempotent (twice → 204 both times); unknown association id → 400 |
+| `<X>ControllerTest` | status codes and headers in isolation with a mocked adapter: 201 + `Location`, 204, 400, 403, 404, 409, 422; association `PUT`s are idempotent (twice → 204 both times); unknown owner **or** unknown target id → 404 |
 
 **Route-shape guards (2):**
 
@@ -868,7 +894,7 @@ Rows marked **new** did not exist or were not enforced before.
 | POST | `/v0/classrooms` | **`classrooms.create`** — **new** (F1) |
 | PATCH | `/v0/classrooms/{id}` | `classrooms.update` |
 | DELETE | `/v0/classrooms/{id}` | `classrooms.delete` |
-| PUT | `/v0/classrooms/{id}/tutor` | `classrooms.update` |
+| PUT | `/v0/classrooms/{id}/tutor/{teacherId}` | `classrooms.update` — **new path**; the existing `PUT /classrooms/*/tutor` rule no longer matches (§5.2.1) |
 | PUT | `/v0/classrooms/{id}/teachers/{teacherId}` | `classrooms.update` — **new** (§5.2.1) |
 | PUT | `/v0/classrooms/{id}/kids/{kidId}` | `classrooms.update` — **new** (§5.2.1) |
 | GET | `/v0/persons`, `/v0/persons/{id}` | **`persons.read`** + `ROLE_admin` — **new scope** |
@@ -890,9 +916,13 @@ controller; the chain owns the scope. Two layers, each in its natural place, nei
 - **AND-composition:** there is no `hasAllAuthorities`. Use
   `.access(AuthorizationManagers.allOf(AuthorityAuthorizationManager.hasAuthority("SCOPE_classrooms.read"),
   AuthorityAuthorizationManager.hasAuthority("SCOPE_teachers.read")))`.
-- **Specific before wildcard**, since matching is first-match-wins: `/classrooms/*/teachers/*` and
-  `/classrooms/*/tutor` must precede `/classrooms/**`. The same ordering constraint is what makes a
-  future association `DELETE` demand `classrooms.delete` if registered carelessly (§5.2.1).
+- **Specific before wildcard**, since matching is first-match-wins: `/classrooms/*/teachers/*`,
+  `/classrooms/*/tutor/*` and `/classrooms/*/kids/*` must precede `/classrooms/**`. The same ordering
+  constraint is what makes a future association `DELETE` demand `classrooms.delete` if registered
+  carelessly (§5.2.1).
+- **Delete the orphaned `PUT /classrooms/*/tutor` rule** rather than leaving it in place. It matches
+  nothing once the path gains a segment, and a matcher that protects nothing while appearing to is a
+  review hazard.
 - The base path comes from `ApiBasePath`, not `RepositoryRestConfiguration` (§5.6).
 - The existing `path(...)`/`scope(...)` helpers extend naturally; add `ANY_SEGMENT`-based constants
   for the new two-segment association paths.
@@ -952,7 +982,7 @@ Recorded so the rationale is not re-litigated mid-migration.
 | 3 | **Validate request DTOs, not entities**; drop Bean Validation from entities; change 16 Gherkin lines | simplest code; `person.` was a leaked persistence detail (§5.4) |
 | 4 | Repositories stay public and cross-slice; decoupling enforced by "controllers never touch repositories" | avoids a service layer that would exist for one call site (§3.4) |
 | 5 | Reproduce association GETs; **drop `/v0/profile`**; reinstate `GET /v0/` | ALPS has no consumer here (§4) |
-| 9 | **Drop URI-based association references and `text/uri-list`**; expose `id` on models; associations referenced by id; membership via `PUT …/{rel}/{id}` | neither is part of HATEOAS — one is an SDR idiom, the other has no standard basis; deletes 2 classes and 2 test classes; zero Gherkin churn (§5.1) |
+| 9 | **Drop URI-based association references and `text/uri-list`**; expose `id` on models; associations referenced by id; **every** association write is `PUT /{owner}/{id}/{rel}/{targetId}` with no body, single-valued and collection alike | neither is part of HATEOAS — one is an SDR idiom, the other has no standard basis. One uniform shape means one controller, matcher and test pattern instead of two; deletes 2 infrastructure classes, 2 test classes and every association request DTO; zero Gherkin churn (§5.1) |
 | 10 | **Breaking API changes are acceptable** | confirmed: there are no clients |
 | 11 | **The chain defaults to `denyAll`**; association *reads* need both scopes, association *writes* only the owner's write scope | a missing matcher must fail closed — that is what allowed F1 and the §5.2.1 hole; reads disclose the other aggregate's data, 204 writes do not (§11.2) |
 | 12 | **Live security defects are fixed on `main` first**, not inside the migration | F1/F2/F5 predate this work and should be reviewable without a 70-class diff (§11.8) |
