@@ -1,6 +1,7 @@
 package edu.lyra.members.api.architecture;
 
 import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
@@ -14,9 +15,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class WebRulesTest {
@@ -43,27 +44,26 @@ class WebRulesTest {
                 }
             };
 
-    /**
-     * Forbids {@code @RestController} entirely; controllers must be {@code @RepositoryRestController}
-     * instead, so all HTTP endpoints go through Spring Data REST's exposure mechanism.
-     *
-     * <p>Compliant: {@code @RepositoryRestController class PersonController}
-     *
-     * <p>Violation: {@code @RestController class PersonController}
-     */
-    @ArchTest
-    static final ArchRule noPlainRestControllers =
-            noClasses().should().beAnnotatedWith("org.springframework.web.bind.annotation.RestController")
-                       .as("controllers should be @RepositoryRestController, not plain @RestController");
+    // Transitional: accepts either controller stereotype while the migration off Spring Data REST moves
+    // one vertical slice at a time; see NamingRulesTest.IS_A_CONTROLLER_STEREOTYPE for the same pairing.
+    private static final DescribedPredicate<JavaClass> IS_A_CONTROLLER_STEREOTYPE =
+            new DescribedPredicate<>("is annotated with @RepositoryRestController or @RestController") {
+
+                @Override
+                public boolean test(final JavaClass javaClass) {
+                    return javaClass.isAnnotatedWith(RepositoryRestController.class) ||
+                           javaClass.isAnnotatedWith(RestController.class);
+                }
+            };
 
     /**
      * Request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) declared in a
-     * {@code @RepositoryRestController} must not be public, since Spring Data REST invokes them
-     * reflectively rather than through direct calls.
+     * {@code @RepositoryRestController} or {@code @RestController} must not be public, since Spring MVC
+     * always invokes handler methods reflectively rather than through direct calls.
      *
      * <p>Compliant:
      * <pre>{@code
-     * @RepositoryRestController
+     * @RestController
      * class PersonController {
      *     @GetMapping
      *     Person get(final UUID id) { ... }
@@ -72,7 +72,7 @@ class WebRulesTest {
      *
      * <p>Violation:
      * <pre>{@code
-     * @RepositoryRestController
+     * @RestController
      * class PersonController {
      *     @GetMapping
      *     public Person get(final UUID id) { ... }
@@ -81,8 +81,7 @@ class WebRulesTest {
      */
     @ArchTest
     static final ArchRule mappedControllerMethodsAreNotPublic =
-            methods().that(ARE_REQUEST_MAPPED)
-                     .and().areDeclaredInClassesThat().areAnnotatedWith(RepositoryRestController.class)
+            methods().that(ARE_REQUEST_MAPPED).and().areDeclaredInClassesThat(IS_A_CONTROLLER_STEREOTYPE)
                      .should().notBePublic();
 
     /**

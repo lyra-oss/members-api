@@ -8,17 +8,22 @@ import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.exceptions.SchoolHasReferencesException;
 import edu.lyra.members.api.exceptions.SchoolMismatchException;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import static java.net.URI.create;
@@ -140,6 +145,41 @@ class ProblemDetailsControllerAdvice
         //@formatter:on
     }
 
+    /**
+     * Handles {@code @Valid @RequestBody} failures on the request records that back the Spring MVC
+     * controllers replacing Spring Data REST's own repositories, in the same {@code errors[]} shape as
+     * {@link #handleRepositoryConstraintViolationException}, so client-facing error handling does not
+     * have to distinguish which layer a given endpoint has already migrated to.
+     *
+     * @param ex the validation failure raised by {@code @Valid}
+     * @param headers the headers to be written to the response
+     * @param status the selected response status
+     * @param request the current request
+     *
+     * @return a 400 Bad Request {@link ProblemDetail} response listing every failed field
+     */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            final MethodArgumentNotValidException ex,
+            final @NonNull HttpHeaders headers,
+            final @NonNull HttpStatusCode status,
+            final @NonNull WebRequest request
+    ) {
+        //@formatter:off
+        final List<Object> errors = ex.getBindingResult().getFieldErrors().stream()
+                                       .map(this::toErrorEntry)
+                                       .map(Object.class::cast)
+                                       .toList();
+        final ProblemDetail problemDetail = ProblemDetailBuilder.forStatus(BAD_REQUEST)
+                .type("https://lyra.sagittec.com/problems/validation-error")
+                .title("Validation failed")
+                .property("errors", errors)
+                .buildDetail();
+        return ResponseEntity.status(BAD_REQUEST).contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                             .body(problemDetail);
+        //@formatter:on
+    }
+
     private Map<String, String> toErrorEntry(final FieldError fieldError) {
         //@formatter:off
         return of("entity", fieldError.getObjectName(),
@@ -190,6 +230,10 @@ class ProblemDetailsControllerAdvice
 
         private ResponseEntity<ProblemDetail> build() {
             return status(this.status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(this.problemDetail);
+        }
+
+        private ProblemDetail buildDetail() {
+            return this.problemDetail;
         }
 
     }

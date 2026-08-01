@@ -21,6 +21,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -49,6 +50,7 @@ public class School
     @Column(name = "ID", nullable = false, updatable = false)
     private UUID id;
 
+    @Setter
     @NotBlank
     @Size(max = 100)
     @Column(name = "NAME", length = 100, nullable = false)

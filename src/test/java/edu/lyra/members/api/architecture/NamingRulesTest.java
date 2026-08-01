@@ -1,5 +1,7 @@
 package edu.lyra.members.api.architecture;
 
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
@@ -9,39 +11,54 @@ import jakarta.persistence.Table;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.web.bind.annotation.RestController;
 
+import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class NamingRulesTest {
 
-    /**
-     * Every {@code @RepositoryRestController} class must have a simple name ending in "Controller".
-     *
-     * <p>Compliant: {@code @RepositoryRestController class PersonController}
-     *
-     * <p>Violation: {@code @RepositoryRestController class PersonEndpoint}
-     */
-    @ArchTest
-    static final ArchRule repositoryRestControllersAreNamedController =
-            classes().that().areAnnotatedWith(RepositoryRestController.class)
-                     .should().haveSimpleNameEndingWith("Controller");
+    // Transitional: the migration off Spring Data REST replaces @RepositoryRestController with plain
+    // @RestController one vertical slice at a time, so both stereotypes are accepted side by side until
+    // every controller has moved and the @RepositoryRestController half of this predicate is dropped.
+    private static final DescribedPredicate<JavaClass> IS_A_CONTROLLER_STEREOTYPE =
+            new DescribedPredicate<>("is annotated with @RepositoryRestController or @RestController") {
+
+                @Override
+                public boolean test(final JavaClass javaClass) {
+                    return javaClass.isAnnotatedWith(RepositoryRestController.class) ||
+                           javaClass.isAnnotatedWith(RestController.class);
+                }
+            };
 
     /**
-     * The inverse of the rule above: any class named {@code *Controller} must actually be a
-     * {@code @RepositoryRestController}, so the name is never misleading.
+     * Every {@code @RepositoryRestController} or {@code @RestController} class must have a simple name
+     * ending in "Controller".
      *
-     * <p>Compliant: {@code @RepositoryRestController class PersonController}
+     * <p>Compliant: {@code @RestController class PersonController}
+     *
+     * <p>Violation: {@code @RestController class PersonEndpoint}
+     */
+    @ArchTest
+    static final ArchRule controllerStereotypesAreNamedController =
+            classes().that(IS_A_CONTROLLER_STEREOTYPE).should().haveSimpleNameEndingWith("Controller");
+
+    /**
+     * The inverse of the rule above: any class named {@code *Controller} must actually carry a
+     * controller stereotype, so the name is never misleading.
+     *
+     * <p>Compliant: {@code @RestController class PersonController}
      *
      * <p>Violation: {@code class PersonController} (missing the annotation)
      */
     @ArchTest
-    static final ArchRule controllersAreRepositoryRestControllers =
-            classes().that().haveSimpleNameEndingWith("Controller")
-                     .should().beAnnotatedWith(RepositoryRestController.class);
+    static final ArchRule controllersAreControllerStereotyped =
+            classes().that().haveSimpleNameEndingWith("Controller").should(be(IS_A_CONTROLLER_STEREOTYPE));
 
     /**
-     * Every {@code @RepositoryRestController} must live in a "..rest" package.
+     * Every {@code @RepositoryRestController} or {@code @RestController} must live in a "..rest"
+     * package.
      *
      * <p>Compliant: {@code edu.lyra.members.api.person.rest.PersonController}
      *
@@ -49,8 +66,7 @@ class NamingRulesTest {
      */
     @ArchTest
     static final ArchRule controllersLiveInRestPackages =
-            classes().that().areAnnotatedWith(RepositoryRestController.class)
-                     .should().resideInAPackage("..rest");
+            classes().that(IS_A_CONTROLLER_STEREOTYPE).should().resideInAPackage("..rest");
 
     /**
      * Every {@code @RepositoryEventHandler} class must have a simple name ending in "Handler".
