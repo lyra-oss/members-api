@@ -226,17 +226,45 @@ together destroys the ability to tell "the migration broke something" from "we c
 on purpose". Either way `ProblemDetailsControllerAdvice` must grow a
 `handleMethodArgumentNotValid`/`ConstraintViolationException` handler emitting the existing shape.
 
-### 5.5 HAL relation names — silent breakage risk
+### 5.5 Representation model — Spring HATEOAS
 
-Tests assert `_embedded.kids`, `_embedded.schools`, `_embedded.teachers`, `_embedded.classrooms`.
-Spring HATEOAS derives the rel from the DTO class name, so `KidResource` would emit
-`_embedded.kidResourceList`. **Every response DTO needs
-`@Relation(collectionRelation = "kids", itemRelation = "kid")`.** Cheap, but easy to forget and it
-fails loudly only in the Cucumber run.
+**Decided: hypermedia is Spring HATEOAS (`spring-boot-starter-hateoas`), not Spring Data REST's
+`PersistentEntityResource`.** Concretely:
+
+| Concern | Spring Data REST (today) | Spring HATEOAS (target) |
+|---|---|---|
+| item payload | `PersistentEntityResource` | `EntityModel<XResource>` |
+| collection payload | `PagedModel<PersistentEntityResource>` | `PagedModel<EntityModel<XResource>>` |
+| assembling | `PersistentEntityResourceAssembler` | `RepresentationModelAssembler<X, EntityModel<XResource>>` |
+| paging | `PagedResourcesAssembler` | `PagedResourcesAssembler` *(unchanged — Spring Data Web)* |
+| link building | implicit | `WebMvcLinkBuilder.linkTo(methodOn(…))` |
+| relation naming | derived from the entity | `@Relation` on the DTO |
+
+`KidsCollectionController` already returns `PagedModel<…>` built by `PagedResourcesAssembler`, so its
+migration is close to mechanical: swap `PersistentEntityResourceAssembler` for `KidModelAssembler`.
+
+**DTOs stay plain `record`s wrapped in `EntityModel`** — do *not* extend `RepresentationModel<Self>`.
+That base class exposes a `links` property, which MapStruct treats as an unmapped target and reports
+as an error; every mapper would need `@Mapping(target = "links", ignore = true)`. Records keep the
+mappers clean, and `@Relation` on the record is still honoured through the `EntityModel` wrapper
+because the HAL embedded mapper resolves rels from the *content* type.
+
+**Relation names are a silent breakage risk.** Tests assert `_embedded.kids`, `_embedded.schools`,
+`_embedded.teachers`, `_embedded.classrooms`. Spring HATEOAS derives the rel from the DTO class name,
+so `KidResource` would emit `_embedded.kidResourceList`. **Every response DTO needs
+`@Relation(collectionRelation = "kids", itemRelation = "kid")`.** Cheap, but easy to forget, and it
+fails only in the Cucumber run.
 
 `PagedModel`'s `page: {size, totalElements, totalPages, number}` block is produced identically by
-`PagedResourcesAssembler` (Spring Data Web, not Spring Data REST) — `kid/read.feature` and
-`school/read.feature` depend on it and it survives the migration unchanged.
+`PagedResourcesAssembler` — `kid/read.feature` and `school/read.feature` depend on it and it survives
+unchanged.
+
+**Verify in the Phase 0 spike:** this project is on Spring Boot 4.1 / Jackson 3 (`tools.jackson`,
+`jackson-databind` 3.1.5). Confirm Boot's `HypermediaAutoConfiguration` still makes HAL the default
+JSON representation under Jackson 3, and that responses render as HAL without an explicit
+`@EnableHypermediaSupport(type = HAL)`. Spring Data REST currently answers `application/hal+json`;
+no test asserts the content type, so either media type passes, but the `_links`/`_embedded`
+*structure* is asserted everywhere and must not regress.
 
 ### 5.6 Base path `/v0` and link generation — **spike this first**
 
@@ -294,10 +322,12 @@ timing changes, so re-run the duplicate-creation scenarios attentively.
 
 ```diff
 - spring-boot-starter-data-rest
-+ spring-boot-starter-web
 + spring-boot-starter-hateoas
 + org.mapstruct:mapstruct
 ```
+
+`spring-boot-starter-hateoas` pulls in `spring-boot-starter-web` transitively, so the web starter
+does not need declaring separately.
 
 - Add `mapstruct-processor` to `maven-compiler-plugin/annotationProcessorPaths`
   **after** `lombok`, plus `lombok-mapstruct-binding` — without it Lombok-generated accessors are
@@ -338,8 +368,12 @@ a feature, not a problem — but budget for it.
 
 Each phase ends green. Cucumber is the gate throughout.
 
-**Phase 0 — spikes (½ day).** Resolve §5.6 (base path + link generation) and §5.7 (controller
-stereotype) on a throwaway branch. Everything downstream depends on these two answers.
+**Phase 0 — spikes (½ day).** On a throwaway branch, stand up one hard-coded `@RequestMapping`
+endpoint returning `PagedModel<EntityModel<SchoolResource>>` and resolve three questions:
+§5.5 (HAL is the default representation under Boot 4.1 / Jackson 3, and `@Relation` drives
+`_embedded.schools`), §5.6 (the `/v0` prefix appears in generated `self` links), and §5.7 (a
+`@RequestMapping`-only `@Bean` is picked up as a handler). Everything downstream depends on these
+three answers — none of them is worth discovering in Phase 3.
 
 **Phase 1 — infrastructure, no behaviour change (1 day).** Swap the starters; add MapStruct and its
 processor path; add `ApiBasePath`, `UriListHttpMessageConverter`, `EntityUriResolver`; re-point
