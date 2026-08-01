@@ -63,7 +63,10 @@ class KidsAssociationMethodsTest {
                            arguments(put(path).with(jwt()), status().isMethodNotAllowed()), arguments(
                                 patch(path).with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_kids.update"))),
                                 status().isMethodNotAllowed()),
-                           arguments(get(path).with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_kids.read"))),
+                           arguments(get(path).with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_kids.read"),
+                                                                       new SimpleGrantedAuthority("SCOPE_parents.read"),
+                                                                       new SimpleGrantedAuthority(
+                                                                               "SCOPE_classrooms.read"))),
                                      status().isNotFound())));
     }
 

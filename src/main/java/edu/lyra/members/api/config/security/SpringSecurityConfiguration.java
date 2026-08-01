@@ -6,8 +6,12 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import edu.lyra.members.api.config.web.ApiBasePath;
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManagers;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +19,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
@@ -66,6 +71,21 @@ class SpringSecurityConfiguration {
     private static final String PERSONS_PARENT_ROLE  = path(ENTITY_PERSONS, ANY_SEGMENT, "parent");
     private static final String PERSONS_TEACHER_ROLE = path(ENTITY_PERSONS, ANY_SEGMENT, "teacher");
 
+    // Association GETs reinstated once Spring Data REST no longer auto-exports them: each returns a
+    // representation of a *different* aggregate than the one in its path prefix, so the chain demands
+    // both aggregates' read scopes (closes F3). These are two segments (a collection or singular
+    // sub-resource, no target id) and so are distinct constants from the same-looking association
+    // *write* paths above, which always end in a target id.
+    private static final String PARENTS_KIDS_READ         = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS);
+    private static final String KIDS_PARENT_READ          = path(ENTITY_KIDS, ANY_SEGMENT, "parent");
+    private static final String KIDS_CLASSROOM_READ        = path(ENTITY_KIDS, ANY_SEGMENT, "classroom");
+    private static final String SCHOOLS_CLASSROOMS_READ    = path(ENTITY_SCHOOLS, ANY_SEGMENT, ENTITY_CLASSROOMS);
+    private static final String SCHOOLS_TEACHERS_READ      = path(ENTITY_SCHOOLS, ANY_SEGMENT, ENTITY_TEACHERS);
+    private static final String TEACHERS_SCHOOL_READ       = path(ENTITY_TEACHERS, ANY_SEGMENT, "school");
+    private static final String CLASSROOMS_SCHOOL_READ     = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "school");
+    private static final String CLASSROOMS_TEACHERS_READ   = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_TEACHERS);
+    private static final String CLASSROOMS_TUTOR_READ      = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor");
+
     private static final String SCOPE_PREFIX = "SCOPE_";
 
     private static final String OP_CREATE = "create";
@@ -82,6 +102,8 @@ class SpringSecurityConfiguration {
         final String base = apiBasePath.basePath();
         //@formatter:off
         return http.authorizeHttpRequests(auth -> auth
+                           .dispatcherTypeMatchers(DispatcherType.ERROR)
+                                   .permitAll()
                            .requestMatchers(ACTUATOR_HEALTH, ACTUATOR_HEALTH_ANY, ACTUATOR_INFO)
                                    .permitAll()
                            .requestMatchers(POST, base + PARENTS)
@@ -118,6 +140,19 @@ class SpringSecurityConfiguration {
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_CREATE))
                            .requestMatchers(DELETE, base + PERSONS_TEACHER_ROLE)
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_CREATE))
+                           // These method+path combinations have no real handler (Spring MVC will 405
+                           // them) but still need to clear Security to reach that dispatch at all, now
+                           // that anyRequest() is denyAll() rather than authenticated(). PUT also covers
+                           // KIDS_PARENT_READ/KIDS_CLASSROOM_READ, since those are subpaths of KIDS_ANY;
+                           // POST has no such broad matcher for kids, so it needs its own entry, and PATCH
+                           // there is already covered by PATCH base + KIDS_ANY below with the update scope.
+                           .requestMatchers(PUT, base + PARENTS_ANY, base + KIDS_ANY, base + SCHOOLS_ANY,
+                                             base + TEACHERS_ANY, base + CLASSROOMS_ANY)
+                                   .authenticated()
+                           .requestMatchers(POST, base + PERSONS)
+                                   .authenticated()
+                           .requestMatchers(POST, base + KIDS_PARENT_READ, base + KIDS_CLASSROOM_READ)
+                                   .authenticated()
                            .requestMatchers(DELETE, base + PARENTS_ANY)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_DELETE))
                            .requestMatchers(DELETE, base + KIDS_ANY)
@@ -128,6 +163,24 @@ class SpringSecurityConfiguration {
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_DELETE))
                            .requestMatchers(DELETE, base + CLASSROOMS_ANY)
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_DELETE))
+                           .requestMatchers(GET, base + PARENTS_KIDS_READ)
+                                   .access(bothScopes(ENTITY_PARENTS, ENTITY_KIDS))
+                           .requestMatchers(GET, base + KIDS_PARENT_READ)
+                                   .access(bothScopes(ENTITY_KIDS, ENTITY_PARENTS))
+                           .requestMatchers(GET, base + KIDS_CLASSROOM_READ)
+                                   .access(bothScopes(ENTITY_KIDS, ENTITY_CLASSROOMS))
+                           .requestMatchers(GET, base + SCHOOLS_CLASSROOMS_READ)
+                                   .access(bothScopes(ENTITY_SCHOOLS, ENTITY_CLASSROOMS))
+                           .requestMatchers(GET, base + SCHOOLS_TEACHERS_READ)
+                                   .access(bothScopes(ENTITY_SCHOOLS, ENTITY_TEACHERS))
+                           .requestMatchers(GET, base + TEACHERS_SCHOOL_READ)
+                                   .access(bothScopes(ENTITY_TEACHERS, ENTITY_SCHOOLS))
+                           .requestMatchers(GET, base + CLASSROOMS_SCHOOL_READ)
+                                   .access(bothScopes(ENTITY_CLASSROOMS, ENTITY_SCHOOLS))
+                           .requestMatchers(GET, base + CLASSROOMS_TEACHERS_READ)
+                                   .access(bothScopes(ENTITY_CLASSROOMS, ENTITY_TEACHERS))
+                           .requestMatchers(GET, base + CLASSROOMS_TUTOR_READ)
+                                   .access(bothScopes(ENTITY_CLASSROOMS, ENTITY_TEACHERS))
                            .requestMatchers(GET, base + PARENTS, base + PARENTS_ANY)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_READ))
                            .requestMatchers(GET, base + KIDS, base + KIDS_ANY)
@@ -140,8 +193,10 @@ class SpringSecurityConfiguration {
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_READ))
                            .requestMatchers(GET, base + PERSONS, base + PERSONS_ANY)
                                    .hasAuthority(scope(ENTITY_PERSONS, OP_READ))
+                           .requestMatchers(GET, base + "/")
+                                   .authenticated()
                            .anyRequest()
-                                   .authenticated())
+                                   .denyAll())
                    .oauth2ResourceServer(oauth2 -> oauth2
                            .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                    .addFilterAfter(new JwtMdcFilter(), BearerTokenAuthenticationFilter.class)
@@ -161,6 +216,17 @@ class SpringSecurityConfiguration {
             return authorities;
         });
         return converter;
+    }
+
+    // Association GETs return a representation of the target aggregate under the owner aggregate's
+    // path, so both aggregates' read scopes are required; there is no hasAllAuthorities shorthand for
+    // this, hence the explicit AND-composition.
+    private static AuthorizationManager<RequestAuthorizationContext> bothScopes(
+            final String entityA,
+            final String entityB
+    ) {
+        return AuthorizationManagers.allOf(AuthorityAuthorizationManager.hasAuthority(scope(entityA, OP_READ)),
+                                           AuthorityAuthorizationManager.hasAuthority(scope(entityB, OP_READ)));
     }
 
     private static String scope(final String entity, final String operation) {
