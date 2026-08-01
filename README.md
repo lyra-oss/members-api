@@ -43,7 +43,7 @@ as a `SCOPE_*` authority:
 
 `classrooms.update` also gates the classroom's teaching-staff and roster endpoints (adding/removing a teacher,
 setting the tutor, enrolling a kid), and `parents.update` gates binding an existing kid to a parent
-(`POST /parents/{id}/kids`).
+(`PUT /parents/{id}/kids/{kidId}`).
 
 #### Roles
 

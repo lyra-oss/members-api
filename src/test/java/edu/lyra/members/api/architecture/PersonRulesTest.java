@@ -27,7 +27,8 @@ class PersonRulesTest {
     private static final Set<String> REGISTRATION_HANDLERS =
             Set.of("edu.lyra.members.api.parent.handlers.ParentRegistrationHandler",
                    "edu.lyra.members.api.teacher.handlers.TeacherRegistrationHandler",
-                   "edu.lyra.members.api.teacher.rest.TeacherAdapter");
+                   "edu.lyra.members.api.teacher.rest.TeacherAdapter",
+                   "edu.lyra.members.api.parent.rest.ParentAdapter");
 
     private static final DescribedPredicate<JavaClass> ARE_NOT_ROLE_REGISTRATION_HANDLERS =
             new DescribedPredicate<>("are not the role registration handlers") {

@@ -16,20 +16,17 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.instancio.Instancio;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import tools.jackson.databind.node.ObjectNode;
 
 import static java.time.Month.DECEMBER;
 
 import static org.instancio.Select.field;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ParentUpdateFeatures
         extends AbstractResourceFeatures {
-
-    private static final MediaType URI_LIST = MediaType.parseMediaType("text/uri-list");
 
     @Autowired
     private ParentRepository parentRepository;
@@ -95,7 +92,8 @@ public class ParentUpdateFeatures
             throws Exception {
         final String parentLocation = this.scenarioContext.getLocation("parent:" + parentName);
         final String kidLocation    = this.scenarioContext.getLocation("kid:" + kidName + " " + kidSurname);
-        this.perform(post(parentLocation + "/kids").contentType(URI_LIST).content(kidLocation));
+        final String kidId          = kidLocation.substring(kidLocation.lastIndexOf('/') + 1);
+        this.perform(put(parentLocation + "/kids/" + kidId));
     }
 
     @Then("I receive a confirmation that the kid has been successfully bound to the parent")

@@ -55,7 +55,8 @@ class SpringSecurityConfiguration {
     private static final String CLASSROOMS_ANY = path(ENTITY_CLASSROOMS, ANY_SUBPATH);
     private static final String PERSONS_ANY    = path(ENTITY_PERSONS, ANY_SUBPATH);
 
-    private static final String PARENTS_KIDS         = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS);
+    private static final String PARENTS_KIDS         =
+            path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS, ANY_SEGMENT);
     private static final String CLASSROOMS_TUTOR     = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor");
     private static final String CLASSROOMS_TEACHERS  = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_TEACHERS);
     private static final String CLASSROOMS_KIDS      = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_KIDS);
@@ -106,7 +107,7 @@ class SpringSecurityConfiguration {
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_UPDATE))
                            .requestMatchers(POST, base + CLASSROOMS_TEACHERS, base + CLASSROOMS_KIDS)
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_UPDATE))
-                           .requestMatchers(POST, base + PARENTS_KIDS)
+                           .requestMatchers(PUT, base + PARENTS_KIDS)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_UPDATE))
                            .requestMatchers(PUT, base + PERSONS_PARENT_ROLE)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_CREATE))
