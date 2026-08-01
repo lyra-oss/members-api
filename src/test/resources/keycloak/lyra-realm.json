@@ -191,6 +191,69 @@
                 "include.in.token.scope": "true",
                 "display.on.consent.screen": "false"
             }
+        },
+        {
+            "name": "classrooms.create",
+            "description": "Permission to create classrooms",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "persons.read",
+            "description": "Permission to look up person records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "parents.delete",
+            "description": "Permission to delete parent accounts",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "kids.delete",
+            "description": "Permission to delete kid records",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "schools.delete",
+            "description": "Permission to delete schools",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "teachers.delete",
+            "description": "Permission to delete teacher accounts",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
+        },
+        {
+            "name": "classrooms.delete",
+            "description": "Permission to delete classrooms",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            }
         }
     ],
     "clients": [
@@ -214,16 +277,23 @@
                 "kids.create",
                 "schools.create",
                 "teachers.create",
+                "classrooms.create",
                 "parents.read",
                 "kids.read",
                 "schools.read",
                 "teachers.read",
                 "classrooms.read",
+                "persons.read",
                 "parents.update",
                 "kids.update",
                 "schools.update",
                 "teachers.update",
-                "classrooms.update"
+                "classrooms.update",
+                "parents.delete",
+                "kids.delete",
+                "schools.delete",
+                "teachers.delete",
+                "classrooms.delete"
             ]
         }
     ],

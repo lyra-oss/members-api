@@ -3,6 +3,8 @@ package edu.lyra.members.api.config.security;
 import java.util.Optional;
 import java.util.UUID;
 
+import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
@@ -59,13 +61,15 @@ class SpringSecurityConfigurationTest {
     private RepositoryRestConfiguration restConfiguration;
 
     @MockitoSpyBean
-    private ParentRepository  parentRepository;
+    private ParentRepository    parentRepository;
     @MockitoSpyBean
-    private KidRepository     kidRepository;
+    private KidRepository       kidRepository;
     @MockitoSpyBean
-    private SchoolRepository  schoolRepository;
+    private SchoolRepository    schoolRepository;
     @MockitoSpyBean
-    private TeacherRepository teacherRepository;
+    private TeacherRepository   teacherRepository;
+    @MockitoSpyBean
+    private ClassroomRepository classroomRepository;
 
     @Test
     void testCreateParentOk()
@@ -187,6 +191,62 @@ class SpringSecurityConfigurationTest {
     void testActuatorHealthPermitsAllWithoutAuthentication()
             throws Exception {
         mvc.perform(get("/actuator/health")).andExpect(status().isOk());
+    }
+
+    // "info" is not in this application's actuator web-exposure list, so there is no handler for it;
+    // this only asserts that the security filter itself permits the request through rather than
+    // rejecting it with 401/403 before dispatch — the absence of a handler is a separate concern.
+    @Test
+    void testActuatorInfoPermitsAllWithoutAuthentication()
+            throws Exception {
+        mvc.perform(get("/actuator/info")).andExpect(status().isNotFound());
+    }
+
+    // Regression test for a defect where "/actuator/**" was permitAll: any actuator endpoint other
+    // than health/info must require authentication like anything else, even one that Spring Boot has
+    // not registered a handler for (pattern matching happens in the security filter, before dispatch).
+    @Test
+    void testActuatorOtherEndpointsRequireAuthentication()
+            throws Exception {
+        mvc.perform(get("/actuator/beans")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testCreateClassroomOk()
+            throws Exception {
+        final School school = Instancio.create(School.class);
+        doReturn(Optional.of(school)).when(schoolRepository).findById(school.getId());
+        doReturn(Instancio.create(Classroom.class)).when(classroomRepository).save(any(Classroom.class));
+        //@formatter:off
+        mvc.perform(post(this.base() + "/classrooms")
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_classrooms.create")))
+                .contentType(APPLICATION_JSON)
+                .content(this.classroomJsonWithSchool(school)))
+           .andExpect(status().isCreated());
+        //@formatter:on
+    }
+
+    private String classroomJsonWithSchool(final School school) {
+        final ObjectNode classroomJson = OBJECT_MAPPER.createObjectNode();
+        classroomJson.put("course", 1);
+        classroomJson.put("group", "A");
+        classroomJson.put("school", this.base() + "/schools/" + school.getId());
+        return OBJECT_MAPPER.writeValueAsString(classroomJson);
+    }
+
+    // Regression test for a defect where POST /v0/classrooms had no scope matcher at all and fell
+    // through to ".anyRequest().authenticated()", so any authenticated caller — regardless of scope —
+    // could create a classroom.
+    @Test
+    void testCreateClassroomKo()
+            throws Exception {
+        //@formatter:off
+        mvc.perform(post(this.base() + "/classrooms")
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
+                .contentType(APPLICATION_JSON)
+                .content(this.classroomJsonWithSchool(Instancio.create(School.class))))
+           .andExpect(status().isForbidden());
+        //@formatter:on
     }
 
     @Test

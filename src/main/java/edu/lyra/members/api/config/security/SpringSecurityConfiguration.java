@@ -37,7 +37,10 @@ class SpringSecurityConfiguration {
     private static final String ENTITY_CLASSROOMS = "classrooms";
     private static final String ENTITY_PERSONS    = "persons";
 
-    private static final String ACTUATOR   = path(ENTITY_ACTUATOR, ANY_SUBPATH);
+    private static final String ACTUATOR_HEALTH     = path(ENTITY_ACTUATOR, "health");
+    private static final String ACTUATOR_HEALTH_ANY = path(ENTITY_ACTUATOR, "health", ANY_SUBPATH);
+    private static final String ACTUATOR_INFO       = path(ENTITY_ACTUATOR, "info");
+
     private static final String PARENTS    = path(ENTITY_PARENTS);
     private static final String KIDS       = path(ENTITY_KIDS);
     private static final String SCHOOLS    = path(ENTITY_SCHOOLS);
@@ -77,7 +80,7 @@ class SpringSecurityConfiguration {
         final String base = restConfiguration.getBasePath().toString();
         //@formatter:off
         return http.authorizeHttpRequests(auth -> auth
-                           .requestMatchers(ACTUATOR)
+                           .requestMatchers(ACTUATOR_HEALTH, ACTUATOR_HEALTH_ANY, ACTUATOR_INFO)
                                    .permitAll()
                            .requestMatchers(POST, base + PARENTS)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_CREATE))
@@ -87,6 +90,8 @@ class SpringSecurityConfiguration {
                                    .hasAuthority(scope(ENTITY_SCHOOLS, OP_CREATE))
                            .requestMatchers(POST, base + TEACHERS)
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_CREATE))
+                           .requestMatchers(POST, base + CLASSROOMS)
+                                   .hasAuthority(scope(ENTITY_CLASSROOMS, OP_CREATE))
                            .requestMatchers(PATCH, base + PARENTS_ANY)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_UPDATE))
                            .requestMatchers(PATCH, base + KIDS_ANY)
