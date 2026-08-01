@@ -283,7 +283,7 @@ class SpringSecurityConfigurationTest {
 
     private String teacherJsonWithSchool(final School school) {
         final ObjectNode teacherJson = this.newTeacherJson();
-        teacherJson.put("school", this.base() + "/schools/" + school.getId());
+        teacherJson.put("school", school.getId().toString());
         return OBJECT_MAPPER.writeValueAsString(teacherJson);
     }
 

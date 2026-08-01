@@ -21,9 +21,13 @@ class PersonRulesTest {
 
     private static final String PERSON_BUILDER = "edu.lyra.members.api.person.Person$PersonBuilder";
 
+    // Transitional: as each slice migrates off Spring Data REST, its *RegistrationHandler is replaced by
+    // a *rest.*Adapter that performs the same identity-binding write; both names are kept here side by
+    // side until the old handlers are deleted.
     private static final Set<String> REGISTRATION_HANDLERS =
             Set.of("edu.lyra.members.api.parent.handlers.ParentRegistrationHandler",
-                   "edu.lyra.members.api.teacher.handlers.TeacherRegistrationHandler");
+                   "edu.lyra.members.api.teacher.handlers.TeacherRegistrationHandler",
+                   "edu.lyra.members.api.teacher.rest.TeacherAdapter");
 
     private static final DescribedPredicate<JavaClass> ARE_NOT_ROLE_REGISTRATION_HANDLERS =
             new DescribedPredicate<>("are not the role registration handlers") {

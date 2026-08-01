@@ -8,6 +8,7 @@ import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.exceptions.SchoolHasReferencesException;
 import edu.lyra.members.api.exceptions.SchoolMismatchException;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
+import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -54,6 +55,14 @@ class ProblemDetailsControllerAdvice
                                        "message", "There already exists a resource with the same constraints"))
                 .build();
         //@formatter:on
+    }
+
+    @ExceptionHandler(UnresolvableReferenceException.class)
+    public ResponseEntity<ProblemDetail> handleUnresolvableReferenceException(
+            final UnresolvableReferenceException ex) {
+        return ProblemDetailBuilder.forStatus(BAD_REQUEST)
+                                   .type("https://lyra.sagittec.com/problems/unresolvable-reference")
+                                   .title("Referenced resource does not exist").detail(this.humanize(ex)).build();
     }
 
     @ExceptionHandler(SchoolMismatchException.class)

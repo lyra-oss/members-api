@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -34,6 +35,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Teacher
         extends PersonRole {
 
+    @Setter
     @NotNull
     @ManyToOne
     private School school;

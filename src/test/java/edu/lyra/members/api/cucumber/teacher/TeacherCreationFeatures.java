@@ -130,7 +130,8 @@ public class TeacherCreationFeatures
 
     @And("the teacher teaches at school {string}")
     public void theTeacherTeachesAtSchool(final String schoolName) {
-        this.body.put("school", this.schoolLocation(schoolName));
+        final String location = this.schoolLocation(schoolName);
+        this.body.put("school", location.substring(location.lastIndexOf('/') + 1));
     }
 
     @And("the teacher is already registered")
