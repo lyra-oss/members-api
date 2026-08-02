@@ -1,15 +1,13 @@
 package edu.lyra.members.api.config.web;
 
+import edu.lyra.members.api.config.security.TestJwtDecoderConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static java.util.UUID.randomUUID;
@@ -26,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // Spring MVC itself rejects them with 405 once Security lets the request through.
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Import(TestJwtDecoderConfiguration.class)
 class DisabledMethodsTest {
 
     @Autowired
@@ -39,7 +38,7 @@ class DisabledMethodsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "teachers", "schools", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void itemPutIsDisabled(final String resource)
             throws Exception {
         //@formatter:off
@@ -63,18 +62,6 @@ class DisabledMethodsTest {
                 .content("{}"))
                 .andExpect(status().isMethodNotAllowed());
         //@formatter:on
-    }
-
-    @TestConfiguration
-    static class Config {
-
-        @Bean
-        JwtDecoder jwtDecoder() {
-            return _ -> {
-                throw new JwtException("Test JwtDecoder — use jwt() post-processor instead");
-            };
-        }
-
     }
 
 }

@@ -42,6 +42,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.springframework.core.convert.TypeDescriptor.valueOf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class ProblemDetailsControllerAdviceTest {
@@ -208,7 +209,8 @@ class ProblemDetailsControllerAdviceTest {
                                             .build();
         //@formatter:off
         mvc.perform(post("/dummy").contentType(MediaType.APPLICATION_JSON).content("not json"))
-           .andExpect(status().isBadRequest());
+           .andExpect(status().isBadRequest())
+           .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
         //@formatter:on
     }
 
@@ -218,7 +220,7 @@ class ProblemDetailsControllerAdviceTest {
         final MapBindingResult errors = new MapBindingResult(new HashMap<>(), "parentRequest");
         errors.addError(new FieldError("parentRequest", "surname", "must not be blank"));
         final MethodParameter parameter =
-                new MethodParameter(this.getClass().getDeclaredMethod("dummyTarget", String.class), 0);
+                new MethodParameter(DummyController.class.getDeclaredMethod("dummy", DummyRequest.class), 0);
         final MethodArgumentNotValidException ex = new MethodArgumentNotValidException(parameter, errors);
         //@formatter:off
         final ResponseEntity<Object> response =
@@ -239,9 +241,6 @@ class ProblemDetailsControllerAdviceTest {
                                "message", "must not be blank")));
         //@formatter:on
     }
-
-    @SuppressWarnings("unused")
-    private void dummyTarget(final String arg) {}
 
     @RestController
     private static class DummyController {

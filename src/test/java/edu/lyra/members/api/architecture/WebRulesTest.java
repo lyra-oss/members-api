@@ -27,24 +27,17 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 class WebRulesTest {
 
     private static final DescribedPredicate<JavaMethod> ARE_REQUEST_MAPPED =
-            new DescribedPredicate<>("are request-mapped") {
-
-                @Override
-                public boolean test(final JavaMethod method) {
-                    return method.isAnnotatedWith(RequestMapping.class) || method.isAnnotatedWith(GetMapping.class) ||
-                           method.isAnnotatedWith(PostMapping.class) || method.isAnnotatedWith(PutMapping.class) ||
-                           method.isAnnotatedWith(PatchMapping.class) || method.isAnnotatedWith(DeleteMapping.class);
-                }
-            };
+            DescribedPredicate.describe("are request-mapped",
+                                        method -> method.isAnnotatedWith(RequestMapping.class) ||
+                                                  method.isAnnotatedWith(GetMapping.class) ||
+                                                  method.isAnnotatedWith(PostMapping.class) ||
+                                                  method.isAnnotatedWith(PutMapping.class) ||
+                                                  method.isAnnotatedWith(PatchMapping.class) ||
+                                                  method.isAnnotatedWith(DeleteMapping.class));
 
     private static final DescribedPredicate<JavaClass> IS_A_CONTROLLER =
-            new DescribedPredicate<>("is annotated with @RestController") {
-
-                @Override
-                public boolean test(final JavaClass javaClass) {
-                    return javaClass.isAnnotatedWith(RestController.class);
-                }
-            };
+            DescribedPredicate.describe("is annotated with @RestController",
+                                        javaClass -> javaClass.isAnnotatedWith(RestController.class));
 
     /**
      * Request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) declared in a

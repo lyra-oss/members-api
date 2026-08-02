@@ -27,7 +27,7 @@ class RepresentationRulesTest {
     private static final DescribedPredicate<JavaClass> IS_A_MODEL_OR_REQUEST = IS_A_MODEL.or(IS_A_REQUEST);
 
     private static final DescribedPredicate<JavaClass> IS_AN_ENTITY_OR_REPOSITORY =
-            DescribedPredicate.describe("annotated with @Entity or assignable to Repository",
+            DescribedPredicate.describe("is annotated with @Entity or assignable to Repository",
                                         javaClass -> javaClass.isAnnotatedWith(Entity.class) ||
                                                      javaClass.isAssignableTo(Repository.class));
 

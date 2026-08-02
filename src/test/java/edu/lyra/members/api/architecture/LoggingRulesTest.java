@@ -34,35 +34,23 @@ class LoggingRulesTest {
     private static final String MAPPED_METHOD_DOES_NOT_LOG_MESSAGE = "%s does not log anything";
 
     private static final DescribedPredicate<JavaClass> IS_SPRING_CONTROLLER =
-            new DescribedPredicate<>("is a Spring controller") {
-
-                @Override
-                public boolean test(final JavaClass javaClass) {
-                    return javaClass.isAnnotatedWith(RestController.class) ||
-                           javaClass.isAnnotatedWith(Controller.class);
-                }
-            };
+            DescribedPredicate.describe("is a Spring controller",
+                                        javaClass -> javaClass.isAnnotatedWith(RestController.class) ||
+                                                     javaClass.isAnnotatedWith(Controller.class));
 
     private static final DescribedPredicate<JavaMethod> IS_MAPPED_METHOD =
-            new DescribedPredicate<>("is a request-mapped method") {
-
-                @Override
-                public boolean test(final JavaMethod method) {
-                    return method.isAnnotatedWith(RequestMapping.class) || method.isAnnotatedWith(GetMapping.class) ||
-                           method.isAnnotatedWith(PostMapping.class) || method.isAnnotatedWith(PutMapping.class) ||
-                           method.isAnnotatedWith(PatchMapping.class) || method.isAnnotatedWith(DeleteMapping.class);
-                }
-            };
+            DescribedPredicate.describe("is a request-mapped method",
+                                        method -> method.isAnnotatedWith(RequestMapping.class) ||
+                                                  method.isAnnotatedWith(GetMapping.class) ||
+                                                  method.isAnnotatedWith(PostMapping.class) ||
+                                                  method.isAnnotatedWith(PutMapping.class) ||
+                                                  method.isAnnotatedWith(PatchMapping.class) ||
+                                                  method.isAnnotatedWith(DeleteMapping.class));
 
     private static final DescribedPredicate<JavaClass> IS_AN_ADAPTER_OR_POLICY =
-            new DescribedPredicate<>("has a simple name ending with Adapter or Policy") {
-
-                @Override
-                public boolean test(final JavaClass javaClass) {
-                    return javaClass.getSimpleName().endsWith("Adapter") ||
-                           javaClass.getSimpleName().endsWith("Policy");
-                }
-            };
+            DescribedPredicate.describe("has a simple name ending with Adapter or Policy",
+                                        javaClass -> javaClass.getSimpleName().endsWith("Adapter") ||
+                                                     javaClass.getSimpleName().endsWith("Policy"));
 
     /**
      * Every Spring controller ({@code @RestController} or {@code @Controller}) must have an SLF4J

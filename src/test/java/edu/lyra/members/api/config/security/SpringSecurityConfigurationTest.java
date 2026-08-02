@@ -17,16 +17,13 @@ import edu.lyra.members.api.teacher.TeacherRepository;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -47,11 +44,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Import(TestJwtDecoderConfiguration.class)
 class SpringSecurityConfigurationTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -317,14 +314,14 @@ class SpringSecurityConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testListingRequiresAuthentication(final String resource)
             throws Exception {
         this.perform(get(this.base() + "/" + resource)).andExpect(status().isUnauthorized());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testListingRequiresReadScope(final String resource)
             throws Exception {
         //@formatter:off
@@ -335,7 +332,7 @@ class SpringSecurityConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testListingIsAllowedWithReadScope(final String resource)
             throws Exception {
         //@formatter:off
@@ -346,14 +343,14 @@ class SpringSecurityConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testGettingSingleItemRequiresAuthentication(final String resource)
             throws Exception {
         this.perform(get(this.base() + "/" + resource + "/" + randomUUID())).andExpect(status().isUnauthorized());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testGettingSingleItemRequiresReadScope(final String resource)
             throws Exception {
         //@formatter:off
@@ -364,7 +361,7 @@ class SpringSecurityConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testGettingSingleItemIsAllowedWithReadScope(final String resource)
             throws Exception {
         //@formatter:off
@@ -374,21 +371,11 @@ class SpringSecurityConfigurationTest {
         //@formatter:on
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
-    void testItemPutIsDisabled(final String resource)
-            throws Exception {
-        //@formatter:off
-        this.perform(put(this.base() + "/" + resource + "/" + randomUUID())
-                .with(jwt())
-                .contentType(APPLICATION_JSON)
-                .content("{}"))
-           .andExpect(status().isMethodNotAllowed());
-        //@formatter:on
-    }
+    // Item PUT -> 405 across these resources is asserted by DisabledMethodsTest.itemPutIsDisabled;
+    // that test owns method-exposure guarantees, this class owns scope enforcement.
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testItemPatchRequiresAuthentication(final String resource)
             throws Exception {
         //@formatter:off
@@ -401,7 +388,7 @@ class SpringSecurityConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testItemPatchRequiresUpdateScope(final String resource)
             throws Exception {
         //@formatter:off
@@ -411,18 +398,6 @@ class SpringSecurityConfigurationTest {
                 .content("{}"))
            .andExpect(status().isForbidden());
         //@formatter:on
-    }
-
-    @TestConfiguration
-    static class Config {
-
-        @Bean
-        JwtDecoder jwtDecoder() {
-            return _ -> {
-                throw new JwtException("Test JwtDecoder — use jwt() post-processor instead");
-            };
-        }
-
     }
 
 }

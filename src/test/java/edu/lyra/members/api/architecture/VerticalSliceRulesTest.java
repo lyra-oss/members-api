@@ -27,14 +27,9 @@ class VerticalSliceRulesTest {
     private static final String INTERNAL_PACKAGE_SUFFIX_REST = ".rest";
 
     private static final DescribedPredicate<JavaClass> RESIDES_IN_A_VERTICAL_PACKAGE =
-            new DescribedPredicate<>("resides in a vertical (aggregate) package") {
-
-                @Override
-                public boolean test(final JavaClass javaClass) {
-                    return topLevelPackageOf(javaClass).map(top -> ! NON_VERTICAL_TOP_LEVEL_PACKAGES.contains(top))
-                                                       .orElse(false);
-                }
-            };
+            DescribedPredicate.describe("resides in a vertical (aggregate) package",
+                    javaClass -> topLevelPackageOf(javaClass).map(
+                            top -> ! NON_VERTICAL_TOP_LEVEL_PACKAGES.contains(top)).orElse(false));
 
     /**
      * Classes in any "..rest" package must not be public, since they are internal wiring for their

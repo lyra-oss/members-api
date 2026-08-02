@@ -5,17 +5,13 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
-import com.tngtech.archunit.lang.ConditionEvents;
-import com.tngtech.archunit.lang.SimpleConditionEvent;
 import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
 import org.mapstruct.Mapper;
 import org.springframework.data.repository.Repository;
 import org.springframework.security.access.AccessDeniedException;
 
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
@@ -27,7 +23,7 @@ class AdapterRulesTest {
 
     private static final DescribedPredicate<JavaClass> IS_A_MAPPER_PURITY_VIOLATION =
             DescribedPredicate.describe(
-                    "a Repository, AuthenticatedPrincipal, or org.springframework.security.. type",
+                    "is a Repository, AuthenticatedPrincipal, or org.springframework.security.. type",
                     javaClass -> javaClass.isAssignableTo(Repository.class) ||
                                  javaClass.getFullName().equals(AuthenticatedPrincipal.class.getName()) ||
                                  javaClass.getPackageName().startsWith("org.springframework.security"));
@@ -58,34 +54,6 @@ class AdapterRulesTest {
             //@formatter:on
 
     /**
-     * A MapStruct {@code @Mapper} must not declare {@code componentModel = "spring"}; mappers are
-     * plain generated classes wired manually via {@code Mappers.getMapper(...)} inside a
-     * {@code @Configuration} class. This is belt-and-braces alongside {@code SpringBeanRulesTest},
-     * which already forbids component-scanned beans outside "config".
-     *
-     * <p>Compliant: {@code @Mapper interface SchoolMapper}
-     *
-     * <p>Violation: {@code @Mapper(componentModel = "spring") interface SchoolMapper}
-     */
-    @ArchTest
-    static final ArchRule mappersDoNotUseSpringComponentModel =
-            //@formatter:off
-            classes().that(IS_A_MAPSTRUCT_MAPPER)
-                     .should(new ArchCondition<JavaClass>("not declare @Mapper(componentModel = \"spring\")") {
-
-                         @Override
-                         public void check(final JavaClass javaClass, final ConditionEvents events) {
-                             final String componentModel =
-                                     javaClass.getAnnotationOfType(Mapper.class).componentModel();
-                             final boolean satisfied = ! "spring".equals(componentModel);
-                             events.add(new SimpleConditionEvent(javaClass, satisfied,
-                                     "%s declares @Mapper(componentModel = \"%s\")".formatted(
-                                             javaClass.getFullName(), componentModel)));
-                         }
-                     });
-            //@formatter:on
-
-    /**
      * {@link AccessDeniedException} must be thrown only from a {@code *Policy} class, or from the
      * security kernel in "config.security" ({@link AuthenticatedPrincipal} itself, which requires a
      * valid authenticated subject before anything else runs) — one place owns the 403 decision.
@@ -95,7 +63,7 @@ class AdapterRulesTest {
      * <p>Violation: {@code SchoolAdapter} throws {@code AccessDeniedException} directly
      */
     @ArchTest
-    static final ArchRule onlyPoliciesThrowAccessDenied =
+    static final ArchRule accessDeniedIsThrownOnlyByPoliciesOrTheSecurityKernel =
             //@formatter:off
             noClasses().that(DescribedPredicate.not(MAY_THROW_ACCESS_DENIED))
                        .should().dependOnClassesThat().areAssignableTo(AccessDeniedException.class)

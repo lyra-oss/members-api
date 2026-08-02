@@ -521,16 +521,20 @@ Guards the inbound/outbound asymmetry of §3.2 and the `@Relation` trap of §5.5
 
 ### 7.3 `AdapterRulesTest` — **new file**
 
+Several rules originally sketched here turned out to duplicate the bidirectional name/stereotype pairs
+already in `NamingRulesTest` (§7.6) — `*Adapter`/`*Mapper`/`*Policy` naming and package location are
+asserted there instead, once per type, not twice. `onlyAdaptersDependOnRepositories` was dropped
+outright: `TeacherPolicy` and the `*VisibilityStrategy` classes are legitimate non-Adapter repository
+consumers (§7.4 covers the real boundary — Controller/Model/Request/Mapper never touch a repository —
+from the negative direction instead). `mappersDoNotUseSpringComponentModel` was dropped too: it
+duplicated `SpringBeanRulesTest.sliceBeansAreNotComponentScanned`, which already forbids
+component-scanned beans (including a MapStruct `componentModel = "spring"` mapper's generated
+`@Component` impl) outside `config`. What's left is genuinely new ground:
+
 | Rule | Intent |
 |---|---|
-| `adaptersLiveInRestPackages` | `*Adapter` resides in `..rest` |
-| `adaptersAssembleRepresentations` | `*Adapter` implements `RepresentationModelAssembler` (§3.3) |
-| `onlyAdaptersDependOnRepositories` | within `..rest`, only `*Adapter` may touch a `Repository` — the layer boundary |
-| `mappersAreMapStructInterfaces` | `*Mapper` is an interface annotated `@Mapper` |
 | `mappersArePure` | `*Mapper` must not depend on repositories, `AuthenticatedPrincipal`, or `org.springframework.security..` (§3.3) |
-| `mappersDoNotUseSpringComponentModel` | belt-and-braces for §5.7; also caught by `SpringBeanRulesTest` |
-| `policiesLiveInRestPackages` | `*Policy` resides in `..rest` |
-| `onlyPoliciesThrowAccessDenied` | `AccessDeniedException` is thrown only from `*Policy` — one place owns 403 |
+| `accessDeniedIsThrownOnlyByPoliciesOrTheSecurityKernel` | `AccessDeniedException` is thrown only from a `*Policy`, or from `AuthenticatedPrincipal` itself in `config.security` (the pre-authorization check every self-service write depends on) — one place owns 403 |
 
 ### 7.4 `JpaRepositoryRulesTest` — extended
 

@@ -1,11 +1,13 @@
 package edu.lyra.members.api.config.web;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBindException;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiBasePathTest {
 
@@ -21,10 +23,14 @@ class ApiBasePathTest {
     @Test
     void rejectsABlankBasePath() {
         this.contextRunner.withPropertyValues("lyra.api.base-path=")
-                           .run(context -> assertNotNull(context.getStartupFailure()));
+                           .run(context -> {
+                               final Throwable failure = context.getStartupFailure();
+                               assertInstanceOf(ConfigurationPropertiesBindException.class, failure);
+                               assertTrue(failure.getMessage().contains("ApiBasePath"));
+                           });
     }
 
     @EnableConfigurationProperties(ApiBasePath.class)
-    static class TestConfig {}
+    private static class TestConfig {}
 
 }

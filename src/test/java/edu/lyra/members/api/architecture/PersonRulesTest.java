@@ -26,28 +26,18 @@ class PersonRulesTest {
                    "edu.lyra.members.api.parent.rest.ParentAdapter");
 
     private static final DescribedPredicate<JavaClass> ARE_NOT_ROLE_REGISTRATION_HANDLERS =
-            new DescribedPredicate<>("are not the role registration handlers") {
-
-                @Override
-                public boolean test(final JavaClass javaClass) {
-                    return ! REGISTRATION_HANDLERS.contains(javaClass.getName());
-                }
-            };
+            DescribedPredicate.describe("are not the role registration handlers",
+                                        javaClass -> ! REGISTRATION_HANDLERS.contains(javaClass.getName()));
 
     private static final DescribedPredicate<JavaCall<?>> WRITE_TO_A_PERSON =
-            new DescribedPredicate<>("write to a Person (constructor, builder or setter)") {
-
-                @Override
-                public boolean test(final JavaCall<?> call) {
-                    if(! call.getTargetOwner().isEquivalentTo(Person.class)) {
-                        return false;
-                    }
-                    final String name = call.getName();
-                    return name.startsWith("set")
-                            || "builder".equals(name)
-                            || JavaConstructor.CONSTRUCTOR_NAME.equals(name);
+            DescribedPredicate.describe("write to a Person (constructor, builder or setter)", call -> {
+                if(! call.getTargetOwner().isEquivalentTo(Person.class)) {
+                    return false;
                 }
-            };
+                final String name = call.getName();
+                return name.startsWith("set") || "builder".equals(name) ||
+                       JavaConstructor.CONSTRUCTOR_NAME.equals(name);
+            });
 
     /**
      * A {@code Person} may only be written — constructed, built or mutated through a setter — by the person slice

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
+import edu.lyra.members.api.config.security.TestJwtDecoderConfiguration;
 import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
@@ -22,14 +23,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -46,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // by walking Spring Data REST's own metadata, which disappears with the framework (Phase 4.4).
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Import(TestJwtDecoderConfiguration.class)
 class KidAssociationRoutesTest {
 
     @Autowired
@@ -170,18 +169,6 @@ class KidAssociationRoutesTest {
                                          new SimpleGrantedAuthority("SCOPE_classrooms.read")))))
                 .andExpect(status().isOk());
         //@formatter:on
-    }
-
-    @TestConfiguration
-    static class Config {
-
-        @Bean
-        JwtDecoder jwtDecoder() {
-            return _ -> {
-                throw new JwtException("Test JwtDecoder — use jwt() post-processor instead");
-            };
-        }
-
     }
 
 }

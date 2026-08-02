@@ -1,7 +1,5 @@
 package edu.lyra.members.api.architecture;
 
-import com.tngtech.archunit.base.DescribedPredicate;
-import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
@@ -14,17 +12,6 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class JpaRepositoryRulesTest {
-
-    private static final DescribedPredicate<JavaClass> IS_WIRE_OR_MAPPING_LAYER =
-            new DescribedPredicate<>("is a Controller, Model, Request or Mapper") {
-
-                @Override
-                public boolean test(final JavaClass javaClass) {
-                    final String name = javaClass.getSimpleName();
-                    return name.endsWith("Controller") || name.endsWith("Model") || name.endsWith("Request") ||
-                           name.endsWith("Mapper");
-                }
-            };
 
     /**
      * Every Spring Data {@code @Repository} must also be annotated with {@code @Transactional}.
@@ -61,20 +48,6 @@ class JpaRepositoryRulesTest {
             noClasses().should().beAnnotatedWith("jakarta.transaction.Transactional")
                        .as("use org.springframework.transaction.annotation.Transactional, "
                            + "not jakarta.transaction.Transactional");
-
-    /**
-     * Controllers, {@code *Model}s, {@code *Request}s and {@code *Mapper}s — the wire format and
-     * mapping layer — must never access a {@link Repository} directly; data access is the adapter's
-     * (and its collaborators', e.g. a policy or visibility strategy) job.
-     *
-     * <p>Compliant: {@code SchoolController} calls {@code SchoolAdapter.findById(id)}
-     *
-     * <p>Violation: {@code SchoolController} calls {@code SchoolRepository.findById(id)} directly
-     */
-    @ArchTest
-    static final ArchRule repositoriesAreNotAccessedByTheWireOrMappingLayer =
-            noClasses().that(IS_WIRE_OR_MAPPING_LAYER)
-                       .should().accessClassesThat().areAssignableTo(Repository.class);
 
     /**
      * A repository must not depend on the web layer — neither a "..rest" package nor
