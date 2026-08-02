@@ -2,7 +2,10 @@ package edu.lyra.members.api.kid.rest;
 
 import java.util.List;
 
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.kid.KidRepository;
+import edu.lyra.members.api.parent.ParentRepository;
+import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,8 +13,26 @@ import org.springframework.context.annotation.Configuration;
 class KidRestConfiguration {
 
     @Bean
-    KidsCollectionController kidsCollectionController(final KidVisibilityStrategyResolver visibilityResolver) {
-        return new KidsCollectionController(visibilityResolver);
+    KidMapper kidMapper() {
+        return Mappers.getMapper(KidMapper.class);
+    }
+
+    @Bean
+    KidPolicy kidPolicy(final ParentRepository parentRepository) {
+        return new KidPolicy(parentRepository);
+    }
+
+    @Bean
+    KidAdapter kidAdapter(
+            final KidRepository kidRepository,
+            final ParentRepository parentRepository,
+            final ClassroomRepository classroomRepository,
+            final KidVisibilityStrategyResolver visibilityResolver,
+            final KidMapper mapper,
+            final KidPolicy policy
+    ) {
+        return new KidAdapter(kidRepository, parentRepository, classroomRepository, visibilityResolver, mapper,
+                              policy);
     }
 
     @Bean

@@ -1,10 +1,12 @@
 package edu.lyra.members.api.cucumber;
 
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import edu.lyra.members.api.person.PersonRepository;
 import io.cucumber.java.en.Given;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -20,7 +22,12 @@ public class AuthenticationFeatures {
     @Given("I am authenticated with {string} scope")
     public void iAmAuthenticatedWithScope(final String scope) {
         scenarioContext.setJwtProcessor(jwt().jwt(builder -> builder.subject(UUID.randomUUID().toString()))
-                                             .authorities(new SimpleGrantedAuthority("SCOPE_" + scope)));
+                                             .authorities(scopeAuthorities(scope)));
+    }
+
+    private static GrantedAuthority[] scopeAuthorities(final String commaSeparatedScopes) {
+        return Stream.of(commaSeparatedScopes.split(",")).map(String::strip)
+                     .map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope)).toArray(GrantedAuthority[]::new);
     }
 
     @Given("I am authenticated as {string} with {string} scope")

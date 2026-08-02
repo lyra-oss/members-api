@@ -12,8 +12,6 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.slf4j.Logger;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,37 +34,33 @@ class LoggingRulesTest {
     private static final String MAPPED_METHOD_DOES_NOT_LOG_MESSAGE = "%s does not log anything";
 
     private static final DescribedPredicate<JavaClass> IS_SPRING_CONTROLLER =
-            new DescribedPredicate<>("is a Spring controller") {
-
-                @Override
-                public boolean test(final JavaClass javaClass) {
-                    return javaClass.isAnnotatedWith(RestController.class) ||
-                           javaClass.isAnnotatedWith(Controller.class) ||
-                           javaClass.isAnnotatedWith(RepositoryRestController.class);
-                }
-            };
+            DescribedPredicate.describe("is a Spring controller",
+                                        javaClass -> javaClass.isAnnotatedWith(RestController.class) ||
+                                                     javaClass.isAnnotatedWith(Controller.class));
 
     private static final DescribedPredicate<JavaMethod> IS_MAPPED_METHOD =
-            new DescribedPredicate<>("is a request-mapped method") {
+            DescribedPredicate.describe("is a request-mapped method",
+                                        method -> method.isAnnotatedWith(RequestMapping.class) ||
+                                                  method.isAnnotatedWith(GetMapping.class) ||
+                                                  method.isAnnotatedWith(PostMapping.class) ||
+                                                  method.isAnnotatedWith(PutMapping.class) ||
+                                                  method.isAnnotatedWith(PatchMapping.class) ||
+                                                  method.isAnnotatedWith(DeleteMapping.class));
 
-                @Override
-                public boolean test(final JavaMethod method) {
-                    return method.isAnnotatedWith(RequestMapping.class) || method.isAnnotatedWith(GetMapping.class) ||
-                           method.isAnnotatedWith(PostMapping.class) || method.isAnnotatedWith(PutMapping.class) ||
-                           method.isAnnotatedWith(PatchMapping.class) || method.isAnnotatedWith(DeleteMapping.class);
-                }
-            };
+    private static final DescribedPredicate<JavaClass> IS_AN_ADAPTER_OR_POLICY =
+            DescribedPredicate.describe("has a simple name ending with Adapter or Policy",
+                                        javaClass -> javaClass.getSimpleName().endsWith("Adapter") ||
+                                                     javaClass.getSimpleName().endsWith("Policy"));
 
     /**
-     * Every Spring controller ({@code @RestController}, {@code @Controller} or
-     * {@code @RepositoryRestController}) must have an SLF4J logger ({@code @Slf4j}), and every one of
-     * its request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) must log at least
-     * one line, so every inbound request leaves a trace.
+     * Every Spring controller ({@code @RestController} or {@code @Controller}) must have an SLF4J
+     * logger ({@code @Slf4j}), and every one of its request-mapped methods ({@code @GetMapping},
+     * {@code @PostMapping}, etc.) must log at least one line, so every inbound request leaves a trace.
      *
      * <p>Compliant:
      * <pre>{@code
      * @Slf4j
-     * @RepositoryRestController
+     * @RestController
      * class PersonController {
      *     @GetMapping
      *     Person get(final UUID id) {
@@ -79,7 +73,7 @@ class LoggingRulesTest {
      * <p>Violation (mapped method does not log):
      * <pre>{@code
      * @Slf4j
-     * @RepositoryRestController
+     * @RestController
      * class PersonController {
      *     @GetMapping
      *     Person get(final UUID id) {
@@ -112,18 +106,17 @@ class LoggingRulesTest {
     //@formatter:on
 
     /**
-     * Every Spring Data REST {@code @RepositoryEventHandler} must have an SLF4J logger and log at
-     * least one line somewhere in the class, so repository lifecycle events (before/after save,
-     * delete, etc.) are traceable.
+     * Every {@code *Adapter} and {@code *Policy} class must have an SLF4J logger and log at least one
+     * line somewhere in the class, so every data-access orchestration and every authorization decision
+     * is traceable.
      *
      * <p>Compliant:
      * <pre>{@code
      * @Slf4j
-     * @RepositoryEventHandler
-     * class PersonHandler {
-     *     @HandleBeforeSave
-     *     void beforeSave(final Person person) {
-     *         log.info("saving {}", person);
+     * class SchoolPolicy {
+     *     void authorizeUpdate(final School school) {
+     *         log.debug("Authorizing update of school {}", school.getId());
+     *         ...
      *     }
      * }
      * }</pre>
@@ -131,18 +124,16 @@ class LoggingRulesTest {
      * <p>Violation (no {@code log.*(...)} call anywhere in the class):
      * <pre>{@code
      * @Slf4j
-     * @RepositoryEventHandler
-     * class PersonHandler {
-     *     @HandleBeforeSave
-     *     void beforeSave(final Person person) { ... }
+     * class SchoolPolicy {
+     *     void authorizeUpdate(final School school) { ... }
      * }
      * }</pre>
      */
     @ArchTest
-    static final ArchRule repositoryEventHandlersLogTheirEvents =
+    static final ArchRule adaptersAndPoliciesLogTheirDecisions =
             //@formatter:off
-            classes().that().areAnnotatedWith(RepositoryEventHandler.class)
-                     .should(new ArchCondition<>("Be annotated with @Slf4j and log at least one line") {
+            classes().that(IS_AN_ADAPTER_OR_POLICY)
+                     .should(new ArchCondition<>("be annotated with @Slf4j and log at least one line") {
 
                          @Override
                          public void check(final JavaClass javaClass, final ConditionEvents events) {

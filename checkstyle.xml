@@ -67,6 +67,11 @@
         <module name="AvoidStarImport"/>
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
+        <!-- Second, independent gate against Spring Data REST returning, alongside the ArchUnit
+             MigrationGuardRulesTest rule: this one fails at validate time, before tests even run. -->
+        <module name="IllegalImport">
+            <property name="illegalPkgs" value="org.springframework.data.rest"/>
+        </module>
         <module name="ImportOrder">
             <property name="option" value="bottom"/>
             <property name="groups" value="java,*"/>
@@ -121,6 +126,10 @@
         <module name="OuterTypeFilename"/>
         <module name="InterfaceIsType"/>
         <module name="MutableException"/>
+        <module name="ClassFanOutComplexity">
+            <property name="max" value="25"/>
+        </module>
+        <module name="OverloadMethodsDeclarationOrder"/>
 
         <!-- Coding best practices -->
         <module name="EqualsHashCode"/>
@@ -151,6 +160,7 @@
         <module name="MagicNumber">
             <property name="ignoreAnnotation" value="true"/>
         </module>
+        <module name="UnusedLocalVariable"/>
 
         <!-- Naming -->
         <module name="ConstantName"/>
@@ -162,6 +172,8 @@
         <module name="ParameterName"/>
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
+        <module name="RecordComponentName"/>
+        <module name="RecordTypeParameterName"/>
 
         <!-- Whitespace: keyword tokens excluded from WhitespaceAround to honor the if( style -->
         <module name="WhitespaceAround">

@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.lyra.members.api.config.jpa.Auditable;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.school.School;
@@ -20,13 +19,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -55,21 +49,20 @@ import static jakarta.persistence.CascadeType.PERSIST;
 public class Classroom
         extends Auditable {
 
-    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ID", nullable = false, updatable = false)
     private UUID id;
 
-    @Positive
-    @Max(6)
+    @Setter
     @Column(name = "COURSE", length = 1, nullable = false)
     private int course;
 
-    @Pattern(regexp = "^[A-Z]$")
+    @Setter
     @Column(name = "GROUP_NAME", length = 1, nullable = false)
     private String group;
 
+    @Setter
     @ManyToOne
     private School school;
 
@@ -90,14 +83,5 @@ public class Classroom
     @OneToMany(cascade = { PERSIST, MERGE })
     @JoinColumn(name = "CLASSROOM_ID")
     private Set<Kid> kids = new HashSet<>();
-
-    @JsonIgnore
-    @Transient
-    private UUID previousTutorId;
-
-    @PostLoad
-    private void capturePreviousTutorId() {
-        this.previousTutorId = this.tutor == null ? null : this.tutor.getId();
-    }
 
 }

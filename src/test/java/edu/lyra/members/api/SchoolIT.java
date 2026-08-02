@@ -46,4 +46,33 @@ class SchoolIT
         }
     }
 
+    @Test
+    void testCreateAndDeleteSchool()
+            throws IOException {
+        final String createToken = this.getToken(USERNAME, "schools.create");
+        final String body        = this.json.writeValueAsString(Map.of(NAME_KEY, "Montessori Norte"));
+        final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/schools")
+                                                          .addHeader("Authorization", "Bearer " + createToken)
+                                                          .post(create(body, get("application/json"))).build();
+        String location;
+        try(Response response = this.http.newCall(postRequest).execute()) {
+            assertEquals(201, response.code());
+            location = response.header("Location");
+            assertNotNull(location);
+        }
+        final String deleteToken = this.getToken(USERNAME, "schools.delete");
+        final Request deleteRequest =
+                new Request.Builder().url(location).addHeader("Authorization", "Bearer " + deleteToken).delete()
+                                     .build();
+        try(Response response = this.http.newCall(deleteRequest).execute()) {
+            assertEquals(204, response.code());
+        }
+        final String readToken = this.getToken(USERNAME, "schools.read");
+        final Request getRequest =
+                new Request.Builder().url(location).addHeader("Authorization", "Bearer " + readToken).build();
+        try(Response response = this.http.newCall(getRequest).execute()) {
+            assertEquals(404, response.code());
+        }
+    }
+
 }

@@ -32,7 +32,6 @@ public class SchoolCreationFeatures
 
     @Given("the school name is not provided")
     public void schoolNameNotProvided() {
-        // name field intentionally omitted from the request
     }
 
     @Given("the school name is set to null")

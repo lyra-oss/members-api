@@ -38,8 +38,10 @@
         <!-- Sonar settings -->
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <!-- The Spring Boot entry point has no branching logic of its own to cover; see the architecture
-             test enforcing that *Application classes stay minimal. -->
-        <sonar.coverage.exclusions>**/MembersApiApplication.java</sonar.coverage.exclusions>
+             test enforcing that *Application classes stay minimal. MapStruct-generated *MapperImpl
+             classes carry no logic of their own either - javax.annotation.processing.Generated is
+             SOURCE-retention, so JaCoCo's own auto-ignore does not exclude them. -->
+        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
         <cucumber.version>7.34.6</cucumber.version>
         <opentelemetry.version>1.64.0</opentelemetry.version>
@@ -51,6 +53,8 @@
         <jackson-databind.version>3.1.5</jackson-databind.version>
         <instancio.version>5.6.0</instancio.version>
         <datafaker.version>2.7.0</datafaker.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <!-- Plugin versions -->
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
@@ -121,11 +125,16 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-rest</artifactId>
+            <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -280,9 +289,22 @@
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
                         </path>
+                        <!-- Lombok must precede mapstruct-processor so MapStruct sees the
+                             Lombok-generated accessors; lombok-mapstruct-binding is what lets the two
+                             processors cooperate in the same compilation round. -->
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -376,6 +398,38 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!-- Guards against Spring Data REST creeping back in through a stray dependency,
+                             independently of whether any code ends up importing it - a stray classpath
+                             addition alone can silently reactivate its autoconfiguration. Paired with
+                             the Checkstyle IllegalImport rule below, which catches it at the source-code
+                             level instead. -->
+                        <id>enforce-no-spring-data-rest</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <searchTransitive>true</searchTransitive>
+                                    <excludes>
+                                        <exclude>org.springframework.boot:spring-boot-starter-data-rest</exclude>
+                                        <exclude>org.springframework.data:spring-data-rest-core</exclude>
+                                        <exclude>org.springframework.data:spring-data-rest-webmvc</exclude>
+                                        <exclude>org.springframework.data:spring-data-rest-hal-explorer</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <dependencies>
@@ -390,6 +444,13 @@
                     <consoleOutput>true</consoleOutput>
                     <failOnViolation>true</failOnViolation>
                     <violationSeverity>warning</violationSeverity>
+                    <!-- Without this, the javadoc:javadoc "doclint-check" execution forks a fresh
+                         generate-sources lifecycle pass late in the build, by which point the real compile
+                         has already registered target/generated-sources/annotations as a compile source
+                         root - so this validate-bound check goal runs a second time and, unlike its first
+                         run before anything was compiled, now sees (and flags) MapStruct's generated
+                         *MapperImpl.java files. -->
+                    <excludeGeneratedSources>true</excludeGeneratedSources>
                 </configuration>
                 <executions>
                     <execution>
@@ -468,6 +529,7 @@
                     <excludedClasses>
                         <param>**.*Configuration</param>
                         <param>**.*Application</param>
+                        <param>**.*MapperImpl</param>
                     </excludedClasses>
                     <excludedTestClasses>
                         <param>**.*IT</param>

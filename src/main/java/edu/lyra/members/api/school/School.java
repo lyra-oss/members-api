@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.config.jpa.Auditable;
 import edu.lyra.members.api.teacher.Teacher;
@@ -17,10 +16,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -43,14 +41,12 @@ import static jakarta.persistence.CascadeType.PERSIST;
 public class School
         extends Auditable {
 
-    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ID", nullable = false, updatable = false)
     private UUID id;
 
-    @NotBlank
-    @Size(max = 100)
+    @Setter
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
 

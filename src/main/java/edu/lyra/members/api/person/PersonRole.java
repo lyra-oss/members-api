@@ -2,7 +2,6 @@ package edu.lyra.members.api.person;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.lyra.members.api.config.jpa.Auditable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
@@ -10,8 +9,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,14 +35,10 @@ import static jakarta.persistence.CascadeType.PERSIST;
 public abstract class PersonRole
         extends Auditable {
 
-    @JsonIgnore
     @Id
     @Column(name = "ID", nullable = false)
     private UUID id;
 
-    @Valid
-    @NotNull
-    @JsonIgnore
     @MapsId
     @OneToOne(cascade = { PERSIST, MERGE })
     @JoinColumn(name = "ID")
