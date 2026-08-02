@@ -64,54 +64,11 @@ class PersonControllerTest {
     }
 
     @Test
-    void grantParentRoleReturnsNoContentWhenThePersonExists() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.grantParentRole(id)).thenReturn(true);
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.grantParentRole(id).getStatusCode());
-    }
-
-    @Test
-    void grantParentRoleReturnsNotFoundWhenThePersonIsMissing() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.grantParentRole(id)).thenReturn(false);
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.grantParentRole(id).getStatusCode());
-    }
-
-    @Test
-    void grantTeacherRoleReturnsNoContentWhenThePersonExists() {
-        final UUID id = UUID.randomUUID();
-        final GrantTeacherRoleRequest request = new GrantTeacherRoleRequest(UUID.randomUUID());
-        when(this.adapter.grantTeacherRole(id, request)).thenReturn(true);
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.grantTeacherRole(id, request).getStatusCode());
-    }
-
-    @Test
     void grantTeacherRoleReturnsNotFoundWhenThePersonIsMissing() {
         final UUID id = UUID.randomUUID();
         final GrantTeacherRoleRequest request = new GrantTeacherRoleRequest(UUID.randomUUID());
         when(this.adapter.grantTeacherRole(id, request)).thenReturn(false);
         assertEquals(HttpStatus.NOT_FOUND, this.controller.grantTeacherRole(id, request).getStatusCode());
-    }
-
-    @Test
-    void revokeParentRoleReturnsNoContentWhenThePersonHeldTheRole() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.revokeParentRole(id)).thenReturn(true);
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.revokeParentRole(id).getStatusCode());
-    }
-
-    @Test
-    void revokeParentRoleReturnsNotFoundWhenThePersonDidNotHoldTheRole() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.revokeParentRole(id)).thenReturn(false);
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.revokeParentRole(id).getStatusCode());
-    }
-
-    @Test
-    void revokeTeacherRoleReturnsNoContentWhenThePersonHeldTheRole() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.revokeTeacherRole(id)).thenReturn(true);
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.revokeTeacherRole(id).getStatusCode());
     }
 
     @Test

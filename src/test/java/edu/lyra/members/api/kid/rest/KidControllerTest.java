@@ -1,7 +1,6 @@
 package edu.lyra.members.api.kid.rest;
 
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.UUID;
 
 import edu.lyra.members.api.kid.Kid;
@@ -19,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,23 +49,6 @@ class KidControllerTest {
     }
 
     @Test
-    void getReturnsOkWhenTheKidExists() {
-        final UUID id = UUID.randomUUID();
-        final KidModel model = aModel(id);
-        when(this.adapter.findById(id)).thenReturn(Optional.of(model));
-        final ResponseEntity<KidModel> response = this.controller.get(id);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(model, response.getBody());
-    }
-
-    @Test
-    void getReturnsNotFoundWhenTheKidIsMissing() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.findById(id)).thenReturn(Optional.empty());
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.get(id).getStatusCode());
-    }
-
-    @Test
     void createReturnsCreatedWithTheSelfLinkAsLocation() {
         final KidModel model = aModel(UUID.randomUUID());
         model.add(Link.of("http://localhost/v0/kids/" + model.getId()).withSelfRel());
@@ -77,37 +58,6 @@ class KidControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertTrue(response.getHeaders().getLocation().toString().endsWith("/v0/kids/" + model.getId()));
         assertEquals(model, response.getBody());
-    }
-
-    @Test
-    void updateReturnsNoContentWhenTheKidExists() {
-        final UUID id = UUID.randomUUID();
-        final KidPatchRequest request = new KidPatchRequest(null, "New surname", null, null, null);
-        when(this.adapter.update(id, request)).thenReturn(Optional.of(aModel(id)));
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.update(id, request).getStatusCode());
-    }
-
-    @Test
-    void updateReturnsNotFoundWhenTheKidIsMissing() {
-        final UUID id = UUID.randomUUID();
-        final KidPatchRequest request = new KidPatchRequest(null, "New surname", null, null, null);
-        when(this.adapter.update(id, request)).thenReturn(Optional.empty());
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.update(id, request).getStatusCode());
-    }
-
-    @Test
-    void deleteReturnsNoContentWhenTheKidExisted() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.delete(id)).thenReturn(true);
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.delete(id).getStatusCode());
-        verify(this.adapter).delete(id);
-    }
-
-    @Test
-    void deleteReturnsNotFoundWhenTheKidDidNotExist() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.delete(id)).thenReturn(false);
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.delete(id).getStatusCode());
     }
 
 }

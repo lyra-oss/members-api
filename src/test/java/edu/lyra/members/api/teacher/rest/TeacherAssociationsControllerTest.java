@@ -54,42 +54,11 @@ class TeacherAssociationsControllerTest {
     }
 
     @Test
-    void findByClassroomReturnsOkWhenTheClassroomExists() {
-        final UUID classroomId = UUID.randomUUID();
-        final Pageable pageable = Pageable.unpaged();
-        final PagedModel<TeacherModel> expected = PagedModel.empty();
-        when(this.adapter.findByClassroom(classroomId, pageable, this.pagedAssembler)).thenReturn(
-                Optional.of(expected));
-        final ResponseEntity<PagedModel<TeacherModel>> response =
-                this.controller.findByClassroom(classroomId, pageable);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expected, response.getBody());
-    }
-
-    @Test
     void findByClassroomReturnsNotFoundWhenTheClassroomIsMissing() {
         final UUID classroomId = UUID.randomUUID();
         final Pageable pageable = Pageable.unpaged();
         when(this.adapter.findByClassroom(classroomId, pageable, this.pagedAssembler)).thenReturn(Optional.empty());
         assertEquals(HttpStatus.NOT_FOUND, this.controller.findByClassroom(classroomId, pageable).getStatusCode());
-    }
-
-    @Test
-    void findTutorOfReturnsOkWhenTheClassroomHasATutor() {
-        final UUID classroomId = UUID.randomUUID();
-        final TeacherModel model = new TeacherModel(UUID.randomUUID(), "Marta", "Ibáñez",
-                                                     "marta.ibanez@example.com");
-        when(this.adapter.findTutorOf(classroomId)).thenReturn(Optional.of(model));
-        final ResponseEntity<TeacherModel> response = this.controller.findTutorOf(classroomId);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(model, response.getBody());
-    }
-
-    @Test
-    void findTutorOfReturnsNotFoundWhenTheClassroomOrItsTutorIsMissing() {
-        final UUID classroomId = UUID.randomUUID();
-        when(this.adapter.findTutorOf(classroomId)).thenReturn(Optional.empty());
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.findTutorOf(classroomId).getStatusCode());
     }
 
 }

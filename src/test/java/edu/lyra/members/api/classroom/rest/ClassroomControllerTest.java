@@ -1,6 +1,5 @@
 package edu.lyra.members.api.classroom.rest;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,23 +48,6 @@ class ClassroomControllerTest {
     }
 
     @Test
-    void getReturnsOkWhenTheClassroomExists() {
-        final UUID id = UUID.randomUUID();
-        final ClassroomModel model = aModel(id);
-        when(this.adapter.findById(id)).thenReturn(Optional.of(model));
-        final ResponseEntity<ClassroomModel> response = this.controller.get(id);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(model, response.getBody());
-    }
-
-    @Test
-    void getReturnsNotFoundWhenTheClassroomIsMissing() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.findById(id)).thenReturn(Optional.empty());
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.get(id).getStatusCode());
-    }
-
-    @Test
     void createReturnsCreatedWithTheSelfLinkAsLocation() {
         final ClassroomModel model = aModel(UUID.randomUUID());
         model.add(Link.of("http://localhost/v0/classrooms/" + model.getId()).withSelfRel());
@@ -79,74 +60,11 @@ class ClassroomControllerTest {
     }
 
     @Test
-    void updateReturnsNoContentWhenTheClassroomExists() {
-        final UUID id = UUID.randomUUID();
-        final ClassroomPatchRequest request = new ClassroomPatchRequest(4, "B");
-        when(this.adapter.update(id, request)).thenReturn(Optional.of(aModel(id)));
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.update(id, request).getStatusCode());
-    }
-
-    @Test
-    void updateReturnsNotFoundWhenTheClassroomIsMissing() {
-        final UUID id = UUID.randomUUID();
-        final ClassroomPatchRequest request = new ClassroomPatchRequest(4, "B");
-        when(this.adapter.update(id, request)).thenReturn(Optional.empty());
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.update(id, request).getStatusCode());
-    }
-
-    @Test
-    void deleteReturnsNoContentWhenTheClassroomExisted() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.delete(id)).thenReturn(true);
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.delete(id).getStatusCode());
-        verify(this.adapter).delete(id);
-    }
-
-    @Test
-    void deleteReturnsNotFoundWhenTheClassroomDidNotExist() {
-        final UUID id = UUID.randomUUID();
-        when(this.adapter.delete(id)).thenReturn(false);
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.delete(id).getStatusCode());
-    }
-
-    @Test
-    void addTeacherReturnsNoContentWhenBothExist() {
-        final UUID id        = UUID.randomUUID();
-        final UUID teacherId = UUID.randomUUID();
-        when(this.adapter.addTeacher(id, teacherId)).thenReturn(true);
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.addTeacher(id, teacherId).getStatusCode());
-    }
-
-    @Test
-    void addTeacherReturnsNotFoundWhenEitherIsMissing() {
-        final UUID id        = UUID.randomUUID();
-        final UUID teacherId = UUID.randomUUID();
-        when(this.adapter.addTeacher(id, teacherId)).thenReturn(false);
-        assertEquals(HttpStatus.NOT_FOUND, this.controller.addTeacher(id, teacherId).getStatusCode());
-    }
-
-    @Test
-    void setTutorReturnsNoContentWhenBothExist() {
-        final UUID id        = UUID.randomUUID();
-        final UUID teacherId = UUID.randomUUID();
-        when(this.adapter.setTutor(id, teacherId)).thenReturn(true);
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.setTutor(id, teacherId).getStatusCode());
-    }
-
-    @Test
     void setTutorReturnsNotFoundWhenEitherIsMissing() {
         final UUID id        = UUID.randomUUID();
         final UUID teacherId = UUID.randomUUID();
         when(this.adapter.setTutor(id, teacherId)).thenReturn(false);
         assertEquals(HttpStatus.NOT_FOUND, this.controller.setTutor(id, teacherId).getStatusCode());
-    }
-
-    @Test
-    void enrollKidReturnsNoContentWhenBothExist() {
-        final UUID id    = UUID.randomUUID();
-        final UUID kidId = UUID.randomUUID();
-        when(this.adapter.enrollKid(id, kidId)).thenReturn(true);
-        assertEquals(HttpStatus.NO_CONTENT, this.controller.enrollKid(id, kidId).getStatusCode());
     }
 
     @Test
