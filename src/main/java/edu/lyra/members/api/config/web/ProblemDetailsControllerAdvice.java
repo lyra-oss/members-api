@@ -107,15 +107,10 @@ class ProblemDetailsControllerAdvice
         //@formatter:on
     }
 
-    /**
-     * A last-resort safety net: the delete-authorization handlers already reject these deletions with a precise
-     * exception above, but the database's own foreign-key constraints (deliberately left without cascading removal; see
-     * the affected entities' collection mappings) back that up independently, in case application logic is ever
-     * bypassed or wrong.
-     *
-     * @param ex the referential-integrity violation raised by the persistence layer
-     * @return a 409 Conflict {@link ProblemDetail} response describing the violation
-     */
+    // Last-resort safety net: the delete-authorization handlers above already reject these deletions with a
+    // precise exception, but the database's own foreign-key constraints (deliberately left without cascading
+    // removal; see the affected entities' collection mappings) back that up independently, in case application
+    // logic is ever bypassed or wrong.
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(
             final DataIntegrityViolationException ex) {
@@ -137,16 +132,6 @@ class ProblemDetailsControllerAdvice
                                                                                 .getSimpleName())).build();
     }
 
-    /**
-     * Handles {@code @Valid @RequestBody} failures on the request records that back every controller.
-     *
-     * @param ex the validation failure raised by {@code @Valid}
-     * @param headers the headers to be written to the response
-     * @param status the selected response status
-     * @param request the current request
-     *
-     * @return a 400 Bad Request {@link ProblemDetail} response listing every failed field
-     */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             final MethodArgumentNotValidException ex,
