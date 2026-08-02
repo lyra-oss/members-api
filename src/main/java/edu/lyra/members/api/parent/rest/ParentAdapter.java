@@ -10,6 +10,7 @@ import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.Person;
 import edu.lyra.members.api.person.PersonRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -19,6 +20,7 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Slf4j
 class ParentAdapter
         implements RepresentationModelAssembler<Parent, ParentModel> {
 
@@ -75,7 +77,9 @@ class ParentAdapter
             return newPerson;
         });
         parent.setPerson(person);
-        return this.toModel(this.parentRepository.save(parent));
+        final Parent saved = this.parentRepository.save(parent);
+        log.debug("Created parent {}", saved.getId());
+        return this.toModel(saved);
     }
 
     Optional<ParentModel> update(final UUID id, final ParentPatchRequest request) {

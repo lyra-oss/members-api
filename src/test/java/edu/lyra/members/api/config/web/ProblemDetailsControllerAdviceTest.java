@@ -15,21 +15,25 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.rest.core.RepositoryConstraintViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.MapBindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.context.request.WebRequest;
 
 import static java.net.URI.create;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.mock;
 import static org.springframework.core.convert.TypeDescriptor.valueOf;
 
 class ProblemDetailsControllerAdviceTest {
@@ -172,24 +176,34 @@ class ProblemDetailsControllerAdviceTest {
     }
 
     @Test
-    void testRepositoryConstraintViolationErrorResponse() {
-        final MapBindingResult errors = new MapBindingResult(new HashMap<>(), "Parent");
-        errors.addError(new FieldError("Parent", "surname", "must not be blank"));
-        final RepositoryConstraintViolationException ex       = new RepositoryConstraintViolationException(errors);
-        final ResponseEntity<ProblemDetail>          response = advice.handleRepositoryConstraintViolationException(ex);
+    void testMethodArgumentNotValidErrorResponse()
+            throws NoSuchMethodException {
+        final MapBindingResult errors = new MapBindingResult(new HashMap<>(), "parentRequest");
+        errors.addError(new FieldError("parentRequest", "surname", "must not be blank"));
+        final MethodParameter parameter =
+                new MethodParameter(this.getClass().getDeclaredMethod("dummyTarget", String.class), 0);
+        final MethodArgumentNotValidException ex = new MethodArgumentNotValidException(parameter, errors);
+        //@formatter:off
+        final ResponseEntity<Object> response =
+                advice.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
+                                                     mock(WebRequest.class));
+        //@formatter:on
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
-        final ProblemDetail problemDetail = response.getBody();
+        final ProblemDetail problemDetail = (ProblemDetail) response.getBody();
         assertThat(problemDetail).isNotNull();
         assertThat(problemDetail.getType()).isEqualTo(create("https://lyra.sagittec.com/problems/validation-error"));
         assertThat(problemDetail.getTitle()).isEqualTo("Validation failed");
         assertThat(problemDetail.getProperties()).containsKey("timestamp");
         //@formatter:off
         assertThat(problemDetail.getProperties()).containsEntry("errors",
-                List.of(Map.of("entity", "Parent",
+                List.of(Map.of("entity", "parentRequest",
                                "property", "surname",
                                "message", "must not be blank")));
         //@formatter:on
     }
+
+    @SuppressWarnings("unused")
+    private void dummyTarget(final String arg) {}
 
 }

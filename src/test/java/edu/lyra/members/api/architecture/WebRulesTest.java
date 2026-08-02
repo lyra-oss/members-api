@@ -7,8 +7,10 @@ import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
+import jakarta.persistence.Entity;
+import org.springframework.data.repository.Repository;
+import org.springframework.http.ProblemDetail;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,7 +19,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 @AnalyzeClasses(packages = "edu.lyra.members.api", importOptions = ImportOption.DoNotIncludeTests.class)
 class WebRulesTest {
@@ -33,33 +37,19 @@ class WebRulesTest {
                 }
             };
 
-    private static final DescribedPredicate<JavaMethod> ARE_REPOSITORY_EVENT_HANDLER_METHODS =
-            new DescribedPredicate<>("are Spring Data REST @Handle* methods") {
-
-                @Override
-                public boolean test(final JavaMethod method) {
-                    return method.getAnnotations().stream().anyMatch(
-                            annotation -> annotation.getRawType().getName().startsWith(
-                                    "org.springframework.data.rest.core.annotation.Handle"));
-                }
-            };
-
-    // Transitional: accepts either controller stereotype while the migration off Spring Data REST moves
-    // one vertical slice at a time; see NamingRulesTest.IS_A_CONTROLLER_STEREOTYPE for the same pairing.
-    private static final DescribedPredicate<JavaClass> IS_A_CONTROLLER_STEREOTYPE =
-            new DescribedPredicate<>("is annotated with @RepositoryRestController or @RestController") {
+    private static final DescribedPredicate<JavaClass> IS_A_CONTROLLER =
+            new DescribedPredicate<>("is annotated with @RestController") {
 
                 @Override
                 public boolean test(final JavaClass javaClass) {
-                    return javaClass.isAnnotatedWith(RepositoryRestController.class) ||
-                           javaClass.isAnnotatedWith(RestController.class);
+                    return javaClass.isAnnotatedWith(RestController.class);
                 }
             };
 
     /**
      * Request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) declared in a
-     * {@code @RepositoryRestController} or {@code @RestController} must not be public, since Spring MVC
-     * always invokes handler methods reflectively rather than through direct calls.
+     * {@code @RestController} must not be public, since Spring MVC always invokes handler methods
+     * reflectively rather than through direct calls.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -81,36 +71,71 @@ class WebRulesTest {
      */
     @ArchTest
     static final ArchRule mappedControllerMethodsAreNotPublic =
-            methods().that(ARE_REQUEST_MAPPED).and().areDeclaredInClassesThat(IS_A_CONTROLLER_STEREOTYPE)
+            methods().that(ARE_REQUEST_MAPPED).and().areDeclaredInClassesThat(IS_A_CONTROLLER)
                      .should().notBePublic();
 
     /**
-     * Methods annotated with a Spring Data REST {@code @Handle*} annotation in a
-     * {@code @RepositoryEventHandler} must be public, since Spring Data REST needs to invoke them
-     * directly.
+     * Controllers own HTTP translation only; they must not depend on a {@link Repository}, so data
+     * access always goes through an adapter.
      *
-     * <p>Compliant:
-     * <pre>{@code
-     * @RepositoryEventHandler
-     * class PersonHandler {
-     *     @HandleBeforeSave
-     *     public void beforeSave(final Person person) { ... }
-     * }
-     * }</pre>
+     * <p>Compliant: {@code PersonController} depends on {@code PersonAdapter}
      *
-     * <p>Violation:
-     * <pre>{@code
-     * @RepositoryEventHandler
-     * class PersonHandler {
-     *     @HandleBeforeSave
-     *     private void beforeSave(final Person person) { ... }
-     * }
-     * }</pre>
+     * <p>Violation: {@code PersonController} depends on {@code PersonRepository} directly
      */
     @ArchTest
-    static final ArchRule handlerMethodsArePublic =
-            methods().that(ARE_REPOSITORY_EVENT_HANDLER_METHODS)
-                     .and().areDeclaredInClassesThat().areAnnotatedWith(RepositoryEventHandler.class)
-                     .should().bePublic();
+    static final ArchRule controllersDoNotDependOnRepositories =
+            noClasses().that(IS_A_CONTROLLER).should().dependOnClassesThat().areAssignableTo(Repository.class);
+
+    /**
+     * Controllers must not call a method or read/write a field on a JPA {@code @Entity}, so the DTO
+     * boundary between the wire format and the persistence model is never crossed. This checks actual
+     * access rather than mere type dependency, since a controller legitimately holds a
+     * {@code PagedResourcesAssembler<SomeEntity>} field to pass through to its adapter without ever
+     * touching the entity itself.
+     *
+     * <p>Compliant: {@code PersonController} accesses {@code PersonModel}/{@code PersonRequest}
+     *
+     * <p>Violation: {@code PersonController} calls a method on the {@code Person} entity directly
+     */
+    @ArchTest
+    static final ArchRule controllersDoNotDependOnEntities =
+            noClasses().that(IS_A_CONTROLLER).should().accessClassesThat().areAnnotatedWith(Entity.class);
+
+    /**
+     * Controllers must not depend on {@code jakarta.persistence..}, reinforcing the DTO boundary at
+     * the package level rather than only for {@code @Entity}-annotated types.
+     *
+     * <p>Compliant: {@code PersonController} has no {@code jakarta.persistence} import
+     *
+     * <p>Violation: {@code PersonController} imports {@code jakarta.persistence.EntityManager}
+     */
+    @ArchTest
+    static final ArchRule controllersDoNotDependOnPersistence =
+            noClasses().that(IS_A_CONTROLLER).should().dependOnClassesThat()
+                       .resideInAPackage("jakarta.persistence..");
+
+    /**
+     * Controllers must not be {@code @Transactional}; a transaction spans a unit of work owned by the
+     * adapter, not the HTTP edge.
+     *
+     * <p>Compliant: {@code PersonAdapter} (or its repository) is transactional
+     *
+     * <p>Violation: {@code @Transactional} on a controller class or method
+     */
+    @ArchTest
+    static final ArchRule controllersAreNotTransactional =
+            noClasses().that(IS_A_CONTROLLER).should().beAnnotatedWith(Transactional.class);
+
+    /**
+     * Controllers must not depend on {@link ProblemDetail}; error shaping stays centralised in
+     * {@code ProblemDetailsControllerAdvice} so every error response is built the same way.
+     *
+     * <p>Compliant: a controller lets an exception propagate to the {@code @ControllerAdvice}
+     *
+     * <p>Violation: a controller catches an exception and builds a {@code ProblemDetail} itself
+     */
+    @ArchTest
+    static final ArchRule controllersDoNotBuildProblemDetails =
+            noClasses().that(IS_A_CONTROLLER).should().dependOnClassesThat().areAssignableTo(ProblemDetail.class);
 
 }

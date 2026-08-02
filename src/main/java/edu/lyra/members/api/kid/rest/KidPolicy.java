@@ -7,11 +7,26 @@ import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.parent.Parent;
+import edu.lyra.members.api.parent.ParentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 
 @Slf4j
 class KidPolicy {
+
+    private final ParentRepository parentRepository;
+
+    KidPolicy(final ParentRepository parentRepository) {
+        this.parentRepository = parentRepository;
+    }
+
+    // Mirrors the original KidAuthorizationEventHandler: a kid can only be registered under the
+    // authenticated caller's own parent account.
+    Parent authorizeCreate(final UUID subject) {
+        log.debug("Authorizing kid creation for subject {}", subject);
+        return this.parentRepository.findById(subject).orElseThrow(
+                () -> new AccessDeniedException("Authenticated user cannot register this kid"));
+    }
 
     // kid is the pre-write kid (its parent/classroom are the current, "outgoing" values); newParent/
     // newClassroom are the proposed values the adapter already resolved (equal to the current ones

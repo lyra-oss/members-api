@@ -152,7 +152,7 @@ class KidAdapterTest {
         final UUID   subject = UUID.randomUUID();
         final Parent parent  = aParent(subject);
         authenticateAs(subject);
-        when(this.parentRepository.findById(subject)).thenReturn(Optional.of(parent));
+        when(this.policy.authorizeCreate(subject)).thenReturn(parent);
         when(this.kidRepository.save(any(Kid.class))).thenAnswer(inv -> inv.getArgument(0));
         final KidRequest request = new KidRequest("Alicia", "Cristóbal", LocalDate.of(2019, 12, 12));
         final KidModel model = this.adapter.create(request);
@@ -166,7 +166,8 @@ class KidAdapterTest {
     void createRejectsWhenTheAuthenticatedSubjectIsNotARegisteredParent() {
         final UUID subject = UUID.randomUUID();
         authenticateAs(subject);
-        when(this.parentRepository.findById(subject)).thenReturn(Optional.empty());
+        when(this.policy.authorizeCreate(subject)).thenThrow(
+                new AccessDeniedException("Authenticated user cannot register this kid"));
         final KidRequest request = new KidRequest("Alicia", "Cristóbal", LocalDate.of(2019, 12, 12));
         assertThrows(AccessDeniedException.class, () -> this.adapter.create(request));
         verify(this.kidRepository, never()).save(any());

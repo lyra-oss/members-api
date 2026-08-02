@@ -13,7 +13,6 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -25,8 +24,7 @@ class VerticalSliceRulesTest {
 
     private static final Set<String> NON_VERTICAL_TOP_LEVEL_PACKAGES = Set.of("config", "exceptions");
 
-    private static final String INTERNAL_PACKAGE_SUFFIX_HANDLERS = ".handlers";
-    private static final String INTERNAL_PACKAGE_SUFFIX_REST     = ".rest";
+    private static final String INTERNAL_PACKAGE_SUFFIX_REST = ".rest";
 
     private static final DescribedPredicate<JavaClass> RESIDES_IN_A_VERTICAL_PACKAGE =
             new DescribedPredicate<>("resides in a vertical (aggregate) package") {
@@ -39,21 +37,20 @@ class VerticalSliceRulesTest {
             };
 
     /**
-     * Classes in any "..handlers" or "..rest" package must not be public, since they are internal
-     * wiring for their vertical slice and should never be referenced directly from other slices.
+     * Classes in any "..rest" package must not be public, since they are internal wiring for their
+     * vertical slice and should never be referenced directly from other slices.
      *
      * <p>Compliant: {@code class PersonController} in {@code person.rest} (package-private)
      *
      * <p>Violation: {@code public class PersonController} in {@code person.rest}
      */
     @ArchTest
-    static final ArchRule handlersAndRestPackagesContainNoPublicClasses =
-            noClasses().that().resideInAnyPackage("..handlers", "..rest").should().bePublic();
+    static final ArchRule restPackagesContainNoPublicClasses =
+            noClasses().that().resideInAnyPackage("..rest").should().bePublic();
 
     /**
-     * Classes in a "..handlers" or "..rest" package may only be accessed by other classes within the
-     * same aggregate (vertical slice), preventing one feature's internal wiring from leaking into
-     * another feature.
+     * Classes in a "..rest" package may only be accessed by other classes within the same aggregate
+     * (vertical slice), preventing one feature's internal wiring from leaking into another feature.
      *
      * <p>Compliant: {@code person.rest.PersonController} is only accessed from other classes in
      * {@code person} or one of its sub-packages
@@ -62,9 +59,9 @@ class VerticalSliceRulesTest {
      * directly, reaching into another aggregate's internal wiring
      */
     @ArchTest
-    static final ArchRule handlersAndRestPackagesAreOnlyAccessedWithinTheirOwnAggregate =
+    static final ArchRule restPackagesAreOnlyAccessedWithinTheirOwnAggregate =
             //@formatter:off
-            classes().that().resideInAnyPackage("..handlers", "..rest")
+            classes().that().resideInAnyPackage("..rest")
                      .should(new ArchCondition<>("only be accessed by classes within their own aggregate package") {
 
                          @Override
@@ -83,8 +80,7 @@ class VerticalSliceRulesTest {
 
     /**
      * Classes in the shared "config" package (the "kernel") must not depend on classes that live in a
-     * vertical/aggregate package — except for Spring Data REST's {@code RepositoryRestConfigurer}
-     * extension points — keeping shared infrastructure free of feature-specific coupling.
+     * vertical/aggregate package, keeping shared infrastructure free of feature-specific coupling.
      *
      * <p>Compliant: {@code config.web.WebConfiguration} depends only on other {@code config} classes
      * and framework/JDK types
@@ -94,11 +90,8 @@ class VerticalSliceRulesTest {
      */
     @ArchTest
     static final ArchRule kernelPackagesDoNotDependOnVerticalPackages =
-            //@formatter:off
             noClasses().that().resideInAPackage(BASE_PACKAGE + ".config..")
-                       .and().areNotAssignableTo(RepositoryRestConfigurer.class)
                        .should().dependOnClassesThat(RESIDES_IN_A_VERTICAL_PACKAGE);
-    //@formatter:on
 
     private static Optional<String> topLevelPackageOf(final JavaClass javaClass) {
         final String packageName = javaClass.getPackageName();
@@ -111,9 +104,6 @@ class VerticalSliceRulesTest {
 
     private static String aggregateRootPackageOf(final JavaClass javaClass) {
         final String packageName = javaClass.getPackageName();
-        if(packageName.endsWith(INTERNAL_PACKAGE_SUFFIX_HANDLERS)) {
-            return packageName.substring(0, packageName.length() - INTERNAL_PACKAGE_SUFFIX_HANDLERS.length());
-        }
         if(packageName.endsWith(INTERNAL_PACKAGE_SUFFIX_REST)) {
             return packageName.substring(0, packageName.length() - INTERNAL_PACKAGE_SUFFIX_REST.length());
         }

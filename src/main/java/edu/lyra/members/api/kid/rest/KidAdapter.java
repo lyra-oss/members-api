@@ -11,16 +11,17 @@ import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
-import org.springframework.security.access.AccessDeniedException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Slf4j
 class KidAdapter
         implements RepresentationModelAssembler<Kid, KidModel> {
 
@@ -75,15 +76,14 @@ class KidAdapter
         return Optional.of(pagedAssembler.toModel(page, this));
     }
 
-    // Mirrors the original KidAuthorizationEventHandler: a kid can only be registered under the
-    // authenticated caller's own parent account.
     KidModel create(final KidRequest request) {
         final Kid    kid     = this.mapper.toEntity(request);
         final UUID   subject = AuthenticatedPrincipal.requireCurrentId();
-        final Parent parent  = this.parentRepository.findById(subject).orElseThrow(
-                () -> new AccessDeniedException("Authenticated user cannot register this kid"));
+        final Parent parent  = this.policy.authorizeCreate(subject);
         kid.setParent(parent);
-        return this.toModel(this.kidRepository.save(kid));
+        final Kid saved = this.kidRepository.save(kid);
+        log.debug("Created kid {} under parent {}", saved.getId(), parent.getId());
+        return this.toModel(saved);
     }
 
     Optional<KidModel> update(final UUID id, final KidPatchRequest request) {

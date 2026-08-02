@@ -3,7 +3,6 @@ package edu.lyra.members.api.kid;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.config.jpa.Auditable;
 import edu.lyra.members.api.parent.Parent;
@@ -14,14 +13,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,27 +36,20 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Kid
         extends Auditable {
 
-    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ID", nullable = false, updatable = false)
     private UUID id;
 
     @Setter
-    @NotBlank
-    @Size(max = 100)
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
 
     @Setter
-    @NotBlank
-    @Size(max = 100)
     @Column(name = "SURNAME", length = 100, nullable = false)
     private String surname;
 
     @Setter
-    @Past
-    @NotNull
     @Column(name = "BIRTHDATE", nullable = false)
     private LocalDate birthdate;
 
@@ -74,19 +60,5 @@ public class Kid
     @Setter
     @ManyToOne
     private Classroom classroom;
-
-    @JsonIgnore
-    @Transient
-    private UUID previousParentId;
-
-    @JsonIgnore
-    @Transient
-    private UUID previousClassroomId;
-
-    @PostLoad
-    private void capturePreviousAssociations() {
-        this.previousParentId    = this.parent == null ? null : this.parent.getId();
-        this.previousClassroomId = this.classroom == null ? null : this.classroom.getId();
-    }
 
 }

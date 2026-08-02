@@ -21,13 +21,8 @@ class PersonRulesTest {
 
     private static final String PERSON_BUILDER = "edu.lyra.members.api.person.Person$PersonBuilder";
 
-    // Transitional: as each slice migrates off Spring Data REST, its *RegistrationHandler is replaced by
-    // a *rest.*Adapter that performs the same identity-binding write; both names are kept here side by
-    // side until the old handlers are deleted.
     private static final Set<String> REGISTRATION_HANDLERS =
-            Set.of("edu.lyra.members.api.parent.handlers.ParentRegistrationHandler",
-                   "edu.lyra.members.api.teacher.handlers.TeacherRegistrationHandler",
-                   "edu.lyra.members.api.teacher.rest.TeacherAdapter",
+            Set.of("edu.lyra.members.api.teacher.rest.TeacherAdapter",
                    "edu.lyra.members.api.parent.rest.ParentAdapter");
 
     private static final DescribedPredicate<JavaClass> ARE_NOT_ROLE_REGISTRATION_HANDLERS =
@@ -56,10 +51,10 @@ class PersonRulesTest {
 
     /**
      * A {@code Person} may only be written — constructed, built or mutated through a setter — by the person slice
-     * itself (which includes {@code PersonRole}'s delegating accessors) or by the parent/teacher registration
-     * handlers, which bind a freshly created role to the authenticated subject's identity. Every other class must
-     * treat persons as read-only and route identity changes through the role, so the role stays the single write
-     * path to a person.
+     * itself (which includes {@code PersonRole}'s delegating accessors) or by {@code ParentAdapter}/
+     * {@code TeacherAdapter}, which bind a freshly created role to the authenticated subject's identity. Every
+     * other class must treat persons as read-only and route identity changes through the role, so the role stays
+     * the single write path to a person.
      *
      * <p>Compliant: {@code parent.setName("Ada")} — the role delegates the write to its person
      *
@@ -67,14 +62,15 @@ class PersonRulesTest {
      * directly, bypassing the role
      */
     @ArchTest
-    static final ArchRule personsAreOnlyMutatedByTheirOwnSliceOrTheRegistrationHandlers =
+    static final ArchRule personsAreOnlyMutatedByTheirOwnSliceOrTheRegistrationAdapters =
             //@formatter:off
             noClasses().that().resideOutsideOfPackage(PERSON_PACKAGE)
                        .and(ARE_NOT_ROLE_REGISTRATION_HANDLERS)
                        .should().callCodeUnitWhere(WRITE_TO_A_PERSON)
                        .orShould().dependOnClassesThat().haveFullyQualifiedName(PERSON_BUILDER)
-                       .as("a Person may only be created or mutated by the person slice itself or by the role "
-                               + "registration handlers; everyone else goes through PersonRole's delegating accessors");
+                       .as("a Person may only be created or mutated by the person slice itself or by "
+                               + "ParentAdapter/TeacherAdapter; everyone else goes through PersonRole's delegating "
+                               + "accessors");
             //@formatter:on
 
 }

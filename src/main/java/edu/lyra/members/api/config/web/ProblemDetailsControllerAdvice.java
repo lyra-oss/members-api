@@ -13,7 +13,6 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -138,27 +137,8 @@ class ProblemDetailsControllerAdvice
                                                                                 .getSimpleName())).build();
     }
 
-    @ExceptionHandler(RepositoryConstraintViolationException.class)
-    public ResponseEntity<ProblemDetail> handleRepositoryConstraintViolationException(
-            final RepositoryConstraintViolationException ex) {
-        //@formatter:off
-        final List<Object> errors = ex.getErrors().getFieldErrors().stream()
-                                       .map(this::toErrorEntry)
-                                       .map(Object.class::cast)
-                                       .toList();
-        return ProblemDetailBuilder.forStatus(BAD_REQUEST)
-                .type("https://lyra.sagittec.com/problems/validation-error")
-                .title("Validation failed")
-                .property("errors", errors)
-                .build();
-        //@formatter:on
-    }
-
     /**
-     * Handles {@code @Valid @RequestBody} failures on the request records that back the Spring MVC
-     * controllers replacing Spring Data REST's own repositories, in the same {@code errors[]} shape as
-     * {@link #handleRepositoryConstraintViolationException}, so client-facing error handling does not
-     * have to distinguish which layer a given endpoint has already migrated to.
+     * Handles {@code @Valid @RequestBody} failures on the request records that back every controller.
      *
      * @param ex the validation failure raised by {@code @Valid}
      * @param headers the headers to be written to the response

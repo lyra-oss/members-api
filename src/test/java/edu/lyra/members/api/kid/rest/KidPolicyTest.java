@@ -1,15 +1,21 @@
 package edu.lyra.members.api.kid.rest;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.parent.Parent;
+import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.PersonRole;
 import edu.lyra.members.api.teacher.Teacher;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,11 +29,22 @@ import static java.util.UUID.randomUUID;
 import static org.instancio.Instancio.of;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class KidPolicyTest {
 
-    private final KidPolicy policy = new KidPolicy();
+    @Mock
+    private ParentRepository parentRepository;
+
+    private KidPolicy policy;
+
+    @BeforeEach
+    void setUp() {
+        this.policy = new KidPolicy(this.parentRepository);
+    }
 
     @AfterEach
     void clearContext() {
@@ -62,6 +79,23 @@ class KidPolicyTest {
                                   .ignore(field(Classroom.class, "kids"))
                                   .create();
         //@formatter:on
+    }
+
+    // --- authorizeCreate ---
+
+    @Test
+    void authorizeCreateReturnsTheRequestingSubjectsParent() {
+        final UUID   subject = randomUUID();
+        final Parent parent  = aParentWithId(subject);
+        when(this.parentRepository.findById(subject)).thenReturn(Optional.of(parent));
+        assertEquals(parent, this.policy.authorizeCreate(subject));
+    }
+
+    @Test
+    void authorizeCreateRejectsASubjectThatIsNotARegisteredParent() {
+        final UUID subject = randomUUID();
+        when(this.parentRepository.findById(subject)).thenReturn(Optional.empty());
+        assertThrows(AccessDeniedException.class, () -> this.policy.authorizeCreate(subject));
     }
 
     // --- authorizeUpdate: plain field update (parent and classroom unchanged) ---

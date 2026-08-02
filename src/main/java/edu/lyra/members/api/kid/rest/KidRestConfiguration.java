@@ -18,8 +18,8 @@ class KidRestConfiguration {
     }
 
     @Bean
-    KidPolicy kidPolicy() {
-        return new KidPolicy();
+    KidPolicy kidPolicy(final ParentRepository parentRepository) {
+        return new KidPolicy(parentRepository);
     }
 
     @Bean

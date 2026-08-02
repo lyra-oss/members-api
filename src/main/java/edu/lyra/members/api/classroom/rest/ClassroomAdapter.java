@@ -13,6 +13,7 @@ import edu.lyra.members.api.school.School;
 import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.Teacher;
 import edu.lyra.members.api.teacher.TeacherRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -22,6 +23,7 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+@Slf4j
 class ClassroomAdapter
         implements RepresentationModelAssembler<Classroom, ClassroomModel> {
 
@@ -89,7 +91,9 @@ class ClassroomAdapter
         final Teacher tutor = this.resolveTutor(request.tutor());
         this.verifySchoolMembership(school, tutor);
         final Classroom classroom = this.mapper.toEntity(request, school, tutor);
-        return this.toModel(this.classroomRepository.save(classroom));
+        final Classroom saved     = this.classroomRepository.save(classroom);
+        log.debug("Created classroom {} at school {}", saved.getId(), school.getId());
+        return this.toModel(saved);
     }
 
     private Teacher resolveTutor(final UUID tutorId) {
