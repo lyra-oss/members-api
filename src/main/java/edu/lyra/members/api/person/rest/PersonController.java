@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("${lyra.api.base-path}/persons")
+@RequestMapping("/persons")
 class PersonController {
 
     private final PersonAdapter                   adapter;

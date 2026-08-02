@@ -1,6 +1,5 @@
 package edu.lyra.members.api.root.rest;
 
-import edu.lyra.members.api.config.web.ApiBasePath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.hateoas.RepresentationModel;
@@ -16,7 +15,7 @@ class RootControllerTest {
 
     @BeforeEach
     void setUp() {
-        this.controller = new RootController(new ApiBasePath("/v0"));
+        this.controller = new RootController();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
 
@@ -25,7 +24,7 @@ class RootControllerTest {
         final RepresentationModel<?> model = this.controller.index();
         for(final String rel : new String[] { "schools", "teachers", "parents", "kids", "classrooms", "persons" }) {
             final String href = model.getRequiredLink(rel).getHref();
-            assertTrue(href.endsWith("/v0/" + rel), "Expected link %s to end with /v0/%s".formatted(href, rel));
+            assertTrue(href.endsWith("/" + rel), "Expected link %s to end with /%s".formatted(href, rel));
         }
     }
 

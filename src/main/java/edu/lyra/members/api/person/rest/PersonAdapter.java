@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
@@ -20,10 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
 class PersonAdapter
@@ -35,7 +35,6 @@ class PersonAdapter
     private final SchoolRepository    schoolRepository;
     private final ClassroomRepository classroomRepository;
     private final PersonMapper        mapper;
-    private final ApiBasePath         apiBasePath;
 
     PersonAdapter(
             final PersonRepository personRepository,
@@ -43,8 +42,7 @@ class PersonAdapter
             final TeacherRepository teacherRepository,
             final SchoolRepository schoolRepository,
             final ClassroomRepository classroomRepository,
-            final PersonMapper mapper,
-            final ApiBasePath apiBasePath
+            final PersonMapper mapper
     ) {
         this.personRepository    = personRepository;
         this.parentRepository    = parentRepository;
@@ -52,25 +50,13 @@ class PersonAdapter
         this.schoolRepository    = schoolRepository;
         this.classroomRepository = classroomRepository;
         this.mapper              = mapper;
-        this.apiBasePath         = apiBasePath;
     }
 
     @Override
     public PersonModel toModel(final Person person) {
         final PersonModel model = this.mapper.toModel(person);
-        model.add(this.selfLink(person));
+        model.add(linkTo(methodOn(PersonController.class).get(person.getId())).withSelfRel());
         return model;
-    }
-
-    private Link selfLink(final Person person) {
-        //@formatter:off
-        final String href = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                        .path(this.apiBasePath.basePath())
-                                                        .path("/persons/{id}")
-                                                        .buildAndExpand(person.getId())
-                                                        .toUriString();
-        //@formatter:on
-        return Link.of(href).withSelfRel();
     }
 
     Optional<PersonModel> findById(final UUID id) {

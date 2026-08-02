@@ -3,7 +3,6 @@ package edu.lyra.members.api.kid.rest;
 import java.util.List;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.ParentRepository;
 import org.mapstruct.factory.Mappers;
@@ -30,11 +29,10 @@ class KidRestConfiguration {
             final ClassroomRepository classroomRepository,
             final KidVisibilityStrategyResolver visibilityResolver,
             final KidMapper mapper,
-            final KidPolicy policy,
-            final ApiBasePath apiBasePath
+            final KidPolicy policy
     ) {
         return new KidAdapter(kidRepository, parentRepository, classroomRepository, visibilityResolver, mapper,
-                              policy, apiBasePath);
+                              policy);
     }
 
     @Bean

@@ -18,14 +18,14 @@ class SchoolAssociationsController {
         this.adapter = adapter;
     }
 
-    @GetMapping("${lyra.api.base-path}/teachers/{teacherId}/school")
+    @GetMapping("/teachers/{teacherId}/school")
     ResponseEntity<SchoolModel> findByTeacher(final @PathVariable UUID teacherId) {
         log.debug("Fetching the school of teacher {}", teacherId);
         return this.adapter.findByTeacher(teacherId).map(ResponseEntity::ok)
                    .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("${lyra.api.base-path}/classrooms/{classroomId}/school")
+    @GetMapping("/classrooms/{classroomId}/school")
     ResponseEntity<SchoolModel> findByClassroom(final @PathVariable UUID classroomId) {
         log.debug("Fetching the school of classroom {}", classroomId);
         return this.adapter.findByClassroom(classroomId).map(ResponseEntity::ok)

@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
@@ -74,7 +73,7 @@ class KidAdapterTest {
         this.visibilityResolver = mock(KidVisibilityStrategyResolver.class);
         //@formatter:off
         this.adapter = new KidAdapter(this.kidRepository, this.parentRepository, this.classroomRepository,
-                                      this.visibilityResolver, this.mapper, this.policy, new ApiBasePath("/v0"));
+                                      this.visibilityResolver, this.mapper, this.policy);
         //@formatter:on
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
@@ -113,11 +112,11 @@ class KidAdapterTest {
     }
 
     @Test
-    void toModelAddsASelfLinkPrefixedWithTheApiBasePath() {
+    void toModelAddsASelfLink() {
         final Kid kid = aKid("Alicia");
         final KidModel model = this.adapter.toModel(kid);
         assertEquals("Alicia", model.getName());
-        assertTrue(model.getRequiredLink("self").getHref().endsWith("/v0/kids/" + kid.getId()));
+        assertTrue(model.getRequiredLink("self").getHref().endsWith("/kids/" + kid.getId()));
     }
 
     @Test

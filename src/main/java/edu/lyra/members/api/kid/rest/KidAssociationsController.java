@@ -24,7 +24,7 @@ class KidAssociationsController {
         this.pagedAssembler = pagedAssembler;
     }
 
-    @GetMapping("${lyra.api.base-path}/parents/{parentId}/kids")
+    @GetMapping("/parents/{parentId}/kids")
     ResponseEntity<PagedModel<KidModel>> findByParent(final @PathVariable UUID parentId, final Pageable pageable) {
         log.debug("Listing kids for parent {}, page {}", parentId, pageable);
         return this.adapter.findByParent(parentId, pageable, this.pagedAssembler).map(ResponseEntity::ok)

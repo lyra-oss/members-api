@@ -6,7 +6,6 @@ import java.util.UUID;
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
@@ -15,11 +14,12 @@ import edu.lyra.members.api.parent.ParentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 class KidAdapter
         implements RepresentationModelAssembler<Kid, KidModel> {
@@ -30,7 +30,6 @@ class KidAdapter
     private final KidVisibilityStrategyResolver visibilityResolver;
     private final KidMapper                     mapper;
     private final KidPolicy                     policy;
-    private final ApiBasePath                   apiBasePath;
 
     KidAdapter(
             final KidRepository kidRepository,
@@ -38,8 +37,7 @@ class KidAdapter
             final ClassroomRepository classroomRepository,
             final KidVisibilityStrategyResolver visibilityResolver,
             final KidMapper mapper,
-            final KidPolicy policy,
-            final ApiBasePath apiBasePath
+            final KidPolicy policy
     ) {
         this.kidRepository       = kidRepository;
         this.parentRepository    = parentRepository;
@@ -47,25 +45,13 @@ class KidAdapter
         this.visibilityResolver  = visibilityResolver;
         this.mapper              = mapper;
         this.policy              = policy;
-        this.apiBasePath         = apiBasePath;
     }
 
     @Override
     public KidModel toModel(final Kid kid) {
         final KidModel model = this.mapper.toModel(kid);
-        model.add(this.selfLink(kid));
+        model.add(linkTo(methodOn(KidController.class).get(kid.getId())).withSelfRel());
         return model;
-    }
-
-    private Link selfLink(final Kid kid) {
-        //@formatter:off
-        final String href = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                        .path(this.apiBasePath.basePath())
-                                                        .path("/kids/{id}")
-                                                        .buildAndExpand(kid.getId())
-                                                        .toUriString();
-        //@formatter:on
-        return Link.of(href).withSelfRel();
     }
 
     Optional<KidModel> findById(final UUID id) {

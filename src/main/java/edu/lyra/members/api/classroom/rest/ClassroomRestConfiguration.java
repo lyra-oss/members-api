@@ -1,7 +1,6 @@
 package edu.lyra.members.api.classroom.rest;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.TeacherRepository;
@@ -29,11 +28,10 @@ class ClassroomRestConfiguration {
             final TeacherRepository teacherRepository,
             final KidRepository kidRepository,
             final ClassroomMapper mapper,
-            final ClassroomPolicy policy,
-            final ApiBasePath apiBasePath
+            final ClassroomPolicy policy
     ) {
         return new ClassroomAdapter(classroomRepository, schoolRepository, teacherRepository, kidRepository, mapper,
-                                    policy, apiBasePath);
+                                    policy);
     }
 
 }

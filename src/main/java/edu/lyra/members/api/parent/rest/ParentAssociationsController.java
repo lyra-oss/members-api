@@ -18,7 +18,7 @@ class ParentAssociationsController {
         this.adapter = adapter;
     }
 
-    @GetMapping("${lyra.api.base-path}/kids/{kidId}/parent")
+    @GetMapping("/kids/{kidId}/parent")
     ResponseEntity<ParentModel> findByKid(final @PathVariable UUID kidId) {
         log.debug("Fetching the parent of kid {}", kidId);
         return this.adapter.findByKid(kidId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());

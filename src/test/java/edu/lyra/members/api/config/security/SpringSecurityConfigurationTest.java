@@ -29,6 +29,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -81,7 +83,7 @@ class SpringSecurityConfigurationTest {
             return saved;
         }).when(parentRepository).save(any(Parent.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/parents")
+        this.perform(post(this.base() + "/parents")
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_parents.create")))
                 .contentType(APPLICATION_JSON)
@@ -92,6 +94,13 @@ class SpringSecurityConfigurationTest {
 
     private String base() {
         return apiBasePath.basePath();
+    }
+
+    // The API's base path is now the servlet context path rather than a request-mapping prefix, and
+    // MockMvc has no way to know that unless each request says so explicitly.
+    private ResultActions perform(final MockHttpServletRequestBuilder request)
+            throws Exception {
+        return mvc.perform(request.contextPath(this.base()));
     }
 
     private ObjectNode newParentJson() {
@@ -106,7 +115,7 @@ class SpringSecurityConfigurationTest {
     void testCreateParentKo()
             throws Exception {
         //@formatter:off
-        mvc.perform(post(this.base() + "/parents")
+        this.perform(post(this.base() + "/parents")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newParentJson())))
@@ -122,7 +131,7 @@ class SpringSecurityConfigurationTest {
         doReturn(Optional.of(parent)).when(parentRepository).findById(parentId);
         doReturn(Instancio.create(Kid.class)).when(kidRepository).save(any(Kid.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/kids")
+        this.perform(post(this.base() + "/kids")
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_kids.create")))
                 .contentType(APPLICATION_JSON)
@@ -146,7 +155,7 @@ class SpringSecurityConfigurationTest {
     void testCreateKidKo()
             throws Exception {
         //@formatter:off
-        mvc.perform(post(this.base() + "/kids")
+        this.perform(post(this.base() + "/kids")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newKidJson())))
@@ -159,7 +168,7 @@ class SpringSecurityConfigurationTest {
             throws Exception {
         doReturn(Optional.empty()).when(parentRepository).findById(any(UUID.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/kids")
+        this.perform(post(this.base() + "/kids")
                 .with(jwt().jwt(b -> b.subject(randomUUID().toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_kids.create")))
                 .contentType(APPLICATION_JSON)
@@ -173,7 +182,7 @@ class SpringSecurityConfigurationTest {
             throws Exception {
         doReturn(Instancio.create(School.class)).when(schoolRepository).save(any(School.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/schools")
+        this.perform(post(this.base() + "/schools")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_schools.create")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newSchoolJson())))
@@ -190,7 +199,7 @@ class SpringSecurityConfigurationTest {
     @Test
     void testActuatorHealthPermitsAllWithoutAuthentication()
             throws Exception {
-        mvc.perform(get("/actuator/health")).andExpect(status().isOk());
+        this.perform(get(this.base() + "/actuator/health")).andExpect(status().isOk());
     }
 
     // "info" is not in this application's actuator web-exposure list, so there is no handler for it;
@@ -199,7 +208,7 @@ class SpringSecurityConfigurationTest {
     @Test
     void testActuatorInfoPermitsAllWithoutAuthentication()
             throws Exception {
-        mvc.perform(get("/actuator/info")).andExpect(status().isNotFound());
+        this.perform(get(this.base() + "/actuator/info")).andExpect(status().isNotFound());
     }
 
     // Regression test for a defect where "/actuator/**" was permitAll: any actuator endpoint other
@@ -208,7 +217,7 @@ class SpringSecurityConfigurationTest {
     @Test
     void testActuatorOtherEndpointsRequireAuthentication()
             throws Exception {
-        mvc.perform(get("/actuator/beans")).andExpect(status().isUnauthorized());
+        this.perform(get(this.base() + "/actuator/beans")).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -218,7 +227,7 @@ class SpringSecurityConfigurationTest {
         doReturn(Optional.of(school)).when(schoolRepository).findById(school.getId());
         doReturn(Instancio.create(Classroom.class)).when(classroomRepository).save(any(Classroom.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/classrooms")
+        this.perform(post(this.base() + "/classrooms")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_classrooms.create")))
                 .contentType(APPLICATION_JSON)
                 .content(this.classroomJsonWithSchool(school)))
@@ -241,7 +250,7 @@ class SpringSecurityConfigurationTest {
     void testCreateClassroomKo()
             throws Exception {
         //@formatter:off
-        mvc.perform(post(this.base() + "/classrooms")
+        this.perform(post(this.base() + "/classrooms")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content(this.classroomJsonWithSchool(Instancio.create(School.class))))
@@ -253,7 +262,7 @@ class SpringSecurityConfigurationTest {
     void testCreateSchoolKo()
             throws Exception {
         //@formatter:off
-        mvc.perform(post(this.base() + "/schools")
+        this.perform(post(this.base() + "/schools")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newSchoolJson())))
@@ -272,7 +281,7 @@ class SpringSecurityConfigurationTest {
             return saved;
         }).when(teacherRepository).save(any(Teacher.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/teachers")
+        this.perform(post(this.base() + "/teachers")
                 .with(jwt().jwt(b -> b.subject(randomUUID().toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_teachers.create")))
                 .contentType(APPLICATION_JSON)
@@ -299,7 +308,7 @@ class SpringSecurityConfigurationTest {
     void testCreateTeacherKo()
             throws Exception {
         //@formatter:off
-        mvc.perform(post(this.base() + "/teachers")
+        this.perform(post(this.base() + "/teachers")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newTeacherJson())))
@@ -311,7 +320,7 @@ class SpringSecurityConfigurationTest {
     @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
     void testListingRequiresAuthentication(final String resource)
             throws Exception {
-        mvc.perform(get(this.base() + "/" + resource)).andExpect(status().isUnauthorized());
+        this.perform(get(this.base() + "/" + resource)).andExpect(status().isUnauthorized());
     }
 
     @ParameterizedTest
@@ -319,7 +328,7 @@ class SpringSecurityConfigurationTest {
     void testListingRequiresReadScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(get(this.base() + "/" + resource)
+        this.perform(get(this.base() + "/" + resource)
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope"))))
            .andExpect(status().isForbidden());
         //@formatter:on
@@ -330,7 +339,7 @@ class SpringSecurityConfigurationTest {
     void testListingIsAllowedWithReadScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(get(this.base() + "/" + resource)
+        this.perform(get(this.base() + "/" + resource)
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_" + resource + ".read"))))
            .andExpect(status().isOk());
         //@formatter:on
@@ -340,7 +349,7 @@ class SpringSecurityConfigurationTest {
     @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
     void testGettingSingleItemRequiresAuthentication(final String resource)
             throws Exception {
-        mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())).andExpect(status().isUnauthorized());
+        this.perform(get(this.base() + "/" + resource + "/" + randomUUID())).andExpect(status().isUnauthorized());
     }
 
     @ParameterizedTest
@@ -348,7 +357,7 @@ class SpringSecurityConfigurationTest {
     void testGettingSingleItemRequiresReadScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())
+        this.perform(get(this.base() + "/" + resource + "/" + randomUUID())
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope"))))
            .andExpect(status().isForbidden());
         //@formatter:on
@@ -359,7 +368,7 @@ class SpringSecurityConfigurationTest {
     void testGettingSingleItemIsAllowedWithReadScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())
+        this.perform(get(this.base() + "/" + resource + "/" + randomUUID())
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_" + resource + ".read"))))
            .andExpect(status().isNotFound());
         //@formatter:on
@@ -370,7 +379,7 @@ class SpringSecurityConfigurationTest {
     void testItemPutIsDisabled(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(put(this.base() + "/" + resource + "/" + randomUUID())
+        this.perform(put(this.base() + "/" + resource + "/" + randomUUID())
                 .with(jwt())
                 .contentType(APPLICATION_JSON)
                 .content("{}"))
@@ -383,7 +392,7 @@ class SpringSecurityConfigurationTest {
     void testItemPatchRequiresAuthentication(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
+        this.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("{}"))
@@ -396,7 +405,7 @@ class SpringSecurityConfigurationTest {
     void testItemPatchRequiresUpdateScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
+        this.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content("{}"))

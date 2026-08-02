@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.exceptions.SchoolMismatchException;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
 import edu.lyra.members.api.kid.Kid;
@@ -17,10 +16,11 @@ import edu.lyra.members.api.teacher.TeacherRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 class ClassroomAdapter
         implements RepresentationModelAssembler<Classroom, ClassroomModel> {
@@ -31,7 +31,6 @@ class ClassroomAdapter
     private final KidRepository       kidRepository;
     private final ClassroomMapper     mapper;
     private final ClassroomPolicy     policy;
-    private final ApiBasePath         apiBasePath;
 
     ClassroomAdapter(
             final ClassroomRepository classroomRepository,
@@ -39,8 +38,7 @@ class ClassroomAdapter
             final TeacherRepository teacherRepository,
             final KidRepository kidRepository,
             final ClassroomMapper mapper,
-            final ClassroomPolicy policy,
-            final ApiBasePath apiBasePath
+            final ClassroomPolicy policy
     ) {
         this.classroomRepository = classroomRepository;
         this.schoolRepository    = schoolRepository;
@@ -48,25 +46,13 @@ class ClassroomAdapter
         this.kidRepository       = kidRepository;
         this.mapper              = mapper;
         this.policy              = policy;
-        this.apiBasePath         = apiBasePath;
     }
 
     @Override
     public ClassroomModel toModel(final Classroom classroom) {
         final ClassroomModel model = this.mapper.toModel(classroom);
-        model.add(this.selfLink(classroom));
+        model.add(linkTo(methodOn(ClassroomController.class).get(classroom.getId())).withSelfRel());
         return model;
-    }
-
-    private Link selfLink(final Classroom classroom) {
-        //@formatter:off
-        final String href = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                        .path(this.apiBasePath.basePath())
-                                                        .path("/classrooms/{id}")
-                                                        .buildAndExpand(classroom.getId())
-                                                        .toUriString();
-        //@formatter:on
-        return Link.of(href).withSelfRel();
     }
 
     Optional<ClassroomModel> findById(final UUID id) {

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("${lyra.api.base-path}/teachers")
+@RequestMapping("/teachers")
 class TeacherController {
 
     private final TeacherAdapter                   adapter;

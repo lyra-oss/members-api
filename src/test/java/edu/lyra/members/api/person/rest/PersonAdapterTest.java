@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
@@ -74,8 +73,7 @@ class PersonAdapterTest {
     void setUp() {
         //@formatter:off
         this.adapter = new PersonAdapter(this.personRepository, this.parentRepository, this.teacherRepository,
-                                         this.schoolRepository, this.classroomRepository, this.mapper,
-                                         new ApiBasePath("/v0"));
+                                         this.schoolRepository, this.classroomRepository, this.mapper);
         //@formatter:on
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
@@ -103,11 +101,11 @@ class PersonAdapterTest {
     }
 
     @Test
-    void toModelAddsASelfLinkPrefixedWithTheApiBasePath() {
+    void toModelAddsASelfLink() {
         final Person person = aPerson(UUID.randomUUID());
         final PersonModel model = this.adapter.toModel(person);
         assertEquals("Esteban", model.getName());
-        assertTrue(model.getRequiredLink("self").getHref().endsWith("/v0/persons/" + person.getId()));
+        assertTrue(model.getRequiredLink("self").getHref().endsWith("/persons/" + person.getId()));
     }
 
     @Test

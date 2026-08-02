@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.exceptions.SchoolMismatchException;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
 import edu.lyra.members.api.kid.Kid;
@@ -73,7 +72,7 @@ class ClassroomAdapterTest {
         this.policy = mock(ClassroomPolicy.class);
         //@formatter:off
         this.adapter = new ClassroomAdapter(this.classroomRepository, this.schoolRepository, this.teacherRepository,
-                                            this.kidRepository, this.mapper, this.policy, new ApiBasePath("/v0"));
+                                            this.kidRepository, this.mapper, this.policy);
         //@formatter:on
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
@@ -102,11 +101,11 @@ class ClassroomAdapterTest {
     }
 
     @Test
-    void toModelAddsASelfLinkPrefixedWithTheApiBasePath() {
+    void toModelAddsASelfLink() {
         final Classroom classroom = aClassroom(aSchool());
         final ClassroomModel model = this.adapter.toModel(classroom);
         assertEquals(3, model.getCourse());
-        assertTrue(model.getRequiredLink("self").getHref().endsWith("/v0/classrooms/" + classroom.getId()));
+        assertTrue(model.getRequiredLink("self").getHref().endsWith("/classrooms/" + classroom.getId()));
     }
 
     @Test

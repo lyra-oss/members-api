@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
@@ -14,10 +13,11 @@ import edu.lyra.members.api.person.PersonRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 class ParentAdapter
         implements RepresentationModelAssembler<Parent, ParentModel> {
@@ -27,40 +27,26 @@ class ParentAdapter
     private final PersonRepository personRepository;
     private final ParentMapper     mapper;
     private final ParentPolicy     policy;
-    private final ApiBasePath      apiBasePath;
 
     ParentAdapter(
             final ParentRepository parentRepository,
             final KidRepository kidRepository,
             final PersonRepository personRepository,
             final ParentMapper mapper,
-            final ParentPolicy policy,
-            final ApiBasePath apiBasePath
+            final ParentPolicy policy
     ) {
         this.parentRepository = parentRepository;
         this.kidRepository    = kidRepository;
         this.personRepository = personRepository;
         this.mapper           = mapper;
         this.policy           = policy;
-        this.apiBasePath      = apiBasePath;
     }
 
     @Override
     public ParentModel toModel(final Parent parent) {
         final ParentModel model = this.mapper.toModel(parent);
-        model.add(this.selfLink(parent));
+        model.add(linkTo(methodOn(ParentController.class).get(parent.getId())).withSelfRel());
         return model;
-    }
-
-    private Link selfLink(final Parent parent) {
-        //@formatter:off
-        final String href = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                        .path(this.apiBasePath.basePath())
-                                                        .path("/parents/{id}")
-                                                        .buildAndExpand(parent.getId())
-                                                        .toUriString();
-        //@formatter:on
-        return Link.of(href).withSelfRel();
     }
 
     Optional<ParentModel> findById(final UUID id) {

@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.school.School;
 import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.Teacher;
@@ -62,10 +61,8 @@ class SchoolAdapterTest {
     @BeforeEach
     void setUp() {
         this.policy = mock(SchoolPolicy.class);
-        //@formatter:off
         this.adapter = new SchoolAdapter(this.repository, this.teacherRepository, this.classroomRepository,
-                                         this.mapper, this.policy, new ApiBasePath("/v0"));
-        //@formatter:on
+                                          this.mapper, this.policy);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
 
@@ -84,12 +81,12 @@ class SchoolAdapterTest {
     }
 
     @Test
-    void toModelAddsASelfLinkPrefixedWithTheApiBasePath() {
+    void toModelAddsASelfLink() {
         final School school = aSchool("Gloria Fuertes");
         final SchoolModel model = this.adapter.toModel(school);
         assertEquals("Gloria Fuertes", model.getName());
         final String href = model.getRequiredLink("self").getHref();
-        assertTrue(href.endsWith("/v0/schools/" + school.getId()), "unexpected href: " + href);
+        assertTrue(href.endsWith("/schools/" + school.getId()), "unexpected href: " + href);
     }
 
     @Test

@@ -3,6 +3,7 @@ package edu.lyra.members.api.kid;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import edu.lyra.members.api.config.web.ApiBasePath;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -57,6 +58,9 @@ class KidsAssociationMethodsTest {
     @Autowired
     private RepositoryRestConfiguration restConfiguration;
 
+    @Autowired
+    private ApiBasePath apiBasePath;
+
     private Stream<Arguments> kidAssociationEndpoints() {
         return kidAssociationPaths().flatMap(
                 path -> of(arguments(post(path).with(jwt()), status().isMethodNotAllowed()),
@@ -72,8 +76,11 @@ class KidsAssociationMethodsTest {
 
     private Stream<String> kidAssociationPaths() {
         final ResourceMetadata metadata = resourceMappings.getMetadataFor(Kid.class);
-        final Path itemPath = new Path("/" + restConfiguration.getBasePath()).slash(requireNonNull(metadata).getPath())
-                                                                             .slash(UUID.randomUUID().toString());
+        // Spring Data REST's own base path (restConfiguration.getBasePath()) is empty now that the API's
+        // base path is the servlet context path instead; a real client still needs that context path,
+        // so the item path is built from it directly.
+        final Path itemPath = new Path(apiBasePath.basePath()).slash(requireNonNull(metadata).getPath())
+                                                               .slash(UUID.randomUUID().toString());
         return stream(mappingContext.getRequiredPersistentEntity(Kid.class).spliterator(), false)
                 .filter(PersistentProperty::isAssociation).map(metadata::getMappingFor)
                 .filter(ResourceMapping::isExported).map(mapping -> itemPath.slash(mapping.getPath()).toString());
@@ -83,10 +90,11 @@ class KidsAssociationMethodsTest {
     @MethodSource("kidAssociationEndpoints")
     void testMethods(final MockHttpServletRequestBuilder request, final ResultMatcher expectedStatus)
             throws Exception {
-        this.mvc.perform(request).andDo(result -> log.atInfo().addArgument(result.getRequest().getMethod())
-                                                     .addArgument(result.getRequest().getRequestURI())
-                                                     .addArgument(result.getResponse().getStatus())
-                                                     .log("Tested {} {} → {}")).andExpect(expectedStatus);
+        this.mvc.perform(request.contextPath(this.apiBasePath.basePath()))
+                .andDo(result -> log.atInfo().addArgument(result.getRequest().getMethod())
+                                              .addArgument(result.getRequest().getRequestURI())
+                                              .addArgument(result.getResponse().getStatus())
+                                              .log("Tested {} {} → {}")).andExpect(expectedStatus);
     }
 
     @TestConfiguration

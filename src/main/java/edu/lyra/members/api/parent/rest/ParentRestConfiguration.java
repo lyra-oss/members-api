@@ -1,6 +1,5 @@
 package edu.lyra.members.api.parent.rest;
 
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.PersonRepository;
@@ -27,10 +26,9 @@ class ParentRestConfiguration {
             final KidRepository kidRepository,
             final PersonRepository personRepository,
             final ParentMapper mapper,
-            final ParentPolicy policy,
-            final ApiBasePath apiBasePath
+            final ParentPolicy policy
     ) {
-        return new ParentAdapter(parentRepository, kidRepository, personRepository, mapper, policy, apiBasePath);
+        return new ParentAdapter(parentRepository, kidRepository, personRepository, mapper, policy);
     }
 
 }

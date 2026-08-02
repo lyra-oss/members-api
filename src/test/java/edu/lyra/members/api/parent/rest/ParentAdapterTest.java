@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
@@ -68,7 +67,7 @@ class ParentAdapterTest {
     void setUp() {
         this.policy = mock(ParentPolicy.class);
         this.adapter = new ParentAdapter(this.parentRepository, this.kidRepository, this.personRepository,
-                                         this.mapper, this.policy, new ApiBasePath("/v0"));
+                                         this.mapper, this.policy);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
 
@@ -100,11 +99,11 @@ class ParentAdapterTest {
     }
 
     @Test
-    void toModelAddsASelfLinkPrefixedWithTheApiBasePath() {
+    void toModelAddsASelfLink() {
         final Parent parent = aParent("Esteban");
         final ParentModel model = this.adapter.toModel(parent);
         assertEquals("Esteban", model.getName());
-        assertTrue(model.getRequiredLink("self").getHref().endsWith("/v0/parents/" + parent.getId()));
+        assertTrue(model.getRequiredLink("self").getHref().endsWith("/parents/" + parent.getId()));
     }
 
     @Test

@@ -1,6 +1,5 @@
 package edu.lyra.members.api.root.rest;
 
-import edu.lyra.members.api.config.web.ApiBasePath;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
@@ -15,13 +14,7 @@ class RootController {
     private static final String[] COLLECTION_RELS =
             { "schools", "teachers", "parents", "kids", "classrooms", "persons" };
 
-    private final ApiBasePath apiBasePath;
-
-    RootController(final ApiBasePath apiBasePath) {
-        this.apiBasePath = apiBasePath;
-    }
-
-    @GetMapping("${lyra.api.base-path}/")
+    @GetMapping("/")
     RepresentationModel<?> index() {
         log.debug("Building the root link index");
         final RepresentationModel<?> model = new RepresentationModel<>();
@@ -31,13 +24,13 @@ class RootController {
         return model;
     }
 
+    // Each *Controller lives in its own vertical slice and is package-private (enforced by
+    // VerticalSliceRulesTest), so linkTo(methodOn(...)) - which needs compile-time access to the
+    // controller class - isn't available here the way it is inside each slice's own adapter. These are
+    // just the collections' well-known, unchanging relative paths, so building them from the current
+    // request's already-resolved context path is simpler anyway.
     private Link link(final String rel) {
-        //@formatter:off
-        final String href = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                        .path(this.apiBasePath.basePath())
-                                                        .path("/" + rel)
-                                                        .toUriString();
-        //@formatter:on
+        final String href = ServletUriComponentsBuilder.fromCurrentContextPath().path("/" + rel).toUriString();
         return Link.of(href, rel);
     }
 

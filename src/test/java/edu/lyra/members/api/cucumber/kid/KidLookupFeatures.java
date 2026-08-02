@@ -128,7 +128,8 @@ public class KidLookupFeatures
         final MockHttpServletResponse response = this.mvc.perform(
                 get("/v0/kids").queryParam("size", String.valueOf(size))
                                .queryParam("page", String.valueOf(page))
-                               .with(this.scenarioContext.getJwtProcessor()))
+                               .with(this.scenarioContext.getJwtProcessor())
+                               .contextPath(this.apiBasePath.basePath()))
                                                           .andExpect(status().isOk())
                                                           .andReturn().getResponse();
         //@formatter:on

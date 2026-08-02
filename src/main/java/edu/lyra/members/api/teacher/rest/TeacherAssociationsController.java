@@ -24,14 +24,14 @@ class TeacherAssociationsController {
         this.pagedAssembler = pagedAssembler;
     }
 
-    @GetMapping("${lyra.api.base-path}/schools/{schoolId}/teachers")
+    @GetMapping("/schools/{schoolId}/teachers")
     ResponseEntity<PagedModel<TeacherModel>> findBySchool(final @PathVariable UUID schoolId, final Pageable pageable) {
         log.debug("Listing teachers for school {}, page {}", schoolId, pageable);
         return this.adapter.findBySchool(schoolId, pageable, this.pagedAssembler).map(ResponseEntity::ok)
                    .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("${lyra.api.base-path}/classrooms/{classroomId}/teachers")
+    @GetMapping("/classrooms/{classroomId}/teachers")
     ResponseEntity<PagedModel<TeacherModel>> findByClassroom(
             final @PathVariable UUID classroomId,
             final Pageable pageable
@@ -41,7 +41,7 @@ class TeacherAssociationsController {
                    .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("${lyra.api.base-path}/classrooms/{classroomId}/tutor")
+    @GetMapping("/classrooms/{classroomId}/tutor")
     ResponseEntity<TeacherModel> findTutorOf(final @PathVariable UUID classroomId) {
         log.debug("Fetching the tutor of classroom {}", classroomId);
         return this.adapter.findTutorOf(classroomId).map(ResponseEntity::ok)

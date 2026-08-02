@@ -99,7 +99,8 @@ public class PersonRoleFeatures
             throws Exception {
         //@formatter:off
         this.mvc.perform(put(this.personLocation(name, surname) + "/parent")
-                                 .with(adminJwtProcessor("parents.create")))
+                                 .with(adminJwtProcessor("parents.create"))
+                                 .contextPath(this.apiBasePath.basePath()))
                 .andExpect(status().isNoContent());
         //@formatter:on
     }
@@ -119,6 +120,7 @@ public class PersonRoleFeatures
         //@formatter:off
         this.mvc.perform(put(this.personLocation(name, surname) + "/teacher")
                                  .with(adminJwtProcessor("teachers.create"))
+                                 .contextPath(this.apiBasePath.basePath())
                                  .contentType(MediaType.APPLICATION_JSON)
                                  .content(OBJECT_MAPPER.writeValueAsString(this.schoolBody(schoolName))))
                 .andExpect(status().isNoContent());

@@ -1,7 +1,6 @@
 package edu.lyra.members.api.person.rest;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.PersonRepository;
 import edu.lyra.members.api.school.SchoolRepository;
@@ -25,11 +24,10 @@ class PersonRestConfiguration {
             final TeacherRepository teacherRepository,
             final SchoolRepository schoolRepository,
             final ClassroomRepository classroomRepository,
-            final PersonMapper mapper,
-            final ApiBasePath apiBasePath
+            final PersonMapper mapper
     ) {
         return new PersonAdapter(personRepository, parentRepository, teacherRepository, schoolRepository,
-                                 classroomRepository, mapper, apiBasePath);
+                                 classroomRepository, mapper);
     }
 
 }

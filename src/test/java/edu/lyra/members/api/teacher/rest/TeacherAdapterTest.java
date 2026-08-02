@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
 import edu.lyra.members.api.person.Person;
 import edu.lyra.members.api.person.PersonRepository;
@@ -75,7 +74,7 @@ class TeacherAdapterTest {
         this.policy = mock(TeacherPolicy.class);
         //@formatter:off
         this.adapter = new TeacherAdapter(this.teacherRepository, this.schoolRepository, this.personRepository,
-                                          this.classroomRepository, this.mapper, this.policy, new ApiBasePath("/v0"));
+                                          this.classroomRepository, this.mapper, this.policy);
         //@formatter:on
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
@@ -109,11 +108,11 @@ class TeacherAdapterTest {
     }
 
     @Test
-    void toModelAddsASelfLinkPrefixedWithTheApiBasePath() {
+    void toModelAddsASelfLink() {
         final Teacher teacher = aTeacher("Marta");
         final TeacherModel model = this.adapter.toModel(teacher);
         assertEquals("Marta", model.getName());
-        assertTrue(model.getRequiredLink("self").getHref().endsWith("/v0/teachers/" + teacher.getId()));
+        assertTrue(model.getRequiredLink("self").getHref().endsWith("/teachers/" + teacher.getId()));
     }
 
     @Test

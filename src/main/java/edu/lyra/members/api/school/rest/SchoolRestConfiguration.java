@@ -1,7 +1,6 @@
 package edu.lyra.members.api.school.rest;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.TeacherRepository;
 import org.mapstruct.factory.Mappers;
@@ -27,10 +26,9 @@ class SchoolRestConfiguration {
             final TeacherRepository teacherRepository,
             final ClassroomRepository classroomRepository,
             final SchoolMapper mapper,
-            final SchoolPolicy policy,
-            final ApiBasePath apiBasePath
+            final SchoolPolicy policy
     ) {
-        return new SchoolAdapter(repository, teacherRepository, classroomRepository, mapper, policy, apiBasePath);
+        return new SchoolAdapter(repository, teacherRepository, classroomRepository, mapper, policy);
     }
 
 }
