@@ -11,6 +11,7 @@ import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.exceptions.SchoolHasReferencesException;
 import edu.lyra.members.api.exceptions.SchoolMismatchException;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
+import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -24,9 +25,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.MapBindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 
 import static java.net.URI.create;
@@ -35,6 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.springframework.core.convert.TypeDescriptor.valueOf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class ProblemDetailsControllerAdviceTest {
 
@@ -176,6 +184,35 @@ class ProblemDetailsControllerAdviceTest {
     }
 
     @Test
+    void testUnresolvableReferenceErrorResponse() {
+        final ResponseEntity<ProblemDetail> response = advice.handleUnresolvableReferenceException(
+                new UnresolvableReferenceException("No parent found with id " + UUID.randomUUID()));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON);
+        final ProblemDetail problemDetail = response.getBody();
+        assertThat(problemDetail).isNotNull();
+        assertThat(problemDetail.getType()).isEqualTo(
+                create("https://lyra.sagittec.com/problems/unresolvable-reference"));
+        assertThat(problemDetail.getTitle()).isEqualTo("Referenced resource does not exist");
+        assertThat(problemDetail.getProperties()).containsKey("timestamp");
+    }
+
+    // handleHttpMessageNotReadable is inherited, unoverridden ResponseEntityExceptionHandler behaviour
+    // (protected, so it cannot be called directly from outside that class hierarchy) - a standalone
+    // MockMvc harness around a throwaway controller is the lightest way to exercise it through the
+    // advice without a full Spring context.
+    @Test
+    void testMalformedJsonErrorResponse()
+            throws Exception {
+        final MockMvc mvc = MockMvcBuilders.standaloneSetup(new DummyController()).setControllerAdvice(advice)
+                                            .build();
+        //@formatter:off
+        mvc.perform(post("/dummy").contentType(MediaType.APPLICATION_JSON).content("not json"))
+           .andExpect(status().isBadRequest());
+        //@formatter:on
+    }
+
+    @Test
     void testMethodArgumentNotValidErrorResponse()
             throws NoSuchMethodException {
         final MapBindingResult errors = new MapBindingResult(new HashMap<>(), "parentRequest");
@@ -205,5 +242,16 @@ class ProblemDetailsControllerAdviceTest {
 
     @SuppressWarnings("unused")
     private void dummyTarget(final String arg) {}
+
+    @RestController
+    private static class DummyController {
+
+        @SuppressWarnings("unused")
+        @PostMapping("/dummy")
+        void dummy(final @RequestBody DummyRequest request) {}
+
+    }
+
+    private record DummyRequest(String value) {}
 
 }
