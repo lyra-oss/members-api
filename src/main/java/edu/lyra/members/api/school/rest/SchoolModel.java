@@ -18,9 +18,6 @@ class SchoolModel
         this.name = name;
     }
 
-    // Jackson's default VisibilityChecker only auto-detects public getters, regardless of the
-    // declaring class's own visibility - so these must stay public even though SchoolModel itself is
-    // package-private (VerticalSliceRulesTest only forbids the class declaration from being public).
     public UUID getId() {
         return this.id;
     }

@@ -39,9 +39,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Replaces KidsAssociationMethodsTest: the same route-shape guarantee (POST/PUT/PATCH on a kid's
-// association sub-resources are unsupported; GET works), pinned through HTTP status codes rather than
-// by walking Spring Data REST's own metadata, which disappears with the framework (Phase 4.4).
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @Import(TestJwtDecoderConfiguration.class)
@@ -72,9 +69,6 @@ class KidAssociationRoutesTest {
 
     @BeforeEach
     void setUp() {
-        // Auditable.createdBy/updatedBy are populated from SecurityAuditorAware, which needs a
-        // JwtAuthenticationToken in the security context - otherwise these direct repository saves
-        // fail their NOT NULL constraint.
         final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(UUID.randomUUID().toString())
                            .build();
         SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, List.of()));

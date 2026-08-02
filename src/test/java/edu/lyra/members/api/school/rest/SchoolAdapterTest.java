@@ -74,8 +74,6 @@ class SchoolAdapterTest {
     private static School aSchool(final String name) {
         final School school = new School();
         school.setName(name);
-        // id is @GeneratedValue and only ever populated by JPA on a real save; set it directly here so
-        // link-building tests (which never persist) still have something to build a self href from.
         ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
         return school;
     }

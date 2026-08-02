@@ -81,7 +81,6 @@ class KidPolicyTest {
         //@formatter:on
     }
 
-    // --- authorizeCreate ---
 
     @Test
     void authorizeCreateReturnsTheRequestingSubjectsParent() {
@@ -98,7 +97,6 @@ class KidPolicyTest {
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeCreate(subject));
     }
 
-    // --- authorizeUpdate: plain field update (parent and classroom unchanged) ---
 
     @Test
     void allowsAdminToUpdateAnyKid() {
@@ -173,7 +171,6 @@ class KidPolicyTest {
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(kid, parent, classroom));
     }
 
-    // --- authorizeUpdate: rebinding to a different parent ---
 
     @Test
     void rejectsParentRebindingTheirOwnKidToADifferentParent() {
@@ -192,7 +189,6 @@ class KidPolicyTest {
         assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, newParent, null));
     }
 
-    // --- authorizeUpdate: enrolling into a different classroom ---
 
     @Test
     void allowsTargetClassroomsTutorToEnrollAKid() {
@@ -223,7 +219,6 @@ class KidPolicyTest {
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(kid, parent, newClassroom));
     }
 
-    // --- authorizeDelete ---
 
     @Test
     void allowsAdminToDeleteAnyKid() {

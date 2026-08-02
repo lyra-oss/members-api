@@ -17,7 +17,6 @@ interface SchoolMapper {
 
     SchoolModel toModel(School school);
 
-    // null means "not supplied" - absent request fields leave the existing entity value untouched.
     @Mapping(target = "classrooms", ignore = true)
     @Mapping(target = "teachers", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

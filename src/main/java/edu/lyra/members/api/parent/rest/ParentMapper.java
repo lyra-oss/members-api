@@ -11,11 +11,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper
 interface ParentMapper {
 
-    // Parent's Lombok @Builder only exposes id/person (its private all-args constructor's
-    // parameters) - name/surname/mail are PersonRole's delegating setters, which the builder cannot
-    // reach. Disabling builder detection makes MapStruct fall back to new Parent() + setters, so
-    // those three actually get set (and, as a side effect of PersonRole.setName/setSurname/setMail,
-    // lazily populate the Person they delegate to).
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "person", ignore = true)
     @BeanMapping(builder = @Builder(disableBuilder = true))
@@ -23,7 +18,6 @@ interface ParentMapper {
 
     ParentModel toModel(Parent parent);
 
-    // null means "not supplied" - absent request fields leave the existing entity value untouched.
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "person", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

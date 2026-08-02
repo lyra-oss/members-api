@@ -70,11 +70,6 @@ class SpringSecurityConfiguration {
     private static final String PERSONS_PARENT_ROLE  = path(ENTITY_PERSONS, ANY_SEGMENT, "parent");
     private static final String PERSONS_TEACHER_ROLE = path(ENTITY_PERSONS, ANY_SEGMENT, "teacher");
 
-    // Association GETs reinstated once Spring Data REST no longer auto-exports them: each returns a
-    // representation of a *different* aggregate than the one in its path prefix, so the chain demands
-    // both aggregates' read scopes (closes F3). These are two segments (a collection or singular
-    // sub-resource, no target id) and so are distinct constants from the same-looking association
-    // *write* paths above, which always end in a target id.
     private static final String PARENTS_KIDS_READ         = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS);
     private static final String KIDS_PARENT_READ          = path(ENTITY_KIDS, ANY_SEGMENT, "parent");
     private static final String KIDS_CLASSROOM_READ        = path(ENTITY_KIDS, ANY_SEGMENT, "classroom");
@@ -137,12 +132,6 @@ class SpringSecurityConfiguration {
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_CREATE))
                            .requestMatchers(DELETE, PERSONS_TEACHER_ROLE)
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_CREATE))
-                           // These method+path combinations have no real handler (Spring MVC will 405
-                           // them) but still need to clear Security to reach that dispatch at all, now
-                           // that anyRequest() is denyAll() rather than authenticated(). PUT also covers
-                           // KIDS_PARENT_READ/KIDS_CLASSROOM_READ, since those are subpaths of KIDS_ANY;
-                           // POST has no such broad matcher for kids, so it needs its own entry, and PATCH
-                           // there is already covered by PATCH KIDS_ANY below with the update scope.
                            .requestMatchers(PUT, PARENTS_ANY, KIDS_ANY, SCHOOLS_ANY, TEACHERS_ANY, CLASSROOMS_ANY)
                                    .authenticated()
                            .requestMatchers(POST, PERSONS)
@@ -214,9 +203,6 @@ class SpringSecurityConfiguration {
         return converter;
     }
 
-    // Association GETs return a representation of the target aggregate under the owner aggregate's
-    // path, so both aggregates' read scopes are required; there is no hasAllAuthorities shorthand for
-    // this, hence the explicit AND-composition.
     private static AuthorizationManager<RequestAuthorizationContext> bothScopes(
             final String entityA,
             final String entityB

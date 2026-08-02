@@ -93,8 +93,6 @@ class SpringSecurityConfigurationTest {
         return apiBasePath.basePath();
     }
 
-    // The API's base path is now the servlet context path rather than a request-mapping prefix, and
-    // MockMvc has no way to know that unless each request says so explicitly.
     private ResultActions perform(final MockHttpServletRequestBuilder request)
             throws Exception {
         return mvc.perform(request.contextPath(this.base()));
@@ -199,18 +197,12 @@ class SpringSecurityConfigurationTest {
         this.perform(get(this.base() + "/actuator/health")).andExpect(status().isOk());
     }
 
-    // "info" is not in this application's actuator web-exposure list, so there is no handler for it;
-    // this only asserts that the security filter itself permits the request through rather than
-    // rejecting it with 401/403 before dispatch — the absence of a handler is a separate concern.
     @Test
     void testActuatorInfoPermitsAllWithoutAuthentication()
             throws Exception {
         this.perform(get(this.base() + "/actuator/info")).andExpect(status().isNotFound());
     }
 
-    // Regression test for a defect where "/actuator/**" was permitAll: any actuator endpoint other
-    // than health/info must require authentication like anything else, even one that Spring Boot has
-    // not registered a handler for (pattern matching happens in the security filter, before dispatch).
     @Test
     void testActuatorOtherEndpointsRequireAuthentication()
             throws Exception {
@@ -240,9 +232,6 @@ class SpringSecurityConfigurationTest {
         return OBJECT_MAPPER.writeValueAsString(classroomJson);
     }
 
-    // Regression test for a defect where POST /v0/classrooms had no scope matcher at all and fell
-    // through to ".anyRequest().authenticated()", so any authenticated caller — regardless of scope —
-    // could create a classroom.
     @Test
     void testCreateClassroomKo()
             throws Exception {
@@ -371,8 +360,6 @@ class SpringSecurityConfigurationTest {
         //@formatter:on
     }
 
-    // Item PUT -> 405 across these resources is asserted by DisabledMethodsTest.itemPutIsDisabled;
-    // that test owns method-exposure guarantees, this class owns scope enforcement.
 
     @ParameterizedTest
     @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")

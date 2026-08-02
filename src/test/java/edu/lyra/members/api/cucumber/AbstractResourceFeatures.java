@@ -26,10 +26,6 @@ public abstract class AbstractResourceFeatures {
         this.perform(request.contentType(APPLICATION_JSON).content(OBJECT_MAPPER.writeValueAsString(body)));
     }
 
-    // Every scenario builds request URIs starting with the API's base path (e.g. "/v0/schools"), which
-    // is now the servlet context path rather than a request-mapping prefix; MockMvc has no way to know
-    // that unless each request says so explicitly, hence contextPath(...) here rather than in every step
-    // definition.
     protected void perform(final MockHttpServletRequestBuilder request)
             throws Exception {
         this.scenarioContext.setResultActions(this.mvc.perform(

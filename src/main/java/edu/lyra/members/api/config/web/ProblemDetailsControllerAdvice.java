@@ -107,10 +107,6 @@ class ProblemDetailsControllerAdvice
         //@formatter:on
     }
 
-    // Last-resort safety net: the delete-authorization handlers above already reject these deletions with a
-    // precise exception, but the database's own foreign-key constraints (deliberately left without cascading
-    // removal; see the affected entities' collection mappings) back that up independently, in case application
-    // logic is ever bypassed or wrong.
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(
             final DataIntegrityViolationException ex) {

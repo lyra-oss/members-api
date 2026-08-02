@@ -19,10 +19,6 @@ interface KidMapper {
 
     KidModel toModel(Kid kid);
 
-    // null means "not supplied" - absent request fields leave the existing entity value untouched.
-    // newParent/newClassroom are already resolved to "unchanged" by the adapter when the request
-    // omits them, so they are applied unconditionally rather than through the same ignore-if-null
-    // strategy as name/surname/birthdate.
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "request.name")
     @Mapping(target = "surname", source = "request.surname")

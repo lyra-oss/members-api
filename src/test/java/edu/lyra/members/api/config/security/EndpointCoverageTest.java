@@ -30,9 +30,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 
-// @TestInstance(PER_CLASS) lets registeredRoutes() below be a non-static @MethodSource: JUnit reuses
-// the one Spring-managed instance (handlerMapping already autowired) instead of needing a static
-// method that can't reach it.
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @Import(TestJwtDecoderConfiguration.class)
@@ -46,9 +43,6 @@ class EndpointCoverageTest {
     @Autowired
     private MockMvc mvc;
 
-    // Actuator also registers its own "controllerEndpointHandlerMapping" of the same bean type; the
-    // qualifier picks Spring MVC's own mapping, which is the one holding this app's @RequestMapping
-    // controllers.
     @Autowired
     @Qualifier("requestMappingHandlerMapping")
     private RequestMappingHandlerMapping handlerMapping;
@@ -65,8 +59,6 @@ class EndpointCoverageTest {
 
     }
 
-    // Every scope the security chain checks for anywhere (see SpringSecurityConfiguration), plus
-    // ROLE_admin for PersonController's @PreAuthorize methods, granted all at once.
     private static List<GrantedAuthority> fullPrivileges() {
         final List<GrantedAuthority> authorities = new ArrayList<>();
         for(final String entity : CrudResourceNames.ALL) {
@@ -79,8 +71,6 @@ class EndpointCoverageTest {
         return authorities;
     }
 
-    // Every distinct (method, path) registered with Spring MVC, path variables replaced by a random
-    // UUID segment so each route can be dispatched to a concrete URI.
     private Stream<Route> registeredRoutes() {
         //@formatter:off
         return this.handlerMapping.getHandlerMethods().keySet().stream()
@@ -91,15 +81,6 @@ class EndpointCoverageTest {
         //@formatter:on
     }
 
-    // A route is "covered" if this maximally-privileged, authenticated caller can reach it, i.e. it is
-    // matched by some rule other than the authority-blind anyRequest().denyAll() fallback. An empty
-    // JSON body is sent so a create/update endpoint's @Valid rejects it with 400 before ever reaching
-    // adapter/policy logic. This assertion only cares about the security layer's verdict: a route whose
-    // adapter/policy independently denies with 403 for an unrelated reason (none does today for a GET
-    // or an empty-bodied write - see e.g. KidPolicy, which only gates update/delete) would be
-    // misreported here as "not covered" rather than "denied for a different reason". One invocation per
-    // route, rather than one loop over all of them, keeps each test's coverage to a single route's
-    // dispatch path instead of the whole route table at once.
     @ParameterizedTest(name = "{0}")
     @MethodSource("registeredRoutes")
     void everyRegisteredRouteIsMatchedByASpecificSecurityRule(final Route route)

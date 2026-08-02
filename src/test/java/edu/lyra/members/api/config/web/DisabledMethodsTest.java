@@ -18,10 +18,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Pins the method/path combinations that RestExposureConfiguration used to close off at the Spring
-// Data REST layer, so that guarantee survives its deletion (Phase 4.4) as an explicit assertion rather
-// than silently widening the API. None of these methods are mapped by the new controllers at all, so
-// Spring MVC itself rejects them with 405 once Security lets the request through.
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @Import(TestJwtDecoderConfiguration.class)

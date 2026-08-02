@@ -198,10 +198,6 @@ class ProblemDetailsControllerAdviceTest {
         assertThat(problemDetail.getProperties()).containsKey("timestamp");
     }
 
-    // handleHttpMessageNotReadable is inherited, unoverridden ResponseEntityExceptionHandler behaviour
-    // (protected, so it cannot be called directly from outside that class hierarchy) - a standalone
-    // MockMvc harness around a throwaway controller is the lightest way to exercise it through the
-    // advice without a full Spring context.
     @Test
     void testMalformedJsonErrorResponse()
             throws Exception {

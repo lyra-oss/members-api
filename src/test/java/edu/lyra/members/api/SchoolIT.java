@@ -46,9 +46,6 @@ class SchoolIT
         }
     }
 
-    // Exercises the "schools.delete" scope against the real identity provider: Cucumber cannot catch a
-    // missing/misconfigured delete scope because it fabricates JWT authorities directly, bypassing
-    // Keycloak's client-scope grants entirely.
     @Test
     void testCreateAndDeleteSchool()
             throws IOException {

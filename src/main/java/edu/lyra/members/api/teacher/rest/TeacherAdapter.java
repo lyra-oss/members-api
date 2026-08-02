@@ -94,10 +94,6 @@ class TeacherAdapter
         return this.classroomRepository.findById(classroomId).map(Classroom::getTutor).map(this::toModel);
     }
 
-    // Mirrors the original TeacherRegistrationHandler: if the authenticated subject already has a
-    // Person record (e.g. they registered as a parent first), that existing identity wins over
-    // whatever name/surname/mail this request supplied; otherwise a new Person is created from the
-    // request under the subject's id.
     TeacherModel create(final TeacherRequest request) {
         final School school = this.schoolRepository.findById(request.school()).orElseThrow(
                 () -> new UnresolvableReferenceException("No school found with id " + request.school()));

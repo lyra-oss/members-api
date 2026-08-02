@@ -20,17 +20,12 @@ class KidPolicy {
         this.parentRepository = parentRepository;
     }
 
-    // Mirrors the original KidAuthorizationEventHandler: a kid can only be registered under the
-    // authenticated caller's own parent account.
     Parent authorizeCreate(final UUID subject) {
         log.debug("Authorizing kid creation for subject {}", subject);
         return this.parentRepository.findById(subject).orElseThrow(
                 () -> new AccessDeniedException("Authenticated user cannot register this kid"));
     }
 
-    // kid is the pre-write kid (its parent/classroom are the current, "outgoing" values); newParent/
-    // newClassroom are the proposed values the adapter already resolved (equal to the current ones
-    // when the request left that field unspecified).
     void authorizeUpdate(final Kid kid, final Parent newParent, final Classroom newClassroom) {
         log.debug("Authorizing update of kid {}", kid.getId());
         if(AuthenticatedPrincipal.isAdmin()) {

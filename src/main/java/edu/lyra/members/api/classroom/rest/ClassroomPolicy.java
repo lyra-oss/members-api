@@ -10,9 +10,6 @@ import org.springframework.security.access.AccessDeniedException;
 @Slf4j
 class ClassroomPolicy {
 
-    // Authorizes a classroom PATCH, and every teaching-staff/tutor/roster association write: in every
-    // case the classroom passed in is its pre-write state, so checking its current tutor here is
-    // equivalent to the old previousTutorId capture, without needing a transient field for it.
     void authorizeUpdate(final Classroom classroom) {
         log.debug("Authorizing update of classroom {}", classroom.getId());
         if(! this.isAdminOrTutor(classroom)) {

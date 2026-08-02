@@ -357,9 +357,6 @@ class ClassroomAdapterTest {
         classroom.setTutor(outgoingTutor);
         when(this.classroomRepository.findById(classroom.getId())).thenReturn(Optional.of(classroom));
         when(this.teacherRepository.findById(proposedTutor.getId())).thenReturn(Optional.of(proposedTutor));
-        // Classroom is mutable and Mockito verify() inspects arguments by reference, not a snapshot at
-        // call time, so the tutor seen during authorization is captured live, inside the stub, before
-        // setTutor() has a chance to overwrite it.
         final AtomicReference<Teacher> tutorSeenDuringAuthorization = new AtomicReference<>();
         doAnswer(invocation -> {
             tutorSeenDuringAuthorization.set(((Classroom) invocation.getArgument(0)).getTutor());

@@ -21,8 +21,6 @@ class ClassroomModel
         this.group = group;
     }
 
-    // Jackson's default VisibilityChecker only auto-detects public getters, regardless of the
-    // declaring class's own visibility.
     public UUID getId() {
         return this.id;
     }

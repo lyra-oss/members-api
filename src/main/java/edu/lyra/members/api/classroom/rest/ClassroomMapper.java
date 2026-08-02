@@ -21,7 +21,6 @@ interface ClassroomMapper {
 
     ClassroomModel toModel(Classroom classroom);
 
-    // null means "not supplied" - absent request fields leave the existing entity value untouched.
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "school", ignore = true)
     @Mapping(target = "tutor", ignore = true)

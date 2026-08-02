@@ -25,9 +25,6 @@ public class AuthenticationFeatures {
                                              .authorities(scopeAuthorities(scope)));
     }
 
-    // Association GETs need more than one read scope at once (e.g. "classrooms.read,teachers.read"), so
-    // a comma-separated scope list is accepted here rather than adding a differently-worded step just
-    // for that case.
     private static GrantedAuthority[] scopeAuthorities(final String commaSeparatedScopes) {
         return Stream.of(commaSeparatedScopes.split(",")).map(String::strip)
                      .map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope)).toArray(GrantedAuthority[]::new);

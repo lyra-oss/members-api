@@ -164,7 +164,6 @@ class TeacherAdapterTest {
         final TeacherRequest request = new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com",
                                                           school.getId());
         final TeacherModel model = this.adapter.create(request);
-        // the existing person's identity wins over whatever the request supplied
         assertEquals("Already", model.getName());
         assertEquals("Registered", model.getSurname());
     }
@@ -180,9 +179,6 @@ class TeacherAdapterTest {
         final TeacherRequest request = new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com",
                                                           school.getId());
         final TeacherModel model = this.adapter.create(request);
-        // the request's own identity is used since no person was previously registered under the
-        // subject; @MapsId then derives the teacher's own id from person.id, but only Hibernate does
-        // that at real persist time, so it is out of scope for this mocked-repository test.
         assertEquals("Marta", model.getName());
         final ArgumentCaptor<Teacher> saved = ArgumentCaptor.forClass(Teacher.class);
         verify(this.teacherRepository).save(saved.capture());

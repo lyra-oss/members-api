@@ -50,7 +50,6 @@ public class TeacherCreationFeatures
 
     @Given("the teacher's name is not provided")
     public void theTeachersNameNotProvided() {
-        // name field intentionally omitted from the request
     }
 
     @Given("the teacher's name is set to null")
@@ -80,7 +79,6 @@ public class TeacherCreationFeatures
 
     @And("the teacher's surname is not provided")
     public void theTeachersSurnameNotProvided() {
-        // surname field intentionally omitted from the request
     }
 
     @And("the teacher's surname is set to null")
@@ -110,7 +108,6 @@ public class TeacherCreationFeatures
 
     @And("the teacher's e-mail address is not provided")
     public void theTeachersEMailAddressNotProvided() {
-        // mail field intentionally omitted from the request
     }
 
     @And("the teacher's e-mail address is set to null")

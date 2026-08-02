@@ -144,7 +144,6 @@ class ParentAdapterTest {
         final ParentRequest request =
                 new ParentRequest("Esteban", "Cristóbal", "esteban.cristobal@example.com");
         final ParentModel model = this.adapter.create(request);
-        // the existing person's identity wins over whatever the request supplied
         assertEquals("Already", model.getName());
         assertEquals("Registered", model.getSurname());
     }
@@ -158,9 +157,6 @@ class ParentAdapterTest {
         final ParentRequest request =
                 new ParentRequest("Esteban", "Cristóbal", "esteban.cristobal@example.com");
         final ParentModel model = this.adapter.create(request);
-        // the request's own identity is used since no person was previously registered under the
-        // subject; @MapsId then derives the parent's own id from person.id, but only Hibernate does
-        // that at real persist time, so it is out of scope for this mocked-repository test.
         assertEquals("Esteban", model.getName());
         final ArgumentCaptor<Parent> saved = ArgumentCaptor.forClass(Parent.class);
         verify(this.parentRepository).save(saved.capture());

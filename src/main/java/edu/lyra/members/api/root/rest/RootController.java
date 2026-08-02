@@ -24,11 +24,6 @@ class RootController {
         return model;
     }
 
-    // Each *Controller lives in its own vertical slice and is package-private (enforced by
-    // VerticalSliceRulesTest), so linkTo(methodOn(...)) - which needs compile-time access to the
-    // controller class - isn't available here the way it is inside each slice's own adapter. These are
-    // just the collections' well-known, unchanging relative paths, so building them from the current
-    // request's already-resolved context path is simpler anyway.
     private Link link(final String rel) {
         final String href = ServletUriComponentsBuilder.fromCurrentContextPath().path("/" + rel).toUriString();
         return Link.of(href, rel);
