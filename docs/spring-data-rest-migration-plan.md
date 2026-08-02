@@ -474,6 +474,11 @@ changes, so re-run the duplicate-creation scenarios attentively.
   would otherwise count for coverage and mutation; `javax.annotation.processing.Generated` is
   `SOURCE`-retention, so JaCoCo's auto-ignore does **not** apply. Add `**/*MapperImpl` to
   `sonar.coverage.exclusions` and to the pitest `excludedClasses`.
+- **`maven-enforcer-plugin`** (version managed by `spring-boot-dependencies`, no explicit executions
+  inherited): add a `bannedDependencies` rule at `validate` excluding
+  `spring-boot-starter-data-rest`/`spring-data-rest-core`/`spring-data-rest-webmvc`/
+  `spring-data-rest-hal-explorer` with `searchTransitive` on, so the dependency cannot return even
+  transitively (§7.11).
 
 ---
 
@@ -595,16 +600,15 @@ Existing two rules unchanged.
 |---|---|
 | `preAuthorizeOnlyInRestPackages` | `@PreAuthorize` appears only in `..rest` — authorization stays at the boundary, next to the `SecurityFilterChain` matchers |
 
-### 7.11 `MigrationGuardRulesTest` — **new file**
+### 7.11 Guarding against Spring Data REST creeping back in — **not an ArchUnit rule**
 
-One rule, high value, deletable once the team is confident:
-
-```java
-noClasses().should().dependOnClassesThat().resideInAPackage("org.springframework.data.rest..")
-```
-
-Prevents Spring Data REST creeping back in through a stray import while the migration is in flight
-and after. Paired with a Checkstyle `IllegalImport` (§8) so it fails at two independent gates.
+An ArchUnit rule here (`noClasses().should().dependOnClassesThat().resideInAPackage(...)`) only catches
+the framework returning if some class ends up importing it. A `maven-enforcer-plugin` `bannedDependencies`
+rule (§6) is strictly stronger: it fails at `validate`, before compilation, and fires even if the
+dependency is merely pulled onto the classpath (directly or transitively) with nothing ever importing
+it — which is exactly how `spring-boot-starter-data-rest`'s autoconfiguration could silently reactivate
+without a single line of code referencing it. Paired with a Checkstyle `IllegalImport` (§8), so it fails
+at two independent gates: one on the dependency tree, one on the source.
 
 ### 7.12 Considered and rejected
 
@@ -788,8 +792,8 @@ final at this point, so this is where fail-closed becomes permanent. Delete the 
 `KidAssociationRoutesTest` **before** deleting `RestExposureConfiguration` and
 `KidsAssociationMethodsTest`, so the guarantees never lapse. Strip
 Jackson and Bean Validation annotations and the `previous*Id` transients from the entities (§2.3).
-Land the ArchUnit rewrite (§7) and the Checkstyle additions (§8) — including `MigrationGuardRulesTest`
-and the `IllegalImport`, which are what stop it coming back.
+Land the ArchUnit rewrite (§7) and the Checkstyle additions (§8), plus the `maven-enforcer-plugin`
+`bannedDependencies` rule (§6, §7.11) and the `IllegalImport`, which are what stop it coming back.
 
 **Total: ~10–12 working days** — Phase −1 (½ day) plus ~9–11 for the migration itself, of which
 roughly a quarter is the rules-and-tests work in §7–§9. §5.1 is close to effort-neutral: it deletes
