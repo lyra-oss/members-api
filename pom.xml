@@ -536,12 +536,6 @@
                         <param>**.*ITCase</param>
                         <param>**/IT*</param>
                         <param>**.architecture.*</param>
-                        <!-- A structural security-config smoke test (every registered route dispatched
-                             once), not a targeted business-logic test - like the architecture suite
-                             above, its job is to fail loudly on a real gap, not to kill mutants. Its
-                             large fan-out (1500+ covered blocks) also slows the run disproportionately
-                             to the signal it adds. -->
-                        <param>**.EndpointCoverageTest</param>
                     </excludedTestClasses>
                     <parseSurefireConfig>false</parseSurefireConfig>
                 </configuration>
