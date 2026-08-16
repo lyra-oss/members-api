@@ -3,6 +3,7 @@ package edu.lyra.members.api.parent.rest;
 import java.net.URI;
 import java.util.UUID;
 
+import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.parent.Parent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ class ParentController {
     @GetMapping("/{id}")
     ResponseEntity<ParentModel> get(final @PathVariable UUID id) {
         log.debug("Fetching parent {}", id);
-        return this.adapter.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
     @PostMapping
@@ -54,20 +55,19 @@ class ParentController {
     @PatchMapping("/{id}")
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody ParentPatchRequest request) {
         log.debug("Updating parent {}", id);
-        return this.adapter.update(id, request).isPresent() ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.update(id, request).isPresent());
     }
 
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(final @PathVariable UUID id) {
         log.debug("Deleting parent {}", id);
-        return this.adapter.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.delete(id));
     }
 
     @PutMapping("/{id}/kids/{kidId}")
     ResponseEntity<Void> bindKid(final @PathVariable UUID id, final @PathVariable UUID kidId) {
         log.debug("Binding kid {} to parent {}", kidId, id);
-        return this.adapter.bindKid(id, kidId) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.bindKid(id, kidId));
     }
 
 }

@@ -2,6 +2,7 @@ package edu.lyra.members.api.person.rest;
 
 import java.util.UUID;
 
+import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.person.Person;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,15 +40,14 @@ class PersonController {
     @GetMapping("/{id}")
     ResponseEntity<PersonModel> get(final @PathVariable UUID id) {
         log.debug("Fetching person {}", id);
-        return this.adapter.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
     @PreAuthorize("hasRole('admin')")
     @PutMapping("/{id}/parent")
     ResponseEntity<Void> grantParentRole(final @PathVariable UUID id) {
         log.debug("Granting the parent role to person {}", id);
-        return this.adapter.grantParentRole(id) ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.grantParentRole(id));
     }
 
     @PreAuthorize("hasRole('admin')")
@@ -57,24 +57,21 @@ class PersonController {
             final @Valid @RequestBody GrantTeacherRoleRequest request
     ) {
         log.debug("Granting the teacher role to person {}", id);
-        return this.adapter.grantTeacherRole(id, request) ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.grantTeacherRole(id, request));
     }
 
     @PreAuthorize("hasRole('admin')")
     @DeleteMapping("/{id}/parent")
     ResponseEntity<Void> revokeParentRole(final @PathVariable UUID id) {
         log.debug("Revoking the parent role from person {}", id);
-        return this.adapter.revokeParentRole(id) ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.revokeParentRole(id));
     }
 
     @PreAuthorize("hasRole('admin')")
     @DeleteMapping("/{id}/teacher")
     ResponseEntity<Void> revokeTeacherRole(final @PathVariable UUID id) {
         log.debug("Revoking the teacher role from person {}", id);
-        return this.adapter.revokeTeacherRole(id) ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.revokeTeacherRole(id));
     }
 
 }

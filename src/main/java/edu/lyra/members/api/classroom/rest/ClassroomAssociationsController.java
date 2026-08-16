@@ -3,6 +3,7 @@ package edu.lyra.members.api.classroom.rest;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.config.web.ResponseEntities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +25,7 @@ class ClassroomAssociationsController {
     @GetMapping("/kids/{kidId}/classroom")
     ResponseEntity<ClassroomModel> findByKid(final @PathVariable UUID kidId) {
         log.debug("Fetching the classroom of kid {}", kidId);
-        return this.adapter.findByKid(kidId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findByKid(kidId));
     }
 
     @GetMapping("/schools/{schoolId}/classrooms")
@@ -33,8 +34,7 @@ class ClassroomAssociationsController {
             final Pageable pageable
     ) {
         log.debug("Listing classrooms for school {}, page {}", schoolId, pageable);
-        return this.adapter.findBySchool(schoolId, pageable, this.pagedAssembler).map(ResponseEntity::ok)
-                           .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findBySchool(schoolId, pageable, this.pagedAssembler));
     }
 
 }

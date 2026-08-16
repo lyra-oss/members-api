@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.jpa.Auditable;
+import edu.lyra.members.api.config.InstancioSupport;
 import edu.lyra.members.api.person.Person;
 import edu.lyra.members.api.person.PersonRepository;
 import edu.lyra.members.api.school.School;
@@ -66,17 +66,13 @@ public class EntityFixtures {
 
     public static School newSchool(final String name) {
         //@formatter:off
-        return Instancio.of(School.class)
-                         .ignore(field(School.class, "id"))
-                         .ignore(field(School.class, "classrooms"))
-                         .ignore(field(School.class, "teachers"))
-                         .ignore(field(Auditable.class, "version"))
-                         .ignore(field(Auditable.class, "createdDate"))
-                         .ignore(field(Auditable.class, "createdBy"))
-                         .ignore(field(Auditable.class, "lastModifiedDate"))
-                         .ignore(field(Auditable.class, "updatedBy"))
-                         .set(field(School.class, "name"), name)
-                         .create();
+        return InstancioSupport.ignoringAuditableFields(
+                        Instancio.of(School.class)
+                                 .ignore(field(School.class, "id"))
+                                 .ignore(field(School.class, "classrooms"))
+                                 .ignore(field(School.class, "teachers")))
+                .set(field(School.class, "name"), name)
+                .create();
         //@formatter:on
     }
 
@@ -91,18 +87,14 @@ public class EntityFixtures {
     @Given("a classroom for course {int} group {string} exists at school {string}")
     public void aClassroomExistsAtSchool(final int course, final String group, final String schoolName) {
         //@formatter:off
-        final Classroom classroom = Instancio.of(Classroom.class).ignore(field(Classroom.class, "id"))
-                                             .ignore(field(Classroom.class, "tutor"))
-                                             .ignore(field(Classroom.class, "teachers"))
-                                             .ignore(field(Classroom.class, "kids"))
-                                             .ignore(field(Auditable.class, "version"))
-                                             .ignore(field(Auditable.class, "createdDate"))
-                                             .ignore(field(Auditable.class, "createdBy"))
-                                             .ignore(field(Auditable.class, "lastModifiedDate"))
-                                             .ignore(field(Auditable.class, "updatedBy"))
-                                             .set(field(Classroom.class, "course"), course)
-                                             .set(field(Classroom.class, "group"), group)
-                                             .set(field(Classroom.class, "school"), this.school(schoolName)).create();
+        final Classroom classroom = InstancioSupport.ignoringAuditableFields(
+                        Instancio.of(Classroom.class).ignore(field(Classroom.class, "id"))
+                                 .ignore(field(Classroom.class, "tutor"))
+                                 .ignore(field(Classroom.class, "teachers"))
+                                 .ignore(field(Classroom.class, "kids")))
+                .set(field(Classroom.class, "course"), course)
+                .set(field(Classroom.class, "group"), group)
+                .set(field(Classroom.class, "school"), this.school(schoolName)).create();
         //@formatter:on
         final Classroom saved = TestSecurityContext.runAuthenticated(() -> this.classroomRepository.save(classroom));
         this.scenarioContext.putLocation("classroom", "/v0/classrooms/" + saved.getId());

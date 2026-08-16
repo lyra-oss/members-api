@@ -3,6 +3,7 @@ package edu.lyra.members.api.school.rest;
 import java.net.URI;
 import java.util.UUID;
 
+import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.school.School;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ class SchoolController {
     @GetMapping("/{id}")
     ResponseEntity<SchoolModel> get(final @PathVariable UUID id) {
         log.debug("Fetching school {}", id);
-        return this.adapter.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
     @PostMapping
@@ -53,14 +54,13 @@ class SchoolController {
     @PatchMapping("/{id}")
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody SchoolRequest request) {
         log.debug("Updating school {}", id);
-        return this.adapter.update(id, request).isPresent() ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.update(id, request).isPresent());
     }
 
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(final @PathVariable UUID id) {
         log.debug("Deleting school {}", id);
-        return this.adapter.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.delete(id));
     }
 
 }

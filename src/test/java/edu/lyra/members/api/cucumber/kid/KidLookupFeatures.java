@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.jpa.Auditable;
+import edu.lyra.members.api.config.InstancioSupport;
 import edu.lyra.members.api.cucumber.AbstractResourceFeatures;
 import edu.lyra.members.api.cucumber.TestSecurityContext;
 import edu.lyra.members.api.kid.Kid;
@@ -54,19 +54,15 @@ public class KidLookupFeatures
 
     private void aKidExists(final String name, final String surname, final String birthdate, final String parentName) {
         //@formatter:off
-        final Kid kid = Instancio.of(Kid.class)
+        final Kid kid = InstancioSupport.ignoringAuditableFields(
+                        Instancio.of(Kid.class)
                                  .ignore(field(Kid.class, "id"))
-                                 .ignore(field(Kid.class, "classroom"))
-                                 .ignore(field(Auditable.class, "version"))
-                                 .ignore(field(Auditable.class, "createdDate"))
-                                 .ignore(field(Auditable.class, "createdBy"))
-                                 .ignore(field(Auditable.class, "lastModifiedDate"))
-                                 .ignore(field(Auditable.class, "updatedBy"))
-                                 .set(field(Kid.class, "name"), name)
-                                 .set(field(Kid.class, "surname"), surname)
-                                 .set(field(Kid.class, "birthdate"), LocalDate.parse(birthdate))
-                                 .set(field(Kid.class, "parent"), this.parent(parentName))
-                                 .create();
+                                 .ignore(field(Kid.class, "classroom")))
+                .set(field(Kid.class, "name"), name)
+                .set(field(Kid.class, "surname"), surname)
+                .set(field(Kid.class, "birthdate"), LocalDate.parse(birthdate))
+                .set(field(Kid.class, "parent"), this.parent(parentName))
+                .create();
         //@formatter:on
         final Kid saved = TestSecurityContext.runAuthenticated(() -> this.kidRepository.save(kid));
         this.scenarioContext.putLocation("kid:" + name + " " + surname, "/v0/kids/" + saved.getId());

@@ -2,6 +2,7 @@ package edu.lyra.members.api.kid.rest;
 
 import java.util.UUID;
 
+import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.kid.Kid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,7 @@ class KidAssociationsController {
     @GetMapping("/parents/{parentId}/kids")
     ResponseEntity<PagedModel<KidModel>> findByParent(final @PathVariable UUID parentId, final Pageable pageable) {
         log.debug("Listing kids for parent {}, page {}", parentId, pageable);
-        return this.adapter.findByParent(parentId, pageable, this.pagedAssembler).map(ResponseEntity::ok)
-                           .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findByParent(parentId, pageable, this.pagedAssembler));
     }
 
 }

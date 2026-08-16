@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.config.web.ResponseEntities;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,7 @@ class ClassroomController {
     @GetMapping("/{id}")
     ResponseEntity<ClassroomModel> get(final @PathVariable UUID id) {
         log.debug("Fetching classroom {}", id);
-        return this.adapter.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
     @PostMapping
@@ -54,35 +55,31 @@ class ClassroomController {
     @PatchMapping("/{id}")
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody ClassroomPatchRequest request) {
         log.debug("Updating classroom {}", id);
-        return this.adapter.update(id, request).isPresent() ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.update(id, request).isPresent());
     }
 
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(final @PathVariable UUID id) {
         log.debug("Deleting classroom {}", id);
-        return this.adapter.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.delete(id));
     }
 
     @PutMapping("/{id}/teachers/{teacherId}")
     ResponseEntity<Void> addTeacher(final @PathVariable UUID id, final @PathVariable UUID teacherId) {
         log.debug("Adding teacher {} to classroom {}", teacherId, id);
-        return this.adapter.addTeacher(id, teacherId) ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.addTeacher(id, teacherId));
     }
 
     @PutMapping("/{id}/tutor/{teacherId}")
     ResponseEntity<Void> setTutor(final @PathVariable UUID id, final @PathVariable UUID teacherId) {
         log.debug("Setting teacher {} as tutor of classroom {}", teacherId, id);
-        return this.adapter.setTutor(id, teacherId) ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.setTutor(id, teacherId));
     }
 
     @PutMapping("/{id}/kids/{kidId}")
     ResponseEntity<Void> enrollKid(final @PathVariable UUID id, final @PathVariable UUID kidId) {
         log.debug("Enrolling kid {} in classroom {}", kidId, id);
-        return this.adapter.enrollKid(id, kidId) ? ResponseEntity.noContent().build() :
-               ResponseEntity.notFound().build();
+        return ResponseEntities.noContentOrNotFound(this.adapter.enrollKid(id, kidId));
     }
 
 }

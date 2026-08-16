@@ -2,6 +2,7 @@ package edu.lyra.members.api.teacher.rest;
 
 import java.util.UUID;
 
+import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.teacher.Teacher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,7 @@ class TeacherAssociationsController {
     @GetMapping("/schools/{schoolId}/teachers")
     ResponseEntity<PagedModel<TeacherModel>> findBySchool(final @PathVariable UUID schoolId, final Pageable pageable) {
         log.debug("Listing teachers for school {}, page {}", schoolId, pageable);
-        return this.adapter.findBySchool(schoolId, pageable, this.pagedAssembler).map(ResponseEntity::ok)
-                           .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findBySchool(schoolId, pageable, this.pagedAssembler));
     }
 
     @GetMapping("/classrooms/{classroomId}/teachers")
@@ -34,15 +34,13 @@ class TeacherAssociationsController {
             final Pageable pageable
     ) {
         log.debug("Listing teaching staff for classroom {}, page {}", classroomId, pageable);
-        return this.adapter.findByClassroom(classroomId, pageable, this.pagedAssembler).map(ResponseEntity::ok)
-                           .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findByClassroom(classroomId, pageable, this.pagedAssembler));
     }
 
     @GetMapping("/classrooms/{classroomId}/tutor")
     ResponseEntity<TeacherModel> findTutorOf(final @PathVariable UUID classroomId) {
         log.debug("Fetching the tutor of classroom {}", classroomId);
-        return this.adapter.findTutorOf(classroomId).map(ResponseEntity::ok)
-                           .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntities.okOrNotFound(this.adapter.findTutorOf(classroomId));
     }
 
 }
