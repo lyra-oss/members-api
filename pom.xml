@@ -39,6 +39,7 @@
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
+        <log4j2.version>2.25.5</log4j2.version>
         <cucumber.version>7.34.6</cucumber.version>
         <opentelemetry.version>1.64.0</opentelemetry.version>
         <okhttp.version>5.4.0</okhttp.version>
@@ -102,6 +103,11 @@
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson-databind.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
