@@ -42,7 +42,7 @@
         <sonar.coverage.exclusions>**/MembersApiApplication.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
         <cucumber.version>7.34.6</cucumber.version>
-        <opentelemetry.version>1.64.0</opentelemetry.version>
+        <opentelemetry.version>1.65.0</opentelemetry.version>
         <okhttp.version>5.4.0</okhttp.version>
         <archunit.version>1.5.0</archunit.version>
         <postgresql.version>42.7.13</postgresql.version>
