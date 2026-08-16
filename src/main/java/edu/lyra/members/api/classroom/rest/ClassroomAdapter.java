@@ -2,6 +2,7 @@ package edu.lyra.members.api.classroom.rest;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
@@ -117,19 +118,18 @@ class ClassroomAdapter
     }
 
     boolean addTeacher(final UUID classroomId, final UUID teacherId) {
-        final Optional<Classroom> classroom = this.classroomRepository.findById(classroomId);
-        final Optional<Teacher>   teacher   = this.teacherRepository.findById(teacherId);
-        if(classroom.isEmpty() || teacher.isEmpty()) {
-            return false;
-        }
-        this.policy.authorizeUpdate(classroom.get());
-        this.verifySchoolMembership(classroom.get().getSchool(), teacher.get());
-        classroom.get().getTeachers().add(teacher.get());
-        this.classroomRepository.save(classroom.get());
-        return true;
+        return this.linkTeacher(classroomId, teacherId, (classroom, teacher) -> classroom.getTeachers().add(teacher));
     }
 
     boolean setTutor(final UUID classroomId, final UUID teacherId) {
+        return this.linkTeacher(classroomId, teacherId, Classroom::setTutor);
+    }
+
+    private boolean linkTeacher(
+            final UUID classroomId,
+            final UUID teacherId,
+            final BiConsumer<Classroom, Teacher> link
+    ) {
         final Optional<Classroom> classroom = this.classroomRepository.findById(classroomId);
         final Optional<Teacher>   teacher   = this.teacherRepository.findById(teacherId);
         if(classroom.isEmpty() || teacher.isEmpty()) {
@@ -137,7 +137,7 @@ class ClassroomAdapter
         }
         this.policy.authorizeUpdate(classroom.get());
         this.verifySchoolMembership(classroom.get().getSchool(), teacher.get());
-        classroom.get().setTutor(teacher.get());
+        link.accept(classroom.get(), teacher.get());
         this.classroomRepository.save(classroom.get());
         return true;
     }

@@ -61,6 +61,14 @@ public class AuthenticatedPrincipal {
                AuthenticatedPrincipal.currentId().map(current -> Objects.equals(current, id)).orElse(false);
     }
 
+    static Optional<String> currentSubject() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(! (authentication instanceof JwtAuthenticationToken jwtAuth)) {
+            return empty();
+        }
+        return ofNullable(jwtAuth.getToken().getSubject());
+    }
+
     /**
      * Reads the authenticated principal's id from the current JWT's {@code sub} claim, if any.
      *
@@ -68,12 +76,8 @@ public class AuthenticatedPrincipal {
      * claim is missing or is not a valid {@link UUID}
      */
     public Optional<UUID> currentId() {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(! (authentication instanceof JwtAuthenticationToken jwtAuth)) {
-            return empty();
-        }
         try {
-            return ofNullable(jwtAuth.getToken().getSubject()).map(UUID::fromString);
+            return AuthenticatedPrincipal.currentSubject().map(UUID::fromString);
         } catch(final IllegalArgumentException _) {
             return empty();
         }
