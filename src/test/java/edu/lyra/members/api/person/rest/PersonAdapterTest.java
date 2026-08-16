@@ -50,24 +50,18 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class PersonAdapterTest {
 
+    private final PersonMapper        mapper = Mappers.getMapper(PersonMapper.class);
     @Mock
-    private PersonRepository personRepository;
-
+    private       PersonRepository    personRepository;
     @Mock
-    private ParentRepository parentRepository;
-
+    private       ParentRepository    parentRepository;
     @Mock
-    private TeacherRepository teacherRepository;
-
+    private       TeacherRepository   teacherRepository;
     @Mock
-    private SchoolRepository schoolRepository;
-
+    private       SchoolRepository    schoolRepository;
     @Mock
-    private ClassroomRepository classroomRepository;
-
-    private final PersonMapper mapper = Mappers.getMapper(PersonMapper.class);
-
-    private PersonAdapter adapter;
+    private       ClassroomRepository classroomRepository;
+    private       PersonAdapter       adapter;
 
     @BeforeEach
     void setUp() {
@@ -83,6 +77,13 @@ class PersonAdapterTest {
         RequestContextHolder.resetRequestAttributes();
     }
 
+    private static School aSchool() {
+        final School school = new School();
+        school.setName("Gloria Fuertes");
+        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
+        return school;
+    }
+
     private static Person aPerson(final UUID id) {
         //@formatter:off
         return Person.builder().id(id)
@@ -91,21 +92,6 @@ class PersonAdapterTest {
                      .mail("esteban.cristobal@example.com")
                      .build();
         //@formatter:on
-    }
-
-    private static School aSchool() {
-        final School school = new School();
-        school.setName("Gloria Fuertes");
-        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
-        return school;
-    }
-
-    @Test
-    void toModelAddsASelfLink() {
-        final Person person = aPerson(UUID.randomUUID());
-        final PersonModel model = this.adapter.toModel(person);
-        assertEquals("Esteban", model.getName());
-        assertTrue(model.getRequiredLink("self").getHref().endsWith("/persons/" + person.getId()));
     }
 
     @Test
@@ -123,15 +109,11 @@ class PersonAdapterTest {
     }
 
     @Test
-    void findAllDelegatesToThePagedResourcesAssembler() {
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<Person> page = new PageImpl<>(List.of(aPerson(UUID.randomUUID())));
-        when(this.personRepository.findAll(pageable)).thenReturn(page);
-        @SuppressWarnings("unchecked")
-        final PagedResourcesAssembler<Person> pagedAssembler = mock(PagedResourcesAssembler.class);
-        final PagedModel<PersonModel> expected = PagedModel.empty();
-        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
-        assertEquals(expected, this.adapter.findAll(pageable, pagedAssembler));
+    void toModelAddsASelfLink() {
+        final Person      person = aPerson(UUID.randomUUID());
+        final PersonModel model  = this.adapter.toModel(person);
+        assertEquals("Esteban", model.getName());
+        assertTrue(model.getRequiredLink("self").getHref().endsWith("/persons/" + person.getId()));
     }
 
     @Test
@@ -203,6 +185,18 @@ class PersonAdapterTest {
         verify(this.teacherRepository).save(captor.capture());
         assertEquals(school, captor.getValue().getSchool());
         assertEquals(person, captor.getValue().getPerson());
+    }
+
+    @Test
+    void findAllDelegatesToThePagedResourcesAssembler() {
+        final Pageable     pageable = PageRequest.of(0, 20);
+        final Page<Person> page     = new PageImpl<>(List.of(aPerson(UUID.randomUUID())));
+        when(this.personRepository.findAll(pageable)).thenReturn(page);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Person> pagedAssembler = mock(PagedResourcesAssembler.class);
+        final PagedModel<PersonModel> expected = PagedModel.empty();
+        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
+        assertEquals(expected, this.adapter.findAll(pageable, pagedAssembler));
     }
 
     @Test

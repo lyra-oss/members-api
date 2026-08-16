@@ -3,9 +3,15 @@ package edu.lyra.members.api.kid.rest;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
+@Getter
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Relation(collectionRelation = "kids", itemRelation = "kid")
 class KidModel
         extends RepresentationModel<KidModel> {
@@ -17,28 +23,5 @@ class KidModel
     private final String surname;
 
     private final LocalDate birthdate;
-
-    KidModel(final UUID id, final String name, final String surname, final LocalDate birthdate) {
-        this.id = id;
-        this.name = name;
-        this.surname = surname;
-        this.birthdate = birthdate;
-    }
-
-    public UUID getId() {
-        return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public String getSurname() {
-        return this.surname;
-    }
-
-    public LocalDate getBirthdate() {
-        return this.birthdate;
-    }
 
 }

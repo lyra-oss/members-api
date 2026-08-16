@@ -43,26 +43,22 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class SchoolAdapterTest {
 
+    private final SchoolMapper        mapper = Mappers.getMapper(SchoolMapper.class);
     @Mock
-    private SchoolRepository repository;
-
+    private       SchoolRepository    repository;
     @Mock
-    private TeacherRepository teacherRepository;
-
+    private       TeacherRepository   teacherRepository;
     @Mock
-    private ClassroomRepository classroomRepository;
-
-    private final SchoolMapper mapper = Mappers.getMapper(SchoolMapper.class);
-
-    private SchoolPolicy policy;
+    private       ClassroomRepository classroomRepository;
+    private       SchoolPolicy        policy;
 
     private SchoolAdapter adapter;
 
     @BeforeEach
     void setUp() {
-        this.policy = mock(SchoolPolicy.class);
-        this.adapter = new SchoolAdapter(this.repository, this.teacherRepository, this.classroomRepository,
-                                          this.mapper, this.policy);
+        this.policy  = mock(SchoolPolicy.class);
+        this.adapter = new SchoolAdapter(this.repository, this.teacherRepository, this.classroomRepository, this.mapper,
+                                         this.policy);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
 
@@ -71,20 +67,20 @@ class SchoolAdapterTest {
         RequestContextHolder.resetRequestAttributes();
     }
 
+    @Test
+    void toModelAddsASelfLink() {
+        final School      school = aSchool("Gloria Fuertes");
+        final SchoolModel model  = this.adapter.toModel(school);
+        assertEquals("Gloria Fuertes", model.getName());
+        final String href = model.getRequiredLink("self").getHref();
+        assertTrue(href.endsWith("/schools/" + school.getId()), "unexpected href: " + href);
+    }
+
     private static School aSchool(final String name) {
         final School school = new School();
         school.setName(name);
         ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
         return school;
-    }
-
-    @Test
-    void toModelAddsASelfLink() {
-        final School school = aSchool("Gloria Fuertes");
-        final SchoolModel model = this.adapter.toModel(school);
-        assertEquals("Gloria Fuertes", model.getName());
-        final String href = model.getRequiredLink("self").getHref();
-        assertTrue(href.endsWith("/schools/" + school.getId()), "unexpected href: " + href);
     }
 
     @Test
@@ -104,8 +100,8 @@ class SchoolAdapterTest {
 
     @Test
     void findAllDelegatesToThePagedResourcesAssembler() {
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<School> page = new PageImpl<>(List.of(aSchool("Gloria Fuertes")));
+        final Pageable     pageable = PageRequest.of(0, 20);
+        final Page<School> page     = new PageImpl<>(List.of(aSchool("Gloria Fuertes")));
         when(this.repository.findAll(pageable)).thenReturn(page);
         @SuppressWarnings("unchecked")
         final PagedResourcesAssembler<School> pagedAssembler = mock(PagedResourcesAssembler.class);

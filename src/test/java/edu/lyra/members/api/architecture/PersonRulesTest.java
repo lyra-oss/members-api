@@ -21,9 +21,8 @@ class PersonRulesTest {
 
     private static final String PERSON_BUILDER = "edu.lyra.members.api.person.Person$PersonBuilder";
 
-    private static final Set<String> REGISTRATION_HANDLERS =
-            Set.of("edu.lyra.members.api.teacher.rest.TeacherAdapter",
-                   "edu.lyra.members.api.parent.rest.ParentAdapter");
+    private static final Set<String> REGISTRATION_HANDLERS = Set.of("edu.lyra.members.api.teacher.rest.TeacherAdapter",
+                                                                    "edu.lyra.members.api.parent.rest.ParentAdapter");
 
     private static final DescribedPredicate<JavaClass> ARE_NOT_ROLE_REGISTRATION_HANDLERS =
             DescribedPredicate.describe("are not the role registration handlers",
@@ -42,9 +41,9 @@ class PersonRulesTest {
     /**
      * A {@code Person} may only be written — constructed, built or mutated through a setter — by the person slice
      * itself (which includes {@code PersonRole}'s delegating accessors) or by {@code ParentAdapter}/
-     * {@code TeacherAdapter}, which bind a freshly created role to the authenticated subject's identity. Every
-     * other class must treat persons as read-only and route identity changes through the role, so the role stays
-     * the single write path to a person.
+     * {@code TeacherAdapter}, which bind a freshly created role to the authenticated subject's identity. Every other
+     * class must treat persons as read-only and route identity changes through the role, so the role stays the single
+     * write path to a person.
      *
      * <p>Compliant: {@code parent.setName("Ada")} — the role delegates the write to its person
      *

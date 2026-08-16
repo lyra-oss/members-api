@@ -50,27 +50,6 @@ class EndpointCoverageTest {
     @Autowired
     private ApiBasePath apiBasePath;
 
-    private record Route(RequestMethod method, String path) {
-
-        @Override
-        public String toString() {
-            return this.method + " " + this.path;
-        }
-
-    }
-
-    private static List<GrantedAuthority> fullPrivileges() {
-        final List<GrantedAuthority> authorities = new ArrayList<>();
-        for(final String entity : CrudResourceNames.ALL) {
-            for(final String operation : OPERATIONS) {
-                authorities.add(new SimpleGrantedAuthority("SCOPE_" + entity + "." + operation));
-            }
-        }
-        authorities.add(new SimpleGrantedAuthority("SCOPE_persons.read"));
-        authorities.add(new SimpleGrantedAuthority("ROLE_admin"));
-        return authorities;
-    }
-
     private Stream<Route> registeredRoutes() {
         //@formatter:off
         return this.handlerMapping.getHandlerMethods().keySet().stream()
@@ -96,9 +75,30 @@ class EndpointCoverageTest {
                 .andReturn().getResponse().getStatus();
         //@formatter:on
         assertNotEquals(HttpStatus.FORBIDDEN.value(), status,
-                         () -> route + " is reachable only through the denyAll fallback (no specific "
-                               + "security rule covers it; a domain policy denial could in principle "
-                               + "also produce this signal, but none does today)");
+                        () -> route + " is reachable only through the denyAll fallback (no specific " +
+                              "security rule covers it; a domain policy denial could in principle " +
+                              "also produce this signal, but none does today)");
+    }
+
+    private static List<GrantedAuthority> fullPrivileges() {
+        final List<GrantedAuthority> authorities = new ArrayList<>();
+        for(final String entity : CrudResourceNames.ALL) {
+            for(final String operation : OPERATIONS) {
+                authorities.add(new SimpleGrantedAuthority("SCOPE_" + entity + "." + operation));
+            }
+        }
+        authorities.add(new SimpleGrantedAuthority("SCOPE_persons.read"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_admin"));
+        return authorities;
+    }
+
+    private record Route(RequestMethod method, String path) {
+
+        @Override
+        public String toString() {
+            return this.method + " " + this.path;
+        }
+
     }
 
 }

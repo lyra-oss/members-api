@@ -15,13 +15,20 @@ import static java.util.Optional.ofNullable;
 
 /**
  * The only door through which code outside {@code config} may look at the authenticated principal: vertical slices
- * express their authorization decisions against this facade instead of reaching into
- * {@link SecurityContextHolder}/JWT internals (a boundary enforced by an architecture test).
+ * express their authorization decisions against this facade instead of reaching into {@link SecurityContextHolder}/JWT
+ * internals (a boundary enforced by an architecture test).
  *
  * @author Esteban Cristóbal Rodríguez
  */
 @UtilityClass
 public class AuthenticatedPrincipal {
+
+    /**
+     * @return {@code true} if the current {@link Authentication} carries the {@code ROLE_admin} authority
+     */
+    public boolean isAdmin() {
+        return AuthenticatedPrincipal.hasRole("admin");
+    }
 
     /**
      * Checks whether the authenticated principal has been granted the given role.
@@ -38,39 +45,18 @@ public class AuthenticatedPrincipal {
     }
 
     /**
-     * @return {@code true} if the current {@link Authentication} carries the {@code ROLE_admin} authority
-     */
-    public boolean isAdmin() {
-        return AuthenticatedPrincipal.hasRole("admin");
-    }
-
-    /**
-     * Checks whether the authenticated principal holds the given role and its id matches {@code id} — the
-     * "is this the same person as the one holding this role" check every ownership-based authorization
-     * decision in the vertical slices boils down to.
+     * Checks whether the authenticated principal holds the given role and its id matches {@code id} — the "is this the
+     * same person as the one holding this role" check every ownership-based authorization decision in the vertical
+     * slices boils down to.
      *
      * @param role the role to check, without the {@code ROLE_} prefix (e.g. {@code "parent"})
-     * @param id the id to match against the principal's id; may be {@code null} (never matches)
+     * @param id   the id to match against the principal's id; may be {@code null} (never matches)
      *
      * @return {@code true} if the principal has {@code role} and its id equals {@code id}
      */
     public boolean isSelf(final String role, final UUID id) {
         return AuthenticatedPrincipal.hasRole(role) &&
                AuthenticatedPrincipal.currentId().map(current -> Objects.equals(current, id)).orElse(false);
-    }
-
-    /**
-     * Returns the authenticated principal's id, read from the JWT's {@code sub} claim — the precondition every
-     * self-service write in the vertical slices depends on.
-     *
-     * @return the authenticated principal's id
-     * @throws AccessDeniedException if the request carries no JWT bearing a {@code sub} claim that is a valid
-     *         {@link UUID}
-     * @see #currentId()
-     */
-    public UUID requireCurrentId() {
-        return AuthenticatedPrincipal.currentId().orElseThrow(
-                () -> new AccessDeniedException("JWT authentication with a valid \"sub\" claim is required"));
     }
 
     /**
@@ -89,6 +75,21 @@ public class AuthenticatedPrincipal {
         } catch(final IllegalArgumentException _) {
             return empty();
         }
+    }
+
+    /**
+     * Returns the authenticated principal's id, read from the JWT's {@code sub} claim — the precondition every
+     * self-service write in the vertical slices depends on.
+     *
+     * @return the authenticated principal's id
+     *
+     * @throws AccessDeniedException if the request carries no JWT bearing a {@code sub} claim that is a valid
+     *                               {@link UUID}
+     * @see #currentId()
+     */
+    public UUID requireCurrentId() {
+        return AuthenticatedPrincipal.currentId().orElseThrow(
+                () -> new AccessDeniedException("JWT authentication with a valid \"sub\" claim is required"));
     }
 
 }

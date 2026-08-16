@@ -48,27 +48,21 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ParentAdapterTest {
 
+    private final ParentMapper mapper = Mappers.getMapper(ParentMapper.class);
     @Mock
     private ParentRepository parentRepository;
-
     @Mock
     private KidRepository kidRepository;
-
     @Mock
     private PersonRepository personRepository;
-
-    private final ParentMapper mapper = Mappers.getMapper(ParentMapper.class);
-
     private ParentPolicy policy;
 
     private ParentAdapter adapter;
 
-    @BeforeEach
-    void setUp() {
-        this.policy = mock(ParentPolicy.class);
-        this.adapter = new ParentAdapter(this.parentRepository, this.kidRepository, this.personRepository,
-                                         this.mapper, this.policy);
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
+    private static Kid aKid() {
+        final Kid kid = new Kid();
+        ReflectionTestUtils.setField(kid, "id", UUID.randomUUID());
+        return kid;
     }
 
     @AfterEach
@@ -77,10 +71,12 @@ class ParentAdapterTest {
         SecurityContextHolder.clearContext();
     }
 
-    private static void authenticateAs(final UUID id) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, List.of());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    @BeforeEach
+    void setUp() {
+        this.policy  = mock(ParentPolicy.class);
+        this.adapter = new ParentAdapter(this.parentRepository, this.kidRepository, this.personRepository, this.mapper,
+                                         this.policy);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
 
     private static Parent aParent(final String name) {
@@ -90,20 +86,6 @@ class ParentAdapterTest {
         parent.setMail("esteban.cristobal@example.com");
         ReflectionTestUtils.setField(parent, "id", UUID.randomUUID());
         return parent;
-    }
-
-    private static Kid aKid() {
-        final Kid kid = new Kid();
-        ReflectionTestUtils.setField(kid, "id", UUID.randomUUID());
-        return kid;
-    }
-
-    @Test
-    void toModelAddsASelfLink() {
-        final Parent parent = aParent("Esteban");
-        final ParentModel model = this.adapter.toModel(parent);
-        assertEquals("Esteban", model.getName());
-        assertTrue(model.getRequiredLink("self").getHref().endsWith("/parents/" + parent.getId()));
     }
 
     @Test
@@ -122,9 +104,17 @@ class ParentAdapterTest {
     }
 
     @Test
+    void toModelAddsASelfLink() {
+        final Parent      parent = aParent("Esteban");
+        final ParentModel model  = this.adapter.toModel(parent);
+        assertEquals("Esteban", model.getName());
+        assertTrue(model.getRequiredLink("self").getHref().endsWith("/parents/" + parent.getId()));
+    }
+
+    @Test
     void findAllDelegatesToThePagedResourcesAssembler() {
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<Parent> page = new PageImpl<>(List.of(aParent("Esteban")));
+        final Pageable     pageable = PageRequest.of(0, 20);
+        final Page<Parent> page     = new PageImpl<>(List.of(aParent("Esteban")));
         when(this.parentRepository.findAll(pageable)).thenReturn(page);
         @SuppressWarnings("unchecked")
         final PagedResourcesAssembler<Parent> pagedAssembler = mock(PagedResourcesAssembler.class);
@@ -141,11 +131,17 @@ class ParentAdapterTest {
                                             .mail("already.registered@example.com").build();
         when(this.personRepository.findById(subject)).thenReturn(Optional.of(existingPerson));
         when(this.parentRepository.save(any(Parent.class))).thenAnswer(inv -> inv.getArgument(0));
-        final ParentRequest request =
-                new ParentRequest("Esteban", "Cristóbal", "esteban.cristobal@example.com");
+        final ParentRequest request = new ParentRequest("Esteban", "Cristóbal", "esteban.cristobal@example.com");
         final ParentModel model = this.adapter.create(request);
         assertEquals("Already", model.getName());
         assertEquals("Registered", model.getSurname());
+    }
+
+    private static void authenticateAs(final UUID id) {
+        final Jwt            jwt            =
+                Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, List.of());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
@@ -154,21 +150,12 @@ class ParentAdapterTest {
         authenticateAs(subject);
         when(this.personRepository.findById(subject)).thenReturn(Optional.empty());
         when(this.parentRepository.save(any(Parent.class))).thenAnswer(inv -> inv.getArgument(0));
-        final ParentRequest request =
-                new ParentRequest("Esteban", "Cristóbal", "esteban.cristobal@example.com");
+        final ParentRequest request = new ParentRequest("Esteban", "Cristóbal", "esteban.cristobal@example.com");
         final ParentModel model = this.adapter.create(request);
         assertEquals("Esteban", model.getName());
         final ArgumentCaptor<Parent> saved = ArgumentCaptor.forClass(Parent.class);
         verify(this.parentRepository).save(saved.capture());
         assertEquals(subject, saved.getValue().getPerson().getId());
-    }
-
-    @Test
-    void updateReturnsEmptyWhenTheParentDoesNotExist() {
-        final UUID id = UUID.randomUUID();
-        when(this.parentRepository.findById(id)).thenReturn(Optional.empty());
-        assertEquals(Optional.empty(),
-                     this.adapter.update(id, new ParentPatchRequest(null, "New surname", null)));
     }
 
     @Test
@@ -229,6 +216,13 @@ class ParentAdapterTest {
         when(this.kidRepository.findById(kidId)).thenReturn(Optional.of(aKid()));
         assertFalse(this.adapter.bindKid(parentId, kidId));
         verify(this.kidRepository, never()).save(any());
+    }
+
+    @Test
+    void updateReturnsEmptyWhenTheParentDoesNotExist() {
+        final UUID id = UUID.randomUUID();
+        when(this.parentRepository.findById(id)).thenReturn(Optional.empty());
+        assertEquals(Optional.empty(), this.adapter.update(id, new ParentPatchRequest(null, "New surname", null)));
     }
 
     @Test

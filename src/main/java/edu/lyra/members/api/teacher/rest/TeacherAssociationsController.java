@@ -28,7 +28,7 @@ class TeacherAssociationsController {
     ResponseEntity<PagedModel<TeacherModel>> findBySchool(final @PathVariable UUID schoolId, final Pageable pageable) {
         log.debug("Listing teachers for school {}, page {}", schoolId, pageable);
         return this.adapter.findBySchool(schoolId, pageable, this.pagedAssembler).map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+                           .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/classrooms/{classroomId}/teachers")
@@ -38,14 +38,14 @@ class TeacherAssociationsController {
     ) {
         log.debug("Listing teaching staff for classroom {}, page {}", classroomId, pageable);
         return this.adapter.findByClassroom(classroomId, pageable, this.pagedAssembler).map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+                           .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/classrooms/{classroomId}/tutor")
     ResponseEntity<TeacherModel> findTutorOf(final @PathVariable UUID classroomId) {
         log.debug("Fetching the tutor of classroom {}", classroomId);
         return this.adapter.findTutorOf(classroomId).map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+                           .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

@@ -28,19 +28,19 @@ public class ParentLookupFeatures
     @Autowired
     private ParentRepository parentRepository;
 
-    public void parentExistsWithMail(final String name, final String surname, final String mail) {
-        final Person person = Person.builder().id(UUID.randomUUID()).name(name).surname(surname).mail(mail).build();
-        final Parent parent = Parent.builder().person(person).build();
-        final Parent saved  = TestSecurityContext.runAuthenticated(() -> this.parentRepository.save(parent));
-        this.scenarioContext.putLocation("parent:" + name + " " + surname, "/v0/parents/" + saved.getId());
-    }
-
     @Given("the following parents exist:")
     public void theFollowingParentsExist(final DataTable table) {
         final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
         for(final Map<String, String> row : rows) {
             this.parentExistsWithMail(row.get("name"), row.get("surname"), row.get("mail"));
         }
+    }
+
+    public void parentExistsWithMail(final String name, final String surname, final String mail) {
+        final Person person = Person.builder().id(UUID.randomUUID()).name(name).surname(surname).mail(mail).build();
+        final Parent parent = Parent.builder().person(person).build();
+        final Parent saved  = TestSecurityContext.runAuthenticated(() -> this.parentRepository.save(parent));
+        this.scenarioContext.putLocation("parent:" + name + " " + surname, "/v0/parents/" + saved.getId());
     }
 
     @When("I request the list of parents")

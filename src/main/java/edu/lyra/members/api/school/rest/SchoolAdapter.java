@@ -43,13 +43,6 @@ class SchoolAdapter
         this.policy              = policy;
     }
 
-    @Override
-    public SchoolModel toModel(final School school) {
-        final SchoolModel model = this.mapper.toModel(school);
-        model.add(linkTo(methodOn(SchoolController.class).get(school.getId())).withSelfRel());
-        return model;
-    }
-
     Optional<SchoolModel> findById(final UUID id) {
         return this.repository.findById(id).map(this::toModel);
     }
@@ -72,6 +65,13 @@ class SchoolAdapter
         final School saved  = this.repository.save(school);
         log.debug("Created school {}", saved.getId());
         return this.toModel(saved);
+    }
+
+    @Override
+    public SchoolModel toModel(final School school) {
+        final SchoolModel model = this.mapper.toModel(school);
+        model.add(linkTo(methodOn(SchoolController.class).get(school.getId())).withSelfRel());
+        return model;
     }
 
     Optional<SchoolModel> update(final UUID id, final SchoolRequest request) {

@@ -18,14 +18,18 @@ class TeacherPolicy {
 
     void authorizeUpdate(final Teacher teacher) {
         log.debug("Authorizing update of teacher {}", teacher.getId());
-        if(! this.isAdminOrSelf(teacher)) {
+        if(this.isNotAdminNorSelf(teacher)) {
             throw new AccessDeniedException("Authenticated user cannot update this teacher");
         }
     }
 
+    private boolean isNotAdminNorSelf(final Teacher teacher) {
+        return ! (AuthenticatedPrincipal.isAdmin() || AuthenticatedPrincipal.isSelf("teacher", teacher.getId()));
+    }
+
     void authorizeDelete(final Teacher teacher) {
         log.debug("Authorizing deletion of teacher {}", teacher.getId());
-        if(! this.isAdminOrSelf(teacher)) {
+        if(this.isNotAdminNorSelf(teacher)) {
             throw new AccessDeniedException("Authenticated user cannot delete this teacher");
         }
         if(this.classroomRepository.existsByTutorIdOrTeachersId(teacher.getId())) {
@@ -33,10 +37,6 @@ class TeacherPolicy {
                     ("Teacher %s still tutors or teaches at least one classroom; unassign them before deleting this " +
                      "teacher").formatted(teacher.getId()));
         }
-    }
-
-    private boolean isAdminOrSelf(final Teacher teacher) {
-        return AuthenticatedPrincipal.isAdmin() || AuthenticatedPrincipal.isSelf("teacher", teacher.getId());
     }
 
 }

@@ -58,7 +58,7 @@ class ParentController {
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody ParentPatchRequest request) {
         log.debug("Updating parent {}", id);
         return this.adapter.update(id, request).isPresent() ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
@@ -70,8 +70,7 @@ class ParentController {
     @PutMapping("/{id}/kids/{kidId}")
     ResponseEntity<Void> bindKid(final @PathVariable UUID id, final @PathVariable UUID kidId) {
         log.debug("Binding kid {} to parent {}", kidId, id);
-        return this.adapter.bindKid(id, kidId) ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+        return this.adapter.bindKid(id, kidId) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
 }

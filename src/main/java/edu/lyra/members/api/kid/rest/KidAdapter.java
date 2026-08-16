@@ -48,13 +48,6 @@ class KidAdapter
         this.policy              = policy;
     }
 
-    @Override
-    public KidModel toModel(final Kid kid) {
-        final KidModel model = this.mapper.toModel(kid);
-        model.add(linkTo(methodOn(KidController.class).get(kid.getId())).withSelfRel());
-        return model;
-    }
-
     Optional<KidModel> findById(final UUID id) {
         return this.kidRepository.findById(id).map(this::toModel);
     }
@@ -84,6 +77,13 @@ class KidAdapter
         final Kid saved = this.kidRepository.save(kid);
         log.debug("Created kid {} under parent {}", saved.getId(), parent.getId());
         return this.toModel(saved);
+    }
+
+    @Override
+    public KidModel toModel(final Kid kid) {
+        final KidModel model = this.mapper.toModel(kid);
+        model.add(linkTo(methodOn(KidController.class).get(kid.getId())).withSelfRel());
+        return model;
     }
 
     Optional<KidModel> update(final UUID id, final KidPatchRequest request) {

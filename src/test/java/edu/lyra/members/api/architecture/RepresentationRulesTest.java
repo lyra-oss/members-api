@@ -32,10 +32,10 @@ class RepresentationRulesTest {
                                                      javaClass.isAssignableTo(Repository.class));
 
     /**
-     * Every response {@code *Model} must be annotated {@code @Relation}, declaring its HAL relation
-     * name explicitly rather than relying on Spring HATEOAS's simple-name-derived default — a missing
-     * annotation silently breaks the collection wrapper name (e.g. {@code _embedded.kidModelList}
-     * instead of {@code _embedded.kids}) with no compile-time signal otherwise.
+     * Every response {@code *Model} must be annotated {@code @Relation}, declaring its HAL relation name explicitly
+     * rather than relying on Spring HATEOAS's simple-name-derived default — a missing annotation silently breaks the
+     * collection wrapper name (e.g. {@code _embedded.kidModelList} instead of {@code _embedded.kids}) with no
+     * compile-time signal otherwise.
      *
      * <p>Compliant: {@code @Relation(collectionRelation = "kids", itemRelation = "kid") class KidModel}
      *
@@ -46,8 +46,8 @@ class RepresentationRulesTest {
             classes().that(IS_A_MODEL).should().beAnnotatedWith(Relation.class);
 
     /**
-     * A {@code *Request} must not depend on {@code org.springframework.hateoas..}; inbound payloads are
-     * plain data, never link-bearing, so only outbound {@code *Model}s use HATEOAS types.
+     * A {@code *Request} must not depend on {@code org.springframework.hateoas..}; inbound payloads are plain data,
+     * never link-bearing, so only outbound {@code *Model}s use HATEOAS types.
      *
      * <p>Compliant: {@code SchoolRequest} has no HATEOAS import
      *
@@ -59,9 +59,9 @@ class RepresentationRulesTest {
                        .resideInAPackage("org.springframework.hateoas..");
 
     /**
-     * Neither a {@code *Model} nor a {@code *Request} may depend on a JPA {@code @Entity} or a
-     * {@link Repository}; the wire format stays fully decoupled from the persistence model, with the
-     * {@code *Mapper} as the only bridge between them.
+     * Neither a {@code *Model} nor a {@code *Request} may depend on a JPA {@code @Entity} or a {@link Repository}; the
+     * wire format stays fully decoupled from the persistence model, with the {@code *Mapper} as the only bridge between
+     * them.
      *
      * <p>Compliant: {@code KidModel} depends only on JDK types and HATEOAS's {@code RepresentationModel}
      *
@@ -76,9 +76,8 @@ class RepresentationRulesTest {
             //@formatter:on
 
     /**
-     * Neither a {@code *Model} nor a {@code *Request} may depend on {@code jakarta.persistence..},
-     * reinforcing the wire/persistence boundary at the package level rather than only for
-     * {@code @Entity}-annotated types.
+     * Neither a {@code *Model} nor a {@code *Request} may depend on {@code jakarta.persistence..}, reinforcing the
+     * wire/persistence boundary at the package level rather than only for {@code @Entity}-annotated types.
      *
      * <p>Compliant: no {@code jakarta.persistence} import in {@code KidModel}/{@code KidRequest}
      *

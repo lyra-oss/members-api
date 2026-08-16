@@ -15,23 +15,24 @@ class TeacherMapperTest {
 
     private final TeacherMapper mapper = Mappers.getMapper(TeacherMapper.class);
 
-    private static School aSchool(final String name) {
-        final School school = new School();
-        school.setName(name);
-        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
-        return school;
-    }
-
     @Test
     void toEntityMapsNameSurnameMailAndSchoolAndLeavesTheIdUnset() {
-        final School  school  = aSchool("Gloria Fuertes");
-        final Teacher teacher = this.mapper.toEntity(
-                new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com", school.getId()), school);
+        final School school = aSchool("Gloria Fuertes");
+        final Teacher teacher =
+                this.mapper.toEntity(new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com", school.getId()),
+                                     school);
         assertEquals("Marta", teacher.getName());
         assertEquals("Ibáñez", teacher.getSurname());
         assertEquals("marta.ibanez@example.com", teacher.getMail());
         assertEquals(school, teacher.getSchool());
         assertNull(teacher.getId());
+    }
+
+    private static School aSchool(final String name) {
+        final School school = new School();
+        school.setName(name);
+        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
+        return school;
     }
 
     @Test

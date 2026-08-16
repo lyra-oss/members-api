@@ -57,7 +57,7 @@ class TeacherController {
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody TeacherPatchRequest request) {
         log.debug("Updating teacher {}", id);
         return this.adapter.update(id, request).isPresent() ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")

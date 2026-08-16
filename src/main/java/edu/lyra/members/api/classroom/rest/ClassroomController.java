@@ -58,7 +58,7 @@ class ClassroomController {
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody ClassroomPatchRequest request) {
         log.debug("Updating classroom {}", id);
         return this.adapter.update(id, request).isPresent() ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
@@ -71,21 +71,21 @@ class ClassroomController {
     ResponseEntity<Void> addTeacher(final @PathVariable UUID id, final @PathVariable UUID teacherId) {
         log.debug("Adding teacher {} to classroom {}", teacherId, id);
         return this.adapter.addTeacher(id, teacherId) ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}/tutor/{teacherId}")
     ResponseEntity<Void> setTutor(final @PathVariable UUID id, final @PathVariable UUID teacherId) {
         log.debug("Setting teacher {} as tutor of classroom {}", teacherId, id);
         return this.adapter.setTutor(id, teacherId) ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}/kids/{kidId}")
     ResponseEntity<Void> enrollKid(final @PathVariable UUID id, final @PathVariable UUID kidId) {
         log.debug("Enrolling kid {} in classroom {}", kidId, id);
         return this.adapter.enrollKid(id, kidId) ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
 }

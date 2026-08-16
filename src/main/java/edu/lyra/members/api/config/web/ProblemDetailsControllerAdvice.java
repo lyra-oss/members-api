@@ -58,10 +58,16 @@ class ProblemDetailsControllerAdvice
 
     @ExceptionHandler(UnresolvableReferenceException.class)
     public ResponseEntity<ProblemDetail> handleUnresolvableReferenceException(
-            final UnresolvableReferenceException ex) {
+            final UnresolvableReferenceException ex
+    ) {
         return ProblemDetailBuilder.forStatus(BAD_REQUEST)
                                    .type("https://lyra.sagittec.com/problems/unresolvable-reference")
                                    .title("Referenced resource does not exist").detail(this.humanize(ex)).build();
+    }
+
+    private String humanize(final Throwable ex) {
+        final String msg = ex.getMessage();
+        return (msg != null && msg.length() > MAX_DETAIL_LENGTH) ? msg.substring(0, MAX_DETAIL_LENGTH) + "…" : msg;
     }
 
     @ExceptionHandler(SchoolMismatchException.class)
@@ -80,7 +86,8 @@ class ProblemDetailsControllerAdvice
 
     @ExceptionHandler(TeacherAssignedToClassroomException.class)
     public ResponseEntity<ProblemDetail> handleTeacherAssignedToClassroomException(
-            final TeacherAssignedToClassroomException ex) {
+            final TeacherAssignedToClassroomException ex
+    ) {
         //@formatter:off
         return ProblemDetailBuilder.forStatus(CONFLICT)
                 .type("https://lyra.sagittec.com/problems/teacher-assigned-to-classroom")
@@ -109,7 +116,8 @@ class ProblemDetailsControllerAdvice
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(
-            final DataIntegrityViolationException ex) {
+            final DataIntegrityViolationException ex
+    ) {
         //@formatter:off
         return ProblemDetailBuilder.forStatus(CONFLICT)
                 .type("https://lyra.sagittec.com/problems/referential-integrity-violation")
@@ -156,11 +164,6 @@ class ProblemDetailsControllerAdvice
                   "property", fieldError.getField(),
                   "message", requireNonNullElse(fieldError.getDefaultMessage(), "invalid"));
         //@formatter:on
-    }
-
-    private String humanize(final Throwable ex) {
-        final String msg = ex.getMessage();
-        return (msg != null && msg.length() > MAX_DETAIL_LENGTH) ? msg.substring(0, MAX_DETAIL_LENGTH) + "…" : msg;
     }
 
     private static final class ProblemDetailBuilder {

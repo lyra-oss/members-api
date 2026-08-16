@@ -41,10 +41,38 @@ public class ClassroomCreationFeatures
         this.performAddTeacher(teacherName, adminJwtProcessor()).andExpect(status().isNoContent());
     }
 
+    static RequestPostProcessor adminJwtProcessor() {
+        //@formatter:off
+        return jwt().jwt(builder -> builder.subject(UUID.randomUUID().toString()))
+                    .authorities(new SimpleGrantedAuthority("SCOPE_classrooms.update"),
+                                 new SimpleGrantedAuthority("ROLE_admin"));
+        //@formatter:on
+    }
+
+    private ResultActions performAddTeacher(final String teacherName)
+            throws Exception {
+        return this.performAddTeacher(teacherName, this.scenarioContext.getJwtProcessor());
+    }
+
+    private ResultActions performAddTeacher(final String teacherName, final RequestPostProcessor jwtProcessor)
+            throws Exception {
+        final String teacherId = idOf(this.scenarioContext.getLocation("teacher:" + teacherName));
+        final String path      = this.classroomLocation() + "/teachers/" + teacherId;
+        return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.contextPath()));
+    }
+
+    private static String idOf(final String location) {
+        return location.substring(location.lastIndexOf('/') + 1);
+    }
+
     @When("I add teacher {string} to the classroom")
     public void addTeacherToClassroom(final String teacherName)
             throws Exception {
         this.scenarioContext.setResultActions(this.performAddTeacher(teacherName));
+    }
+
+    private String classroomLocation() {
+        return this.scenarioContext.getLocation("classroom");
     }
 
     @When("I add teacher {string} to a classroom that does not exist")
@@ -56,10 +84,6 @@ public class ClassroomCreationFeatures
 
     private static String replaceLastSegment(final String location) {
         return location.substring(0, location.lastIndexOf('/') + 1) + UUID.randomUUID();
-    }
-
-    private static String idOf(final String location) {
-        return location.substring(location.lastIndexOf('/') + 1);
     }
 
     @When("I create a classroom for course {int} group {string} at school {string} with tutor {string}")
@@ -80,17 +104,22 @@ public class ClassroomCreationFeatures
         //@formatter:on
     }
 
-    private ResultActions performAddTeacher(final String teacherName, final RequestPostProcessor jwtProcessor)
-            throws Exception {
-        final String teacherId = idOf(this.scenarioContext.getLocation("teacher:" + teacherName));
-        final String path = this.classroomLocation() + "/teachers/" + teacherId;
-        return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.contextPath()));
-    }
-
     @When("I set teacher {string} as the classroom's tutor")
     public void setTutor(final String teacherName)
             throws Exception {
         this.scenarioContext.setResultActions(this.performSetTutor(teacherName));
+    }
+
+    private ResultActions performSetTutor(final String teacherName)
+            throws Exception {
+        return this.performSetTutor(teacherName, this.scenarioContext.getJwtProcessor());
+    }
+
+    private ResultActions performSetTutor(final String teacherName, final RequestPostProcessor jwtProcessor)
+            throws Exception {
+        final String teacherId = idOf(this.scenarioContext.getLocation("teacher:" + teacherName));
+        final String path      = this.classroomLocation() + "/tutor/" + teacherId;
+        return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.contextPath()));
     }
 
     @When("I request the classroom's teachers")
@@ -184,18 +213,6 @@ public class ClassroomCreationFeatures
         this.scenarioContext.getResultActions().andExpect(status().isCreated());
     }
 
-    private String classroomLocation() {
-        return this.scenarioContext.getLocation("classroom");
-    }
-
-    static RequestPostProcessor adminJwtProcessor() {
-        //@formatter:off
-        return jwt().jwt(builder -> builder.subject(UUID.randomUUID().toString()))
-                    .authorities(new SimpleGrantedAuthority("SCOPE_classrooms.update"),
-                                 new SimpleGrantedAuthority("ROLE_admin"));
-        //@formatter:on
-    }
-
     @Given("teacher {string} has been set as the classroom's tutor")
     public void teacherHasBeenSetAsTutor(final String teacherName)
             throws Exception {
@@ -206,23 +223,6 @@ public class ClassroomCreationFeatures
     public void receiveClassroomAlreadyExistsError()
             throws Exception {
         this.scenarioContext.getResultActions().andExpect(status().isConflict());
-    }
-
-    private ResultActions performSetTutor(final String teacherName, final RequestPostProcessor jwtProcessor)
-            throws Exception {
-        final String teacherId = idOf(this.scenarioContext.getLocation("teacher:" + teacherName));
-        final String path = this.classroomLocation() + "/tutor/" + teacherId;
-        return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.contextPath()));
-    }
-
-    private ResultActions performAddTeacher(final String teacherName)
-            throws Exception {
-        return this.performAddTeacher(teacherName, this.scenarioContext.getJwtProcessor());
-    }
-
-    private ResultActions performSetTutor(final String teacherName)
-            throws Exception {
-        return this.performSetTutor(teacherName, this.scenarioContext.getJwtProcessor());
     }
 
     @When("I update the classroom's course to {int} and group to {string}")

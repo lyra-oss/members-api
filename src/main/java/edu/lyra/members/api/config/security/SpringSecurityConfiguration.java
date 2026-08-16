@@ -61,26 +61,23 @@ class SpringSecurityConfiguration {
     private static final String CLASSROOMS_ANY = path(ENTITY_CLASSROOMS, ANY_SUBPATH);
     private static final String PERSONS_ANY    = path(ENTITY_PERSONS, ANY_SUBPATH);
 
-    private static final String PARENTS_KIDS         =
-            path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS, ANY_SEGMENT);
-    private static final String CLASSROOMS_TUTOR     =
-            path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor", ANY_SEGMENT);
+    private static final String PARENTS_KIDS     = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS, ANY_SEGMENT);
+    private static final String CLASSROOMS_TUTOR = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor", ANY_SEGMENT);
     private static final String CLASSROOMS_TEACHERS  =
             path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_TEACHERS, ANY_SEGMENT);
-    private static final String CLASSROOMS_KIDS      =
-            path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_KIDS, ANY_SEGMENT);
+    private static final String CLASSROOMS_KIDS  = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_KIDS, ANY_SEGMENT);
     private static final String PERSONS_PARENT_ROLE  = path(ENTITY_PERSONS, ANY_SEGMENT, "parent");
     private static final String PERSONS_TEACHER_ROLE = path(ENTITY_PERSONS, ANY_SEGMENT, "teacher");
 
-    private static final String PARENTS_KIDS_READ         = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS);
-    private static final String KIDS_PARENT_READ          = path(ENTITY_KIDS, ANY_SEGMENT, "parent");
-    private static final String KIDS_CLASSROOM_READ        = path(ENTITY_KIDS, ANY_SEGMENT, "classroom");
-    private static final String SCHOOLS_CLASSROOMS_READ    = path(ENTITY_SCHOOLS, ANY_SEGMENT, ENTITY_CLASSROOMS);
-    private static final String SCHOOLS_TEACHERS_READ      = path(ENTITY_SCHOOLS, ANY_SEGMENT, ENTITY_TEACHERS);
-    private static final String TEACHERS_SCHOOL_READ       = path(ENTITY_TEACHERS, ANY_SEGMENT, "school");
-    private static final String CLASSROOMS_SCHOOL_READ     = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "school");
-    private static final String CLASSROOMS_TEACHERS_READ   = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_TEACHERS);
-    private static final String CLASSROOMS_TUTOR_READ      = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor");
+    private static final String PARENTS_KIDS_READ        = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS);
+    private static final String KIDS_PARENT_READ         = path(ENTITY_KIDS, ANY_SEGMENT, "parent");
+    private static final String KIDS_CLASSROOM_READ      = path(ENTITY_KIDS, ANY_SEGMENT, "classroom");
+    private static final String SCHOOLS_CLASSROOMS_READ  = path(ENTITY_SCHOOLS, ANY_SEGMENT, ENTITY_CLASSROOMS);
+    private static final String SCHOOLS_TEACHERS_READ    = path(ENTITY_SCHOOLS, ANY_SEGMENT, ENTITY_TEACHERS);
+    private static final String TEACHERS_SCHOOL_READ     = path(ENTITY_TEACHERS, ANY_SEGMENT, "school");
+    private static final String CLASSROOMS_SCHOOL_READ   = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "school");
+    private static final String CLASSROOMS_TEACHERS_READ = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_TEACHERS);
+    private static final String CLASSROOMS_TUTOR_READ    = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor");
 
     private static final String SCOPE_PREFIX = "SCOPE_";
 
@@ -88,6 +85,14 @@ class SpringSecurityConfiguration {
     private static final String OP_UPDATE = "update";
     private static final String OP_DELETE = "delete";
     private static final String OP_READ   = "read";
+
+    private static String path(final String... segments) {
+        final StringJoiner joiner = new StringJoiner("/", "/", "");
+        for(final String segment : segments) {
+            joiner.add(segment);
+        }
+        return joiner.toString();
+    }
 
     @Bean
     SecurityFilterChain securityFilterChain(
@@ -193,20 +198,6 @@ class SpringSecurityConfiguration {
         //@formatter:on
     }
 
-    @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter(final List<IdentityProviderRoleStrategy> roleStrategies) {
-        final JwtGrantedAuthoritiesConverter scopeAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        final IdentityProviderRoleStrategyResolver roleAuthoritiesConverter =
-                new IdentityProviderRoleStrategyResolver(roleStrategies);
-        final JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            final Collection<GrantedAuthority> authorities = new ArrayList<>(scopeAuthoritiesConverter.convert(jwt));
-            authorities.addAll(roleAuthoritiesConverter.convert(jwt));
-            return authorities;
-        });
-        return converter;
-    }
-
     private static AuthorizationManager<RequestAuthorizationContext> bothScopes(
             final String entityA,
             final String entityB
@@ -219,12 +210,18 @@ class SpringSecurityConfiguration {
         return new StringJoiner(".", SCOPE_PREFIX, "").add(entity).add(operation).toString();
     }
 
-    private static String path(final String... segments) {
-        final StringJoiner joiner = new StringJoiner("/", "/", "");
-        for(final String segment : segments) {
-            joiner.add(segment);
-        }
-        return joiner.toString();
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter(final List<IdentityProviderRoleStrategy> roleStrategies) {
+        final JwtGrantedAuthoritiesConverter scopeAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        final IdentityProviderRoleStrategyResolver roleAuthoritiesConverter =
+                new IdentityProviderRoleStrategyResolver(roleStrategies);
+        final JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            final Collection<GrantedAuthority> authorities = new ArrayList<>(scopeAuthoritiesConverter.convert(jwt));
+            authorities.addAll(roleAuthoritiesConverter.convert(jwt));
+            return authorities;
+        });
+        return converter;
     }
 
 }

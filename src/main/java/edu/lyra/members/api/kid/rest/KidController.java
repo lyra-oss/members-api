@@ -57,7 +57,7 @@ class KidController {
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody KidPatchRequest request) {
         log.debug("Updating kid {}", id);
         return this.adapter.update(id, request).isPresent() ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")

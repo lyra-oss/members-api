@@ -36,10 +36,6 @@ class KidControllerTest {
         this.controller = new KidController(this.adapter, this.pagedAssembler);
     }
 
-    private static KidModel aModel(final UUID id) {
-        return new KidModel(id, "Alicia", "Cristóbal", LocalDate.of(2019, 12, 12));
-    }
-
     @Test
     void findAllDelegatesToTheAdapter() {
         final Pageable pageable = Pageable.unpaged();
@@ -58,6 +54,10 @@ class KidControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertTrue(response.getHeaders().getLocation().toString().endsWith("/v0/kids/" + model.getId()));
         assertEquals(model, response.getBody());
+    }
+
+    private static KidModel aModel(final UUID id) {
+        return new KidModel(id, "Alicia", "Cristóbal", LocalDate.of(2019, 12, 12));
     }
 
 }

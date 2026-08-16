@@ -7,7 +7,8 @@ public final class CrudResourceNames {
 
     public static final List<String> ALL = List.of("parents", "kids", "schools", "teachers", "classrooms");
 
-    private CrudResourceNames() {}
+    private CrudResourceNames() {
+    }
 
     public static Stream<String> stream() {
         return ALL.stream();

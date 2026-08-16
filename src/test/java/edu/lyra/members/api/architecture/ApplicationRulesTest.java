@@ -33,8 +33,8 @@ class ApplicationRulesTest {
      */
     @ArchTest
     static final ArchRule applicationClassesAreAnnotatedWithSpringBootApplication =
-            classes().that().haveSimpleNameEndingWith("Application")
-                     .should().beAnnotatedWith(SpringBootApplication.class);
+            classes().that().haveSimpleNameEndingWith("Application").should()
+                     .beAnnotatedWith(SpringBootApplication.class);
 
     /**
      * The inverse of the rule above: every {@code @SpringBootApplication} class must have a simple name ending in
@@ -46,14 +46,14 @@ class ApplicationRulesTest {
      */
     @ArchTest
     static final ArchRule springBootApplicationsAreNamedApplication =
-            classes().that().areAnnotatedWith(SpringBootApplication.class)
-                     .should().haveSimpleNameEndingWith("Application");
+            classes().that().areAnnotatedWith(SpringBootApplication.class).should()
+                     .haveSimpleNameEndingWith("Application");
 
     /**
      * Every class named {@code *Application} is the Spring Boot entry point and must contain only the minimum code
-     * needed to start the application: no fields, and no members beyond a single {@code static void
-     * main(String[] args)} method. Any other logic belongs in a proper {@code @Configuration} class or vertical
-     * slice, keeping the entry point trivially correct and exempt from coverage/mutation analysis (see the
+     * needed to start the application: no fields, and no members beyond a single
+     * {@code static void main(String[] args)} method. Any other logic belongs in a proper {@code @Configuration} class
+     * or vertical slice, keeping the entry point trivially correct and exempt from coverage/mutation analysis (see the
      * Sonar/PIT exclusions in pom.xml).
      *
      * <p>Compliant:
@@ -95,13 +95,13 @@ class ApplicationRulesTest {
 
     private static boolean hasOnlyTheMainMethod(final JavaClass javaClass) {
         final List<JavaMethod> methods = List.copyOf(javaClass.getMethods());
-        return methods.size() == 1 && isMainMethod(methods.get(0));
+        return methods.size() == 1 && isMainMethod(methods.getFirst());
     }
 
     private static boolean isMainMethod(final JavaMethod method) {
         return "main".equals(method.getName()) && method.getModifiers().contains(JavaModifier.STATIC) &&
                method.getRawParameterTypes().size() == 1 &&
-               method.getRawParameterTypes().get(0).isEquivalentTo(String[].class);
+               method.getRawParameterTypes().getFirst().isEquivalentTo(String[].class);
     }
 
 }

@@ -36,6 +36,12 @@ class AuthenticatedPrincipalTest {
         assertTrue(AuthenticatedPrincipal.hasRole("admin"));
     }
 
+    private static void authenticateWithAuthorities(final String... authorities) {
+        final List<SimpleGrantedAuthority> granted =
+                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "n/a", granted));
+    }
+
     @Test
     void hasRoleReturnsFalseWhenTheAuthorityIsNotGranted() {
         authenticateWithAuthorities("ROLE_parent");
@@ -59,6 +65,13 @@ class AuthenticatedPrincipalTest {
         final UUID id = UUID.randomUUID();
         authenticateAsJwt(id, "ROLE_parent");
         assertTrue(AuthenticatedPrincipal.isSelf("parent", id));
+    }
+
+    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
+        final List<SimpleGrantedAuthority> granted =
+                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
     }
 
     @Test
@@ -97,19 +110,6 @@ class AuthenticatedPrincipalTest {
     void currentIdReturnsEmptyWhenNotAuthenticatedWithAJwt() {
         authenticateWithAuthorities();
         assertTrue(AuthenticatedPrincipal.currentId().isEmpty());
-    }
-
-    private static void authenticateWithAuthorities(final String... authorities) {
-        final List<SimpleGrantedAuthority> granted =
-                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "n/a", granted));
-    }
-
-    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
-        final List<SimpleGrantedAuthority> granted =
-                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
-        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
     }
 
 }

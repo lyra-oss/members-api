@@ -28,12 +28,13 @@ class VerticalSliceRulesTest {
 
     private static final DescribedPredicate<JavaClass> RESIDES_IN_A_VERTICAL_PACKAGE =
             DescribedPredicate.describe("resides in a vertical (aggregate) package",
-                    javaClass -> topLevelPackageOf(javaClass).map(
-                            top -> ! NON_VERTICAL_TOP_LEVEL_PACKAGES.contains(top)).orElse(false));
+                                        javaClass -> topLevelPackageOf(javaClass)
+                                                .map(top -> ! NON_VERTICAL_TOP_LEVEL_PACKAGES.contains(top))
+                                                .orElse(false));
 
     /**
-     * Classes in any "..rest" package must not be public, since they are internal wiring for their
-     * vertical slice and should never be referenced directly from other slices.
+     * Classes in any "..rest" package must not be public, since they are internal wiring for their vertical slice and
+     * should never be referenced directly from other slices.
      *
      * <p>Compliant: {@code class PersonController} in {@code person.rest} (package-private)
      *
@@ -44,8 +45,8 @@ class VerticalSliceRulesTest {
             noClasses().that().resideInAnyPackage("..rest").should().bePublic();
 
     /**
-     * Classes in a "..rest" package may only be accessed by other classes within the same aggregate
-     * (vertical slice), preventing one feature's internal wiring from leaking into another feature.
+     * Classes in a "..rest" package may only be accessed by other classes within the same aggregate (vertical slice),
+     * preventing one feature's internal wiring from leaking into another feature.
      *
      * <p>Compliant: {@code person.rest.PersonController} is only accessed from other classes in
      * {@code person} or one of its sub-packages
@@ -85,8 +86,8 @@ class VerticalSliceRulesTest {
      */
     @ArchTest
     static final ArchRule kernelPackagesDoNotDependOnVerticalPackages =
-            noClasses().that().resideInAPackage(BASE_PACKAGE + ".config..")
-                       .should().dependOnClassesThat(RESIDES_IN_A_VERTICAL_PACKAGE);
+            noClasses().that().resideInAPackage(BASE_PACKAGE + ".config..").should()
+                       .dependOnClassesThat(RESIDES_IN_A_VERTICAL_PACKAGE);
 
     private static Optional<String> topLevelPackageOf(final JavaClass javaClass) {
         final String packageName = javaClass.getPackageName();

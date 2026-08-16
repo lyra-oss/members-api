@@ -5,6 +5,5 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 
 record ClassroomPatchRequest(
-        @Positive @Max(6) Integer course,
-        @Pattern(regexp = "^[A-Z]$") String group
+        @Positive @Max(6) Integer course, @Pattern(regexp = "^[A-Z]$") String group
 ) {}

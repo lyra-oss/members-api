@@ -12,14 +12,23 @@ class ClassroomPolicy {
 
     void authorizeUpdate(final Classroom classroom) {
         log.debug("Authorizing update of classroom {}", classroom.getId());
-        if(! this.isAdminOrTutor(classroom)) {
+        if(this.isNotAdminNorTutor(classroom)) {
             throw new AccessDeniedException("Authenticated user cannot update this classroom");
         }
     }
 
+    private boolean isNotAdminNorTutor(final Classroom classroom) {
+        return ! (AuthenticatedPrincipal.isAdmin() || this.isTutor(classroom));
+    }
+
+    private boolean isTutor(final Classroom classroom) {
+        final Teacher tutor = classroom.getTutor();
+        return tutor != null && AuthenticatedPrincipal.isSelf("teacher", tutor.getId());
+    }
+
     void authorizeDelete(final Classroom classroom) {
         log.debug("Authorizing deletion of classroom {}", classroom.getId());
-        if(! this.isAdminOrTutor(classroom)) {
+        if(this.isNotAdminNorTutor(classroom)) {
             throw new AccessDeniedException("Authenticated user cannot delete this classroom");
         }
         if(! classroom.getKids().isEmpty()) {
@@ -29,15 +38,6 @@ class ClassroomPolicy {
                             .formatted(classroom.getId(), classroom.getKids().size()));
             //@formatter:on
         }
-    }
-
-    private boolean isAdminOrTutor(final Classroom classroom) {
-        return AuthenticatedPrincipal.isAdmin() || this.isTutor(classroom);
-    }
-
-    private boolean isTutor(final Classroom classroom) {
-        final Teacher tutor = classroom.getTutor();
-        return tutor != null && AuthenticatedPrincipal.isSelf("teacher", tutor.getId());
     }
 
 }

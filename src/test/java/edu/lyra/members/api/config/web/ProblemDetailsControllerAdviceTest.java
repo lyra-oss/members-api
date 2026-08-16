@@ -201,8 +201,7 @@ class ProblemDetailsControllerAdviceTest {
     @Test
     void testMalformedJsonErrorResponse()
             throws Exception {
-        final MockMvc mvc = MockMvcBuilders.standaloneSetup(new DummyController()).setControllerAdvice(advice)
-                                            .build();
+        final MockMvc mvc = MockMvcBuilders.standaloneSetup(new DummyController()).setControllerAdvice(advice).build();
         //@formatter:off
         mvc.perform(post("/dummy").contentType(MediaType.APPLICATION_JSON).content("not json"))
            .andExpect(status().isBadRequest())
@@ -243,7 +242,8 @@ class ProblemDetailsControllerAdviceTest {
 
         @SuppressWarnings("unused")
         @PostMapping("/dummy")
-        void dummy(final @RequestBody DummyRequest request) {}
+        void dummy(final @RequestBody DummyRequest request) {
+        }
 
     }
 

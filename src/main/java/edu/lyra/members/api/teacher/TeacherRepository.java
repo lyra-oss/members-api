@@ -36,7 +36,7 @@ public interface TeacherRepository
      * given classroom.
      *
      * @param classroomId the classroom's id
-     * @param pageable the requested page
+     * @param pageable    the requested page
      *
      * @return the matching page of teachers
      */

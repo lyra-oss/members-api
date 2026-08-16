@@ -11,8 +11,8 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 class ExceptionRulesTest {
 
     /**
-     * Every Throwable subclass must live in an "...exceptions" package, so custom exceptions are
-     * always easy to find in one place rather than scattered across the codebase.
+     * Every Throwable subclass must live in an "...exceptions" package, so custom exceptions are always easy to find in
+     * one place rather than scattered across the codebase.
      *
      * <p>Compliant: {@code edu.lyra.members.api.person.exceptions.PersonNotFoundException}
      *
@@ -20,12 +20,11 @@ class ExceptionRulesTest {
      */
     @ArchTest
     static final ArchRule throwablesLiveInTheExceptionsPackage =
-            classes().that().areAssignableTo(Throwable.class)
-                     .should().resideInAPackage("..exceptions");
+            classes().that().areAssignableTo(Throwable.class).should().resideInAPackage("..exceptions");
 
     /**
-     * Every Throwable subclass must have a simple name ending in "Exception", keeping the naming
-     * convention self-explanatory at a glance.
+     * Every Throwable subclass must have a simple name ending in "Exception", keeping the naming convention
+     * self-explanatory at a glance.
      *
      * <p>Compliant: {@code class PersonNotFoundException extends RuntimeException}
      *
@@ -33,7 +32,6 @@ class ExceptionRulesTest {
      */
     @ArchTest
     static final ArchRule throwablesAreNamedException =
-            classes().that().areAssignableTo(Throwable.class)
-                     .should().haveSimpleNameEndingWith("Exception");
+            classes().that().areAssignableTo(Throwable.class).should().haveSimpleNameEndingWith("Exception");
 
 }

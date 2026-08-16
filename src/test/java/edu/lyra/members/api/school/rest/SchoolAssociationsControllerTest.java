@@ -27,18 +27,18 @@ class SchoolAssociationsControllerTest {
         this.controller = new SchoolAssociationsController(this.adapter);
     }
 
-    private static SchoolModel aModel() {
-        return new SchoolModel(UUID.randomUUID(), "Gloria Fuertes");
-    }
-
     @Test
     void findByTeacherReturnsOkWhenTheTeacherExists() {
-        final UUID teacherId = UUID.randomUUID();
-        final SchoolModel model = aModel();
+        final UUID        teacherId = UUID.randomUUID();
+        final SchoolModel model     = aModel();
         when(this.adapter.findByTeacher(teacherId)).thenReturn(Optional.of(model));
         final ResponseEntity<SchoolModel> response = this.controller.findByTeacher(teacherId);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(model, response.getBody());
+    }
+
+    private static SchoolModel aModel() {
+        return new SchoolModel(UUID.randomUUID(), "Gloria Fuertes");
     }
 
     @Test
@@ -50,8 +50,8 @@ class SchoolAssociationsControllerTest {
 
     @Test
     void findByClassroomReturnsOkWhenTheClassroomExists() {
-        final UUID classroomId = UUID.randomUUID();
-        final SchoolModel model = aModel();
+        final UUID        classroomId = UUID.randomUUID();
+        final SchoolModel model       = aModel();
         when(this.adapter.findByClassroom(classroomId)).thenReturn(Optional.of(model));
         final ResponseEntity<SchoolModel> response = this.controller.findByClassroom(classroomId);
         assertEquals(HttpStatus.OK, response.getStatusCode());

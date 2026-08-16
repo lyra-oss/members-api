@@ -57,7 +57,7 @@ class SchoolController {
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody SchoolRequest request) {
         log.debug("Updating school {}", id);
         return this.adapter.update(id, request).isPresent() ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")

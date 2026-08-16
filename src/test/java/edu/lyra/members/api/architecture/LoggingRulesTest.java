@@ -53,9 +53,9 @@ class LoggingRulesTest {
                                                      javaClass.getSimpleName().endsWith("Policy"));
 
     /**
-     * Every Spring controller ({@code @RestController} or {@code @Controller}) must have an SLF4J
-     * logger ({@code @Slf4j}), and every one of its request-mapped methods ({@code @GetMapping},
-     * {@code @PostMapping}, etc.) must log at least one line, so every inbound request leaves a trace.
+     * Every Spring controller ({@code @RestController} or {@code @Controller}) must have an SLF4J logger
+     * ({@code @Slf4j}), and every one of its request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.)
+     * must log at least one line, so every inbound request leaves a trace.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -106,9 +106,8 @@ class LoggingRulesTest {
     //@formatter:on
 
     /**
-     * Every {@code *Adapter} and {@code *Policy} class must have an SLF4J logger and log at least one
-     * line somewhere in the class, so every data-access orchestration and every authorization decision
-     * is traceable.
+     * Every {@code *Adapter} and {@code *Policy} class must have an SLF4J logger and log at least one line somewhere in
+     * the class, so every data-access orchestration and every authorization decision is traceable.
      *
      * <p>Compliant:
      * <pre>{@code

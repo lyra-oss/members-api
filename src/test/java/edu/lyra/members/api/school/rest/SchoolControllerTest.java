@@ -37,7 +37,7 @@ class SchoolControllerTest {
 
     @Test
     void findAllDelegatesToTheAdapter() {
-        final Pageable       pageable = Pageable.unpaged();
+        final Pageable pageable = Pageable.unpaged();
         final PagedModel<SchoolModel> expected = PagedModel.empty();
         when(this.adapter.findAll(pageable, this.pagedAssembler)).thenReturn(expected);
         assertEquals(expected, this.controller.findAll(pageable));

@@ -50,7 +50,7 @@ class PersonController {
     ResponseEntity<Void> grantParentRole(final @PathVariable UUID id) {
         log.debug("Granting the parent role to person {}", id);
         return this.adapter.grantParentRole(id) ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @PreAuthorize("hasRole('admin')")
@@ -61,7 +61,7 @@ class PersonController {
     ) {
         log.debug("Granting the teacher role to person {}", id);
         return this.adapter.grantTeacherRole(id, request) ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @PreAuthorize("hasRole('admin')")
@@ -69,7 +69,7 @@ class PersonController {
     ResponseEntity<Void> revokeParentRole(final @PathVariable UUID id) {
         log.debug("Revoking the parent role from person {}", id);
         return this.adapter.revokeParentRole(id) ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
     @PreAuthorize("hasRole('admin')")
@@ -77,7 +77,7 @@ class PersonController {
     ResponseEntity<Void> revokeTeacherRole(final @PathVariable UUID id) {
         log.debug("Revoking the teacher role from person {}", id);
         return this.adapter.revokeTeacherRole(id) ? ResponseEntity.noContent().build() :
-                ResponseEntity.notFound().build();
+               ResponseEntity.notFound().build();
     }
 
 }

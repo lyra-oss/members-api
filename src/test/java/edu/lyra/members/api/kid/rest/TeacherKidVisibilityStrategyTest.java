@@ -45,13 +45,6 @@ class TeacherKidVisibilityStrategyTest {
         SecurityContextHolder.clearContext();
     }
 
-    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
-        final List<SimpleGrantedAuthority> granted =
-                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
-        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
-    }
-
     @Test
     void supportsReturnsTrueForAnAuthenticatedTeacher() {
         authenticateAsJwt(UUID.randomUUID(), "ROLE_teacher");
@@ -73,13 +66,20 @@ class TeacherKidVisibilityStrategyTest {
 
     @Test
     void findVisibleDelegatesToTheRepositoryForTheAuthenticatedTeacher() {
-        final UUID       teacherId = UUID.randomUUID();
-        final Pageable   pageable  = Pageable.unpaged();
-        final Page<Kid>  page      = new PageImpl<>(List.of());
+        final UUID      teacherId = UUID.randomUUID();
+        final Pageable  pageable  = Pageable.unpaged();
+        final Page<Kid> page      = new PageImpl<>(List.of());
         authenticateAsJwt(teacherId);
         when(this.kidRepository.findByClassroomTaughtOrTutoredBy(teacherId, pageable)).thenReturn(page);
         assertEquals(page, this.strategy.findVisible(pageable));
         verify(this.kidRepository).findByClassroomTaughtOrTutoredBy(teacherId, pageable);
+    }
+
+    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
+        final List<SimpleGrantedAuthority> granted =
+                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
     }
 
 }

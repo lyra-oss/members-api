@@ -12,14 +12,22 @@ class ParentPolicy {
 
     void authorizeUpdate(final Parent parent) {
         log.debug("Authorizing update of parent {}", parent.getId());
-        if(! this.isAdminOrSelf(parent)) {
+        if(this.isNotAdminNorSelf(parent)) {
             throw new AccessDeniedException("Authenticated user cannot update this parent");
         }
     }
 
+    private boolean isNotAdminNorSelf(final Parent parent) {
+        return ! (AuthenticatedPrincipal.isAdmin() || this.isSelf(parent));
+    }
+
+    private boolean isSelf(final Parent parent) {
+        return AuthenticatedPrincipal.isSelf("parent", parent.getId());
+    }
+
     void authorizeDelete(final Parent parent) {
         log.debug("Authorizing deletion of parent {}", parent.getId());
-        if(! this.isAdminOrSelf(parent)) {
+        if(this.isNotAdminNorSelf(parent)) {
             throw new AccessDeniedException("Authenticated user cannot delete this parent");
         }
         if(! parent.getKids().isEmpty()) {
@@ -43,16 +51,7 @@ class ParentPolicy {
     }
 
     private boolean wasCreatedByCurrentPrincipal(final Kid kid) {
-        return AuthenticatedPrincipal.currentId().map(id -> id.toString().equals(kid.getCreatedBy()))
-                                     .orElse(false);
-    }
-
-    private boolean isAdminOrSelf(final Parent parent) {
-        return AuthenticatedPrincipal.isAdmin() || this.isSelf(parent);
-    }
-
-    private boolean isSelf(final Parent parent) {
-        return AuthenticatedPrincipal.isSelf("parent", parent.getId());
+        return AuthenticatedPrincipal.currentId().map(id -> id.toString().equals(kid.getCreatedBy())).orElse(false);
     }
 
 }

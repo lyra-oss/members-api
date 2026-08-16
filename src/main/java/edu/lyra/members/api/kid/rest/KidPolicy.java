@@ -46,14 +46,6 @@ class KidPolicy {
         throw new AccessDeniedException("Authenticated user cannot update this kid");
     }
 
-    void authorizeDelete(final Kid kid) {
-        log.debug("Authorizing deletion of kid {}", kid.getId());
-        if(AuthenticatedPrincipal.isAdmin() || this.isOwnKid(kid) || this.isTutorOf(kid.getClassroom())) {
-            return;
-        }
-        throw new AccessDeniedException("Authenticated user cannot delete this kid");
-    }
-
     private static UUID id(final Parent parent) {
         return parent == null ? null : parent.getId();
     }
@@ -72,6 +64,14 @@ class KidPolicy {
     private boolean isOwnKid(final Kid kid) {
         final Parent parent = kid.getParent();
         return parent != null && AuthenticatedPrincipal.isSelf("parent", parent.getId());
+    }
+
+    void authorizeDelete(final Kid kid) {
+        log.debug("Authorizing deletion of kid {}", kid.getId());
+        if(AuthenticatedPrincipal.isAdmin() || this.isOwnKid(kid) || this.isTutorOf(kid.getClassroom())) {
+            return;
+        }
+        throw new AccessDeniedException("Authenticated user cannot delete this kid");
     }
 
 }

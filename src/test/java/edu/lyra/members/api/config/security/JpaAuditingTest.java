@@ -58,17 +58,6 @@ class JpaAuditingTest {
         assertNotNull(saved.getLastModifiedDate());
     }
 
-    private static Person aPerson() {
-        //@formatter:off
-        return Person.builder()
-                     .id(UUID.randomUUID())
-                     .name("Esteban")
-                     .surname("Cristóbal")
-                     .mail("esteban.cristobal@example.com")
-                     .build();
-        //@formatter:on
-    }
-
     private String authenticate() {
         final String subject = UUID.randomUUID().toString();
         //@formatter:off
@@ -79,6 +68,17 @@ class JpaAuditingTest {
         //@formatter:on
         SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, List.of()));
         return subject;
+    }
+
+    private static Person aPerson() {
+        //@formatter:off
+        return Person.builder()
+                     .id(UUID.randomUUID())
+                     .name("Esteban")
+                     .surname("Cristóbal")
+                     .mail("esteban.cristobal@example.com")
+                     .build();
+        //@formatter:on
     }
 
     @Test

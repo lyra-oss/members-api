@@ -35,10 +35,6 @@ class TeacherControllerTest {
         this.controller = new TeacherController(this.adapter, this.pagedAssembler);
     }
 
-    private static TeacherModel aModel(final UUID id) {
-        return new TeacherModel(id, "Marta", "Ibáñez", "marta.ibanez@example.com");
-    }
-
     @Test
     void findAllDelegatesToTheAdapter() {
         final Pageable pageable = Pageable.unpaged();
@@ -58,6 +54,10 @@ class TeacherControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertTrue(response.getHeaders().getLocation().toString().endsWith("/v0/teachers/" + model.getId()));
         assertEquals(model, response.getBody());
+    }
+
+    private static TeacherModel aModel(final UUID id) {
+        return new TeacherModel(id, "Marta", "Ibáñez", "marta.ibanez@example.com");
     }
 
 }

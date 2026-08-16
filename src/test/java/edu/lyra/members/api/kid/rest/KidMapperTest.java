@@ -17,18 +17,6 @@ class KidMapperTest {
 
     private final KidMapper mapper = Mappers.getMapper(KidMapper.class);
 
-    private static Parent aParent() {
-        final Parent parent = new Parent();
-        ReflectionTestUtils.setField(parent, "id", UUID.randomUUID());
-        return parent;
-    }
-
-    private static Classroom aClassroom() {
-        final Classroom classroom = new Classroom();
-        ReflectionTestUtils.setField(classroom, "id", UUID.randomUUID());
-        return classroom;
-    }
-
     @Test
     void toEntityMapsNameSurnameAndBirthdateAndLeavesTheIdParentAndClassroomUnset() {
         final Kid kid = this.mapper.toEntity(new KidRequest("Alicia", "Cristóbal", LocalDate.of(2019, 12, 12)));
@@ -68,6 +56,12 @@ class KidMapperTest {
         assertEquals(LocalDate.of(2019, 12, 12), kid.getBirthdate());
     }
 
+    private static Parent aParent() {
+        final Parent parent = new Parent();
+        ReflectionTestUtils.setField(parent, "id", UUID.randomUUID());
+        return parent;
+    }
+
     @Test
     void updateAppliesTheResolvedParentAndClassroomRegardlessOfNullValueStrategy() {
         final Kid       kid       = new Kid();
@@ -76,6 +70,12 @@ class KidMapperTest {
         this.mapper.update(new KidPatchRequest(null, null, null, null, null), kid, newParent, classroom);
         assertEquals(newParent, kid.getParent());
         assertEquals(classroom, kid.getClassroom());
+    }
+
+    private static Classroom aClassroom() {
+        final Classroom classroom = new Classroom();
+        ReflectionTestUtils.setField(classroom, "id", UUID.randomUUID());
+        return classroom;
     }
 
 }

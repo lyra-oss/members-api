@@ -30,8 +30,7 @@ class ClassroomAssociationsController {
     @GetMapping("/kids/{kidId}/classroom")
     ResponseEntity<ClassroomModel> findByKid(final @PathVariable UUID kidId) {
         log.debug("Fetching the classroom of kid {}", kidId);
-        return this.adapter.findByKid(kidId).map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+        return this.adapter.findByKid(kidId).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/schools/{schoolId}/classrooms")
@@ -41,7 +40,7 @@ class ClassroomAssociationsController {
     ) {
         log.debug("Listing classrooms for school {}, page {}", schoolId, pageable);
         return this.adapter.findBySchool(schoolId, pageable, this.pagedAssembler).map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+                           .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

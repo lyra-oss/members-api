@@ -25,8 +25,7 @@ class KidRestConfiguration {
             final KidMapper mapper,
             final KidPolicy policy
     ) {
-        return new KidAdapter(kidRepository, parentRepository, classroomRepository, visibilityResolver, mapper,
-                              policy);
+        return new KidAdapter(kidRepository, parentRepository, classroomRepository, visibilityResolver, mapper, policy);
     }
 
     @Bean

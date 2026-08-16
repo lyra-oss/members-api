@@ -35,7 +35,8 @@ public interface KidRepository
      * Finds a page of the kids in classrooms the given teacher tutors or teaches, ordered by name.
      *
      * @param teacherId the teacher's id
-     * @param pageable the requested page
+     * @param pageable  the requested page
+     *
      * @return the matching page of kids
      */
     @Query(

@@ -16,6 +16,19 @@ class ClassroomMapperTest {
 
     private final ClassroomMapper mapper = Mappers.getMapper(ClassroomMapper.class);
 
+    @Test
+    void toEntityMapsCourseGroupSchoolAndTutorAndLeavesTheIdUnset() {
+        final School  school = aSchool();
+        final Teacher tutor  = aTeacher(school);
+        final Classroom classroom =
+                this.mapper.toEntity(new ClassroomRequest(3, "A", school.getId(), tutor.getId()), school, tutor);
+        assertEquals(3, classroom.getCourse());
+        assertEquals("A", classroom.getGroup());
+        assertEquals(school, classroom.getSchool());
+        assertEquals(tutor, classroom.getTutor());
+        assertNull(classroom.getId());
+    }
+
     private static School aSchool() {
         final School school = new School();
         school.setName("Gloria Fuertes");
@@ -31,23 +44,10 @@ class ClassroomMapperTest {
     }
 
     @Test
-    void toEntityMapsCourseGroupSchoolAndTutorAndLeavesTheIdUnset() {
-        final School    school    = aSchool();
-        final Teacher   tutor     = aTeacher(school);
-        final Classroom classroom =
-                this.mapper.toEntity(new ClassroomRequest(3, "A", school.getId(), tutor.getId()), school, tutor);
-        assertEquals(3, classroom.getCourse());
-        assertEquals("A", classroom.getGroup());
-        assertEquals(school, classroom.getSchool());
-        assertEquals(tutor, classroom.getTutor());
-        assertNull(classroom.getId());
-    }
-
-    @Test
     void toEntityAllowsANullTutor() {
-        final School    school    = aSchool();
-        final Classroom classroom = this.mapper.toEntity(new ClassroomRequest(3, "A", school.getId(), null), school,
-                                                          null);
+        final School school = aSchool();
+        final Classroom classroom =
+                this.mapper.toEntity(new ClassroomRequest(3, "A", school.getId(), null), school, null);
         assertNull(classroom.getTutor());
     }
 

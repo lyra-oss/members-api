@@ -26,7 +26,7 @@ class SchoolIT
     void testAddAndRetrieveSchool()
             throws IOException {
         final String createToken = this.getToken(USERNAME, "schools.create");
-        final String body  = this.json.writeValueAsString(Map.of(NAME_KEY, NAME_VALUE));
+        final String body = this.json.writeValueAsString(Map.of(NAME_KEY, NAME_VALUE));
         final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/schools")
                                                          .addHeader("Authorization", "Bearer " + createToken)
                                                          .post(create(body, get("application/json"))).build();
@@ -52,8 +52,8 @@ class SchoolIT
         final String createToken = this.getToken(USERNAME, "schools.create");
         final String body        = this.json.writeValueAsString(Map.of(NAME_KEY, "Montessori Norte"));
         final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/schools")
-                                                          .addHeader("Authorization", "Bearer " + createToken)
-                                                          .post(create(body, get("application/json"))).build();
+                                                         .addHeader("Authorization", "Bearer " + createToken)
+                                                         .post(create(body, get("application/json"))).build();
         String location;
         try(Response response = this.http.newCall(postRequest).execute()) {
             assertEquals(201, response.code());

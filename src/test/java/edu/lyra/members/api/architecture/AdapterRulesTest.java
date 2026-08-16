@@ -21,23 +21,21 @@ class AdapterRulesTest {
             DescribedPredicate.describe("is annotated with @Mapper",
                                         javaClass -> javaClass.isAnnotatedWith(Mapper.class));
 
-    private static final DescribedPredicate<JavaClass> IS_A_MAPPER_PURITY_VIOLATION =
-            DescribedPredicate.describe(
-                    "is a Repository, AuthenticatedPrincipal, or org.springframework.security.. type",
-                    javaClass -> javaClass.isAssignableTo(Repository.class) ||
-                                 javaClass.getFullName().equals(AuthenticatedPrincipal.class.getName()) ||
-                                 javaClass.getPackageName().startsWith("org.springframework.security"));
+    private static final DescribedPredicate<JavaClass> IS_A_MAPPER_PURITY_VIOLATION = DescribedPredicate.describe(
+            "is a Repository, AuthenticatedPrincipal, or org.springframework.security.. type",
+            javaClass -> javaClass.isAssignableTo(Repository.class) ||
+                         javaClass.getFullName().equals(AuthenticatedPrincipal.class.getName()) ||
+                         javaClass.getPackageName().startsWith("org.springframework.security"));
 
-    private static final DescribedPredicate<JavaClass> MAY_THROW_ACCESS_DENIED =
-            DescribedPredicate.<JavaClass>describe("has a simple name ending with Policy",
-                                                    javaClass -> javaClass.getSimpleName().endsWith("Policy"))
-                               .or(resideInAPackage("..config.security.."));
+    private static final DescribedPredicate<JavaClass> MAY_THROW_ACCESS_DENIED = DescribedPredicate
+            .<JavaClass>describe("has a simple name ending with Policy",
+                                 javaClass -> javaClass.getSimpleName().endsWith("Policy"))
+            .or(resideInAPackage("..config.security.."));
 
     /**
-     * A MapStruct {@code @Mapper} must stay a pure conversion function: it must not depend on a
-     * {@link Repository}, {@link AuthenticatedPrincipal}, or anything from
-     * {@code org.springframework.security..}. Mapping is a data transformation, never a place to make
-     * an authorization or data-access decision.
+     * A MapStruct {@code @Mapper} must stay a pure conversion function: it must not depend on a {@link Repository},
+     * {@link AuthenticatedPrincipal}, or anything from {@code org.springframework.security..}. Mapping is a data
+     * transformation, never a place to make an authorization or data-access decision.
      *
      * <p>Compliant: {@code SchoolMapper} depends only on {@code School}/{@code SchoolRequest}/
      * {@code SchoolModel}
@@ -54,9 +52,9 @@ class AdapterRulesTest {
             //@formatter:on
 
     /**
-     * {@link AccessDeniedException} must be thrown only from a {@code *Policy} class, or from the
-     * security kernel in "config.security" ({@link AuthenticatedPrincipal} itself, which requires a
-     * valid authenticated subject before anything else runs) — one place owns the 403 decision.
+     * {@link AccessDeniedException} must be thrown only from a {@code *Policy} class, or from the security kernel in
+     * "config.security" ({@link AuthenticatedPrincipal} itself, which requires a valid authenticated subject before
+     * anything else runs) — one place owns the 403 decision.
      *
      * <p>Compliant: {@code SchoolPolicy} throws {@code AccessDeniedException}
      *

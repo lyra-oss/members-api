@@ -131,6 +131,16 @@ public class TeacherCreationFeatures
         this.body.put("school", location.substring(location.lastIndexOf('/') + 1));
     }
 
+    private String schoolLocation(final String name) {
+        final String key = "school:" + name;
+        if(this.scenarioContext.getLocation(key) == null) {
+            final School saved = TestSecurityContext.runAuthenticated(
+                    () -> this.schoolRepository.save(EntityFixtures.newSchool(name)));
+            this.scenarioContext.putLocation(key, "/v0/schools/" + saved.getId());
+        }
+        return this.scenarioContext.getLocation(key);
+    }
+
     @And("the teacher is already registered")
     public void theTeacherIsAlreadyRegistered() {
         //@formatter:off
@@ -150,16 +160,6 @@ public class TeacherCreationFeatures
     private School school(final String location) {
         final UUID id = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
         return this.schoolRepository.findById(id).orElseThrow();
-    }
-
-    private String schoolLocation(final String name) {
-        final String key = "school:" + name;
-        if(this.scenarioContext.getLocation(key) == null) {
-            final School saved = TestSecurityContext.runAuthenticated(
-                    () -> this.schoolRepository.save(EntityFixtures.newSchool(name)));
-            this.scenarioContext.putLocation(key, "/v0/schools/" + saved.getId());
-        }
-        return this.scenarioContext.getLocation(key);
     }
 
     @When("I click on \"Create teacher account\"")

@@ -55,8 +55,8 @@ class TeacherAssociationsControllerTest {
 
     @Test
     void findByClassroomReturnsNotFoundWhenTheClassroomIsMissing() {
-        final UUID classroomId = UUID.randomUUID();
-        final Pageable pageable = Pageable.unpaged();
+        final UUID     classroomId = UUID.randomUUID();
+        final Pageable pageable    = Pageable.unpaged();
         when(this.adapter.findByClassroom(classroomId, pageable, this.pagedAssembler)).thenReturn(Optional.empty());
         assertEquals(HttpStatus.NOT_FOUND, this.controller.findByClassroom(classroomId, pageable).getStatusCode());
     }

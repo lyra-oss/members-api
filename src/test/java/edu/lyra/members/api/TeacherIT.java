@@ -17,7 +17,7 @@ class TeacherIT
         extends BaseIT {
 
     private static final String SCHOOL_ADMIN_USERNAME = "school.admin@example.com";
-    private static final String TEACHER_USERNAME       = "teacher.account@example.com";
+    private static final String TEACHER_USERNAME = "teacher.account@example.com";
 
     private static final String NAME_KEY    = "name";
     private static final String SURNAME_KEY = "surname";

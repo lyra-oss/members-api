@@ -51,20 +51,38 @@ class KidPolicyTest {
         SecurityContextHolder.clearContext();
     }
 
-    private static void authenticateAs(final UUID id, final String... roles) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final List<SimpleGrantedAuthority> authorities =
-                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    @Test
+    void authorizeCreateReturnsTheRequestingSubjectsParent() {
+        final UUID   subject = randomUUID();
+        final Parent parent  = aParentWithId(subject);
+        when(this.parentRepository.findById(subject)).thenReturn(Optional.of(parent));
+        assertEquals(parent, this.policy.authorizeCreate(subject));
     }
 
-    private static Kid aKid(final Parent parent, final Classroom classroom) {
-        //@formatter:off
-        return of(Kid.class).set(field(Kid.class, "parent"), parent)
-                            .set(field(Kid.class, "classroom"), classroom)
-                            .create();
-        //@formatter:on
+    @Test
+    void allowsParentToUpdateOwnKidsFields() {
+        final UUID      parentId  = randomUUID();
+        final Parent    parent    = aParentWithId(parentId);
+        final Classroom classroom = aClassroomWithTutor(randomUUID());
+        final Kid       kid       = aKid(parent, classroom);
+        authenticateAs(parentId, "parent");
+        assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, parent, classroom));
+    }
+
+    @Test
+    void authorizeCreateRejectsASubjectThatIsNotARegisteredParent() {
+        final UUID subject = randomUUID();
+        when(this.parentRepository.findById(subject)).thenReturn(Optional.empty());
+        assertThrows(AccessDeniedException.class, () -> this.policy.authorizeCreate(subject));
+    }
+
+    @Test
+    void allowsAdminToUpdateAnyKid() {
+        authenticateAs(randomUUID(), "admin");
+        final Parent    parent    = aParentWithId(randomUUID());
+        final Classroom classroom = aClassroomWithTutor(randomUUID());
+        final Kid       kid       = aKid(parent, classroom);
+        assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, parent, classroom));
     }
 
     private static Parent aParentWithId(final UUID id) {
@@ -81,40 +99,20 @@ class KidPolicyTest {
         //@formatter:on
     }
 
-
-    @Test
-    void authorizeCreateReturnsTheRequestingSubjectsParent() {
-        final UUID   subject = randomUUID();
-        final Parent parent  = aParentWithId(subject);
-        when(this.parentRepository.findById(subject)).thenReturn(Optional.of(parent));
-        assertEquals(parent, this.policy.authorizeCreate(subject));
+    private static Kid aKid(final Parent parent, final Classroom classroom) {
+        //@formatter:off
+        return of(Kid.class).set(field(Kid.class, "parent"), parent)
+                            .set(field(Kid.class, "classroom"), classroom)
+                            .create();
+        //@formatter:on
     }
 
-    @Test
-    void authorizeCreateRejectsASubjectThatIsNotARegisteredParent() {
-        final UUID subject = randomUUID();
-        when(this.parentRepository.findById(subject)).thenReturn(Optional.empty());
-        assertThrows(AccessDeniedException.class, () -> this.policy.authorizeCreate(subject));
-    }
-
-
-    @Test
-    void allowsAdminToUpdateAnyKid() {
-        authenticateAs(randomUUID(), "admin");
-        final Parent    parent    = aParentWithId(randomUUID());
-        final Classroom classroom = aClassroomWithTutor(randomUUID());
-        final Kid       kid       = aKid(parent, classroom);
-        assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, parent, classroom));
-    }
-
-    @Test
-    void allowsParentToUpdateOwnKidsFields() {
-        final UUID       parentId  = randomUUID();
-        final Parent     parent    = aParentWithId(parentId);
-        final Classroom  classroom = aClassroomWithTutor(randomUUID());
-        final Kid        kid       = aKid(parent, classroom);
-        authenticateAs(parentId, "parent");
-        assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, parent, classroom));
+    private static void authenticateAs(final UUID id, final String... roles) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final List<SimpleGrantedAuthority> authorities =
+                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
@@ -171,7 +169,6 @@ class KidPolicyTest {
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(kid, parent, classroom));
     }
 
-
     @Test
     void rejectsParentRebindingTheirOwnKidToADifferentParent() {
         final UUID   parentId  = randomUUID();
@@ -189,13 +186,12 @@ class KidPolicyTest {
         assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, newParent, null));
     }
 
-
     @Test
     void allowsTargetClassroomsTutorToEnrollAKid() {
         final UUID      tutorId      = randomUUID();
         final Parent    parent       = aParentWithId(randomUUID());
         final Classroom newClassroom = aClassroomWithTutor(tutorId);
-        final Kid        kid         = aKid(parent, null);
+        final Kid kid = aKid(parent, null);
         authenticateAs(tutorId, "teacher");
         assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, parent, newClassroom));
     }
@@ -219,12 +215,11 @@ class KidPolicyTest {
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(kid, parent, newClassroom));
     }
 
-
     @Test
     void allowsAdminToDeleteAnyKid() {
         authenticateAs(randomUUID(), "admin");
-        assertDoesNotThrow(
-                () -> this.policy.authorizeDelete(aKid(aParentWithId(randomUUID()), aClassroomWithTutor(randomUUID()))));
+        assertDoesNotThrow(() -> this.policy.authorizeDelete(
+                aKid(aParentWithId(randomUUID()), aClassroomWithTutor(randomUUID()))));
     }
 
     @Test

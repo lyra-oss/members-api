@@ -34,10 +34,6 @@ class PersonControllerTest {
         this.controller = new PersonController(this.adapter, this.pagedAssembler);
     }
 
-    private static PersonModel aModel(final UUID id) {
-        return new PersonModel(id, "Esteban", "Cristóbal", "esteban.cristobal@example.com");
-    }
-
     @Test
     void findAllDelegatesToTheAdapter() {
         final Pageable pageable = Pageable.unpaged();
@@ -54,6 +50,10 @@ class PersonControllerTest {
         final ResponseEntity<PersonModel> response = this.controller.get(id);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(model, response.getBody());
+    }
+
+    private static PersonModel aModel(final UUID id) {
+        return new PersonModel(id, "Esteban", "Cristóbal", "esteban.cristobal@example.com");
     }
 
     @Test

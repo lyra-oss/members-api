@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
@@ -27,22 +26,21 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 class WebRulesTest {
 
     private static final DescribedPredicate<JavaMethod> ARE_REQUEST_MAPPED =
-            DescribedPredicate.describe("are request-mapped",
-                                        method -> method.isAnnotatedWith(RequestMapping.class) ||
-                                                  method.isAnnotatedWith(GetMapping.class) ||
-                                                  method.isAnnotatedWith(PostMapping.class) ||
-                                                  method.isAnnotatedWith(PutMapping.class) ||
-                                                  method.isAnnotatedWith(PatchMapping.class) ||
-                                                  method.isAnnotatedWith(DeleteMapping.class));
+            DescribedPredicate.describe("are request-mapped", method -> method.isAnnotatedWith(RequestMapping.class) ||
+                                                                        method.isAnnotatedWith(GetMapping.class) ||
+                                                                        method.isAnnotatedWith(PostMapping.class) ||
+                                                                        method.isAnnotatedWith(PutMapping.class) ||
+                                                                        method.isAnnotatedWith(PatchMapping.class) ||
+                                                                        method.isAnnotatedWith(DeleteMapping.class));
 
     private static final DescribedPredicate<JavaClass> IS_A_CONTROLLER =
             DescribedPredicate.describe("is annotated with @RestController",
                                         javaClass -> javaClass.isAnnotatedWith(RestController.class));
 
     /**
-     * Request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) declared in a
-     * {@code @RestController} must not be public, since Spring MVC always invokes handler methods
-     * reflectively rather than through direct calls.
+     * Request-mapped methods ({@code @GetMapping}, {@code @PostMapping}, etc.) declared in a {@code @RestController}
+     * must not be public, since Spring MVC always invokes handler methods reflectively rather than through direct
+     * calls.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -64,12 +62,11 @@ class WebRulesTest {
      */
     @ArchTest
     static final ArchRule mappedControllerMethodsAreNotPublic =
-            methods().that(ARE_REQUEST_MAPPED).and().areDeclaredInClassesThat(IS_A_CONTROLLER)
-                     .should().notBePublic();
+            methods().that(ARE_REQUEST_MAPPED).and().areDeclaredInClassesThat(IS_A_CONTROLLER).should().notBePublic();
 
     /**
-     * Controllers own HTTP translation only; they must not depend on a {@link Repository}, so data
-     * access always goes through an adapter.
+     * Controllers own HTTP translation only; they must not depend on a {@link Repository}, so data access always goes
+     * through an adapter.
      *
      * <p>Compliant: {@code PersonController} depends on {@code PersonAdapter}
      *
@@ -80,11 +77,10 @@ class WebRulesTest {
             noClasses().that(IS_A_CONTROLLER).should().dependOnClassesThat().areAssignableTo(Repository.class);
 
     /**
-     * Controllers must not call a method or read/write a field on a JPA {@code @Entity}, so the DTO
-     * boundary between the wire format and the persistence model is never crossed. This checks actual
-     * access rather than mere type dependency, since a controller legitimately holds a
-     * {@code PagedResourcesAssembler<SomeEntity>} field to pass through to its adapter without ever
-     * touching the entity itself.
+     * Controllers must not call a method or read/write a field on a JPA {@code @Entity}, so the DTO boundary between
+     * the wire format and the persistence model is never crossed. This checks actual access rather than mere type
+     * dependency, since a controller legitimately holds a {@code PagedResourcesAssembler<SomeEntity>} field to pass
+     * through to its adapter without ever touching the entity itself.
      *
      * <p>Compliant: {@code PersonController} accesses {@code PersonModel}/{@code PersonRequest}
      *
@@ -95,8 +91,8 @@ class WebRulesTest {
             noClasses().that(IS_A_CONTROLLER).should().accessClassesThat().areAnnotatedWith(Entity.class);
 
     /**
-     * Controllers must not depend on {@code jakarta.persistence..}, reinforcing the DTO boundary at
-     * the package level rather than only for {@code @Entity}-annotated types.
+     * Controllers must not depend on {@code jakarta.persistence..}, reinforcing the DTO boundary at the package level
+     * rather than only for {@code @Entity}-annotated types.
      *
      * <p>Compliant: {@code PersonController} has no {@code jakarta.persistence} import
      *
@@ -104,12 +100,11 @@ class WebRulesTest {
      */
     @ArchTest
     static final ArchRule controllersDoNotDependOnPersistence =
-            noClasses().that(IS_A_CONTROLLER).should().dependOnClassesThat()
-                       .resideInAPackage("jakarta.persistence..");
+            noClasses().that(IS_A_CONTROLLER).should().dependOnClassesThat().resideInAPackage("jakarta.persistence..");
 
     /**
-     * Controllers must not be {@code @Transactional}; a transaction spans a unit of work owned by the
-     * adapter, not the HTTP edge.
+     * Controllers must not be {@code @Transactional}; a transaction spans a unit of work owned by the adapter, not the
+     * HTTP edge.
      *
      * <p>Compliant: {@code PersonAdapter} (or its repository) is transactional
      *

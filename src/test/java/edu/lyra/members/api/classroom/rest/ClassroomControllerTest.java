@@ -35,10 +35,6 @@ class ClassroomControllerTest {
         this.controller = new ClassroomController(this.adapter, this.pagedAssembler);
     }
 
-    private static ClassroomModel aModel(final UUID id) {
-        return new ClassroomModel(id, 3, "A");
-    }
-
     @Test
     void findAllDelegatesToTheAdapter() {
         final Pageable pageable = Pageable.unpaged();
@@ -57,6 +53,10 @@ class ClassroomControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertTrue(response.getHeaders().getLocation().toString().endsWith("/v0/classrooms/" + model.getId()));
         assertEquals(model, response.getBody());
+    }
+
+    private static ClassroomModel aModel(final UUID id) {
+        return new ClassroomModel(id, 3, "A");
     }
 
     @Test

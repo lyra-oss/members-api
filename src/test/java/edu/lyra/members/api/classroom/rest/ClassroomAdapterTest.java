@@ -49,20 +49,15 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ClassroomAdapterTest {
 
+    private final ClassroomMapper mapper = Mappers.getMapper(ClassroomMapper.class);
     @Mock
     private ClassroomRepository classroomRepository;
-
     @Mock
     private SchoolRepository schoolRepository;
-
     @Mock
     private TeacherRepository teacherRepository;
-
     @Mock
     private KidRepository kidRepository;
-
-    private final ClassroomMapper mapper = Mappers.getMapper(ClassroomMapper.class);
-
     private ClassroomPolicy policy;
 
     private ClassroomAdapter adapter;
@@ -75,13 +70,6 @@ class ClassroomAdapterTest {
                                             this.kidRepository, this.mapper, this.policy);
         //@formatter:on
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
-    }
-
-    private static School aSchool() {
-        final School school = new School();
-        school.setName("Gloria Fuertes");
-        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
-        return school;
     }
 
     private static Teacher aTeacherAt(final School school) {
@@ -102,8 +90,8 @@ class ClassroomAdapterTest {
 
     @Test
     void toModelAddsASelfLink() {
-        final Classroom classroom = aClassroom(aSchool());
-        final ClassroomModel model = this.adapter.toModel(classroom);
+        final Classroom      classroom = aClassroom(aSchool());
+        final ClassroomModel model     = this.adapter.toModel(classroom);
         assertEquals(3, model.getCourse());
         assertTrue(model.getRequiredLink("self").getHref().endsWith("/classrooms/" + classroom.getId()));
     }
@@ -123,16 +111,11 @@ class ClassroomAdapterTest {
         assertEquals(3, this.adapter.findById(id).orElseThrow().getCourse());
     }
 
-    @Test
-    void findAllDelegatesToThePagedResourcesAssembler() {
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<Classroom> page = new PageImpl<>(List.of(aClassroom(aSchool())));
-        when(this.classroomRepository.findAll(pageable)).thenReturn(page);
-        @SuppressWarnings("unchecked")
-        final PagedResourcesAssembler<Classroom> pagedAssembler = mock(PagedResourcesAssembler.class);
-        final PagedModel<ClassroomModel> expected = PagedModel.empty();
-        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
-        assertEquals(expected, this.adapter.findAll(pageable, pagedAssembler));
+    private static School aSchool() {
+        final School school = new School();
+        school.setName("Gloria Fuertes");
+        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
+        return school;
     }
 
     @Test
@@ -172,6 +155,18 @@ class ClassroomAdapterTest {
         final ClassroomRequest request = new ClassroomRequest(3, "A", school.getId(), tutor.getId());
         assertThrows(SchoolMismatchException.class, () -> this.adapter.create(request));
         verify(this.classroomRepository, never()).save(any());
+    }
+
+    @Test
+    void findAllDelegatesToThePagedResourcesAssembler() {
+        final Pageable        pageable = PageRequest.of(0, 20);
+        final Page<Classroom> page     = new PageImpl<>(List.of(aClassroom(aSchool())));
+        when(this.classroomRepository.findAll(pageable)).thenReturn(page);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Classroom> pagedAssembler = mock(PagedResourcesAssembler.class);
+        final PagedModel<ClassroomModel> expected = PagedModel.empty();
+        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
+        assertEquals(expected, this.adapter.findAll(pageable, pagedAssembler));
     }
 
     @Test
@@ -255,7 +250,7 @@ class ClassroomAdapterTest {
     @Test
     void addTeacherReturnsFalseWhenTheTeacherDoesNotExist() {
         final Classroom classroom = aClassroom(aSchool());
-        final UUID       teacherId = UUID.randomUUID();
+        final UUID teacherId = UUID.randomUUID();
         when(this.classroomRepository.findById(classroom.getId())).thenReturn(Optional.of(classroom));
         when(this.teacherRepository.findById(teacherId)).thenReturn(Optional.empty());
         assertFalse(this.adapter.addTeacher(classroom.getId(), teacherId));
@@ -469,8 +464,8 @@ class ClassroomAdapterTest {
         final School school   = aSchool();
         final UUID   schoolId = school.getId();
         when(this.schoolRepository.existsById(schoolId)).thenReturn(true);
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<Classroom> page = new PageImpl<>(List.of(aClassroom(school)));
+        final Pageable        pageable = PageRequest.of(0, 20);
+        final Page<Classroom> page     = new PageImpl<>(List.of(aClassroom(school)));
         when(this.classroomRepository.findBySchoolId(schoolId, pageable)).thenReturn(page);
         @SuppressWarnings("unchecked")
         final PagedResourcesAssembler<Classroom> pagedAssembler = mock(PagedResourcesAssembler.class);

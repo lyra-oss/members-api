@@ -51,8 +51,8 @@ class NamingRulesTest {
             classes().that(IS_A_CONTROLLER).should().haveSimpleNameEndingWith("Controller");
 
     /**
-     * The inverse of the rule above: any class named {@code *Controller} must actually carry
-     * {@code @RestController}, so the name is never misleading.
+     * The inverse of the rule above: any class named {@code *Controller} must actually carry {@code @RestController},
+     * so the name is never misleading.
      *
      * <p>Compliant: {@code @RestController class PersonController}
      *
@@ -70,12 +70,11 @@ class NamingRulesTest {
      * <p>Violation: {@code edu.lyra.members.api.person.PersonController}
      */
     @ArchTest
-    static final ArchRule controllersLiveInRestPackages = classes().that(IS_A_CONTROLLER).should().resideInAPackage(
-            "..rest");
+    static final ArchRule controllersLiveInRestPackages =
+            classes().that(IS_A_CONTROLLER).should().resideInAPackage("..rest");
 
     /**
-     * Every {@link RepresentationModelAssembler} implementation must have a simple name ending in
-     * "Adapter".
+     * Every {@link RepresentationModelAssembler} implementation must have a simple name ending in "Adapter".
      *
      * <p>Compliant: {@code class SchoolAdapter implements RepresentationModelAssembler<School, SchoolModel>}
      *
@@ -95,8 +94,7 @@ class NamingRulesTest {
      */
     @ArchTest
     static final ArchRule namedAdaptersAreAssemblers =
-            classes().that().haveSimpleNameEndingWith("Adapter")
-                     .should(be(IMPLEMENTS_REPRESENTATION_MODEL_ASSEMBLER));
+            classes().that().haveSimpleNameEndingWith("Adapter").should(be(IMPLEMENTS_REPRESENTATION_MODEL_ASSEMBLER));
 
     /**
      * Every {@code *Adapter} must live in a "..rest" package.
@@ -121,8 +119,8 @@ class NamingRulesTest {
             classes().that(IS_A_MAPSTRUCT_MAPPER).should().haveSimpleNameEndingWith("Mapper");
 
     /**
-     * The inverse of the rule above: any class named {@code *Mapper} must actually carry
-     * {@code @Mapper}, so the name is never misleading.
+     * The inverse of the rule above: any class named {@code *Mapper} must actually carry {@code @Mapper}, so the name
+     * is never misleading.
      *
      * <p>Compliant: {@code @Mapper interface SchoolMapper}
      *
@@ -155,8 +153,8 @@ class NamingRulesTest {
             classes().that(EXTENDS_REPRESENTATION_MODEL).should().haveSimpleNameEndingWith("Model");
 
     /**
-     * The inverse of the rule above: any class named {@code *Model} must actually extend
-     * {@link RepresentationModel}, so the name is never misleading.
+     * The inverse of the rule above: any class named {@code *Model} must actually extend {@link RepresentationModel},
+     * so the name is never misleading.
      *
      * <p>Compliant: {@code class SchoolModel extends RepresentationModel<SchoolModel>}
      *
@@ -178,8 +176,7 @@ class NamingRulesTest {
             classes().that(EXTENDS_REPRESENTATION_MODEL).should().resideInAPackage("..rest");
 
     /**
-     * Every class named {@code *Request} must be a record, so inbound payloads stay immutable data
-     * carriers.
+     * Every class named {@code *Request} must be a record, so inbound payloads stay immutable data carriers.
      *
      * <p>Compliant: {@code record SchoolRequest(String name) {}}
      *
@@ -201,8 +198,8 @@ class NamingRulesTest {
             classes().that().haveSimpleNameEndingWith("Request").should().resideInAPackage("..rest");
 
     /**
-     * Every class named {@code *Policy} must live in a "..rest" package, alongside the controller and
-     * adapter it authorizes for.
+     * Every class named {@code *Policy} must live in a "..rest" package, alongside the controller and adapter it
+     * authorizes for.
      *
      * <p>Compliant: {@code edu.lyra.members.api.school.rest.SchoolPolicy}
      *
@@ -213,8 +210,8 @@ class NamingRulesTest {
             classes().that().haveSimpleNameEndingWith("Policy").should().resideInAPackage("..rest");
 
     /**
-     * Every Spring Data {@code Repository} must be declared as an interface (never a class) with a
-     * simple name ending in "Repository".
+     * Every Spring Data {@code Repository} must be declared as an interface (never a class) with a simple name ending
+     * in "Repository".
      *
      * <p>Compliant: {@code interface MemberRepository extends JpaRepository<Member, UUID>}
      *
@@ -222,13 +219,12 @@ class NamingRulesTest {
      */
     @ArchTest
     static final ArchRule springDataRepositoriesAreInterfacesNamedRepository =
-            classes().that().areAssignableTo(Repository.class)
-                     .should().beInterfaces()
-                     .andShould().haveSimpleNameEndingWith("Repository");
+            classes().that().areAssignableTo(Repository.class).should().beInterfaces().andShould()
+                     .haveSimpleNameEndingWith("Repository");
 
     /**
-     * Spring Data {@code @Repository} beans must live directly in their aggregate's package, not
-     * inside its "..rest" sub-package.
+     * Spring Data {@code @Repository} beans must live directly in their aggregate's package, not inside its "..rest"
+     * sub-package.
      *
      * <p>Compliant: {@code edu.lyra.members.api.person.PersonRepository}
      *
@@ -236,12 +232,12 @@ class NamingRulesTest {
      */
     @ArchTest
     static final ArchRule repositoriesLiveInTheirAggregateRoot =
-            classes().that().areAnnotatedWith(org.springframework.stereotype.Repository.class)
-                     .should().resideOutsideOfPackages("..rest");
+            classes().that().areAnnotatedWith(org.springframework.stereotype.Repository.class).should()
+                     .resideOutsideOfPackages("..rest");
 
     /**
-     * Every {@code @Entity} must also carry an explicit {@code @Table} annotation, so the backing
-     * table name is never left to JPA's default naming strategy.
+     * Every {@code @Entity} must also carry an explicit {@code @Table} annotation, so the backing table name is never
+     * left to JPA's default naming strategy.
      *
      * <p>Compliant: {@code @Entity @Table(name = "members") class Member}
      *

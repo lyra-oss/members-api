@@ -49,12 +49,10 @@ class TeacherPolicyTest {
         SecurityContextHolder.clearContext();
     }
 
-    private static void authenticateAs(final UUID id, final String... roles) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final List<SimpleGrantedAuthority> authorities =
-                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    @Test
+    void allowsAdminToUpdateAnyTeacher() {
+        authenticateAs(randomUUID(), "admin");
+        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aTeacherWithId(randomUUID())));
     }
 
     private static Teacher aTeacherWithId(final UUID id) {
@@ -62,16 +60,18 @@ class TeacherPolicyTest {
     }
 
     @Test
-    void allowsAdminToUpdateAnyTeacher() {
-        authenticateAs(randomUUID(), "admin");
-        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aTeacherWithId(randomUUID())));
-    }
-
-    @Test
     void allowsTeacherToUpdateOwnAccount() {
         final UUID id = randomUUID();
         authenticateAs(id, "teacher");
         assertDoesNotThrow(() -> this.policy.authorizeUpdate(aTeacherWithId(id)));
+    }
+
+    private static void authenticateAs(final UUID id, final String... roles) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final List<SimpleGrantedAuthority> authorities =
+                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test

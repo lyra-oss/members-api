@@ -31,13 +31,13 @@ class JpaRepositoryRulesTest {
      */
     @ArchTest
     static final ArchRule repositoriesAreTransactional =
-            classes().that().areAnnotatedWith(org.springframework.stereotype.Repository.class)
-                     .should().beAnnotatedWith(Transactional.class);
+            classes().that().areAnnotatedWith(org.springframework.stereotype.Repository.class).should()
+                     .beAnnotatedWith(Transactional.class);
 
     /**
      * Forbids the Jakarta {@code @Transactional} annotation anywhere; use Spring's
-     * {@code org.springframework.transaction.annotation.Transactional} instead, since only the Spring
-     * annotation is proxy-aware in this codebase.
+     * {@code org.springframework.transaction.annotation.Transactional} instead, since only the Spring annotation is
+     * proxy-aware in this codebase.
      *
      * <p>Compliant: {@code import org.springframework.transaction.annotation.Transactional;}
      *
@@ -46,13 +46,12 @@ class JpaRepositoryRulesTest {
     @ArchTest
     static final ArchRule noJakartaTransactional =
             noClasses().should().beAnnotatedWith("jakarta.transaction.Transactional")
-                       .as("use org.springframework.transaction.annotation.Transactional, "
-                           + "not jakarta.transaction.Transactional");
+                       .as("use org.springframework.transaction.annotation.Transactional, " +
+                           "not jakarta.transaction.Transactional");
 
     /**
-     * A repository must not depend on the web layer — neither a "..rest" package nor
-     * {@code org.springframework.web..} — since data access must stay usable independently of how (or
-     * whether) it is exposed over HTTP.
+     * A repository must not depend on the web layer — neither a "..rest" package nor {@code org.springframework.web..}
+     * — since data access must stay usable independently of how (or whether) it is exposed over HTTP.
      *
      * <p>Compliant: {@code SchoolRepository extends JpaRepository<School, UUID>}, no web imports
      *

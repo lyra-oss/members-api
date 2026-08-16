@@ -35,10 +35,6 @@ class ParentControllerTest {
         this.controller = new ParentController(this.adapter, this.pagedAssembler);
     }
 
-    private static ParentModel aModel(final UUID id) {
-        return new ParentModel(id, "Esteban", "Cristóbal", "esteban.cristobal@example.com");
-    }
-
     @Test
     void findAllDelegatesToTheAdapter() {
         final Pageable pageable = Pageable.unpaged();
@@ -51,13 +47,16 @@ class ParentControllerTest {
     void createReturnsCreatedWithTheSelfLinkAsLocation() {
         final ParentModel model = aModel(UUID.randomUUID());
         model.add(Link.of("http://localhost/v0/parents/" + model.getId()).withSelfRel());
-        final ParentRequest request =
-                new ParentRequest("Esteban", "Cristóbal", "esteban.cristobal@example.com");
+        final ParentRequest request = new ParentRequest("Esteban", "Cristóbal", "esteban.cristobal@example.com");
         when(this.adapter.create(request)).thenReturn(model);
         final ResponseEntity<ParentModel> response = this.controller.create(request);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertTrue(response.getHeaders().getLocation().toString().endsWith("/v0/parents/" + model.getId()));
         assertEquals(model, response.getBody());
+    }
+
+    private static ParentModel aModel(final UUID id) {
+        return new ParentModel(id, "Esteban", "Cristóbal", "esteban.cristobal@example.com");
     }
 
     @Test

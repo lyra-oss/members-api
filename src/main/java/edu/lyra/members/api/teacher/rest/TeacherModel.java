@@ -2,9 +2,15 @@ package edu.lyra.members.api.teacher.rest;
 
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
+@Getter
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Relation(collectionRelation = "teachers", itemRelation = "teacher")
 class TeacherModel
         extends RepresentationModel<TeacherModel> {
@@ -16,28 +22,5 @@ class TeacherModel
     private final String surname;
 
     private final String mail;
-
-    TeacherModel(final UUID id, final String name, final String surname, final String mail) {
-        this.id = id;
-        this.name = name;
-        this.surname = surname;
-        this.mail = mail;
-    }
-
-    public UUID getId() {
-        return this.id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public String getSurname() {
-        return this.surname;
-    }
-
-    public String getMail() {
-        return this.mail;
-    }
 
 }

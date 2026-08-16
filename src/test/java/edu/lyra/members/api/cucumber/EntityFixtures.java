@@ -38,6 +38,32 @@ public class EntityFixtures {
     @Autowired
     private ScenarioContext scenarioContext;
 
+    @Before(order = 0)
+    public void cleanSchools() {
+        this.classroomRepository.deleteAll();
+        this.teacherRepository.deleteAll();
+        this.schoolRepository.deleteAll();
+    }
+
+    @Before(order = 20000)
+    public void cleanPersons() {
+        this.personRepository.deleteAll();
+    }
+
+    @Given("the following schools exist:")
+    public void theFollowingSchoolsExist(final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aSchoolNamedExists(row.get("name"));
+        }
+    }
+
+    @Given("a school named {string} exists")
+    public void aSchoolNamedExists(final String name) {
+        final School saved = TestSecurityContext.runAuthenticated(() -> this.schoolRepository.save(newSchool(name)));
+        this.scenarioContext.putLocation("school:" + name, "/v0/schools/" + saved.getId());
+    }
+
     public static School newSchool(final String name) {
         //@formatter:off
         return Instancio.of(School.class)
@@ -54,29 +80,11 @@ public class EntityFixtures {
         //@formatter:on
     }
 
-    @Before(order = 0)
-    public void cleanSchools() {
-        this.classroomRepository.deleteAll();
-        this.teacherRepository.deleteAll();
-        this.schoolRepository.deleteAll();
-    }
-
-    @Before(order = 20000)
-    public void cleanPersons() {
-        this.personRepository.deleteAll();
-    }
-
-    @Given("a school named {string} exists")
-    public void aSchoolNamedExists(final String name) {
-        final School saved = TestSecurityContext.runAuthenticated(() -> this.schoolRepository.save(newSchool(name)));
-        this.scenarioContext.putLocation("school:" + name, "/v0/schools/" + saved.getId());
-    }
-
-    @Given("the following schools exist:")
-    public void theFollowingSchoolsExist(final DataTable table) {
+    @Given("the following classrooms exist at school {string}:")
+    public void theFollowingClassroomsExistAtSchool(final String schoolName, final DataTable table) {
         final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
         for(final Map<String, String> row : rows) {
-            this.aSchoolNamedExists(row.get("name"));
+            this.aClassroomExistsAtSchool(Integer.parseInt(row.get("course")), row.get("group"), schoolName);
         }
     }
 
@@ -101,18 +109,18 @@ public class EntityFixtures {
         this.scenarioContext.putLocation("classroom:" + course + " " + group, "/v0/classrooms/" + saved.getId());
     }
 
-    @Given("the following classrooms exist at school {string}:")
-    public void theFollowingClassroomsExistAtSchool(final String schoolName, final DataTable table) {
-        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
-        for(final Map<String, String> row : rows) {
-            this.aClassroomExistsAtSchool(Integer.parseInt(row.get("course")), row.get("group"), schoolName);
-        }
-    }
-
     private School school(final String name) {
         final String location = this.scenarioContext.getLocation("school:" + name);
         final UUID id = UUID.fromString(location.substring(location.lastIndexOf('/') + 1));
         return this.schoolRepository.findById(id).orElseThrow();
+    }
+
+    @Given("the following teachers exist at school {string}:")
+    public void theFollowingTeachersExistAtSchool(final String schoolName, final DataTable table) {
+        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+        for(final Map<String, String> row : rows) {
+            this.aTeacherExistsAtSchool(row.get("name"), row.get("surname"), schoolName, row.get("mail"));
+        }
     }
 
     @Given("a teacher named {string} {string} exists at school {string} with e-mail {string}")
@@ -131,14 +139,6 @@ public class EntityFixtures {
         //@formatter:on
         final Teacher saved = TestSecurityContext.runAuthenticated(() -> this.teacherRepository.save(teacher));
         this.scenarioContext.putLocation("teacher:" + name + " " + surname, "/v0/teachers/" + saved.getId());
-    }
-
-    @Given("the following teachers exist at school {string}:")
-    public void theFollowingTeachersExistAtSchool(final String schoolName, final DataTable table) {
-        final List<Map<String, String>> rows = table.asMaps(String.class, String.class);
-        for(final Map<String, String> row : rows) {
-            this.aTeacherExistsAtSchool(row.get("name"), row.get("surname"), schoolName, row.get("mail"));
-        }
     }
 
     @Given("a person named {string} {string} exists with e-mail {string}")

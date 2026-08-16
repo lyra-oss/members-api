@@ -30,8 +30,8 @@ class ParentAssociationsControllerTest {
     @Test
     void findByKidReturnsOkWhenTheKidsParentExists() {
         final UUID kidId = UUID.randomUUID();
-        final ParentModel model = new ParentModel(UUID.randomUUID(), "Esteban", "Cristóbal",
-                                                   "esteban.cristobal@example.com");
+        final ParentModel model =
+                new ParentModel(UUID.randomUUID(), "Esteban", "Cristóbal", "esteban.cristobal@example.com");
         when(this.adapter.findByKid(kidId)).thenReturn(Optional.of(model));
         final ResponseEntity<ParentModel> response = this.controller.findByKid(kidId);
         assertEquals(HttpStatus.OK, response.getStatusCode());

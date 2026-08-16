@@ -89,13 +89,13 @@ class SpringSecurityConfigurationTest {
         //@formatter:on
     }
 
-    private String base() {
-        return apiBasePath.contextPath();
-    }
-
     private ResultActions perform(final MockHttpServletRequestBuilder request)
             throws Exception {
         return mvc.perform(request.contextPath(this.base()));
+    }
+
+    private String base() {
+        return apiBasePath.contextPath();
     }
 
     private ObjectNode newParentJson() {
@@ -359,7 +359,6 @@ class SpringSecurityConfigurationTest {
            .andExpect(status().isNotFound());
         //@formatter:on
     }
-
 
     @ParameterizedTest
     @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")

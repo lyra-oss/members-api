@@ -69,14 +69,12 @@ class KidAssociationRoutesTest {
 
     @BeforeEach
     void setUp() {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(UUID.randomUUID().toString())
-                           .build();
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(UUID.randomUUID().toString()).build();
         SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, List.of()));
 
-        final UUID   parentId = UUID.randomUUID();
-        final Person person =
-                Person.builder().id(parentId).name("Esteban").surname("Cristóbal")
-                      .mail("esteban.cristobal+" + parentId + "@example.com").build();
+        final UUID parentId = UUID.randomUUID();
+        final Person person = Person.builder().id(parentId).name("Esteban").surname("Cristóbal")
+                                    .mail("esteban.cristobal+" + parentId + "@example.com").build();
         this.personRepository.save(person);
         final Parent parent = Parent.builder().id(parentId).person(person).build();
         this.parentRepository.save(parent);
@@ -118,8 +116,7 @@ class KidAssociationRoutesTest {
     @ValueSource(strings = { "parent", "classroom" })
     void postIsDisabled(final String relation)
             throws Exception {
-        this.mvc.perform(this.withContextPath(post(this.base() + "/kids/" + this.kidId + "/" + relation)
-                                                       .with(jwt())))
+        this.mvc.perform(this.withContextPath(post(this.base() + "/kids/" + this.kidId + "/" + relation).with(jwt())))
                 .andExpect(status().isMethodNotAllowed());
     }
 
@@ -127,8 +124,7 @@ class KidAssociationRoutesTest {
     @ValueSource(strings = { "parent", "classroom" })
     void putIsDisabled(final String relation)
             throws Exception {
-        this.mvc.perform(this.withContextPath(put(this.base() + "/kids/" + this.kidId + "/" + relation)
-                                                       .with(jwt())))
+        this.mvc.perform(this.withContextPath(put(this.base() + "/kids/" + this.kidId + "/" + relation).with(jwt())))
                 .andExpect(status().isMethodNotAllowed());
     }
 

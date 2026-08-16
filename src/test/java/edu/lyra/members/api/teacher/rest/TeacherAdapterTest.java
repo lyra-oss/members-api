@@ -51,20 +51,15 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TeacherAdapterTest {
 
+    private final TeacherMapper mapper = Mappers.getMapper(TeacherMapper.class);
     @Mock
     private TeacherRepository teacherRepository;
-
     @Mock
     private SchoolRepository schoolRepository;
-
     @Mock
     private PersonRepository personRepository;
-
     @Mock
     private ClassroomRepository classroomRepository;
-
-    private final TeacherMapper mapper = Mappers.getMapper(TeacherMapper.class);
-
     private TeacherPolicy policy;
 
     private TeacherAdapter adapter;
@@ -85,10 +80,12 @@ class TeacherAdapterTest {
         SecurityContextHolder.clearContext();
     }
 
-    private static void authenticateAs(final UUID id) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, List.of());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    @Test
+    void toModelAddsASelfLink() {
+        final Teacher      teacher = aTeacher("Marta");
+        final TeacherModel model   = this.adapter.toModel(teacher);
+        assertEquals("Marta", model.getName());
+        assertTrue(model.getRequiredLink("self").getHref().endsWith("/teachers/" + teacher.getId()));
     }
 
     private static Teacher aTeacher(final String name) {
@@ -98,21 +95,6 @@ class TeacherAdapterTest {
         teacher.setMail("marta.ibanez@example.com");
         ReflectionTestUtils.setField(teacher, "id", UUID.randomUUID());
         return teacher;
-    }
-
-    private static School aSchool() {
-        final School school = new School();
-        school.setName("Gloria Fuertes");
-        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
-        return school;
-    }
-
-    @Test
-    void toModelAddsASelfLink() {
-        final Teacher teacher = aTeacher("Marta");
-        final TeacherModel model = this.adapter.toModel(teacher);
-        assertEquals("Marta", model.getName());
-        assertTrue(model.getRequiredLink("self").getHref().endsWith("/teachers/" + teacher.getId()));
     }
 
     @Test
@@ -132,8 +114,8 @@ class TeacherAdapterTest {
 
     @Test
     void findAllDelegatesToThePagedResourcesAssembler() {
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<Teacher> page = new PageImpl<>(List.of(aTeacher("Marta")));
+        final Pageable      pageable = PageRequest.of(0, 20);
+        final Page<Teacher> page     = new PageImpl<>(List.of(aTeacher("Marta")));
         when(this.teacherRepository.findAll(pageable)).thenReturn(page);
         @SuppressWarnings("unchecked")
         final PagedResourcesAssembler<Teacher> pagedAssembler = mock(PagedResourcesAssembler.class);
@@ -146,8 +128,7 @@ class TeacherAdapterTest {
     void createFailsWithAnUnresolvableReferenceWhenTheSchoolDoesNotExist() {
         final UUID unknownSchool = UUID.randomUUID();
         when(this.schoolRepository.findById(unknownSchool)).thenReturn(Optional.empty());
-        final TeacherRequest request = new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com",
-                                                          unknownSchool);
+        final TeacherRequest request = new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com", unknownSchool);
         assertThrows(UnresolvableReferenceException.class, () -> this.adapter.create(request));
     }
 
@@ -161,11 +142,25 @@ class TeacherAdapterTest {
                                             .mail("already.registered@example.com").build();
         when(this.personRepository.findById(subject)).thenReturn(Optional.of(existingPerson));
         when(this.teacherRepository.save(any(Teacher.class))).thenAnswer(inv -> inv.getArgument(0));
-        final TeacherRequest request = new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com",
-                                                          school.getId());
+        final TeacherRequest request =
+                new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com", school.getId());
         final TeacherModel model = this.adapter.create(request);
         assertEquals("Already", model.getName());
         assertEquals("Registered", model.getSurname());
+    }
+
+    private static School aSchool() {
+        final School school = new School();
+        school.setName("Gloria Fuertes");
+        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
+        return school;
+    }
+
+    private static void authenticateAs(final UUID id) {
+        final Jwt            jwt            =
+                Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, List.of());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
@@ -176,8 +171,8 @@ class TeacherAdapterTest {
         when(this.schoolRepository.findById(school.getId())).thenReturn(Optional.of(school));
         when(this.personRepository.findById(subject)).thenReturn(Optional.empty());
         when(this.teacherRepository.save(any(Teacher.class))).thenAnswer(inv -> inv.getArgument(0));
-        final TeacherRequest request = new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com",
-                                                          school.getId());
+        final TeacherRequest request =
+                new TeacherRequest("Marta", "Ibáñez", "marta.ibanez@example.com", school.getId());
         final TeacherModel model = this.adapter.create(request);
         assertEquals("Marta", model.getName());
         final ArgumentCaptor<Teacher> saved = ArgumentCaptor.forClass(Teacher.class);
@@ -256,8 +251,8 @@ class TeacherAdapterTest {
     void findBySchoolReturnsThePagedTeachers() {
         final UUID id = UUID.randomUUID();
         when(this.schoolRepository.existsById(id)).thenReturn(true);
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<Teacher> page = new PageImpl<>(List.of(aTeacher("Marta")));
+        final Pageable      pageable = PageRequest.of(0, 20);
+        final Page<Teacher> page     = new PageImpl<>(List.of(aTeacher("Marta")));
         when(this.teacherRepository.findBySchoolId(id, pageable)).thenReturn(page);
         @SuppressWarnings("unchecked")
         final PagedResourcesAssembler<Teacher> pagedAssembler = mock(PagedResourcesAssembler.class);
@@ -280,8 +275,8 @@ class TeacherAdapterTest {
     void findByClassroomReturnsThePagedTeachers() {
         final UUID id = UUID.randomUUID();
         when(this.classroomRepository.existsById(id)).thenReturn(true);
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<Teacher> page = new PageImpl<>(List.of(aTeacher("Marta")));
+        final Pageable      pageable = PageRequest.of(0, 20);
+        final Page<Teacher> page     = new PageImpl<>(List.of(aTeacher("Marta")));
         when(this.teacherRepository.findByClassroomId(id, pageable)).thenReturn(page);
         @SuppressWarnings("unchecked")
         final PagedResourcesAssembler<Teacher> pagedAssembler = mock(PagedResourcesAssembler.class);

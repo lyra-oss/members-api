@@ -28,7 +28,7 @@ class KidAssociationsController {
     ResponseEntity<PagedModel<KidModel>> findByParent(final @PathVariable UUID parentId, final Pageable pageable) {
         log.debug("Listing kids for parent {}, page {}", parentId, pageable);
         return this.adapter.findByParent(parentId, pageable, this.pagedAssembler).map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+                           .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

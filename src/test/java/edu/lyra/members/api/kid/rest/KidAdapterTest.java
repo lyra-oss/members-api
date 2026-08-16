@@ -50,17 +50,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class KidAdapterTest {
 
+    private final KidMapper mapper = Mappers.getMapper(KidMapper.class);
     @Mock
     private KidRepository kidRepository;
-
     @Mock
     private ParentRepository parentRepository;
-
     @Mock
     private ClassroomRepository classroomRepository;
-
-    private final KidMapper mapper = Mappers.getMapper(KidMapper.class);
-
     private KidPolicy policy;
 
     private KidVisibilityStrategyResolver visibilityResolver;
@@ -84,10 +80,10 @@ class KidAdapterTest {
         SecurityContextHolder.clearContext();
     }
 
-    private static void authenticateAs(final UUID id) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, List.of());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    private static Parent aParent(final UUID id) {
+        final Parent parent = new Parent();
+        ReflectionTestUtils.setField(parent, "id", id);
+        return parent;
     }
 
     private static Kid aKid(final String name) {
@@ -97,26 +93,6 @@ class KidAdapterTest {
         kid.setBirthdate(LocalDate.of(2019, 12, 12));
         ReflectionTestUtils.setField(kid, "id", UUID.randomUUID());
         return kid;
-    }
-
-    private static Parent aParent(final UUID id) {
-        final Parent parent = new Parent();
-        ReflectionTestUtils.setField(parent, "id", id);
-        return parent;
-    }
-
-    private static Classroom aClassroom() {
-        final Classroom classroom = new Classroom();
-        ReflectionTestUtils.setField(classroom, "id", UUID.randomUUID());
-        return classroom;
-    }
-
-    @Test
-    void toModelAddsASelfLink() {
-        final Kid kid = aKid("Alicia");
-        final KidModel model = this.adapter.toModel(kid);
-        assertEquals("Alicia", model.getName());
-        assertTrue(model.getRequiredLink("self").getHref().endsWith("/kids/" + kid.getId()));
     }
 
     @Test
@@ -134,17 +110,11 @@ class KidAdapterTest {
         assertEquals("Alicia", this.adapter.findById(id).orElseThrow().getName());
     }
 
-    @Test
-    void findAllDelegatesToTheVisibilityResolverAndThePagedResourcesAssembler() {
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<Kid> page = new PageImpl<>(List.of(aKid("Alicia")));
-        when(this.visibilityResolver.resolve(pageable)).thenReturn(page);
-        @SuppressWarnings("unchecked")
-        final PagedResourcesAssembler<Kid> pagedAssembler = mock(PagedResourcesAssembler.class);
-        final PagedModel<KidModel> expected = PagedModel.empty();
-        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
-        assertEquals(expected, this.adapter.findAll(pageable, pagedAssembler));
-        verify(this.kidRepository, never()).findAll(any(Pageable.class));
+    private static void authenticateAs(final UUID id) {
+        final Jwt            jwt            =
+                Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, List.of());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
@@ -162,6 +132,20 @@ class KidAdapterTest {
         assertEquals(parent, saved.getValue().getParent());
     }
 
+    private static Classroom aClassroom() {
+        final Classroom classroom = new Classroom();
+        ReflectionTestUtils.setField(classroom, "id", UUID.randomUUID());
+        return classroom;
+    }
+
+    @Test
+    void toModelAddsASelfLink() {
+        final Kid      kid   = aKid("Alicia");
+        final KidModel model = this.adapter.toModel(kid);
+        assertEquals("Alicia", model.getName());
+        assertTrue(model.getRequiredLink("self").getHref().endsWith("/kids/" + kid.getId()));
+    }
+
     @Test
     void createRejectsWhenTheAuthenticatedSubjectIsNotARegisteredParent() {
         final UUID subject = UUID.randomUUID();
@@ -174,11 +158,16 @@ class KidAdapterTest {
     }
 
     @Test
-    void updateReturnsEmptyWhenTheKidDoesNotExist() {
-        final UUID id = UUID.randomUUID();
-        when(this.kidRepository.findById(id)).thenReturn(Optional.empty());
-        assertEquals(Optional.empty(), this.adapter.update(id, new KidPatchRequest(null, "New surname", null, null,
-                                                                                   null)));
+    void findAllDelegatesToTheVisibilityResolverAndThePagedResourcesAssembler() {
+        final Pageable  pageable = PageRequest.of(0, 20);
+        final Page<Kid> page     = new PageImpl<>(List.of(aKid("Alicia")));
+        when(this.visibilityResolver.resolve(pageable)).thenReturn(page);
+        @SuppressWarnings("unchecked")
+        final PagedResourcesAssembler<Kid> pagedAssembler = mock(PagedResourcesAssembler.class);
+        final PagedModel<KidModel> expected = PagedModel.empty();
+        when(pagedAssembler.toModel(page, this.adapter)).thenReturn(expected);
+        assertEquals(expected, this.adapter.findAll(pageable, pagedAssembler));
+        verify(this.kidRepository, never()).findAll(any(Pageable.class));
     }
 
     @Test
@@ -207,6 +196,14 @@ class KidAdapterTest {
         this.adapter.update(id, request);
         verify(this.policy).authorizeUpdate(kid, null, classroom);
         assertEquals(classroom, kid.getClassroom());
+    }
+
+    @Test
+    void updateReturnsEmptyWhenTheKidDoesNotExist() {
+        final UUID id = UUID.randomUUID();
+        when(this.kidRepository.findById(id)).thenReturn(Optional.empty());
+        assertEquals(Optional.empty(),
+                     this.adapter.update(id, new KidPatchRequest(null, "New surname", null, null, null)));
     }
 
     @Test
@@ -313,8 +310,8 @@ class KidAdapterTest {
     void findByParentReturnsThePagedKids() {
         final UUID parentId = UUID.randomUUID();
         when(this.parentRepository.existsById(parentId)).thenReturn(true);
-        final Pageable pageable = PageRequest.of(0, 20);
-        final Page<Kid> page = new PageImpl<>(List.of(aKid("Alicia")));
+        final Pageable  pageable = PageRequest.of(0, 20);
+        final Page<Kid> page     = new PageImpl<>(List.of(aKid("Alicia")));
         when(this.kidRepository.findByParentIdOrderByNameAsc(parentId, pageable)).thenReturn(page);
         @SuppressWarnings("unchecked")
         final PagedResourcesAssembler<Kid> pagedAssembler = mock(PagedResourcesAssembler.class);

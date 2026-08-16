@@ -53,8 +53,8 @@ class SpringBeanRulesTest {
             //@formatter:on
 
     /**
-     * {@code @Configuration} classes must not be public, since they are only meant to be loaded by
-     * Spring, not referenced directly from other code.
+     * {@code @Configuration} classes must not be public, since they are only meant to be loaded by Spring, not
+     * referenced directly from other code.
      *
      * <p>Compliant: {@code @Configuration class WebConfiguration}
      *
@@ -65,8 +65,8 @@ class SpringBeanRulesTest {
             noClasses().that().areAnnotatedWith(Configuration.class).should().bePublic();
 
     /**
-     * {@code @Bean} methods must not be public, for the same reason: they exist for Spring's
-     * container to call, not for direct external invocation.
+     * {@code @Bean} methods must not be public, for the same reason: they exist for Spring's container to call, not for
+     * direct external invocation.
      *
      * <p>Compliant: {@code @Bean PersonService personService() { ... }}
      *
@@ -77,8 +77,8 @@ class SpringBeanRulesTest {
             methods().that().areAnnotatedWith(Bean.class).should().notBePublic();
 
     /**
-     * Forbids field injection ({@code @Autowired} on fields); dependencies must be injected via
-     * constructors so they can be made immutable and are visible at construction time.
+     * Forbids field injection ({@code @Autowired} on fields); dependencies must be injected via constructors so they
+     * can be made immutable and are visible at construction time.
      *
      * <p>Compliant:
      * <pre>{@code

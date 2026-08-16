@@ -10,5 +10,4 @@ import lombok.experimental.StandardException;
  */
 @StandardException
 public class SchoolMismatchException
-        extends RuntimeException {
-}
+        extends RuntimeException {}
