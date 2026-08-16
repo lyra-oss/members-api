@@ -16,13 +16,13 @@ class ApiBasePathTest {
 
     @Test
     void bindsTheConfiguredBasePath() {
-        this.contextRunner.withPropertyValues("lyra.api.base-path=/v0")
-                           .run(context -> assertEquals("/v0", context.getBean(ApiBasePath.class).basePath()));
+        this.contextRunner.withPropertyValues("server.servlet.context-path=/v0")
+                           .run(context -> assertEquals("/v0", context.getBean(ApiBasePath.class).contextPath()));
     }
 
     @Test
     void rejectsABlankBasePath() {
-        this.contextRunner.withPropertyValues("lyra.api.base-path=")
+        this.contextRunner.withPropertyValues("server.servlet.context-path=")
                            .run(context -> {
                                final Throwable failure = context.getStartupFailure();
                                assertInstanceOf(ConfigurationPropertiesBindException.class, failure);

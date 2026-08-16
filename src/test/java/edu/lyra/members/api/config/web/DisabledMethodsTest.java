@@ -30,7 +30,7 @@ class DisabledMethodsTest {
     private ApiBasePath apiBasePath;
 
     private String base() {
-        return this.apiBasePath.basePath();
+        return this.apiBasePath.contextPath();
     }
 
     @ParameterizedTest

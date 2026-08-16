@@ -90,7 +90,7 @@ class SpringSecurityConfigurationTest {
     }
 
     private String base() {
-        return apiBasePath.basePath();
+        return apiBasePath.contextPath();
     }
 
     private ResultActions perform(final MockHttpServletRequestBuilder request)

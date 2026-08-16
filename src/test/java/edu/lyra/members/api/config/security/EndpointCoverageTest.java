@@ -85,7 +85,7 @@ class EndpointCoverageTest {
     @MethodSource("registeredRoutes")
     void everyRegisteredRouteIsMatchedByASpecificSecurityRule(final Route route)
             throws Exception {
-        final String contextPath = this.apiBasePath.basePath();
+        final String contextPath = this.apiBasePath.contextPath();
         //@formatter:off
         final int status = this.mvc.perform(
                 request(HttpMethod.valueOf(route.method().name()), URI.create(contextPath + route.path()))

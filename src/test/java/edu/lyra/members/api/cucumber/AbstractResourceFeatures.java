@@ -29,7 +29,7 @@ public abstract class AbstractResourceFeatures {
     protected void perform(final MockHttpServletRequestBuilder request)
             throws Exception {
         this.scenarioContext.setResultActions(this.mvc.perform(
-                request.with(this.scenarioContext.getJwtProcessor()).contextPath(this.apiBasePath.basePath())));
+                request.with(this.scenarioContext.getJwtProcessor()).contextPath(this.apiBasePath.contextPath())));
     }
 
 }

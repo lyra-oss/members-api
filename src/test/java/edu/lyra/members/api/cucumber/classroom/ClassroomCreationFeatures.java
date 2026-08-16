@@ -84,7 +84,7 @@ public class ClassroomCreationFeatures
             throws Exception {
         final String teacherId = idOf(this.scenarioContext.getLocation("teacher:" + teacherName));
         final String path = this.classroomLocation() + "/teachers/" + teacherId;
-        return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.basePath()));
+        return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.contextPath()));
     }
 
     @When("I set teacher {string} as the classroom's tutor")
@@ -212,7 +212,7 @@ public class ClassroomCreationFeatures
             throws Exception {
         final String teacherId = idOf(this.scenarioContext.getLocation("teacher:" + teacherName));
         final String path = this.classroomLocation() + "/tutor/" + teacherId;
-        return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.basePath()));
+        return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.contextPath()));
     }
 
     private ResultActions performAddTeacher(final String teacherName)
