@@ -19,7 +19,7 @@ import jakarta.validation.constraints.Pattern;
  */
 @Documented
 @Constraint(validatedBy = {})
-@Pattern(regexp = ".*\\S.*", message = "must not be blank")
+@Pattern(regexp = "\\s*\\S.*", message = "must not be blank")
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR,
          ElementType.PARAMETER, ElementType.TYPE_USE})
