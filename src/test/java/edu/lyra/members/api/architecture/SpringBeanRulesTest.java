@@ -18,7 +18,10 @@ class SpringBeanRulesTest {
      * Outside of the "config" package, classes may not be annotated with {@code @Component} or
      * {@code @Service}; beans must instead be registered explicitly via {@code @Bean} methods in a
      * {@code @Configuration} class, keeping bean wiring explicit rather than relying on component
-     * scanning.
+     * scanning. The one deliberate exception is MapStruct's generated {@code *MapperImpl} classes: they
+     * use {@code @Mapper(componentModel = SPRING)} so MapStruct itself generates the {@code @Component}
+     * stereotype, which is idiomatic MapStruct/Spring wiring rather than a hand-written class opting out
+     * of explicit registration.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -41,15 +44,17 @@ class SpringBeanRulesTest {
     static final ArchRule sliceBeansAreNotComponentScanned =
             //@formatter:off
             noClasses().that().resideOutsideOfPackage("..config..")
+                       .and().haveSimpleNameNotEndingWith("MapperImpl")
                        .should().beAnnotatedWith("org.springframework.stereotype.Component")
                        .orShould().beAnnotatedWith("org.springframework.stereotype.Service")
-                       .as("classes outside 'config' should be registered explicitly via @Bean, "
-                           + "not component-scanned as @Component/@Service");
+                       .as("classes outside 'config' (other than MapStruct's generated *MapperImpl classes) "
+                           + "should be registered explicitly via @Bean, not component-scanned as "
+                           + "@Component/@Service");
             //@formatter:on
 
     /**
-     * {@code @Configuration} classes must not be public, since they are only meant to be loaded by
-     * Spring, not referenced directly from other code.
+     * {@code @Configuration} classes must not be public, since they are only meant to be loaded by Spring, not
+     * referenced directly from other code.
      *
      * <p>Compliant: {@code @Configuration class WebConfiguration}
      *
@@ -60,8 +65,8 @@ class SpringBeanRulesTest {
             noClasses().that().areAnnotatedWith(Configuration.class).should().bePublic();
 
     /**
-     * {@code @Bean} methods must not be public, for the same reason: they exist for Spring's
-     * container to call, not for direct external invocation.
+     * {@code @Bean} methods must not be public, for the same reason: they exist for Spring's container to call, not for
+     * direct external invocation.
      *
      * <p>Compliant: {@code @Bean PersonService personService() { ... }}
      *
@@ -72,8 +77,8 @@ class SpringBeanRulesTest {
             methods().that().areAnnotatedWith(Bean.class).should().notBePublic();
 
     /**
-     * Forbids field injection ({@code @Autowired} on fields); dependencies must be injected via
-     * constructors so they can be made immutable and are visible at construction time.
+     * Forbids field injection ({@code @Autowired} on fields); dependencies must be injected via constructors so they
+     * can be made immutable and are visible at construction time.
      *
      * <p>Compliant:
      * <pre>{@code

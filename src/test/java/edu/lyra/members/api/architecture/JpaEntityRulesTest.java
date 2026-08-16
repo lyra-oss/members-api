@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -40,8 +40,7 @@ class JpaEntityRulesTest {
     private static final List<Class<? extends Annotation>> AUDITING_FIELD_ANNOTATIONS =
             List.of(Version.class, CreatedDate.class, CreatedBy.class, LastModifiedDate.class, LastModifiedBy.class);
 
-    private static final List<Class<? extends Annotation>> ID_FIELD_ANNOTATIONS =
-            List.of(Id.class, JsonIgnore.class, Column.class);
+    private static final List<Class<? extends Annotation>> ID_FIELD_ANNOTATIONS = List.of(Id.class, Column.class);
 
     private static final String MISSING_ENTITY_LISTENERS_MESSAGE =
             "%s is not annotated with @EntityListeners(AuditingEntityListener.class)";
@@ -55,18 +54,15 @@ class JpaEntityRulesTest {
     private static final String MISSING_AUDITING_FIELD_MESSAGE =
             "%s does not declare an auditing field annotated with @%s";
 
-    private static final String MISSING_ID_FIELD_MESSAGE =
-            "%s does not declare a field annotated with @Id";
+    private static final String MISSING_ID_FIELD_MESSAGE = "%s does not declare a field annotated with @Id";
 
-    private static final String WRONG_ID_FIELD_TYPE_MESSAGE =
-            "%s id field '%s' is not of type UUID";
+    private static final String WRONG_ID_FIELD_TYPE_MESSAGE = "%s id field '%s' is not of type UUID";
 
-    private static final String MISSING_ID_FIELD_ANNOTATION_MESSAGE =
-            "%s id field '%s' is not annotated with @%s";
+    private static final String MISSING_ID_FIELD_ANNOTATION_MESSAGE = "%s id field '%s' is not annotated with @%s";
 
     /**
-     * Every {@code @Entity} must be annotated with {@code @EntityListeners(AuditingEntityListener.class)},
-     * so JPA auditing (created/modified by and date) is actually wired up rather than silently inert.
+     * Every {@code @Entity} must be annotated with {@code @EntityListeners(AuditingEntityListener.class)}, so JPA
+     * auditing (created/modified by and date) is actually wired up rather than silently inert.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -98,9 +94,9 @@ class JpaEntityRulesTest {
     //@formatter:on
 
     /**
-     * Every {@code @Entity} must rely on Lombok to generate a no-args constructor ({@code @NoArgsConstructor},
-     * which JPA requires) and a getter for every field ({@code @Getter}), instead of hand-written boilerplate
-     * that can drift out of sync with the fields.
+     * Every {@code @Entity} must rely on Lombok to generate a no-args constructor ({@code @NoArgsConstructor}, which
+     * JPA requires) and a getter for every field ({@code @Getter}), instead of hand-written boilerplate that can drift
+     * out of sync with the fields.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -161,19 +157,19 @@ class JpaEntityRulesTest {
     //@formatter:on
 
     /**
-     * Every {@code @Entity} must declare all five standard auditing fields — {@code @Version},
-     * {@code @CreatedDate}, {@code @CreatedBy}, {@code @LastModifiedDate} and {@code @LastModifiedBy} —
-     * so optimistic locking and audit trails behave consistently across every entity.
+     * Every {@code @Entity} must declare all five standard auditing fields — {@code @Version}, {@code @CreatedDate},
+     * {@code @CreatedBy}, {@code @LastModifiedDate} and {@code @LastModifiedBy} — so optimistic locking and audit
+     * trails behave consistently across every entity.
      *
      * <p>Compliant:
      * <pre>{@code
      * @Entity
      * class Member extends Auditable {
-     *     @Version               private long version;
-     *     @CreatedDate           private Instant createdDate;
-     *     @CreatedBy             private String createdBy;
-     *     @LastModifiedDate      private Instant lastModifiedDate;
-     *     @LastModifiedBy        private String lastModifiedBy;
+     *     @Version private long version;
+     *     @CreatedDate private Instant createdDate;
+     *     @CreatedBy private String createdBy;
+     *     @LastModifiedDate private Instant lastModifiedDate;
+     *     @LastModifiedBy private String lastModifiedBy;
      * }
      * }</pre>
      *
@@ -181,10 +177,10 @@ class JpaEntityRulesTest {
      * <pre>{@code
      * @Entity
      * class Member extends Auditable {
-     *     @CreatedDate           private Instant createdDate;
-     *     @CreatedBy             private String createdBy;
-     *     @LastModifiedDate      private Instant lastModifiedDate;
-     *     @LastModifiedBy        private String lastModifiedBy;
+     *     @CreatedDate private Instant createdDate;
+     *     @CreatedBy private String createdBy;
+     *     @LastModifiedDate private Instant lastModifiedDate;
+     *     @LastModifiedBy private String lastModifiedBy;
      * }
      * }</pre>
      */
@@ -210,15 +206,16 @@ class JpaEntityRulesTest {
     //@formatter:on
 
     /**
-     * Every {@code @Entity} must declare exactly one identifier field of type {@code UUID}, annotated
-     * with {@code @Id}, {@code @JsonIgnore} (so it never leaks into API responses) and {@code @Column},
-     * keeping primary keys consistent across the domain model.
+     * Every {@code @Entity} must declare exactly one identifier field of type {@code UUID}, annotated with {@code @Id}
+     * and {@code @Column}, keeping primary keys consistent across the domain model. Entities are never serialized
+     * directly (every response goes through a {@code *Model}), so there is no {@code @JsonIgnore} requirement here —
+     * see {@link #jpaEntitiesCarryNoJacksonAnnotations}.
      *
      * <p>Compliant:
      * <pre>{@code
      * @Entity
      * class Member extends Auditable {
-     *     @Id @JsonIgnore @Column
+     *     @Id @Column
      *     private UUID id;
      * }
      * }</pre>
@@ -227,17 +224,8 @@ class JpaEntityRulesTest {
      * <pre>{@code
      * @Entity
      * class Member extends Auditable {
-     *     @Id @JsonIgnore @Column
-     *     private Long id;
-     * }
-     * }</pre>
-     *
-     * <p>Violation (missing {@code @JsonIgnore}, so it leaks into API responses):
-     * <pre>{@code
-     * @Entity
-     * class Member extends Auditable {
      *     @Id @Column
-     *     private UUID id;
+     *     private Long id;
      * }
      * }</pre>
      */
@@ -246,7 +234,7 @@ class JpaEntityRulesTest {
             //@formatter:off
             classes().that().areAnnotatedWith(Entity.class)
                      .should(new ArchCondition<>(
-                             "declare a UUID id field annotated with @Id, @JsonIgnore and @Column") {
+                             "declare a UUID id field annotated with @Id and @Column") {
 
                          @Override
                          public void check(final JavaClass javaClass, final ConditionEvents events) {
@@ -290,9 +278,9 @@ class JpaEntityRulesTest {
             classes().that().areAnnotatedWith(Entity.class).should().beAssignableTo(Auditable.class);
 
     /**
-     * Entities must stay plain domain objects: they may not depend on Spring Data repositories, on
-     * "..rest.." or "..handlers.." classes, or on Spring Security, keeping persistence, web and
-     * security concerns out of the domain model.
+     * Entities must stay plain domain objects: they may not depend on Spring Data repositories, on "..rest.." classes,
+     * on Spring Security, or on Spring HATEOAS, keeping persistence, web and security concerns out of the domain
+     * model.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -315,9 +303,51 @@ class JpaEntityRulesTest {
             //@formatter:off
             noClasses().that().areAnnotatedWith(Entity.class)
                        .should().dependOnClassesThat().areAssignableTo(Repository.class)
-                       .orShould().dependOnClassesThat().resideInAnyPackage("..rest..", "..handlers..")
+                       .orShould().dependOnClassesThat().resideInAnyPackage("..rest..")
                        .orShould().dependOnClassesThat().resideInAPackage("org.springframework.security..")
+                       .orShould().dependOnClassesThat().resideInAPackage("org.springframework.hateoas..")
                        .as("JPA entities should stay free of persistence, web and security infrastructure");
+            //@formatter:on
+
+    /**
+     * No {@code @Entity} may carry a Jackson annotation ({@code com.fasterxml.jackson..} or {@code tools.jackson..});
+     * entities are never serialized directly, so wire-format concerns belong on the {@code *Model} that represents them
+     * instead.
+     *
+     * <p>Compliant: {@code @Entity class Member extends Auditable { private String name; }}
+     *
+     * <p>Violation: {@code @Entity class Member extends Auditable { @JsonIgnore private UUID id; }}
+     */
+    @ArchTest
+    static final ArchRule jpaEntitiesCarryNoJacksonAnnotations =
+            //@formatter:off
+            noClasses().that().areAnnotatedWith(Entity.class)
+                       .should().beAnnotatedWith(DescribedPredicate.describe(
+                               "an annotation from com.fasterxml.jackson.. or tools.jackson..",
+                               annotation -> annotation.getRawType().getPackageName().startsWith(
+                                       "com.fasterxml.jackson") ||
+                                             annotation.getRawType().getPackageName().startsWith("tools.jackson")))
+                       .as("JPA entities should carry no Jackson annotations; the *Model owns the wire format");
+            //@formatter:on
+
+    /**
+     * No {@code @Entity} may carry a Bean Validation annotation ({@code jakarta.validation..}); validation happens on
+     * the request DTOs at the API boundary instead.
+     *
+     * <p>Compliant: {@code @Entity class Member extends Auditable { private String name; }}
+     *
+     * <p>Violation: {@code @Entity class Member extends Auditable { @NotBlank private String name; }}
+     */
+    @ArchTest
+    static final ArchRule jpaEntitiesCarryNoBeanValidationAnnotations =
+            //@formatter:off
+            noClasses().that().areAnnotatedWith(Entity.class)
+                       .should().beAnnotatedWith(DescribedPredicate.describe(
+                               "an annotation from jakarta.validation..",
+                               annotation -> annotation.getRawType().getPackageName().startsWith(
+                                       "jakarta.validation")))
+                       .as("JPA entities should carry no Bean Validation annotations; validation lives on request "
+                               + "DTOs");
             //@formatter:on
 
     private static String getterNameFor(final JavaField field) {

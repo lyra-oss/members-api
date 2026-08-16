@@ -45,13 +45,6 @@ class ParentKidVisibilityStrategyTest {
         SecurityContextHolder.clearContext();
     }
 
-    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
-        final List<SimpleGrantedAuthority> granted =
-                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
-        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
-    }
-
     @Test
     void supportsReturnsTrueForAnAuthenticatedParent() {
         authenticateAsJwt(UUID.randomUUID(), "ROLE_parent");
@@ -73,13 +66,20 @@ class ParentKidVisibilityStrategyTest {
 
     @Test
     void findVisibleDelegatesToTheRepositoryForTheAuthenticatedParent() {
-        final UUID       parentId = UUID.randomUUID();
-        final Pageable   pageable = Pageable.unpaged();
-        final Page<Kid>  page     = new PageImpl<>(List.of());
+        final UUID      parentId = UUID.randomUUID();
+        final Pageable  pageable = Pageable.unpaged();
+        final Page<Kid> page     = new PageImpl<>(List.of());
         authenticateAsJwt(parentId);
         when(this.kidRepository.findByParentIdOrderByNameAsc(parentId, pageable)).thenReturn(page);
         assertEquals(page, this.strategy.findVisible(pageable));
         verify(this.kidRepository).findByParentIdOrderByNameAsc(parentId, pageable);
+    }
+
+    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
+        final List<SimpleGrantedAuthority> granted =
+                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
     }
 
 }

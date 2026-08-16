@@ -17,7 +17,7 @@ class TeacherIT
         extends BaseIT {
 
     private static final String SCHOOL_ADMIN_USERNAME = "school.admin@example.com";
-    private static final String TEACHER_USERNAME       = "teacher.account@example.com";
+    private static final String TEACHER_USERNAME = "teacher.account@example.com";
 
     private static final String NAME_KEY    = "name";
     private static final String SURNAME_KEY = "surname";
@@ -31,10 +31,10 @@ class TeacherIT
     void testAddAndRetrieveTeacher()
             throws IOException {
         final String schoolLocation = this.createSchool();
+        final String schoolId       = schoolLocation.substring(schoolLocation.lastIndexOf('/') + 1);
         final String createToken = this.getToken(TEACHER_USERNAME, "teachers.create");
         final String body = this.json.writeValueAsString(
-                Map.of(NAME_KEY, NAME_VALUE, SURNAME_KEY, SURNAME_VALUE, MAIL_KEY, MAIL_VALUE, "school",
-                      schoolLocation));
+                Map.of(NAME_KEY, NAME_VALUE, SURNAME_KEY, SURNAME_VALUE, MAIL_KEY, MAIL_VALUE, "school", schoolId));
         final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/teachers")
                                                          .addHeader("Authorization", "Bearer " + createToken)
                                                          .post(create(body, get("application/json"))).build();

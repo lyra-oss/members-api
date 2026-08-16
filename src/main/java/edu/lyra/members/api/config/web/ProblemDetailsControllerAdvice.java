@@ -8,17 +8,22 @@ import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.exceptions.SchoolHasReferencesException;
 import edu.lyra.members.api.exceptions.SchoolMismatchException;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
+import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.rest.core.RepositoryConstraintViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import static java.net.URI.create;
@@ -51,6 +56,20 @@ class ProblemDetailsControllerAdvice
         //@formatter:on
     }
 
+    @ExceptionHandler(UnresolvableReferenceException.class)
+    public ResponseEntity<ProblemDetail> handleUnresolvableReferenceException(
+            final UnresolvableReferenceException ex
+    ) {
+        return ProblemDetailBuilder.forStatus(BAD_REQUEST)
+                                   .type("https://lyra.sagittec.com/problems/unresolvable-reference")
+                                   .title("Referenced resource does not exist").detail(this.humanize(ex)).build();
+    }
+
+    private String humanize(final Throwable ex) {
+        final String msg = ex.getMessage();
+        return (msg != null && msg.length() > MAX_DETAIL_LENGTH) ? msg.substring(0, MAX_DETAIL_LENGTH) + "…" : msg;
+    }
+
     @ExceptionHandler(SchoolMismatchException.class)
     public ResponseEntity<ProblemDetail> handleSchoolMismatchException(final SchoolMismatchException ex) {
         return ProblemDetailBuilder.forStatus(UNPROCESSABLE_CONTENT)
@@ -67,7 +86,8 @@ class ProblemDetailsControllerAdvice
 
     @ExceptionHandler(TeacherAssignedToClassroomException.class)
     public ResponseEntity<ProblemDetail> handleTeacherAssignedToClassroomException(
-            final TeacherAssignedToClassroomException ex) {
+            final TeacherAssignedToClassroomException ex
+    ) {
         //@formatter:off
         return ProblemDetailBuilder.forStatus(CONFLICT)
                 .type("https://lyra.sagittec.com/problems/teacher-assigned-to-classroom")
@@ -94,18 +114,10 @@ class ProblemDetailsControllerAdvice
         //@formatter:on
     }
 
-    /**
-     * A last-resort safety net: the delete-authorization handlers already reject these deletions with a precise
-     * exception above, but the database's own foreign-key constraints (deliberately left without cascading removal; see
-     * the affected entities' collection mappings) back that up independently, in case application logic is ever
-     * bypassed or wrong.
-     *
-     * @param ex the referential-integrity violation raised by the persistence layer
-     * @return a 409 Conflict {@link ProblemDetail} response describing the violation
-     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> handleDataIntegrityViolationException(
-            final DataIntegrityViolationException ex) {
+            final DataIntegrityViolationException ex
+    ) {
         //@formatter:off
         return ProblemDetailBuilder.forStatus(CONFLICT)
                 .type("https://lyra.sagittec.com/problems/referential-integrity-violation")
@@ -124,19 +136,25 @@ class ProblemDetailsControllerAdvice
                                                                                 .getSimpleName())).build();
     }
 
-    @ExceptionHandler(RepositoryConstraintViolationException.class)
-    public ResponseEntity<ProblemDetail> handleRepositoryConstraintViolationException(
-            final RepositoryConstraintViolationException ex) {
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            final MethodArgumentNotValidException ex,
+            final @NonNull HttpHeaders headers,
+            final @NonNull HttpStatusCode status,
+            final @NonNull WebRequest request
+    ) {
         //@formatter:off
-        final List<Object> errors = ex.getErrors().getFieldErrors().stream()
+        final List<Object> errors = ex.getBindingResult().getFieldErrors().stream()
                                        .map(this::toErrorEntry)
                                        .map(Object.class::cast)
                                        .toList();
-        return ProblemDetailBuilder.forStatus(BAD_REQUEST)
+        final ProblemDetail problemDetail = ProblemDetailBuilder.forStatus(BAD_REQUEST)
                 .type("https://lyra.sagittec.com/problems/validation-error")
                 .title("Validation failed")
                 .property("errors", errors)
-                .build();
+                .buildDetail();
+        return ResponseEntity.status(BAD_REQUEST).contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                             .body(problemDetail);
         //@formatter:on
     }
 
@@ -146,11 +164,6 @@ class ProblemDetailsControllerAdvice
                   "property", fieldError.getField(),
                   "message", requireNonNullElse(fieldError.getDefaultMessage(), "invalid"));
         //@formatter:on
-    }
-
-    private String humanize(final Throwable ex) {
-        final String msg = ex.getMessage();
-        return (msg != null && msg.length() > MAX_DETAIL_LENGTH) ? msg.substring(0, MAX_DETAIL_LENGTH) + "…" : msg;
     }
 
     private static final class ProblemDetailBuilder {
@@ -190,6 +203,10 @@ class ProblemDetailsControllerAdvice
 
         private ResponseEntity<ProblemDetail> build() {
             return status(this.status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(this.problemDetail);
+        }
+
+        private ProblemDetail buildDetail() {
+            return this.problemDetail;
         }
 
     }

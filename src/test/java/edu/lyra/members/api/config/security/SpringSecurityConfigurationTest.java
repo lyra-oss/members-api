@@ -3,6 +3,9 @@ package edu.lyra.members.api.config.security;
 import java.util.Optional;
 import java.util.UUID;
 
+import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.classroom.ClassroomRepository;
+import edu.lyra.members.api.config.web.ApiBasePath;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
@@ -14,19 +17,17 @@ import edu.lyra.members.api.teacher.TeacherRepository;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -43,11 +44,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Import(TestJwtDecoderConfiguration.class)
 class SpringSecurityConfigurationTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -56,16 +57,18 @@ class SpringSecurityConfigurationTest {
     private MockMvc mvc;
 
     @Autowired
-    private RepositoryRestConfiguration restConfiguration;
+    private ApiBasePath apiBasePath;
 
     @MockitoSpyBean
-    private ParentRepository  parentRepository;
+    private ParentRepository    parentRepository;
     @MockitoSpyBean
-    private KidRepository     kidRepository;
+    private KidRepository       kidRepository;
     @MockitoSpyBean
-    private SchoolRepository  schoolRepository;
+    private SchoolRepository    schoolRepository;
     @MockitoSpyBean
-    private TeacherRepository teacherRepository;
+    private TeacherRepository   teacherRepository;
+    @MockitoSpyBean
+    private ClassroomRepository classroomRepository;
 
     @Test
     void testCreateParentOk()
@@ -77,7 +80,7 @@ class SpringSecurityConfigurationTest {
             return saved;
         }).when(parentRepository).save(any(Parent.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/parents")
+        this.perform(post(this.base() + "/parents")
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_parents.create")))
                 .contentType(APPLICATION_JSON)
@@ -86,8 +89,13 @@ class SpringSecurityConfigurationTest {
         //@formatter:on
     }
 
+    private ResultActions perform(final MockHttpServletRequestBuilder request)
+            throws Exception {
+        return mvc.perform(request.contextPath(this.base()));
+    }
+
     private String base() {
-        return restConfiguration.getBasePath().toString();
+        return apiBasePath.contextPath();
     }
 
     private ObjectNode newParentJson() {
@@ -102,7 +110,7 @@ class SpringSecurityConfigurationTest {
     void testCreateParentKo()
             throws Exception {
         //@formatter:off
-        mvc.perform(post(this.base() + "/parents")
+        this.perform(post(this.base() + "/parents")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newParentJson())))
@@ -118,7 +126,7 @@ class SpringSecurityConfigurationTest {
         doReturn(Optional.of(parent)).when(parentRepository).findById(parentId);
         doReturn(Instancio.create(Kid.class)).when(kidRepository).save(any(Kid.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/kids")
+        this.perform(post(this.base() + "/kids")
                 .with(jwt().jwt(b -> b.subject(parentId.toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_kids.create")))
                 .contentType(APPLICATION_JSON)
@@ -142,7 +150,7 @@ class SpringSecurityConfigurationTest {
     void testCreateKidKo()
             throws Exception {
         //@formatter:off
-        mvc.perform(post(this.base() + "/kids")
+        this.perform(post(this.base() + "/kids")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newKidJson())))
@@ -155,7 +163,7 @@ class SpringSecurityConfigurationTest {
             throws Exception {
         doReturn(Optional.empty()).when(parentRepository).findById(any(UUID.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/kids")
+        this.perform(post(this.base() + "/kids")
                 .with(jwt().jwt(b -> b.subject(randomUUID().toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_kids.create")))
                 .contentType(APPLICATION_JSON)
@@ -169,7 +177,7 @@ class SpringSecurityConfigurationTest {
             throws Exception {
         doReturn(Instancio.create(School.class)).when(schoolRepository).save(any(School.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/schools")
+        this.perform(post(this.base() + "/schools")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_schools.create")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newSchoolJson())))
@@ -186,14 +194,61 @@ class SpringSecurityConfigurationTest {
     @Test
     void testActuatorHealthPermitsAllWithoutAuthentication()
             throws Exception {
-        mvc.perform(get("/actuator/health")).andExpect(status().isOk());
+        this.perform(get(this.base() + "/actuator/health")).andExpect(status().isOk());
+    }
+
+    @Test
+    void testActuatorInfoPermitsAllWithoutAuthentication()
+            throws Exception {
+        this.perform(get(this.base() + "/actuator/info")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testActuatorOtherEndpointsRequireAuthentication()
+            throws Exception {
+        this.perform(get(this.base() + "/actuator/beans")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testCreateClassroomOk()
+            throws Exception {
+        final School school = Instancio.create(School.class);
+        doReturn(Optional.of(school)).when(schoolRepository).findById(school.getId());
+        doReturn(Instancio.create(Classroom.class)).when(classroomRepository).save(any(Classroom.class));
+        //@formatter:off
+        this.perform(post(this.base() + "/classrooms")
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_classrooms.create")))
+                .contentType(APPLICATION_JSON)
+                .content(this.classroomJsonWithSchool(school)))
+           .andExpect(status().isCreated());
+        //@formatter:on
+    }
+
+    private String classroomJsonWithSchool(final School school) {
+        final ObjectNode classroomJson = OBJECT_MAPPER.createObjectNode();
+        classroomJson.put("course", 1);
+        classroomJson.put("group", "A");
+        classroomJson.put("school", school.getId().toString());
+        return OBJECT_MAPPER.writeValueAsString(classroomJson);
+    }
+
+    @Test
+    void testCreateClassroomKo()
+            throws Exception {
+        //@formatter:off
+        this.perform(post(this.base() + "/classrooms")
+                .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
+                .contentType(APPLICATION_JSON)
+                .content(this.classroomJsonWithSchool(Instancio.create(School.class))))
+           .andExpect(status().isForbidden());
+        //@formatter:on
     }
 
     @Test
     void testCreateSchoolKo()
             throws Exception {
         //@formatter:off
-        mvc.perform(post(this.base() + "/schools")
+        this.perform(post(this.base() + "/schools")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newSchoolJson())))
@@ -212,7 +267,7 @@ class SpringSecurityConfigurationTest {
             return saved;
         }).when(teacherRepository).save(any(Teacher.class));
         //@formatter:off
-        mvc.perform(post(this.base() + "/teachers")
+        this.perform(post(this.base() + "/teachers")
                 .with(jwt().jwt(b -> b.subject(randomUUID().toString()))
                            .authorities(new SimpleGrantedAuthority("SCOPE_teachers.create")))
                 .contentType(APPLICATION_JSON)
@@ -223,7 +278,7 @@ class SpringSecurityConfigurationTest {
 
     private String teacherJsonWithSchool(final School school) {
         final ObjectNode teacherJson = this.newTeacherJson();
-        teacherJson.put("school", this.base() + "/schools/" + school.getId());
+        teacherJson.put("school", school.getId().toString());
         return OBJECT_MAPPER.writeValueAsString(teacherJson);
     }
 
@@ -239,7 +294,7 @@ class SpringSecurityConfigurationTest {
     void testCreateTeacherKo()
             throws Exception {
         //@formatter:off
-        mvc.perform(post(this.base() + "/teachers")
+        this.perform(post(this.base() + "/teachers")
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(this.newTeacherJson())))
@@ -248,82 +303,69 @@ class SpringSecurityConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testListingRequiresAuthentication(final String resource)
             throws Exception {
-        mvc.perform(get(this.base() + "/" + resource)).andExpect(status().isUnauthorized());
+        this.perform(get(this.base() + "/" + resource)).andExpect(status().isUnauthorized());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testListingRequiresReadScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(get(this.base() + "/" + resource)
+        this.perform(get(this.base() + "/" + resource)
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope"))))
            .andExpect(status().isForbidden());
         //@formatter:on
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testListingIsAllowedWithReadScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(get(this.base() + "/" + resource)
+        this.perform(get(this.base() + "/" + resource)
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_" + resource + ".read"))))
            .andExpect(status().isOk());
         //@formatter:on
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testGettingSingleItemRequiresAuthentication(final String resource)
             throws Exception {
-        mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())).andExpect(status().isUnauthorized());
+        this.perform(get(this.base() + "/" + resource + "/" + randomUUID())).andExpect(status().isUnauthorized());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testGettingSingleItemRequiresReadScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())
+        this.perform(get(this.base() + "/" + resource + "/" + randomUUID())
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope"))))
            .andExpect(status().isForbidden());
         //@formatter:on
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testGettingSingleItemIsAllowedWithReadScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(get(this.base() + "/" + resource + "/" + randomUUID())
+        this.perform(get(this.base() + "/" + resource + "/" + randomUUID())
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_" + resource + ".read"))))
            .andExpect(status().isNotFound());
         //@formatter:on
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
-    void testItemPutIsDisabled(final String resource)
-            throws Exception {
-        //@formatter:off
-        mvc.perform(put(this.base() + "/" + resource + "/" + randomUUID())
-                .with(jwt())
-                .contentType(APPLICATION_JSON)
-                .content("{}"))
-           .andExpect(status().isMethodNotAllowed());
-        //@formatter:on
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testItemPatchRequiresAuthentication(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
+        this.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("{}"))
@@ -332,28 +374,16 @@ class SpringSecurityConfigurationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "parents", "kids", "schools", "teachers", "classrooms" })
+    @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void testItemPatchRequiresUpdateScope(final String resource)
             throws Exception {
         //@formatter:off
-        mvc.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
+        this.perform(patch(this.base() + "/" + resource + "/" + randomUUID())
                 .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_other.scope")))
                 .contentType(APPLICATION_JSON)
                 .content("{}"))
            .andExpect(status().isForbidden());
         //@formatter:on
-    }
-
-    @TestConfiguration
-    static class Config {
-
-        @Bean
-        JwtDecoder jwtDecoder() {
-            return _ -> {
-                throw new JwtException("Test JwtDecoder — use jwt() post-processor instead");
-            };
-        }
-
     }
 
 }

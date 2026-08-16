@@ -26,8 +26,8 @@ class CodingRulesTest {
     static final ArchRule noJavaUtilLogging = NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
 
     /**
-     * Forbids throwing generic Exception/RuntimeException/Throwable directly, so callers can always
-     * catch a specific, meaningful failure type instead of a catch-all.
+     * Forbids throwing generic Exception/RuntimeException/Throwable directly, so callers can always catch a specific,
+     * meaningful failure type instead of a catch-all.
      *
      * <p>Compliant:
      * <pre>{@code

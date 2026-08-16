@@ -10,10 +10,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -34,7 +34,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Teacher
         extends PersonRole {
 
-    @NotNull
+    @Setter
     @ManyToOne
     private School school;
 

@@ -5,16 +5,22 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
 
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManagers;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
@@ -37,7 +43,10 @@ class SpringSecurityConfiguration {
     private static final String ENTITY_CLASSROOMS = "classrooms";
     private static final String ENTITY_PERSONS    = "persons";
 
-    private static final String ACTUATOR   = path(ENTITY_ACTUATOR, ANY_SUBPATH);
+    private static final String ACTUATOR_HEALTH     = path(ENTITY_ACTUATOR, "health");
+    private static final String ACTUATOR_HEALTH_ANY = path(ENTITY_ACTUATOR, "health", ANY_SUBPATH);
+    private static final String ACTUATOR_INFO       = path(ENTITY_ACTUATOR, "info");
+
     private static final String PARENTS    = path(ENTITY_PARENTS);
     private static final String KIDS       = path(ENTITY_KIDS);
     private static final String SCHOOLS    = path(ENTITY_SCHOOLS);
@@ -52,14 +61,23 @@ class SpringSecurityConfiguration {
     private static final String CLASSROOMS_ANY = path(ENTITY_CLASSROOMS, ANY_SUBPATH);
     private static final String PERSONS_ANY    = path(ENTITY_PERSONS, ANY_SUBPATH);
 
-    private static final String PARENTS_KIDS         = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS);
-    private static final String CLASSROOMS_TUTOR     = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor");
-    private static final String CLASSROOMS_TEACHERS  = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_TEACHERS);
-    private static final String CLASSROOMS_KIDS      = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_KIDS);
+    private static final String PARENTS_KIDS     = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS, ANY_SEGMENT);
+    private static final String CLASSROOMS_TUTOR = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor", ANY_SEGMENT);
+    private static final String CLASSROOMS_TEACHERS  =
+            path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_TEACHERS, ANY_SEGMENT);
+    private static final String CLASSROOMS_KIDS  = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_KIDS, ANY_SEGMENT);
     private static final String PERSONS_PARENT_ROLE  = path(ENTITY_PERSONS, ANY_SEGMENT, "parent");
     private static final String PERSONS_TEACHER_ROLE = path(ENTITY_PERSONS, ANY_SEGMENT, "teacher");
 
-    private static final String ROLE_ADMIN = "admin";
+    private static final String PARENTS_KIDS_READ        = path(ENTITY_PARENTS, ANY_SEGMENT, ENTITY_KIDS);
+    private static final String KIDS_PARENT_READ         = path(ENTITY_KIDS, ANY_SEGMENT, "parent");
+    private static final String KIDS_CLASSROOM_READ      = path(ENTITY_KIDS, ANY_SEGMENT, "classroom");
+    private static final String SCHOOLS_CLASSROOMS_READ  = path(ENTITY_SCHOOLS, ANY_SEGMENT, ENTITY_CLASSROOMS);
+    private static final String SCHOOLS_TEACHERS_READ    = path(ENTITY_SCHOOLS, ANY_SEGMENT, ENTITY_TEACHERS);
+    private static final String TEACHERS_SCHOOL_READ     = path(ENTITY_TEACHERS, ANY_SEGMENT, "school");
+    private static final String CLASSROOMS_SCHOOL_READ   = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "school");
+    private static final String CLASSROOMS_TEACHERS_READ = path(ENTITY_CLASSROOMS, ANY_SEGMENT, ENTITY_TEACHERS);
+    private static final String CLASSROOMS_TUTOR_READ    = path(ENTITY_CLASSROOMS, ANY_SEGMENT, "tutor");
 
     private static final String SCOPE_PREFIX = "SCOPE_";
 
@@ -68,78 +86,128 @@ class SpringSecurityConfiguration {
     private static final String OP_DELETE = "delete";
     private static final String OP_READ   = "read";
 
+    private static String path(final String... segments) {
+        final StringJoiner joiner = new StringJoiner("/", "/", "");
+        for(final String segment : segments) {
+            joiner.add(segment);
+        }
+        return joiner.toString();
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(
             final HttpSecurity http,
-            final RepositoryRestConfiguration restConfiguration,
             final JwtAuthenticationConverter jwtAuthenticationConverter
     ) {
-        final String base = restConfiguration.getBasePath().toString();
         //@formatter:off
         return http.authorizeHttpRequests(auth -> auth
-                           .requestMatchers(ACTUATOR)
+                           .dispatcherTypeMatchers(DispatcherType.ERROR)
                                    .permitAll()
-                           .requestMatchers(POST, base + PARENTS)
+                           .requestMatchers(ACTUATOR_HEALTH, ACTUATOR_HEALTH_ANY, ACTUATOR_INFO)
+                                   .permitAll()
+                           .requestMatchers(POST, PARENTS)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_CREATE))
-                           .requestMatchers(POST, base + KIDS)
+                           .requestMatchers(POST, KIDS)
                                    .hasAuthority(scope(ENTITY_KIDS, OP_CREATE))
-                           .requestMatchers(POST, base + SCHOOLS)
+                           .requestMatchers(POST, SCHOOLS)
                                    .hasAuthority(scope(ENTITY_SCHOOLS, OP_CREATE))
-                           .requestMatchers(POST, base + TEACHERS)
+                           .requestMatchers(POST, TEACHERS)
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_CREATE))
-                           .requestMatchers(PATCH, base + PARENTS_ANY)
+                           .requestMatchers(POST, CLASSROOMS)
+                                   .hasAuthority(scope(ENTITY_CLASSROOMS, OP_CREATE))
+                           .requestMatchers(PATCH, PARENTS_ANY)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_UPDATE))
-                           .requestMatchers(PATCH, base + KIDS_ANY)
+                           .requestMatchers(PATCH, KIDS_ANY)
                                    .hasAuthority(scope(ENTITY_KIDS, OP_UPDATE))
-                           .requestMatchers(PATCH, base + SCHOOLS_ANY)
+                           .requestMatchers(PATCH, SCHOOLS_ANY)
                                    .hasAuthority(scope(ENTITY_SCHOOLS, OP_UPDATE))
-                           .requestMatchers(PATCH, base + TEACHERS_ANY)
+                           .requestMatchers(PATCH, TEACHERS_ANY)
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_UPDATE))
-                           .requestMatchers(PATCH, base + CLASSROOMS_ANY)
+                           .requestMatchers(PATCH, CLASSROOMS_ANY)
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_UPDATE))
-                           .requestMatchers(PUT, base + CLASSROOMS_TUTOR)
+                           .requestMatchers(PUT, CLASSROOMS_TUTOR)
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_UPDATE))
-                           .requestMatchers(POST, base + CLASSROOMS_TEACHERS, base + CLASSROOMS_KIDS)
+                           .requestMatchers(PUT, CLASSROOMS_TEACHERS, CLASSROOMS_KIDS)
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_UPDATE))
-                           .requestMatchers(POST, base + PARENTS_KIDS)
+                           .requestMatchers(PUT, PARENTS_KIDS)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_UPDATE))
-                           .requestMatchers(PUT, base + PERSONS_PARENT_ROLE)
+                           .requestMatchers(PUT, PERSONS_PARENT_ROLE)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_CREATE))
-                           .requestMatchers(DELETE, base + PERSONS_PARENT_ROLE)
+                           .requestMatchers(DELETE, PERSONS_PARENT_ROLE)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_CREATE))
-                           .requestMatchers(PUT, base + PERSONS_TEACHER_ROLE)
+                           .requestMatchers(PUT, PERSONS_TEACHER_ROLE)
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_CREATE))
-                           .requestMatchers(DELETE, base + PERSONS_TEACHER_ROLE)
+                           .requestMatchers(DELETE, PERSONS_TEACHER_ROLE)
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_CREATE))
-                           .requestMatchers(DELETE, base + PARENTS_ANY)
+                           .requestMatchers(PUT, PARENTS_ANY, KIDS_ANY, SCHOOLS_ANY, TEACHERS_ANY, CLASSROOMS_ANY)
+                                   .authenticated()
+                           .requestMatchers(POST, PERSONS)
+                                   .authenticated()
+                           .requestMatchers(POST, KIDS_PARENT_READ, KIDS_CLASSROOM_READ)
+                                   .authenticated()
+                           .requestMatchers(DELETE, PARENTS_ANY)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_DELETE))
-                           .requestMatchers(DELETE, base + KIDS_ANY)
+                           .requestMatchers(DELETE, KIDS_ANY)
                                    .hasAuthority(scope(ENTITY_KIDS, OP_DELETE))
-                           .requestMatchers(DELETE, base + SCHOOLS_ANY)
+                           .requestMatchers(DELETE, SCHOOLS_ANY)
                                    .hasAuthority(scope(ENTITY_SCHOOLS, OP_DELETE))
-                           .requestMatchers(DELETE, base + TEACHERS_ANY)
+                           .requestMatchers(DELETE, TEACHERS_ANY)
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_DELETE))
-                           .requestMatchers(DELETE, base + CLASSROOMS_ANY)
+                           .requestMatchers(DELETE, CLASSROOMS_ANY)
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_DELETE))
-                           .requestMatchers(GET, base + PARENTS, base + PARENTS_ANY)
+                           .requestMatchers(GET, PARENTS_KIDS_READ)
+                                   .access(bothScopes(ENTITY_PARENTS, ENTITY_KIDS))
+                           .requestMatchers(GET, KIDS_PARENT_READ)
+                                   .access(bothScopes(ENTITY_KIDS, ENTITY_PARENTS))
+                           .requestMatchers(GET, KIDS_CLASSROOM_READ)
+                                   .access(bothScopes(ENTITY_KIDS, ENTITY_CLASSROOMS))
+                           .requestMatchers(GET, SCHOOLS_CLASSROOMS_READ)
+                                   .access(bothScopes(ENTITY_SCHOOLS, ENTITY_CLASSROOMS))
+                           .requestMatchers(GET, SCHOOLS_TEACHERS_READ)
+                                   .access(bothScopes(ENTITY_SCHOOLS, ENTITY_TEACHERS))
+                           .requestMatchers(GET, TEACHERS_SCHOOL_READ)
+                                   .access(bothScopes(ENTITY_TEACHERS, ENTITY_SCHOOLS))
+                           .requestMatchers(GET, CLASSROOMS_SCHOOL_READ)
+                                   .access(bothScopes(ENTITY_CLASSROOMS, ENTITY_SCHOOLS))
+                           .requestMatchers(GET, CLASSROOMS_TEACHERS_READ)
+                                   .access(bothScopes(ENTITY_CLASSROOMS, ENTITY_TEACHERS))
+                           .requestMatchers(GET, CLASSROOMS_TUTOR_READ)
+                                   .access(bothScopes(ENTITY_CLASSROOMS, ENTITY_TEACHERS))
+                           .requestMatchers(GET, PARENTS, PARENTS_ANY)
                                    .hasAuthority(scope(ENTITY_PARENTS, OP_READ))
-                           .requestMatchers(GET, base + KIDS, base + KIDS_ANY)
+                           .requestMatchers(GET, KIDS, KIDS_ANY)
                                    .hasAuthority(scope(ENTITY_KIDS, OP_READ))
-                           .requestMatchers(GET, base + SCHOOLS, base + SCHOOLS_ANY)
+                           .requestMatchers(GET, SCHOOLS, SCHOOLS_ANY)
                                    .hasAuthority(scope(ENTITY_SCHOOLS, OP_READ))
-                           .requestMatchers(GET, base + TEACHERS, base + TEACHERS_ANY)
+                           .requestMatchers(GET, TEACHERS, TEACHERS_ANY)
                                    .hasAuthority(scope(ENTITY_TEACHERS, OP_READ))
-                           .requestMatchers(GET, base + CLASSROOMS, base + CLASSROOMS_ANY)
+                           .requestMatchers(GET, CLASSROOMS, CLASSROOMS_ANY)
                                    .hasAuthority(scope(ENTITY_CLASSROOMS, OP_READ))
-                           .requestMatchers(GET, base + PERSONS, base + PERSONS_ANY)
-                                   .hasRole(ROLE_ADMIN)
+                           .requestMatchers(GET, PERSONS, PERSONS_ANY)
+                                   .hasAuthority(scope(ENTITY_PERSONS, OP_READ))
+                           .requestMatchers(GET, "/")
+                                   .authenticated()
                            .anyRequest()
-                                   .authenticated())
+                                   .denyAll())
+                   .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                   .csrf(AbstractHttpConfigurer::disable)
                    .oauth2ResourceServer(oauth2 -> oauth2
                            .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                    .addFilterAfter(new JwtMdcFilter(), BearerTokenAuthenticationFilter.class)
                    .build();
         //@formatter:on
+    }
+
+    private static AuthorizationManager<RequestAuthorizationContext> bothScopes(
+            final String entityA,
+            final String entityB
+    ) {
+        return AuthorizationManagers.allOf(AuthorityAuthorizationManager.hasAuthority(scope(entityA, OP_READ)),
+                                           AuthorityAuthorizationManager.hasAuthority(scope(entityB, OP_READ)));
+    }
+
+    private static String scope(final String entity, final String operation) {
+        return new StringJoiner(".", SCOPE_PREFIX, "").add(entity).add(operation).toString();
     }
 
     @Bean
@@ -154,18 +222,6 @@ class SpringSecurityConfiguration {
             return authorities;
         });
         return converter;
-    }
-
-    private static String scope(final String entity, final String operation) {
-        return new StringJoiner(".", SCOPE_PREFIX, "").add(entity).add(operation).toString();
-    }
-
-    private static String path(final String... segments) {
-        final StringJoiner joiner = new StringJoiner("/", "/", "");
-        for(final String segment : segments) {
-            joiner.add(segment);
-        }
-        return joiner.toString();
     }
 
 }

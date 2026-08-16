@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
-import edu.lyra.members.api.config.jpa.Auditable;
+import edu.lyra.members.api.config.InstancioSupport;
 import edu.lyra.members.api.cucumber.AbstractResourceFeatures;
 import edu.lyra.members.api.cucumber.TestSecurityContext;
 import edu.lyra.members.api.kid.Kid;
@@ -16,20 +16,17 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.instancio.Instancio;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import tools.jackson.databind.node.ObjectNode;
 
 import static java.time.Month.DECEMBER;
 
 import static org.instancio.Select.field;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ParentUpdateFeatures
         extends AbstractResourceFeatures {
-
-    private static final MediaType URI_LIST = MediaType.parseMediaType("text/uri-list");
 
     @Autowired
     private ParentRepository parentRepository;
@@ -66,19 +63,15 @@ public class ParentUpdateFeatures
     public void kidCreatedByParentUnbound(final String name, final String surname, final String creatorParentName) {
         final Parent creator = this.parent(creatorParentName);
         //@formatter:off
-        final Kid kid = Instancio.of(Kid.class)
-                                 .ignore(field(Kid.class, "id"))
-                                 .ignore(field(Auditable.class, "version"))
-                                 .ignore(field(Auditable.class, "createdDate"))
-                                 .ignore(field(Auditable.class, "createdBy"))
-                                 .ignore(field(Auditable.class, "lastModifiedDate"))
-                                 .ignore(field(Auditable.class, "updatedBy"))
-                                 .set(field(Kid.class, "name"), name)
-                                 .set(field(Kid.class, "surname"), surname)
-                                 .set(field(Kid.class, "birthdate"), LocalDate.of(2019, DECEMBER, 12))
-                                 .set(field(Kid.class, "parent"), (Parent) null)
-                                 .set(field(Kid.class, "classroom"), (Classroom) null)
-                                 .create();
+        final Kid kid = InstancioSupport.ignoringAuditableFields(
+                        Instancio.of(Kid.class)
+                                 .ignore(field(Kid.class, "id")))
+                .set(field(Kid.class, "name"), name)
+                .set(field(Kid.class, "surname"), surname)
+                .set(field(Kid.class, "birthdate"), LocalDate.of(2019, DECEMBER, 12))
+                .set(field(Kid.class, "parent"), (Parent) null)
+                .set(field(Kid.class, "classroom"), (Classroom) null)
+                .create();
         final Kid saved = TestSecurityContext.runAuthenticated(creator.getId(), () -> this.kidRepository.save(kid));
         //@formatter:on
         this.scenarioContext.putLocation("kid:" + name + " " + surname, "/v0/kids/" + saved.getId());
@@ -95,7 +88,8 @@ public class ParentUpdateFeatures
             throws Exception {
         final String parentLocation = this.scenarioContext.getLocation("parent:" + parentName);
         final String kidLocation    = this.scenarioContext.getLocation("kid:" + kidName + " " + kidSurname);
-        this.perform(post(parentLocation + "/kids").contentType(URI_LIST).content(kidLocation));
+        final String kidId          = kidLocation.substring(kidLocation.lastIndexOf('/') + 1);
+        this.perform(put(parentLocation + "/kids/" + kidId));
     }
 
     @Then("I receive a confirmation that the kid has been successfully bound to the parent")

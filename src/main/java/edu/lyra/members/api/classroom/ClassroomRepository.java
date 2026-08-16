@@ -2,6 +2,8 @@ package edu.lyra.members.api.classroom;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.ListPagingAndSortingRepository;
@@ -18,6 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface ClassroomRepository
         extends CrudRepository<Classroom, UUID>, ListPagingAndSortingRepository<Classroom, UUID> {
+
+    /**
+     * Finds a page of the classrooms at the given school.
+     *
+     * @param schoolId the school's id
+     * @param pageable the requested page
+     *
+     * @return the matching page of classrooms
+     */
+    Page<Classroom> findBySchoolId(final UUID schoolId, final Pageable pageable);
 
     /**
      * Checks whether the given teacher tutors or teaches at least one classroom.

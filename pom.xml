@@ -37,10 +37,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Sonar settings -->
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
-        <!-- The Spring Boot entry point has no branching logic of its own to cover; see the architecture
-             test enforcing that *Application classes stay minimal. -->
-        <sonar.coverage.exclusions>**/MembersApiApplication.java</sonar.coverage.exclusions>
+        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
+        <log4j2.version>2.25.5</log4j2.version>
         <cucumber.version>7.34.6</cucumber.version>
         <opentelemetry.version>1.65.0</opentelemetry.version>
         <okhttp.version>5.4.0</okhttp.version>
@@ -51,6 +50,8 @@
         <jackson-databind.version>3.1.5</jackson-databind.version>
         <instancio.version>5.6.0</instancio.version>
         <datafaker.version>2.7.0</datafaker.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <!-- Plugin versions -->
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
@@ -103,6 +104,11 @@
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson-databind.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -121,11 +127,16 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-rest</artifactId>
+            <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -284,6 +295,16 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                         </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}</version>
+                        </path>
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
@@ -364,6 +385,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <doclint>all,-missing</doclint>
+                </configuration>
                 <executions>
                     <execution>
                         <id>javadoc-doclint-check</id>
@@ -371,6 +395,33 @@
                         <goals>
                             <goal>javadoc</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-no-spring-data-rest</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <searchTransitive>true</searchTransitive>
+                                    <excludes>
+                                        <exclude>org.springframework.boot:spring-boot-starter-data-rest</exclude>
+                                        <exclude>org.springframework.data:spring-data-rest-core</exclude>
+                                        <exclude>org.springframework.data:spring-data-rest-webmvc</exclude>
+                                        <exclude>org.springframework.data:spring-data-rest-hal-explorer</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -390,6 +441,7 @@
                     <consoleOutput>true</consoleOutput>
                     <failOnViolation>true</failOnViolation>
                     <violationSeverity>warning</violationSeverity>
+                    <excludeGeneratedSources>true</excludeGeneratedSources>
                 </configuration>
                 <executions>
                     <execution>
@@ -468,6 +520,7 @@
                     <excludedClasses>
                         <param>**.*Configuration</param>
                         <param>**.*Application</param>
+                        <param>**.*MapperImpl</param>
                     </excludedClasses>
                     <excludedTestClasses>
                         <param>**.*IT</param>

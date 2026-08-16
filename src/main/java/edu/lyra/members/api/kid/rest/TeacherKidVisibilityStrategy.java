@@ -20,8 +20,7 @@ class TeacherKidVisibilityStrategy
 
     @Override
     public Page<Kid> findVisible(final Pageable pageable) {
-        return this.kidRepository.findByClassroomTaughtOrTutoredBy(AuthenticatedPrincipal.requireCurrentId(),
-                                                                    pageable);
+        return this.kidRepository.findByClassroomTaughtOrTutoredBy(AuthenticatedPrincipal.requireCurrentId(), pageable);
     }
 
 }

@@ -4,7 +4,7 @@ import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -31,12 +31,13 @@ class JpaRepositoryRulesTest {
      */
     @ArchTest
     static final ArchRule repositoriesAreTransactional =
-            classes().that().areAnnotatedWith(Repository.class).should().beAnnotatedWith(Transactional.class);
+            classes().that().areAnnotatedWith(org.springframework.stereotype.Repository.class).should()
+                     .beAnnotatedWith(Transactional.class);
 
     /**
      * Forbids the Jakarta {@code @Transactional} annotation anywhere; use Spring's
-     * {@code org.springframework.transaction.annotation.Transactional} instead, since only the Spring
-     * annotation is proxy-aware in this codebase.
+     * {@code org.springframework.transaction.annotation.Transactional} instead, since only the Spring annotation is
+     * proxy-aware in this codebase.
      *
      * <p>Compliant: {@code import org.springframework.transaction.annotation.Transactional;}
      *
@@ -45,7 +46,21 @@ class JpaRepositoryRulesTest {
     @ArchTest
     static final ArchRule noJakartaTransactional =
             noClasses().should().beAnnotatedWith("jakarta.transaction.Transactional")
-                       .as("use org.springframework.transaction.annotation.Transactional, "
-                           + "not jakarta.transaction.Transactional");
+                       .as("use org.springframework.transaction.annotation.Transactional, " +
+                           "not jakarta.transaction.Transactional");
+
+    /**
+     * A repository must not depend on the web layer — neither a "..rest" package nor {@code org.springframework.web..}
+     * — since data access must stay usable independently of how (or whether) it is exposed over HTTP.
+     *
+     * <p>Compliant: {@code SchoolRepository extends JpaRepository<School, UUID>}, no web imports
+     *
+     * <p>Violation: {@code SchoolRepository} imports something from {@code school.rest} or
+     * {@code org.springframework.web}
+     */
+    @ArchTest
+    static final ArchRule repositoriesDoNotDependOnWeb =
+            noClasses().that().areAssignableTo(Repository.class).should().dependOnClassesThat()
+                       .resideInAnyPackage("..rest..", "org.springframework.web..");
 
 }

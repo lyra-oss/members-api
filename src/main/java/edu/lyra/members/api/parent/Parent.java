@@ -43,7 +43,7 @@ public class Parent
     @Exclude
     @OneToMany(cascade = { PERSIST, MERGE })
     @JoinColumn(name = "PARENT_ID")
-    private Set<Kid> kids = new HashSet<>();
+    private final Set<Kid> kids = new HashSet<>();
 
     @Builder
     private Parent(final UUID id, final Person person) {

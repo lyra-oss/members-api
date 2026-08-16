@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import edu.lyra.members.api.config.jpa.Auditable;
+import edu.lyra.members.api.config.InstancioSupport;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.Person;
@@ -58,17 +58,6 @@ class JpaAuditingTest {
         assertNotNull(saved.getLastModifiedDate());
     }
 
-    private static Person aPerson() {
-        //@formatter:off
-        return Person.builder()
-                     .id(UUID.randomUUID())
-                     .name("Esteban")
-                     .surname("Cristóbal")
-                     .mail("esteban.cristobal@example.com")
-                     .build();
-        //@formatter:on
-    }
-
     private String authenticate() {
         final String subject = UUID.randomUUID().toString();
         //@formatter:off
@@ -79,6 +68,17 @@ class JpaAuditingTest {
         //@formatter:on
         SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, List.of()));
         return subject;
+    }
+
+    private static Person aPerson() {
+        //@formatter:off
+        return Person.builder()
+                     .id(UUID.randomUUID())
+                     .name("Esteban")
+                     .surname("Cristóbal")
+                     .mail("esteban.cristobal@example.com")
+                     .build();
+        //@formatter:on
     }
 
     @Test
@@ -102,11 +102,11 @@ class JpaAuditingTest {
     void populatesAuditingFieldsForEveryEntity() {
         final String subject = this.authenticate();
         final School school =
-                Instancio.of(School.class).ignore(field(School.class, "id")).ignore(field(School.class, "classrooms"))
-                         .ignore(field(School.class, "teachers")).ignore(field(Auditable.class, "version"))
-                         .ignore(field(Auditable.class, "createdDate")).ignore(field(Auditable.class, "createdBy"))
-                         .ignore(field(Auditable.class, "lastModifiedDate")).ignore(field(Auditable.class, "updatedBy"))
-                         .set(field(School.class, "name"), FAKER.educator().secondarySchool()).create();
+                InstancioSupport.ignoringAuditableFields(
+                                Instancio.of(School.class).ignore(field(School.class, "id"))
+                                         .ignore(field(School.class, "classrooms"))
+                                         .ignore(field(School.class, "teachers")))
+                        .set(field(School.class, "name"), FAKER.educator().secondarySchool()).create();
         final School saved = this.schoolRepository.save(school);
         this.entityManager.flush();
         assertEquals(subject, saved.getCreatedBy());

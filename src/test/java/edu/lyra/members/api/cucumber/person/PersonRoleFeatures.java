@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
-import edu.lyra.members.api.config.jpa.Auditable;
+import edu.lyra.members.api.config.InstancioSupport;
 import edu.lyra.members.api.cucumber.AbstractResourceFeatures;
 import edu.lyra.members.api.cucumber.TestSecurityContext;
 import edu.lyra.members.api.kid.Kid;
@@ -64,8 +64,9 @@ public class PersonRoleFeatures
     }
 
     private ObjectNode schoolBody(final String schoolName) {
-        final ObjectNode body = OBJECT_MAPPER.createObjectNode();
-        body.put("school", this.scenarioContext.getLocation("school:" + schoolName));
+        final String     location = this.scenarioContext.getLocation("school:" + schoolName);
+        final ObjectNode body     = OBJECT_MAPPER.createObjectNode();
+        body.put("school", location.substring(location.lastIndexOf('/') + 1));
         return body;
     }
 
@@ -98,7 +99,8 @@ public class PersonRoleFeatures
             throws Exception {
         //@formatter:off
         this.mvc.perform(put(this.personLocation(name, surname) + "/parent")
-                                 .with(adminJwtProcessor("parents.create")))
+                                 .with(adminJwtProcessor("parents.create"))
+                                 .contextPath(this.apiBasePath.contextPath()))
                 .andExpect(status().isNoContent());
         //@formatter:on
     }
@@ -118,6 +120,7 @@ public class PersonRoleFeatures
         //@formatter:off
         this.mvc.perform(put(this.personLocation(name, surname) + "/teacher")
                                  .with(adminJwtProcessor("teachers.create"))
+                                 .contextPath(this.apiBasePath.contextPath())
                                  .contentType(MediaType.APPLICATION_JSON)
                                  .content(OBJECT_MAPPER.writeValueAsString(this.schoolBody(schoolName))))
                 .andExpect(status().isNoContent());
@@ -134,19 +137,15 @@ public class PersonRoleFeatures
     ) {
         final Parent parent = this.parentRepository.findById(this.personId(name, surname)).orElseThrow();
         //@formatter:off
-        final Kid kid = Instancio.of(Kid.class)
+        final Kid kid = InstancioSupport.ignoringAuditableFields(
+                        Instancio.of(Kid.class)
                                  .ignore(field(Kid.class, "id"))
-                                 .ignore(field(Kid.class, "classroom"))
-                                 .ignore(field(Auditable.class, "version"))
-                                 .ignore(field(Auditable.class, "createdDate"))
-                                 .ignore(field(Auditable.class, "createdBy"))
-                                 .ignore(field(Auditable.class, "lastModifiedDate"))
-                                 .ignore(field(Auditable.class, "updatedBy"))
-                                 .set(field(Kid.class, "name"), kidName)
-                                 .set(field(Kid.class, "surname"), kidSurname)
-                                 .set(field(Kid.class, "birthdate"), LocalDate.parse(birthdate))
-                                 .set(field(Kid.class, "parent"), parent)
-                                 .create();
+                                 .ignore(field(Kid.class, "classroom")))
+                .set(field(Kid.class, "name"), kidName)
+                .set(field(Kid.class, "surname"), kidSurname)
+                .set(field(Kid.class, "birthdate"), LocalDate.parse(birthdate))
+                .set(field(Kid.class, "parent"), parent)
+                .create();
         //@formatter:on
         TestSecurityContext.runAuthenticated(() -> this.kidRepository.save(kid));
     }
@@ -160,20 +159,16 @@ public class PersonRoleFeatures
     public void tutorsAClassroom(final String name, final String surname) {
         final Teacher teacher = this.teacherRepository.findById(this.personId(name, surname)).orElseThrow();
         //@formatter:off
-        final Classroom classroom = Instancio.of(Classroom.class)
-                                             .ignore(field(Classroom.class, "id"))
-                                             .ignore(field(Classroom.class, "teachers"))
-                                             .ignore(field(Classroom.class, "kids"))
-                                             .ignore(field(Auditable.class, "version"))
-                                             .ignore(field(Auditable.class, "createdDate"))
-                                             .ignore(field(Auditable.class, "createdBy"))
-                                             .ignore(field(Auditable.class, "lastModifiedDate"))
-                                             .ignore(field(Auditable.class, "updatedBy"))
-                                             .set(field(Classroom.class, "course"), 3)
-                                             .set(field(Classroom.class, "group"), "A")
-                                             .set(field(Classroom.class, "school"), teacher.getSchool())
-                                             .set(field(Classroom.class, "tutor"), teacher)
-                                             .create();
+        final Classroom classroom = InstancioSupport.ignoringAuditableFields(
+                        Instancio.of(Classroom.class)
+                                 .ignore(field(Classroom.class, "id"))
+                                 .ignore(field(Classroom.class, "teachers"))
+                                 .ignore(field(Classroom.class, "kids")))
+                .set(field(Classroom.class, "course"), 3)
+                .set(field(Classroom.class, "group"), "A")
+                .set(field(Classroom.class, "school"), teacher.getSchool())
+                .set(field(Classroom.class, "tutor"), teacher)
+                .create();
         //@formatter:on
         TestSecurityContext.runAuthenticated(() -> this.classroomRepository.save(classroom));
     }

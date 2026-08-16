@@ -5,7 +5,7 @@ Feature: Classroom teaching staff
     I want to assign teachers and a tutor to a classroom
 
     Background:
-        Given I am authenticated with "classrooms.read" scope
+        Given I am authenticated with "classrooms.read,teachers.read" scope
         And a school named "Gloria Fuertes" exists
         And a classroom for course 3 group "A" exists at school "Gloria Fuertes"
         And a teacher named "Marta" "Ibáñez" exists at school "Gloria Fuertes" with e-mail "marta.ibanez@example.com"
@@ -56,6 +56,7 @@ Feature: Classroom teaching staff
     Scenario: Cannot create a classroom with a tutor from a different school
         Given a school named "Montessori Norte" exists
         And a teacher named "Pablo" "Ruiz" exists at school "Montessori Norte" with e-mail "pablo.ruiz@example.com"
+        And I am authenticated with "classrooms.create" scope
         When I create a classroom for course 4 group "B" at school "Gloria Fuertes" with tutor "Pablo Ruiz"
         Then I receive an error because the teacher does not belong to the classroom's school
 
