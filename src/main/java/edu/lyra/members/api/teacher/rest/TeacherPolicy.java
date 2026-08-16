@@ -4,17 +4,15 @@ import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import edu.lyra.members.api.teacher.Teacher;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 
 @Slf4j
+@RequiredArgsConstructor
 class TeacherPolicy {
 
     private final ClassroomRepository classroomRepository;
-
-    TeacherPolicy(final ClassroomRepository classroomRepository) {
-        this.classroomRepository = classroomRepository;
-    }
 
     void authorizeUpdate(final Teacher teacher) {
         log.debug("Authorizing update of teacher {}", teacher.getId());

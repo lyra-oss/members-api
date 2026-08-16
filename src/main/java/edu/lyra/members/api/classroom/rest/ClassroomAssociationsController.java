@@ -3,6 +3,7 @@ package edu.lyra.members.api.classroom.rest;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -13,19 +14,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 class ClassroomAssociationsController {
 
     private final ClassroomAdapter                   adapter;
     private final PagedResourcesAssembler<Classroom> pagedAssembler;
-
-    ClassroomAssociationsController(
-            final ClassroomAdapter adapter,
-            final PagedResourcesAssembler<Classroom> pagedAssembler
-    ) {
-        this.adapter        = adapter;
-        this.pagedAssembler = pagedAssembler;
-    }
 
     @GetMapping("/kids/{kidId}/classroom")
     ResponseEntity<ClassroomModel> findByKid(final @PathVariable UUID kidId) {

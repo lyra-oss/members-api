@@ -13,6 +13,7 @@ import edu.lyra.members.api.school.School;
 import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.Teacher;
 import edu.lyra.members.api.teacher.TeacherRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
+@RequiredArgsConstructor
 class TeacherAdapter
         implements RepresentationModelAssembler<Teacher, TeacherModel> {
 
@@ -33,22 +35,6 @@ class TeacherAdapter
     private final ClassroomRepository classroomRepository;
     private final TeacherMapper       mapper;
     private final TeacherPolicy       policy;
-
-    TeacherAdapter(
-            final TeacherRepository teacherRepository,
-            final SchoolRepository schoolRepository,
-            final PersonRepository personRepository,
-            final ClassroomRepository classroomRepository,
-            final TeacherMapper mapper,
-            final TeacherPolicy policy
-    ) {
-        this.teacherRepository   = teacherRepository;
-        this.schoolRepository    = schoolRepository;
-        this.personRepository    = personRepository;
-        this.classroomRepository = classroomRepository;
-        this.mapper              = mapper;
-        this.policy              = policy;
-    }
 
     Optional<TeacherModel> findById(final UUID id) {
         return this.teacherRepository.findById(id).map(this::toModel);

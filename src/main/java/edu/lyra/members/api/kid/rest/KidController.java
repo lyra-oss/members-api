@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.kid.Kid;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -21,17 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/kids")
 class KidController {
 
     private final KidAdapter                   adapter;
     private final PagedResourcesAssembler<Kid> pagedAssembler;
-
-    KidController(final KidAdapter adapter, final PagedResourcesAssembler<Kid> pagedAssembler) {
-        this.adapter        = adapter;
-        this.pagedAssembler = pagedAssembler;
-    }
 
     @GetMapping
     PagedModel<KidModel> findAll(final Pageable pageable) {

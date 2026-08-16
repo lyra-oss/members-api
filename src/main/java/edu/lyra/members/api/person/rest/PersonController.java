@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.person.Person;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -19,17 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/persons")
 class PersonController {
 
     private final PersonAdapter                   adapter;
     private final PagedResourcesAssembler<Person> pagedAssembler;
-
-    PersonController(final PersonAdapter adapter, final PagedResourcesAssembler<Person> pagedAssembler) {
-        this.adapter        = adapter;
-        this.pagedAssembler = pagedAssembler;
-    }
 
     @PreAuthorize("hasRole('admin')")
     @GetMapping

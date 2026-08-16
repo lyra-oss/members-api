@@ -15,6 +15,7 @@ import edu.lyra.members.api.school.School;
 import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.Teacher;
 import edu.lyra.members.api.teacher.TeacherRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
+@RequiredArgsConstructor
 class PersonAdapter
         implements RepresentationModelAssembler<Person, PersonModel> {
 
@@ -35,22 +37,6 @@ class PersonAdapter
     private final SchoolRepository    schoolRepository;
     private final ClassroomRepository classroomRepository;
     private final PersonMapper        mapper;
-
-    PersonAdapter(
-            final PersonRepository personRepository,
-            final ParentRepository parentRepository,
-            final TeacherRepository teacherRepository,
-            final SchoolRepository schoolRepository,
-            final ClassroomRepository classroomRepository,
-            final PersonMapper mapper
-    ) {
-        this.personRepository    = personRepository;
-        this.parentRepository    = parentRepository;
-        this.teacherRepository   = teacherRepository;
-        this.schoolRepository    = schoolRepository;
-        this.classroomRepository = classroomRepository;
-        this.mapper              = mapper;
-    }
 
     @Override
     public PersonModel toModel(final Person person) {

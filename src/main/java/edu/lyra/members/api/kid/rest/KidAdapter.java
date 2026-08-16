@@ -11,6 +11,7 @@ import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
+@RequiredArgsConstructor
 class KidAdapter
         implements RepresentationModelAssembler<Kid, KidModel> {
 
@@ -31,22 +33,6 @@ class KidAdapter
     private final KidVisibilityStrategyResolver visibilityResolver;
     private final KidMapper                     mapper;
     private final KidPolicy                     policy;
-
-    KidAdapter(
-            final KidRepository kidRepository,
-            final ParentRepository parentRepository,
-            final ClassroomRepository classroomRepository,
-            final KidVisibilityStrategyResolver visibilityResolver,
-            final KidMapper mapper,
-            final KidPolicy policy
-    ) {
-        this.kidRepository       = kidRepository;
-        this.parentRepository    = parentRepository;
-        this.classroomRepository = classroomRepository;
-        this.visibilityResolver  = visibilityResolver;
-        this.mapper              = mapper;
-        this.policy              = policy;
-    }
 
     Optional<KidModel> findById(final UUID id) {
         return this.kidRepository.findById(id).map(this::toModel);

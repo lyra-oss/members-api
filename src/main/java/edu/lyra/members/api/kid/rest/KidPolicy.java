@@ -8,17 +8,15 @@ import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
 import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 
 @Slf4j
+@RequiredArgsConstructor
 class KidPolicy {
 
     private final ParentRepository parentRepository;
-
-    KidPolicy(final ParentRepository parentRepository) {
-        this.parentRepository = parentRepository;
-    }
 
     Parent authorizeCreate(final UUID subject) {
         log.debug("Authorizing kid creation for subject {}", subject);

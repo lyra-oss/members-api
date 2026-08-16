@@ -10,6 +10,7 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,6 +32,7 @@ import static jakarta.persistence.CascadeType.PERSIST;
 @Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
 public abstract class PersonRole
         extends Auditable {
@@ -43,17 +45,6 @@ public abstract class PersonRole
     @OneToOne(cascade = { PERSIST, MERGE })
     @JoinColumn(name = "ID")
     private Person person;
-
-    /**
-     * Creates a role sharing the given person's primary key.
-     *
-     * @param id     the shared primary key, mirroring {@code person}'s own id
-     * @param person the person holding this role
-     */
-    protected PersonRole(final UUID id, final Person person) {
-        this.id     = id;
-        this.person = person;
-    }
 
     /**
      * Returns the role holder's given name.

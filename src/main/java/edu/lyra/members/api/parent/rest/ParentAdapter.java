@@ -10,6 +10,7 @@ import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.Person;
 import edu.lyra.members.api.person.PersonRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Slf4j
+@RequiredArgsConstructor
 class ParentAdapter
         implements RepresentationModelAssembler<Parent, ParentModel> {
 
@@ -29,20 +31,6 @@ class ParentAdapter
     private final PersonRepository personRepository;
     private final ParentMapper     mapper;
     private final ParentPolicy     policy;
-
-    ParentAdapter(
-            final ParentRepository parentRepository,
-            final KidRepository kidRepository,
-            final PersonRepository personRepository,
-            final ParentMapper mapper,
-            final ParentPolicy policy
-    ) {
-        this.parentRepository = parentRepository;
-        this.kidRepository    = kidRepository;
-        this.personRepository = personRepository;
-        this.mapper           = mapper;
-        this.policy           = policy;
-    }
 
     Optional<ParentModel> findById(final UUID id) {
         return this.parentRepository.findById(id).map(this::toModel);

@@ -3,6 +3,7 @@ package edu.lyra.members.api.kid.rest;
 import java.util.UUID;
 
 import edu.lyra.members.api.kid.Kid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -13,16 +14,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 class KidAssociationsController {
 
     private final KidAdapter                   adapter;
     private final PagedResourcesAssembler<Kid> pagedAssembler;
-
-    KidAssociationsController(final KidAdapter adapter, final PagedResourcesAssembler<Kid> pagedAssembler) {
-        this.adapter        = adapter;
-        this.pagedAssembler = pagedAssembler;
-    }
 
     @GetMapping("/parents/{parentId}/kids")
     ResponseEntity<PagedModel<KidModel>> findByParent(final @PathVariable UUID parentId, final Pageable pageable) {
