@@ -5,10 +5,11 @@ import org.mapstruct.BeanMapping;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 interface ParentMapper {
 
     @Mapping(target = "id", ignore = true)

@@ -3,17 +3,11 @@ package edu.lyra.members.api.parent.rest;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.PersonRepository;
-import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class ParentRestConfiguration {
-
-    @Bean
-    ParentMapper parentMapper() {
-        return Mappers.getMapper(ParentMapper.class);
-    }
 
     @Bean
     ParentPolicy parentPolicy() {

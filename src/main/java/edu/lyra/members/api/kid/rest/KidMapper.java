@@ -6,10 +6,11 @@ import edu.lyra.members.api.parent.Parent;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 interface KidMapper {
 
     @Mapping(target = "id", ignore = true)

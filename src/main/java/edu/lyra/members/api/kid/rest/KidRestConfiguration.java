@@ -5,17 +5,11 @@ import java.util.List;
 import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.ParentRepository;
-import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class KidRestConfiguration {
-
-    @Bean
-    KidMapper kidMapper() {
-        return Mappers.getMapper(KidMapper.class);
-    }
 
     @Bean
     KidPolicy kidPolicy(final ParentRepository parentRepository) {

@@ -5,17 +5,11 @@ import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.PersonRepository;
 import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.TeacherRepository;
-import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class PersonRestConfiguration {
-
-    @Bean
-    PersonMapper personMapper() {
-        return Mappers.getMapper(PersonMapper.class);
-    }
 
     @Bean
     PersonAdapter personAdapter(

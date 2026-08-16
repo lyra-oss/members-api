@@ -3,17 +3,11 @@ package edu.lyra.members.api.school.rest;
 import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.school.SchoolRepository;
 import edu.lyra.members.api.teacher.TeacherRepository;
-import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class SchoolRestConfiguration {
-
-    @Bean
-    SchoolMapper schoolMapper() {
-        return Mappers.getMapper(SchoolMapper.class);
-    }
 
     @Bean
     SchoolPolicy schoolPolicy() {

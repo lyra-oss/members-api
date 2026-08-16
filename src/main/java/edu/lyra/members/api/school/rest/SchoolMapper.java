@@ -4,10 +4,11 @@ import edu.lyra.members.api.school.School;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 interface SchoolMapper {
 
     @Mapping(target = "id", ignore = true)
