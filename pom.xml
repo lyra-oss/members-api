@@ -40,7 +40,7 @@
         <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
         <log4j2.version>2.25.5</log4j2.version>
-        <cucumber.version>7.34.6</cucumber.version>
+        <cucumber.version>7.34.7</cucumber.version>
         <opentelemetry.version>1.65.0</opentelemetry.version>
         <okhttp.version>5.4.0</okhttp.version>
         <archunit.version>1.5.0</archunit.version>
