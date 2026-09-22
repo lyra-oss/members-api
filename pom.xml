@@ -50,6 +50,8 @@
         <!-- Jackson 3 (tools.jackson) needs annotations from the Jackson 2 line, so both move together. -->
         <jackson-bom.version>3.2.3</jackson-bom.version>
         <jackson-2-bom.version>2.22.3</jackson-2-bom.version>
+        <!-- Annotations release on their own cadence inside that BOM. -->
+        <jackson-annotations.version>2.22</jackson-annotations.version>
         <instancio.version>6.0.1</instancio.version>
         <datafaker.version>2.7.0</datafaker.version>
         <mapstruct.version>1.6.3</mapstruct.version>
@@ -69,12 +71,85 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Cucumber is not managed by Spring Boot at all, so this import is what supplies its versions. -->
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
                 <version>${cucumber.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!--
+                Everything below raises a version above the Spring Boot BOM's default. The matching properties
+                already do that for Maven, and they are what keeps each family moving as a unit. These entries
+                exist because a property that overrides one declared in the parent BOM is invisible to dependency
+                scanners: Snyk read jackson-databind as the 3.1.4 that spring-boot-jackson and
+                spring-boot-docker-compose hard-code in their own POMs, rather than the managed 3.2.3, and failed
+                the PR on two advisories already fixed in 3.1.5. Stating the versions here resolves them for the
+                scanner as well as for Maven. An upstream BOM import covers a whole family in one entry; the
+                families without a BOM are listed artifact by artifact.
+            -->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-bom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson-bom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-el</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
