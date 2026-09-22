@@ -2,10 +2,12 @@ package edu.lyra.members.api.config.jpa;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.stream.Stream;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.classroom.ClassroomRepository;
@@ -14,6 +16,7 @@ import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.Person;
+import edu.lyra.members.api.person.PersonRole;
 import edu.lyra.members.api.school.School;
 import edu.lyra.members.api.teacher.Teacher;
 import edu.lyra.members.api.teacher.TeacherRepository;
@@ -28,6 +31,8 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import static java.util.Comparator.comparing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,6 +71,10 @@ class PaginationTest {
 
     private static final long QUERY_ONLY = 1L;
 
+    /** The order every role listing promises: the rendered name, then surname, then the id that makes it total. */
+    private static final Comparator<PersonRole> BY_RENDERED_NAME =
+            comparing(PersonRole::getName).thenComparing(PersonRole::getSurname).thenComparing(PersonRole::getId);
+
     @Autowired
     private TestEntityManager entityManager;
 
@@ -98,6 +107,10 @@ class PaginationTest {
 
     private List<UUID> parentIds;
 
+    private List<UUID> classroomStaffIds;
+
+    private List<UUID> schoolTeacherIds;
+
     @BeforeEach
     void seed() {
         final School school = new School();
@@ -105,7 +118,7 @@ class PaginationTest {
         this.entityManager.persist(school);
         this.schoolId = school.getId();
 
-        final Teacher tutor = Teacher.builder().person(aPerson("tutor")).school(school).build();
+        final Teacher tutor = Teacher.builder().person(aPerson("zz-tutor")).school(school).build();
         this.entityManager.persist(tutor);
         this.tutorId = tutor.getId();
 
@@ -118,12 +131,20 @@ class PaginationTest {
         // The tutor is deliberately not on the teaching staff: every kid then matches the tutor branch of
         // findByClassroomTaughtOrTutoredBy once per staff teacher, so the join multiplies rows STAFF_TEACHERS-fold
         // and only 'distinct' brings it back to one row per kid.
+        // Named backwards so that seeding order is not name order: the listings are sorted by the person's name, so
+        // a fixture that recorded insertion order would pass whether or not the query ordered anything.
+        final List<Teacher> staffTeachers = new ArrayList<>();
         for(int i = 0; i < STAFF_TEACHERS; i++) {
-            final Teacher staff = Teacher.builder().person(aPerson("staff-" + i)).school(school).build();
+            final Teacher staff =
+                    Teacher.builder().person(aPerson("staff-" + (char) ('c' - i))).school(school).build();
             this.entityManager.persist(staff);
             classroom.getTeachers().add(staff);
+            staffTeachers.add(staff);
             this.staffTeacherId = staff.getId();
         }
+        this.classroomStaffIds = staffTeachers.stream().sorted(BY_RENDERED_NAME).map(Teacher::getId).toList();
+        this.schoolTeacherIds = Stream.concat(Stream.of(tutor), staffTeachers.stream())
+                                      .sorted(BY_RENDERED_NAME).map(Teacher::getId).toList();
         this.entityManager.persist(classroom);
         this.classroomId = classroom.getId();
 
@@ -140,13 +161,18 @@ class PaginationTest {
         this.entityManager.persist(parent);
         this.parentId = parent.getId();
 
-        this.parentIds = new ArrayList<>();
-        this.parentIds.add(parent.getId());
+        // Named so that seeding order is not name order: the listing is sorted by the person's name, so a fixture
+        // that simply recorded insertion order would pass whether or not the query ordered anything.
+        final List<Parent> parents = new ArrayList<>(List.of(parent));
         for(int i = 0; i < 2; i++) {
-            final Parent other = Parent.builder().person(aPerson("other-parent-" + i)).build();
+            final Parent other = Parent.builder().person(aPerson("aardvark-parent-" + i)).build();
             this.entityManager.persist(other);
-            this.parentIds.add(other.getId());
+            parents.add(other);
         }
+        this.parentIds = parents.stream()
+                                .sorted(comparing(Parent::getName).thenComparing(Parent::getSurname)
+                                                                  .thenComparing(Parent::getId))
+                                .map(Parent::getId).toList();
 
         // Names are seeded in ascending order so the list doubles as the expected order for the sorted query.
         this.kidIdsByName = new ArrayList<>();
@@ -191,11 +217,7 @@ class PaginationTest {
 
     @Test
     void aClassroomsTeachingStaffIsPagedWithoutTheManyToManyLeakingIntoTheTotal() {
-        final List<UUID> staff = this.teacherRepository.findByClassroomId(this.classroomId,
-                                                                          PageRequest.of(0, STAFF_TEACHERS))
-                                                       .map(Teacher::getId).getContent();
-        this.entityManager.clear();
-        assertPaging("a classroom's teaching staff", staff,
+        assertPaging("a classroom's teaching staff", this.classroomStaffIds,
                      page -> this.teacherRepository.findByClassroomId(this.classroomId,
                                                                       PageRequest.of(page, PAGE_SIZE)),
                      Teacher::getId);
@@ -203,19 +225,16 @@ class PaginationTest {
 
     @Test
     void aSchoolsTeachersArePagedAtAConstantCostDespiteTheFetchGraph() {
-        final List<UUID> teachers = this.teacherRepository.findBySchoolId(this.schoolId,
-                                                                          PageRequest.of(0, STAFF_TEACHERS + 1))
-                                                          .map(Teacher::getId).getContent();
-        this.entityManager.clear();
-        assertPaging("a school's teachers", teachers,
+        assertPaging("a school's teachers", this.schoolTeacherIds,
                      page -> this.teacherRepository.findBySchoolId(this.schoolId, PageRequest.of(page, PAGE_SIZE)),
                      Teacher::getId);
     }
 
     @Test
     void aSchoolsClassroomsArePagedAtAConstantCost() {
-        final List<UUID> classrooms = this.classroomRepository.findBySchoolIdOrderByCourseAscGroupAsc(this.schoolId, PageRequest.of(0, 10))
-                                                              .map(Classroom::getId).getContent();
+        final List<UUID> classrooms =
+                this.classroomRepository.findBySchoolIdOrderByCourseAscGroupAsc(this.schoolId, PageRequest.of(0, 10))
+                                        .map(Classroom::getId).getContent();
         this.entityManager.clear();
         assertPaging("a school's classrooms", classrooms,
                      page -> this.classroomRepository.findBySchoolIdOrderByCourseAscGroupAsc(this.schoolId,
