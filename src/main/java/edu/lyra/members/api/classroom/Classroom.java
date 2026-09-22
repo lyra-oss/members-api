@@ -45,7 +45,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(
         name = "CLASSROOMS",
         // SCHOOL_ID leads for the same reason as KIDS: the constraint is unchanged, and its index now serves
-        // findBySchoolId and countBySchoolId instead of needing one of their own.
+        // findBySchoolIdOrderByCourseAscGroupAsc and countBySchoolId instead of needing one of their own: the
+        // first reads it in COURSE, GROUP_NAME order without a sort.
         uniqueConstraints = @UniqueConstraint(columnNames = { "SCHOOL_ID", "COURSE", "GROUP_NAME" }),
         indexes = @Index(name = "IDX_CLASSROOMS_TUTOR_ID", columnList = "TUTOR_ID")
 )

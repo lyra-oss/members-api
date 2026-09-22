@@ -22,14 +22,19 @@ public interface ClassroomRepository
         extends CrudRepository<Classroom, UUID>, ListPagingAndSortingRepository<Classroom, UUID> {
 
     /**
-     * Finds a page of the classrooms at the given school.
+     * Finds a page of the classrooms at the given school, ordered by course and then group.
+     *
+     * <p>That order is the one the school's unique constraint is already stored in
+     * ({@code SCHOOL_ID, COURSE, GROUP_NAME}), so the same index that narrows to the school also returns the rows
+     * sorted and the database does no sort of its own. It also makes paging deterministic: without an order,
+     * {@code LIMIT}/{@code OFFSET} may repeat a row on one page and skip it on the next.
      *
      * @param schoolId the school's id
      * @param pageable the requested page
      *
      * @return the matching page of classrooms
      */
-    Page<Classroom> findBySchoolId(final UUID schoolId, final Pageable pageable);
+    Page<Classroom> findBySchoolIdOrderByCourseAscGroupAsc(final UUID schoolId, final Pageable pageable);
 
     /**
      * Counts the classrooms at the given school.

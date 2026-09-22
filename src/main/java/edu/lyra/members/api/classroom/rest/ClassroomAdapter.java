@@ -61,7 +61,8 @@ class ClassroomAdapter
         if(! this.schoolRepository.existsById(schoolId)) {
             return Optional.empty();
         }
-        final Page<Classroom> page = this.classroomRepository.findBySchoolId(schoolId, pageable);
+        final Page<Classroom> page =
+                this.classroomRepository.findBySchoolIdOrderByCourseAscGroupAsc(schoolId, pageable);
         return Optional.of(pagedAssembler.toModel(page, this));
     }
 

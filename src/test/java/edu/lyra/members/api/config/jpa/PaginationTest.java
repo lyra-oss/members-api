@@ -214,11 +214,12 @@ class PaginationTest {
 
     @Test
     void aSchoolsClassroomsArePagedAtAConstantCost() {
-        final List<UUID> classrooms = this.classroomRepository.findBySchoolId(this.schoolId, PageRequest.of(0, 10))
+        final List<UUID> classrooms = this.classroomRepository.findBySchoolIdOrderByCourseAscGroupAsc(this.schoolId, PageRequest.of(0, 10))
                                                               .map(Classroom::getId).getContent();
         this.entityManager.clear();
         assertPaging("a school's classrooms", classrooms,
-                     page -> this.classroomRepository.findBySchoolId(this.schoolId, PageRequest.of(page, PAGE_SIZE)),
+                     page -> this.classroomRepository.findBySchoolIdOrderByCourseAscGroupAsc(this.schoolId,
+                                                                              PageRequest.of(page, PAGE_SIZE)),
                      Classroom::getId);
     }
 
