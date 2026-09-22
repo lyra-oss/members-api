@@ -14,6 +14,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -43,7 +44,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Table(
         name = "CLASSROOMS",
-        uniqueConstraints = @UniqueConstraint(columnNames = { "COURSE", "GROUP_NAME", "SCHOOL_ID" })
+        // SCHOOL_ID leads for the same reason as KIDS: the constraint is unchanged, and its index now serves
+        // findBySchoolId and countBySchoolId instead of needing one of their own.
+        uniqueConstraints = @UniqueConstraint(columnNames = { "SCHOOL_ID", "COURSE", "GROUP_NAME" }),
+        indexes = @Index(name = "IDX_CLASSROOMS_TUTOR_ID", columnList = "TUTOR_ID")
 )
 public class Classroom
         extends Auditable {
@@ -76,7 +80,10 @@ public class Classroom
     @JoinTable(
             name = "CLASSROOM_TEACHERS",
             joinColumns = @JoinColumn(name = "CLASSROOM_ID"),
-            inverseJoinColumns = @JoinColumn(name = "TEACHER_ID")
+            inverseJoinColumns = @JoinColumn(name = "TEACHER_ID"),
+            // The join table's primary key is (CLASSROOM_ID, TEACHER_ID), so lookups by classroom already have an
+            // index. Reaching the other way - which classrooms a teacher is on - has to be indexed separately.
+            indexes = @Index(name = "IDX_CLASSROOM_TEACHERS_TEACHER_ID", columnList = "TEACHER_ID")
     )
     private Set<Teacher> teachers = new HashSet<>();
 

@@ -9,6 +9,7 @@ import edu.lyra.members.api.school.School;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
@@ -31,7 +32,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "TEACHERS")
+@Table(name = "TEACHERS", indexes = @Index(name = "IDX_TEACHERS_SCHOOL_ID", columnList = "SCHOOL_ID"))
 public class Teacher
         extends PersonRole {
 

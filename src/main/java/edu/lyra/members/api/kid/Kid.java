@@ -13,6 +13,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -33,7 +34,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "KIDS", uniqueConstraints = @UniqueConstraint(columnNames = { "NAME", "BIRTHDATE", "PARENT_ID" }))
+@Table(
+        name = "KIDS",
+        // PARENT_ID leads so the constraint's own index also serves the lookups that filter on it. The set of
+        // columns is what makes the constraint, not their order, so this costs nothing and saves an index:
+        // findByParentIdOrderByNameAsc reads it in NAME order without a sort, and countByParentId ranges over it.
+        uniqueConstraints = @UniqueConstraint(columnNames = { "PARENT_ID", "NAME", "BIRTHDATE" }),
+        indexes = @Index(name = "IDX_KIDS_CLASSROOM_ID", columnList = "CLASSROOM_ID")
+)
 public class Kid
         extends Auditable {
 
