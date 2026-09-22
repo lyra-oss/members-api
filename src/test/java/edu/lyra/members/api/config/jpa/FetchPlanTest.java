@@ -2,7 +2,6 @@ package edu.lyra.members.api.config.jpa;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
@@ -23,13 +22,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
-import org.springframework.context.annotation.Bean;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -45,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Esteban Cristóbal Rodríguez
  */
 @DataJpaTest(properties = { "spring.jpa.properties.hibernate.generate_statistics=true" })
-@Import(FetchPlanTest.FixedAuditorConfiguration.class)
+@Import(FixedAuditorConfiguration.class)
 class FetchPlanTest {
 
     private static final int PAGE_SIZE = 20;
@@ -207,17 +202,6 @@ class FetchPlanTest {
         kid.setParent(parent);
         kid.setClassroom(classroom);
         return kid;
-    }
-
-    @TestConfiguration
-    @EnableJpaAuditing(auditorAwareRef = "fixedAuditorAware")
-    static class FixedAuditorConfiguration {
-
-        @Bean
-        AuditorAware<String> fixedAuditorAware() {
-            return () -> Optional.of("fetch-plan-test");
-        }
-
     }
 
 }
