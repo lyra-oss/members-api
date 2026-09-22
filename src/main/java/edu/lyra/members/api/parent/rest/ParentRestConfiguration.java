@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 class ParentRestConfiguration {
 
     @Bean
-    ParentPolicy parentPolicy() {
-        return new ParentPolicy();
+    ParentPolicy parentPolicy(final KidRepository kidRepository) {
+        return new ParentPolicy(kidRepository);
     }
 
     @Bean

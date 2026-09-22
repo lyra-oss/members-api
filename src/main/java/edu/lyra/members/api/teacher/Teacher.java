@@ -8,6 +8,7 @@ import edu.lyra.members.api.person.PersonRole;
 import edu.lyra.members.api.school.School;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
@@ -35,7 +36,8 @@ public class Teacher
         extends PersonRole {
 
     @Setter
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private School school;
 
     @Builder

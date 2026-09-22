@@ -111,6 +111,14 @@
             <property name="message" value="Space after unary '!': write '! condition'"/>
         </module>
 
+        <!-- Persistence: eager fetching is never the right default here; see JpaEntityRulesTest. -->
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="FetchType\.EAGER"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message"
+                      value="Eager fetching is forbidden: declare fetch = FetchType.LAZY and page the read instead"/>
+        </module>
+
         <!-- Blocks -->
         <module name="NeedBraces"/>
         <module name="LeftCurly"/>

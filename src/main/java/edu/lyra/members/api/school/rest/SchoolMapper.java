@@ -12,14 +12,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 interface SchoolMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "classrooms", ignore = true)
-    @Mapping(target = "teachers", ignore = true)
     School toEntity(SchoolRequest request);
 
     SchoolModel toModel(School school);
 
-    @Mapping(target = "classrooms", ignore = true)
-    @Mapping(target = "teachers", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void update(SchoolRequest request, @MappingTarget School school);
 

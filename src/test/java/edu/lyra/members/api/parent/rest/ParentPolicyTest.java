@@ -1,15 +1,19 @@
 package edu.lyra.members.api.parent.rest;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.kid.Kid;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.person.PersonRole;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,10 +29,20 @@ import static org.instancio.Instancio.of;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ParentPolicyTest {
 
-    private final ParentPolicy policy = new ParentPolicy();
+    @Mock
+    private KidRepository kidRepository;
+
+    private ParentPolicy policy;
+
+    @BeforeEach
+    void setUp() {
+        this.policy = new ParentPolicy(this.kidRepository);
+    }
 
     @AfterEach
     void clearContext() {
@@ -58,8 +72,7 @@ class ParentPolicyTest {
     }
 
     private static Parent aParentWithId(final UUID id) {
-        return of(Parent.class).set(field(PersonRole.class, "id"), id).set(field(Parent.class, "kids"), Set.of())
-                               .create();
+        return of(Parent.class).set(field(PersonRole.class, "id"), id).create();
     }
 
     @Test
@@ -99,12 +112,9 @@ class ParentPolicyTest {
     @Test
     void rejectsDeletingAParentThatStillHasKids() {
         authenticateAs(randomUUID(), "admin");
-        final UUID id = randomUUID();
-        //@formatter:off
-        final Parent parent = of(Parent.class).set(field(PersonRole.class, "id"), id)
-                                               .set(field(Parent.class, "kids"), Set.of(aKidCreatedBy(id)))
-                                               .create();
-        //@formatter:on
+        final UUID   id     = randomUUID();
+        final Parent parent = aParentWithId(id);
+        when(this.kidRepository.countByParentId(id)).thenReturn(1L);
         assertThrows(ParentHasKidsException.class, () -> this.policy.authorizeDelete(parent));
     }
 

@@ -32,6 +32,30 @@ public interface KidRepository
     Page<Kid> findByParentIdOrderByNameAsc(final UUID parentId, final Pageable pageable);
 
     /**
+     * Counts the kids linked to the given parent.
+     *
+     * <p>Callers that only need to know whether a parent still has kids must use this instead of walking an
+     * association, so the database answers with a count rather than the application loading every row.
+     *
+     * @param parentId the parent's id
+     *
+     * @return the number of kids linked to that parent
+     */
+    long countByParentId(final UUID parentId);
+
+    /**
+     * Counts the kids enrolled in the given classroom.
+     *
+     * <p>Callers that only need to know whether a classroom still has kids must use this instead of walking an
+     * association, so the database answers with a count rather than the application loading every row.
+     *
+     * @param classroomId the classroom's id
+     *
+     * @return the number of kids enrolled in that classroom
+     */
+    long countByClassroomId(final UUID classroomId);
+
+    /**
      * Finds a page of the kids in classrooms the given teacher tutors or teaches, ordered by name.
      *
      * @param teacherId the teacher's id

@@ -86,7 +86,7 @@ class KidPolicyTest {
     }
 
     private static Parent aParentWithId(final UUID id) {
-        return of(Parent.class).set(field(PersonRole.class, "id"), id).ignore(field(Parent.class, "kids")).create();
+        return of(Parent.class).set(field(PersonRole.class, "id"), id).create();
     }
 
     private static Classroom aClassroomWithTutor(final UUID tutorId) {
@@ -94,7 +94,6 @@ class KidPolicyTest {
         //@formatter:off
         return of(Classroom.class).set(field(Classroom.class, "tutor"), tutor)
                                   .ignore(field(Classroom.class, "teachers"))
-                                  .ignore(field(Classroom.class, "kids"))
                                   .create();
         //@formatter:on
     }
@@ -272,7 +271,6 @@ class KidPolicyTest {
         //@formatter:off
         final Classroom classroom = of(Classroom.class).set(field(Classroom.class, "tutor"), (Teacher) null)
                                                        .ignore(field(Classroom.class, "teachers"))
-                                                       .ignore(field(Classroom.class, "kids"))
                                                        .create();
         //@formatter:on
         final Kid kid = aKid(aParentWithId(randomUUID()), classroom);

@@ -32,6 +32,18 @@ public interface ClassroomRepository
     Page<Classroom> findBySchoolId(final UUID schoolId, final Pageable pageable);
 
     /**
+     * Counts the classrooms at the given school.
+     *
+     * <p>Callers that only need to know whether a school still has classrooms must use this instead of walking an
+     * association, so the database answers with a count rather than the application loading every row.
+     *
+     * @param schoolId the school's id
+     *
+     * @return the number of classrooms at that school
+     */
+    long countBySchoolId(final UUID schoolId);
+
+    /**
      * Checks whether the given teacher tutors or teaches at least one classroom.
      *
      * @param teacherId the teacher's id

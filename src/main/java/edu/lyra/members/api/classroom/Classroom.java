@@ -5,12 +5,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import edu.lyra.members.api.config.jpa.Auditable;
-import edu.lyra.members.api.kid.Kid;
 import edu.lyra.members.api.school.School;
 import edu.lyra.members.api.teacher.Teacher;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,7 +18,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
@@ -28,11 +27,11 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import static jakarta.persistence.CascadeType.MERGE;
-import static jakarta.persistence.CascadeType.PERSIST;
-
 /**
- * A single course/group at a {@link School}, with an optional tutor and enrolled {@link Kid}s.
+ * A single course/group at a {@link School}, with an optional tutor and a teaching staff.
+ *
+ * <p>The enrolled {@code Kid}s are deliberately not mapped as a collection here: they are reached through
+ * {@code KidRepository}, which pages and orders them, instead of being loaded whole into this entity.
  *
  * @author Esteban Cristóbal Rodríguez
  * @see Auditable
@@ -63,25 +62,22 @@ public class Classroom
     private String group;
 
     @Setter
-    @ManyToOne
+    @Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private School school;
 
     @Setter
-    @ManyToOne
+    @Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private Teacher tutor;
 
     @Exclude
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "CLASSROOM_TEACHERS",
             joinColumns = @JoinColumn(name = "CLASSROOM_ID"),
             inverseJoinColumns = @JoinColumn(name = "TEACHER_ID")
     )
     private Set<Teacher> teachers = new HashSet<>();
-
-    @Exclude
-    @OneToMany(cascade = { PERSIST, MERGE })
-    @JoinColumn(name = "CLASSROOM_ID")
-    private Set<Kid> kids = new HashSet<>();
 
 }

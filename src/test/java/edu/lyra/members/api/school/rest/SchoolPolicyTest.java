@@ -1,15 +1,18 @@
 package edu.lyra.members.api.school.rest;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
-import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.exceptions.SchoolHasReferencesException;
 import edu.lyra.members.api.school.School;
-import edu.lyra.members.api.teacher.Teacher;
+import edu.lyra.members.api.teacher.TeacherRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,10 +27,22 @@ import static org.instancio.Instancio.of;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class SchoolPolicyTest {
 
-    private final SchoolPolicy policy = new SchoolPolicy();
+    @Mock
+    private ClassroomRepository classroomRepository;
+    @Mock
+    private TeacherRepository   teacherRepository;
+
+    private SchoolPolicy policy;
+
+    @BeforeEach
+    void setUp() {
+        this.policy = new SchoolPolicy(this.classroomRepository, this.teacherRepository);
+    }
 
     @AfterEach
     void clearContext() {
@@ -42,72 +57,70 @@ class SchoolPolicyTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    private static School aSchool(final Set<Classroom> classrooms, final Set<Teacher> teachers) {
-        //@formatter:off
-        return of(School.class).set(field(School.class, "classrooms"), classrooms)
-                               .set(field(School.class, "teachers"), teachers)
-                               .create();
-        //@formatter:on
+    private static School aSchool() {
+        return of(School.class).create();
     }
 
     @Test
     void allowsAdminToUpdateASchool() {
         authenticateAs(randomUUID(), "admin");
-        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aSchool(Set.of(), Set.of())));
+        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aSchool()));
     }
 
     @Test
     void rejectsParentUpdatingASchool() {
         authenticateAs(randomUUID(), "parent");
-        final School school = aSchool(Set.of(), Set.of());
+        final School school = aSchool();
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(school));
     }
 
     @Test
     void rejectsTeacherUpdatingASchool() {
         authenticateAs(randomUUID(), "teacher");
-        final School school = aSchool(Set.of(), Set.of());
+        final School school = aSchool();
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(school));
     }
 
     @Test
     void allowsAdminToDeleteASchoolWithNoReferences() {
         authenticateAs(randomUUID(), "admin");
-        assertDoesNotThrow(() -> this.policy.authorizeDelete(aSchool(Set.of(), Set.of())));
+        assertDoesNotThrow(() -> this.policy.authorizeDelete(aSchool()));
     }
 
     @Test
     void rejectsAdminDeletingASchoolThatStillHasClassrooms() {
         authenticateAs(randomUUID(), "admin");
-        final School school = aSchool(Set.of(of(Classroom.class).create()), Set.of());
+        final School school = aSchool();
+        when(this.classroomRepository.countBySchoolId(school.getId())).thenReturn(1L);
         assertThrows(SchoolHasReferencesException.class, () -> this.policy.authorizeDelete(school));
     }
 
     @Test
     void rejectsAdminDeletingASchoolThatStillHasTeachers() {
         authenticateAs(randomUUID(), "admin");
-        final School school = aSchool(Set.of(), Set.of(of(Teacher.class).create()));
+        final School school = aSchool();
+        when(this.teacherRepository.countBySchoolId(school.getId())).thenReturn(1L);
         assertThrows(SchoolHasReferencesException.class, () -> this.policy.authorizeDelete(school));
     }
 
     @Test
     void rejectsParentDeletingASchool() {
         authenticateAs(randomUUID(), "parent");
-        final School school = aSchool(Set.of(), Set.of());
+        final School school = aSchool();
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeDelete(school));
     }
 
     @Test
     void rejectsTeacherDeletingASchool() {
         authenticateAs(randomUUID(), "teacher");
-        final School school = aSchool(Set.of(), Set.of());
+        final School school = aSchool();
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeDelete(school));
     }
 
     @Test
     void rejectsUnauthenticatedDelete() {
         SecurityContextHolder.clearContext();
-        final School school = aSchool(Set.of(), Set.of());
+        final School school = aSchool();
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeDelete(school));
     }
 

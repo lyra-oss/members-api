@@ -14,7 +14,6 @@ interface ParentMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "person", ignore = true)
-    @Mapping(target = "kids", ignore = true)
     @BeanMapping(builder = @Builder(disableBuilder = true))
     Parent toEntity(ParentRequest request);
 
@@ -22,7 +21,6 @@ interface ParentMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "person", ignore = true)
-    @Mapping(target = "kids", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void update(ParentPatchRequest request, @MappingTarget Parent parent);
 
