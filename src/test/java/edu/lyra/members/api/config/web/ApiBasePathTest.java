@@ -17,17 +17,16 @@ class ApiBasePathTest {
     @Test
     void bindsTheConfiguredBasePath() {
         this.contextRunner.withPropertyValues("server.servlet.context-path=/v0")
-                           .run(context -> assertEquals("/v0", context.getBean(ApiBasePath.class).contextPath()));
+                          .run(context -> assertEquals("/v0", context.getBean(ApiBasePath.class).contextPath()));
     }
 
     @Test
     void rejectsABlankBasePath() {
-        this.contextRunner.withPropertyValues("server.servlet.context-path=")
-                           .run(context -> {
-                               final Throwable failure = context.getStartupFailure();
-                               assertInstanceOf(ConfigurationPropertiesBindException.class, failure);
-                               assertTrue(failure.getMessage().contains("ApiBasePath"));
-                           });
+        this.contextRunner.withPropertyValues("server.servlet.context-path=").run(context -> {
+            final Throwable failure = context.getStartupFailure();
+            assertInstanceOf(ConfigurationPropertiesBindException.class, failure);
+            assertTrue(failure.getMessage().contains("ApiBasePath"));
+        });
     }
 
     @EnableConfigurationProperties(ApiBasePath.class)

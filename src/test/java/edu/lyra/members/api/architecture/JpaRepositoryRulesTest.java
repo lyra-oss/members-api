@@ -24,8 +24,8 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 class JpaRepositoryRulesTest {
 
     private static final String JOIN_FETCH_WITH_PAGEABLE_MESSAGE =
-            "%s.%s pages a @Query that uses 'join fetch'; Hibernate cannot paginate that in SQL and silently falls "
-            + "back to loading every row and paginating in memory";
+            "%s.%s pages a @Query that uses 'join fetch'; Hibernate cannot paginate that in SQL and silently falls " +
+            "back to loading every row and paginating in memory";
 
     private static final String UNBOUNDED_RESULT_MESSAGE =
             "%s.%s returns %s of entities with no Pageable; return a Page so the result set stays bounded";

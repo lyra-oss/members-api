@@ -55,6 +55,18 @@ class ParentPolicyTest {
         assertDoesNotThrow(() -> this.policy.authorizeUpdate(aParentWithId(randomUUID())));
     }
 
+    private static void authenticateAs(final UUID id, final String... roles) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final List<SimpleGrantedAuthority> authorities =
+                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private static Parent aParentWithId(final UUID id) {
+        return of(Parent.class).set(field(PersonRole.class, "id"), id).create();
+    }
+
     @Test
     void allowsAParentToBindToThemselvesAKidTheyCreated() {
         final UUID   id     = randomUUID();
@@ -64,15 +76,18 @@ class ParentPolicyTest {
         assertDoesNotThrow(() -> this.policy.authorizeKidBinding(parent, kid));
     }
 
+    private static Kid aKidCreatedBy(final UUID creatorId) {
+        final Kid kid = new Kid();
+        ReflectionTestUtils.setField(kid, "id", randomUUID());
+        ReflectionTestUtils.setField(kid, "createdBy", creatorId.toString());
+        return kid;
+    }
+
     @Test
     void allowsAParentToUpdateTheirOwnAccount() {
         final UUID id = randomUUID();
         authenticateAs(id, "parent");
         assertDoesNotThrow(() -> this.policy.authorizeUpdate(aParentWithId(id)));
-    }
-
-    private static Parent aParentWithId(final UUID id) {
-        return of(Parent.class).set(field(PersonRole.class, "id"), id).create();
     }
 
     @Test
@@ -118,13 +133,6 @@ class ParentPolicyTest {
         assertThrows(ParentHasKidsException.class, () -> this.policy.authorizeDelete(parent));
     }
 
-    private static Kid aKidCreatedBy(final UUID creatorId) {
-        final Kid kid = new Kid();
-        ReflectionTestUtils.setField(kid, "id", randomUUID());
-        ReflectionTestUtils.setField(kid, "createdBy", creatorId.toString());
-        return kid;
-    }
-
     @Test
     void rejectsAParentDeletingAnotherParentsAccount() {
         authenticateAs(randomUUID(), "parent");
@@ -152,14 +160,6 @@ class ParentPolicyTest {
         final Parent parent = aParentWithId(randomUUID());
         final Kid    kid    = aKidCreatedBy(randomUUID());
         assertDoesNotThrow(() -> this.policy.authorizeKidBinding(parent, kid));
-    }
-
-    private static void authenticateAs(final UUID id, final String... roles) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final List<SimpleGrantedAuthority> authorities =
-                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test

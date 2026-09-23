@@ -29,10 +29,6 @@ class DisabledMethodsTest {
     @Autowired
     private ApiBasePath apiBasePath;
 
-    private String base() {
-        return this.apiBasePath.contextPath();
-    }
-
     @ParameterizedTest
     @MethodSource("edu.lyra.members.api.config.CrudResourceNames#stream")
     void itemPutIsDisabled(final String resource)
@@ -45,6 +41,10 @@ class DisabledMethodsTest {
                 .content("{}"))
                 .andExpect(status().isMethodNotAllowed());
         //@formatter:on
+    }
+
+    private String base() {
+        return this.apiBasePath.contextPath();
     }
 
     @Test

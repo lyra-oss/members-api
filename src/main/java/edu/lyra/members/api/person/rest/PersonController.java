@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/persons")
 class PersonController {
 
-    private final PersonAdapter                   adapter;
+    private final PersonAdapter adapter;
     private final PagedResourcesAssembler<Person> pagedAssembler;
 
     @PreAuthorize("hasRole('admin')")

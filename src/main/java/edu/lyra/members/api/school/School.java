@@ -22,8 +22,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  * A school, the shared organizational anchor for its classrooms and teachers.
  *
  * <p>Those {@link Classroom}s and {@link Teacher}s are deliberately not mapped as collections here: they are reached
- * through {@code ClassroomRepository} and {@code TeacherRepository}, which page and order them, instead of being
- * loaded whole into this entity.
+ * through {@code ClassroomRepository} and {@code TeacherRepository}, which page and order them, instead of being loaded
+ * whole into this entity.
  *
  * @author Esteban Cristóbal Rodríguez
  * @see Auditable

@@ -11,6 +11,7 @@ import edu.lyra.members.api.teacher.Teacher;
 import edu.lyra.members.api.teacher.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -35,6 +36,13 @@ class SchoolAdapter
         return this.repository.findById(id).map(this::toModel);
     }
 
+    @Override
+    public SchoolModel toModel(final @NonNull School school) {
+        final SchoolModel model = this.mapper.toModel(school);
+        model.add(linkTo(methodOn(SchoolController.class).get(school.getId())).withSelfRel());
+        return model;
+    }
+
     PagedModel<SchoolModel> findAll(final Pageable pageable, final PagedResourcesAssembler<School> pagedAssembler) {
         final Page<School> page = this.repository.findAll(pageable);
         return pagedAssembler.toModel(page, this);
@@ -53,13 +61,6 @@ class SchoolAdapter
         final School saved  = this.repository.save(school);
         log.debug("Created school {}", saved.getId());
         return this.toModel(saved);
-    }
-
-    @Override
-    public SchoolModel toModel(final School school) {
-        final SchoolModel model = this.mapper.toModel(school);
-        model.add(linkTo(methodOn(SchoolController.class).get(school.getId())).withSelfRel());
-        return model;
     }
 
     Optional<SchoolModel> update(final UUID id, final SchoolRequest request) {

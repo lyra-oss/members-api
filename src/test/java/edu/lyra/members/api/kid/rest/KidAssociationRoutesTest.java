@@ -104,20 +104,20 @@ class KidAssociationRoutesTest {
         SecurityContextHolder.clearContext();
     }
 
-    private String base() {
-        return this.apiBasePath.contextPath();
-    }
-
-    private MockHttpServletRequestBuilder withContextPath(final MockHttpServletRequestBuilder request) {
-        return request.contextPath(this.base());
-    }
-
     @ParameterizedTest
     @ValueSource(strings = { "parent", "classroom" })
     void postIsDisabled(final String relation)
             throws Exception {
         this.mvc.perform(this.withContextPath(post(this.base() + "/kids/" + this.kidId + "/" + relation).with(jwt())))
                 .andExpect(status().isMethodNotAllowed());
+    }
+
+    private MockHttpServletRequestBuilder withContextPath(final MockHttpServletRequestBuilder request) {
+        return request.contextPath(this.base());
+    }
+
+    private String base() {
+        return this.apiBasePath.contextPath();
     }
 
     @ParameterizedTest

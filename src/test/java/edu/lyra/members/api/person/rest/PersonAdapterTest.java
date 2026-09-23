@@ -79,23 +79,6 @@ class PersonAdapterTest {
         RequestContextHolder.resetRequestAttributes();
     }
 
-    private static School aSchool() {
-        final School school = new School();
-        school.setName("Gloria Fuertes");
-        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
-        return school;
-    }
-
-    private static Person aPerson(final UUID id) {
-        //@formatter:off
-        return Person.builder().id(id)
-                     .name("Esteban")
-                     .surname("Cristóbal")
-                     .mail("esteban.cristobal@example.com")
-                     .build();
-        //@formatter:on
-    }
-
     @Test
     void findByIdReturnsEmptyWhenThePersonDoesNotExist() {
         final UUID id = UUID.randomUUID();
@@ -108,6 +91,16 @@ class PersonAdapterTest {
         final UUID id = UUID.randomUUID();
         when(this.personRepository.findById(id)).thenReturn(Optional.of(aPerson(id)));
         assertEquals("Esteban", this.adapter.findById(id).orElseThrow().getName());
+    }
+
+    private static Person aPerson(final UUID id) {
+        //@formatter:off
+        return Person.builder().id(id)
+                     .name("Esteban")
+                     .surname("Cristóbal")
+                     .mail("esteban.cristobal@example.com")
+                     .build();
+        //@formatter:on
     }
 
     @Test
@@ -187,6 +180,13 @@ class PersonAdapterTest {
         verify(this.teacherRepository).save(captor.capture());
         assertEquals(school, captor.getValue().getSchool());
         assertEquals(person, captor.getValue().getPerson());
+    }
+
+    private static School aSchool() {
+        final School school = new School();
+        school.setName("Gloria Fuertes");
+        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
+        return school;
     }
 
     @Test

@@ -198,16 +198,16 @@ class SpringSecurityConfiguration {
         //@formatter:on
     }
 
+    private static String scope(final String entity, final String operation) {
+        return new StringJoiner(".", SCOPE_PREFIX, "").add(entity).add(operation).toString();
+    }
+
     private static AuthorizationManager<RequestAuthorizationContext> bothScopes(
             final String entityA,
             final String entityB
     ) {
         return AuthorizationManagers.allOf(AuthorityAuthorizationManager.hasAuthority(scope(entityA, OP_READ)),
                                            AuthorityAuthorizationManager.hasAuthority(scope(entityB, OP_READ)));
-    }
-
-    private static String scope(final String entity, final String operation) {
-        return new StringJoiner(".", SCOPE_PREFIX, "").add(entity).add(operation).toString();
     }
 
     @Bean

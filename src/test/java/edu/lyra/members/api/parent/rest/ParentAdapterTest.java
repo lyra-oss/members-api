@@ -49,21 +49,17 @@ import static org.mockito.Mockito.when;
 class ParentAdapterTest {
 
     private final ParentMapper mapper = Mappers.getMapper(ParentMapper.class);
+
     @Mock
     private ParentRepository parentRepository;
     @Mock
     private KidRepository kidRepository;
     @Mock
     private PersonRepository personRepository;
+
     private ParentPolicy policy;
 
     private ParentAdapter adapter;
-
-    private static Kid aKid() {
-        final Kid kid = new Kid();
-        ReflectionTestUtils.setField(kid, "id", UUID.randomUUID());
-        return kid;
-    }
 
     @AfterEach
     void tearDown() {
@@ -79,15 +75,6 @@ class ParentAdapterTest {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
 
-    private static Parent aParent(final String name) {
-        final Parent parent = new Parent();
-        parent.setName(name);
-        parent.setSurname("Cristóbal");
-        parent.setMail("esteban.cristobal@example.com");
-        ReflectionTestUtils.setField(parent, "id", UUID.randomUUID());
-        return parent;
-    }
-
     @Test
     void findByIdReturnsEmptyWhenTheParentDoesNotExist() {
         final UUID id = UUID.randomUUID();
@@ -101,6 +88,15 @@ class ParentAdapterTest {
         final Parent parent = aParent("Esteban");
         when(this.parentRepository.findById(id)).thenReturn(Optional.of(parent));
         assertEquals("Esteban", this.adapter.findById(id).orElseThrow().getName());
+    }
+
+    private static Parent aParent(final String name) {
+        final Parent parent = new Parent();
+        parent.setName(name);
+        parent.setSurname("Cristóbal");
+        parent.setMail("esteban.cristobal@example.com");
+        ReflectionTestUtils.setField(parent, "id", UUID.randomUUID());
+        return parent;
     }
 
     @Test
@@ -216,6 +212,12 @@ class ParentAdapterTest {
         when(this.kidRepository.findById(kidId)).thenReturn(Optional.of(aKid()));
         assertFalse(this.adapter.bindKid(parentId, kidId));
         verify(this.kidRepository, never()).save(any());
+    }
+
+    private static Kid aKid() {
+        final Kid kid = new Kid();
+        ReflectionTestUtils.setField(kid, "id", UUID.randomUUID());
+        return kid;
     }
 
     @Test

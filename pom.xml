@@ -61,17 +61,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!--
-                Cucumber is the only dependency here that Spring Boot does not manage, so this import is what
-                supplies its versions. Everything else this project uses comes from the Spring Boot BOM at the
-                version that release was tested against, and nothing is forced above it: a forced version is only
-                worth its cost while the managed one carries a known vulnerability, and none of them does on 4.1.1.
-
-                Leaving them unforced also keeps Maven and the dependency scanners reading the same number. A
-                property that overrides one declared in the parent BOM is invisible to a scanner, which resolves
-                the version the upstream POMs hard-code instead; that mismatch is what failed this PR on Jackson,
-                and it cannot arise while no version is raised.
-            -->
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
@@ -429,7 +418,6 @@
                         </goals>
                         <configuration>
                             <configLocation>checkstyle-architecture.xml</configLocation>
-                            <includeMainSourceDirectory>false</includeMainSourceDirectory>
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <testSourceDirectories>
                                 <testSourceDirectory>

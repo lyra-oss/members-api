@@ -101,10 +101,12 @@ class JpaAuditingTest {
     @Test
     void populatesAuditingFieldsForEveryEntity() {
         final String subject = this.authenticate();
-        final School school =
-                InstancioSupport.ignoringAuditableFields(
-                                Instancio.of(School.class).ignore(field(School.class, "id")))
-                        .set(field(School.class, "name"), FAKER.educator().secondarySchool()).create();
+        //@formatter:off
+        final School school = InstancioSupport.ignoringAuditableFields(Instancio.of(School.class)
+                                                                                .ignore(field(School.class, "id")))
+                                              .set(field(School.class, "name"), FAKER.educator().secondarySchool())
+                                              .create();
+        //@formatter:on
         final School saved = this.schoolRepository.save(school);
         this.entityManager.flush();
         assertEquals(subject, saved.getCreatedBy());

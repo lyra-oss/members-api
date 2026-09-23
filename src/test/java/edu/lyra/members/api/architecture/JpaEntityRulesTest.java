@@ -79,8 +79,8 @@ class JpaEntityRulesTest {
             "%s collection '%s' maps @OneToMany with @JoinColumn; use mappedBy so the column has a single owner";
 
     private static final String TO_STRING_TOUCHES_ASSOCIATION_MESSAGE =
-            "%s toString() reads association '%s'; exclude it (@ToString.Exclude) so printing cannot trigger a lazy "
-            + "load";
+            "%s toString() reads association '%s'; exclude it (@ToString.Exclude) so printing cannot trigger a lazy " +
+            "load";
 
     /**
      * Every {@code @Entity} must be annotated with {@code @EntityListeners(AuditingEntityListener.class)}, so JPA
@@ -372,14 +372,13 @@ class JpaEntityRulesTest {
                                + "DTOs");
             //@formatter:on
 
-
     /**
      * Every singular association ({@code @ManyToOne}, {@code @OneToOne}) must declare {@code fetch = FetchType.LAZY}.
      *
      * <p>JPA defaults these to {@code EAGER}, which is almost never what a paged read path wants: Hibernate walks the
      * whole object graph for every row and the {@code *Model} then discards it. A page of kids over twenty distinct
-     * parents cost forty-two statements before these associations were made lazy; it costs two now. {@code FetchPlanTest}
-     * pins those numbers, and this rule stops the annotation drifting back.
+     * parents cost forty-two statements before these associations were made lazy; it costs two now.
+     * {@code FetchPlanTest} pins those numbers, and this rule stops the annotation drifting back.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -427,9 +426,9 @@ class JpaEntityRulesTest {
      * No collection association ({@code @OneToMany}, {@code @ManyToMany}) may be fetched eagerly.
      *
      * <p>These default to {@code LAZY}, and an annotation default is indistinguishable from an explicit declaration
-     * once compiled, so this rule cannot demand that the fetch type be spelled out. What it does catch is the case
-     * that matters: somebody writing {@code FetchType.EAGER} on a collection, which turns every read of the owning
-     * entity into an unbounded load of its children.
+     * once compiled, so this rule cannot demand that the fetch type be spelled out. What it does catch is the case that
+     * matters: somebody writing {@code FetchType.EAGER} on a collection, which turns every read of the owning entity
+     * into an unbounded load of its children.
      *
      * <p>Compliant: {@code @ManyToMany(fetch = FetchType.LAZY) private Set<Teacher> teachers;}
      *
@@ -469,9 +468,9 @@ class JpaEntityRulesTest {
      * A {@code @OneToMany} must name its inverse with {@code mappedBy}; it may not carry a {@code @JoinColumn}.
      *
      * <p>A {@code @OneToMany} with {@code @JoinColumn} maps the same foreign-key column as the {@code @ManyToOne} on
-     * the other side, with neither side declared the inverse of the other. Writing through the collection then costs
-     * an extra UPDATE, leaves the two sides disagreeing in memory, and never assigns the generated id back to the
-     * caller's instance. {@code mappedBy} gives the column one owner.
+     * the other side, with neither side declared the inverse of the other. Writing through the collection then costs an
+     * extra UPDATE, leaves the two sides disagreeing in memory, and never assigns the generated id back to the caller's
+     * instance. {@code mappedBy} gives the column one owner.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -511,12 +510,12 @@ class JpaEntityRulesTest {
      * <p>Now that associations are lazy, printing one either fires an extra query or, on a detached entity, throws
      * {@code LazyInitializationException} - from inside a log statement, where neither belongs. Lombok's
      * {@code @ToString.Exclude} is the fix, but it is {@code RetentionPolicy.SOURCE} and therefore invisible here, so
-     * this rule inspects the generated method instead of the annotation. That is the stronger check anyway: it fails
-     * on a hand-written {@code toString()} too.
+     * this rule inspects the generated method instead of the annotation. That is the stronger check anyway: it fails on
+     * a hand-written {@code toString()} too.
      *
      * <p>Lombok reads fields through their getters, so both a direct field access and a call to an association's
-     * getter count as printing it. The check is deliberately a direct one: an accessor that reads an association on
-     * the caller's behalf, the way {@code PersonRole#getName()} reads {@code person}, is not traced through.
+     * getter count as printing it. The check is deliberately a direct one: an accessor that reads an association on the
+     * caller's behalf, the way {@code PersonRole#getName()} reads {@code person}, is not traced through.
      *
      * <p>Compliant:
      * <pre>{@code
@@ -542,7 +541,7 @@ class JpaEntityRulesTest {
                              final Map<String, String> byGetterName =
                                      javaClass.getAllFields().stream().filter(JpaEntityRulesTest::isAssociation)
                                               .collect(Collectors.toMap(JpaEntityRulesTest::getterNameFor,
-                                                                        JavaField::getName, (first, second) -> first));
+                                                                        JavaField::getName, (first, _) -> first));
                              javaClass.getMethods().stream()
                                       .filter(method -> "toString".equals(method.getName()))
                                       .filter(method -> method.getRawParameterTypes().isEmpty())

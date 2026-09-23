@@ -52,6 +52,7 @@ import static org.mockito.Mockito.when;
 class TeacherAdapterTest {
 
     private final TeacherMapper mapper = Mappers.getMapper(TeacherMapper.class);
+
     @Mock
     private TeacherRepository teacherRepository;
     @Mock
@@ -60,6 +61,7 @@ class TeacherAdapterTest {
     private PersonRepository personRepository;
     @Mock
     private ClassroomRepository classroomRepository;
+
     private TeacherPolicy policy;
 
     private TeacherAdapter adapter;

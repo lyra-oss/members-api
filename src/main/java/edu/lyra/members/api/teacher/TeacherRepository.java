@@ -2,6 +2,7 @@ package edu.lyra.members.api.teacher;
 
 import java.util.UUID;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -43,7 +44,7 @@ public interface TeacherRepository
             value = "select t from Teacher t order by t.person.name, t.person.surname, t.id",
             countQuery = "select count(t) from Teacher t"
     )
-    Page<Teacher> findAll(final Pageable pageable);
+    Page<Teacher> findAll(final @NonNull Pageable pageable);
 
     /**
      * Finds a page of the teachers at the given school.
@@ -88,8 +89,8 @@ public interface TeacherRepository
      *
      * <p>No {@code distinct} is needed: {@code c.id} is the primary key, so exactly one classroom matches, and the
      * join table's own primary key admits each teacher of it once. Dropping it also keeps the ordering legal -
-     * {@code select distinct} may only be ordered by expressions in its select list, and the order below reads
-     * through to the teacher's person.
+     * {@code select distinct} may only be ordered by expressions in its select list, and the order below reads through
+     * to the teacher's person.
      *
      * @param classroomId the classroom's id
      * @param pageable    the requested page

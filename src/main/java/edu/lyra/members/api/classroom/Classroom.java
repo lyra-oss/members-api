@@ -44,9 +44,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Table(
         name = "CLASSROOMS",
-        // SCHOOL_ID leads for the same reason as KIDS: the constraint is unchanged, and its index now serves
-        // findBySchoolIdOrderByCourseAscGroupAsc and countBySchoolId instead of needing one of their own: the
-        // first reads it in COURSE, GROUP_NAME order without a sort.
         uniqueConstraints = @UniqueConstraint(columnNames = { "SCHOOL_ID", "COURSE", "GROUP_NAME" }),
         indexes = @Index(name = "IDX_CLASSROOMS_TUTOR_ID", columnList = "TUTOR_ID")
 )
@@ -82,8 +79,6 @@ public class Classroom
             name = "CLASSROOM_TEACHERS",
             joinColumns = @JoinColumn(name = "CLASSROOM_ID"),
             inverseJoinColumns = @JoinColumn(name = "TEACHER_ID"),
-            // The join table's primary key is (CLASSROOM_ID, TEACHER_ID), so lookups by classroom already have an
-            // index. Reaching the other way - which classrooms a teacher is on - has to be indexed separately.
             indexes = @Index(name = "IDX_CLASSROOM_TEACHERS_TEACHER_ID", columnList = "TEACHER_ID")
     )
     private Set<Teacher> teachers = new HashSet<>();

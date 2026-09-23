@@ -41,6 +41,10 @@ public class ClassroomCreationFeatures
         this.performAddTeacher(teacherName, adminJwtProcessor()).andExpect(status().isNoContent());
     }
 
+    private static String idOf(final String location) {
+        return location.substring(location.lastIndexOf('/') + 1);
+    }
+
     static RequestPostProcessor adminJwtProcessor() {
         //@formatter:off
         return jwt().jwt(builder -> builder.subject(UUID.randomUUID().toString()))
@@ -59,10 +63,6 @@ public class ClassroomCreationFeatures
         final String teacherId = idOf(this.scenarioContext.getLocation("teacher:" + teacherName));
         final String path      = this.classroomLocation() + "/teachers/" + teacherId;
         return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.contextPath()));
-    }
-
-    private static String idOf(final String location) {
-        return location.substring(location.lastIndexOf('/') + 1);
     }
 
     @When("I add teacher {string} to the classroom")

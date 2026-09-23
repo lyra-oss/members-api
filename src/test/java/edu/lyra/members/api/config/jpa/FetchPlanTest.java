@@ -34,8 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * <p>These assertions are the guard for the fetch plan of the domain model. Every {@code @ManyToOne}/{@code @OneToOne}
  * is lazy, and the two role listings join-fetch the {@code Person} they render, so a page costs one query plus its
  * count regardless of how many distinct parents, classrooms or schools the page spans. Making an association eager
- * again, or dropping an {@code @EntityGraph}, turns a page back into one query per row: the counts below move and
- * these tests fail.
+ * again, or dropping an {@code @EntityGraph}, turns a page back into one query per row: the counts below move and these
+ * tests fail.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -48,8 +48,8 @@ class FetchPlanTest {
     private static final Pageable FIRST_PAGE = PageRequest.of(0, PAGE_SIZE);
 
     /**
-     * One query for the page plus one for its total. Spring Data only skips the count query when the page is not
-     * full, and every page built here is exactly full.
+     * One query for the page plus one for its total. Spring Data only skips the count query when the page is not full,
+     * and every page built here is exactly full.
      */
     private static final long QUERY_PLUS_COUNT = 2L;
 
@@ -107,6 +107,20 @@ class FetchPlanTest {
         this.entityManager.clear();
     }
 
+    private static Person aPerson(final String slug) {
+        return Person.builder().id(UUID.randomUUID()).name(slug).surname(slug).mail(slug + "@example.com").build();
+    }
+
+    private static Kid aKid(final String name, final int offset, final Parent parent, final Classroom classroom) {
+        final Kid kid = new Kid();
+        kid.setName(name);
+        kid.setSurname(name);
+        kid.setBirthdate(LocalDate.of(2015, 1, 1).plusDays(offset));
+        kid.setParent(parent);
+        kid.setClassroom(classroom);
+        return kid;
+    }
+
     @Test
     void listingKidsCostsOneQueryAndItsCountHoweverManyParentsThePageSpans() {
         final Statistics statistics = this.clearedStatistics();
@@ -118,6 +132,20 @@ class FetchPlanTest {
                      "a page of kids must not trigger a query per distinct parent or classroom");
         assertEquals(PAGE_SIZE, statistics.getEntityLoadCount(),
                      "only the kids themselves are rendered, so nothing else may be loaded");
+    }
+
+    /**
+     * Reads exactly what the {@code *Mapper} reads when it renders a role, so a lazily loaded {@code Person} would show
+     * up as an extra statement here just as it would in production.
+     *
+     * @param roles the roles to render
+     */
+    private static void readTheRenderedIdentityFieldsOf(final Iterable<? extends PersonRole> roles) {
+        roles.forEach(role -> {
+            role.getName();
+            role.getSurname();
+            role.getMail();
+        });
     }
 
     @Test
@@ -146,6 +174,12 @@ class FetchPlanTest {
                      "ParentRepository.findAll must join-fetch person; a lazy person costs one query per parent");
     }
 
+    private Statistics clearedStatistics() {
+        final Statistics statistics = this.em.unwrap(Session.class).getSessionFactory().getStatistics();
+        statistics.clear();
+        return statistics;
+    }
+
     @Test
     void listingTeachersFetchesTheirPersonInTheSameQuery() {
         final Statistics statistics = this.clearedStatistics();
@@ -168,40 +202,6 @@ class FetchPlanTest {
         assertEquals(1L, statistics.getPrepareStatementCount(), "counting must be a single statement");
         assertEquals(0L, statistics.getEntityLoadCount(),
                      "the delete guards must count in the database, never load the rows they are counting");
-    }
-
-    /**
-     * Reads exactly what the {@code *Mapper} reads when it renders a role, so a lazily loaded {@code Person} would
-     * show up as an extra statement here just as it would in production.
-     *
-     * @param roles the roles to render
-     */
-    private static void readTheRenderedIdentityFieldsOf(final Iterable<? extends PersonRole> roles) {
-        roles.forEach(role -> {
-            role.getName();
-            role.getSurname();
-            role.getMail();
-        });
-    }
-
-    private Statistics clearedStatistics() {
-        final Statistics statistics = this.em.unwrap(Session.class).getSessionFactory().getStatistics();
-        statistics.clear();
-        return statistics;
-    }
-
-    private static Person aPerson(final String slug) {
-        return Person.builder().id(UUID.randomUUID()).name(slug).surname(slug).mail(slug + "@example.com").build();
-    }
-
-    private static Kid aKid(final String name, final int offset, final Parent parent, final Classroom classroom) {
-        final Kid kid = new Kid();
-        kid.setName(name);
-        kid.setSurname(name);
-        kid.setBirthdate(LocalDate.of(2015, 1, 1).plusDays(offset));
-        kid.setParent(parent);
-        kid.setClassroom(classroom);
-        return kid;
     }
 
 }

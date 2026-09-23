@@ -61,14 +61,6 @@ public class AuthenticatedPrincipal {
                AuthenticatedPrincipal.currentId().map(current -> Objects.equals(current, id)).orElse(false);
     }
 
-    static Optional<String> currentSubject() {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(! (authentication instanceof JwtAuthenticationToken jwtAuth)) {
-            return empty();
-        }
-        return ofNullable(jwtAuth.getToken().getSubject());
-    }
-
     /**
      * Reads the authenticated principal's id from the current JWT's {@code sub} claim, if any.
      *
@@ -81,6 +73,14 @@ public class AuthenticatedPrincipal {
         } catch(final IllegalArgumentException _) {
             return empty();
         }
+    }
+
+    static Optional<String> currentSubject() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(! (authentication instanceof JwtAuthenticationToken jwtAuth)) {
+            return empty();
+        }
+        return ofNullable(jwtAuth.getToken().getSubject());
     }
 
     /**

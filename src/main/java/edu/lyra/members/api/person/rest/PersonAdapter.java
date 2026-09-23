@@ -18,6 +18,7 @@ import edu.lyra.members.api.teacher.Teacher;
 import edu.lyra.members.api.teacher.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -40,15 +41,15 @@ class PersonAdapter
     private final KidRepository       kidRepository;
     private final PersonMapper        mapper;
 
+    Optional<PersonModel> findById(final UUID id) {
+        return this.personRepository.findById(id).map(this::toModel);
+    }
+
     @Override
-    public PersonModel toModel(final Person person) {
+    public PersonModel toModel(final @NonNull Person person) {
         final PersonModel model = this.mapper.toModel(person);
         model.add(linkTo(methodOn(PersonController.class).get(person.getId())).withSelfRel());
         return model;
-    }
-
-    Optional<PersonModel> findById(final UUID id) {
-        return this.personRepository.findById(id).map(this::toModel);
     }
 
     PagedModel<PersonModel> findAll(final Pageable pageable, final PagedResourcesAssembler<Person> pagedAssembler) {

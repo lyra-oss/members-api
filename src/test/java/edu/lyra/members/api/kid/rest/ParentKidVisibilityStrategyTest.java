@@ -51,6 +51,13 @@ class ParentKidVisibilityStrategyTest {
         assertTrue(this.strategy.supports());
     }
 
+    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
+        final List<SimpleGrantedAuthority> granted =
+                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
+    }
+
     @Test
     void supportsReturnsFalseWhenTheRoleDoesNotMatch() {
         authenticateAsJwt(UUID.randomUUID(), "ROLE_teacher");
@@ -73,13 +80,6 @@ class ParentKidVisibilityStrategyTest {
         when(this.kidRepository.findByParentIdOrderByNameAsc(parentId, pageable)).thenReturn(page);
         assertEquals(page, this.strategy.findVisible(pageable));
         verify(this.kidRepository).findByParentIdOrderByNameAsc(parentId, pageable);
-    }
-
-    private static void authenticateAsJwt(final UUID subject, final String... authorities) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(subject.toString()).build();
-        final List<SimpleGrantedAuthority> granted =
-                Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList();
-        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, granted));
     }
 
 }

@@ -24,7 +24,6 @@ import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 
 import static org.instancio.Instancio.of;
-import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -49,6 +48,12 @@ class SchoolPolicyTest {
         SecurityContextHolder.clearContext();
     }
 
+    @Test
+    void allowsAdminToUpdateASchool() {
+        authenticateAs(randomUUID(), "admin");
+        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aSchool()));
+    }
+
     private static void authenticateAs(final UUID id, final String... roles) {
         final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
         final List<SimpleGrantedAuthority> authorities =
@@ -59,12 +64,6 @@ class SchoolPolicyTest {
 
     private static School aSchool() {
         return of(School.class).create();
-    }
-
-    @Test
-    void allowsAdminToUpdateASchool() {
-        authenticateAs(randomUUID(), "admin");
-        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aSchool()));
     }
 
     @Test
