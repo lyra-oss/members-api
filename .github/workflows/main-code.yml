@@ -8,18 +8,17 @@ on:
       - '.github/workflows/dependabot-code.yml'
       - '.github/dependabot.yml'
 
-permissions:
-  contents: read
-
 jobs:
   build-source-code:
     permissions:
+      contents: read
       security-events: write
     name: Build source code
     uses: ./.github/workflows/build-code.yml
     secrets: inherit
   build-application-deliverable:
     permissions:
+      contents: read
       security-events: write
       packages: write
     needs: build-source-code
