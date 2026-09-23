@@ -1,16 +1,19 @@
 package edu.lyra.members.api.classroom.rest;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
 import edu.lyra.members.api.exceptions.ClassroomHasKidsException;
-import edu.lyra.members.api.kid.Kid;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.person.PersonRole;
 import edu.lyra.members.api.teacher.Teacher;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,10 +28,20 @@ import static org.instancio.Instancio.of;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ClassroomPolicyTest {
 
-    private final ClassroomPolicy policy = new ClassroomPolicy();
+    @Mock
+    private KidRepository kidRepository;
+
+    private ClassroomPolicy policy;
+
+    @BeforeEach
+    void setUp() {
+        this.policy = new ClassroomPolicy(this.kidRepository);
+    }
 
     @AfterEach
     void clearContext() {
@@ -38,14 +51,21 @@ class ClassroomPolicyTest {
     @Test
     void allowsAdminToUpdateAnyClassroom() {
         authenticateAs(randomUUID(), "admin");
-        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aClassroom(aTeacherWithId(randomUUID()), Set.of())));
+        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aClassroom(aTeacherWithId(randomUUID()))));
     }
 
-    private static Classroom aClassroom(final Teacher tutor, final Set<Kid> kids) {
+    private static void authenticateAs(final UUID id, final String... roles) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final List<SimpleGrantedAuthority> authorities =
+                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private static Classroom aClassroom(final Teacher tutor) {
         //@formatter:off
         return of(Classroom.class).set(field(Classroom.class, "tutor"), tutor)
                                   .ignore(field(Classroom.class, "teachers"))
-                                  .set(field(Classroom.class, "kids"), kids)
                                   .create();
         //@formatter:on
     }
@@ -58,62 +78,55 @@ class ClassroomPolicyTest {
     void allowsCurrentTutorToUpdateTheClassroom() {
         final UUID tutorId = randomUUID();
         authenticateAs(tutorId, "teacher");
-        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aClassroom(aTeacherWithId(tutorId), Set.of())));
-    }
-
-    private static void authenticateAs(final UUID id, final String... roles) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final List<SimpleGrantedAuthority> authorities =
-                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        assertDoesNotThrow(() -> this.policy.authorizeUpdate(aClassroom(aTeacherWithId(tutorId))));
     }
 
     @Test
     void rejectsNonTutorTeacherUpdatingTheClassroom() {
         authenticateAs(randomUUID(), "teacher");
-        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()), Set.of());
+        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()));
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(classroom));
     }
 
     @Test
     void rejectsUpdatingAClassroomWithNoTutorByATeacher() {
         authenticateAs(randomUUID(), "teacher");
-        final Classroom classroom = aClassroom(null, Set.of());
+        final Classroom classroom = aClassroom(null);
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(classroom));
     }
 
     @Test
     void rejectsParentUpdatingAClassroom() {
         authenticateAs(randomUUID(), "parent");
-        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()), Set.of());
+        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()));
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(classroom));
     }
 
     @Test
     void rejectsUnauthenticatedUpdate() {
         SecurityContextHolder.clearContext();
-        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()), Set.of());
+        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()));
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeUpdate(classroom));
     }
 
     @Test
     void allowsAdminToDeleteAClassroomWithoutKids() {
         authenticateAs(randomUUID(), "admin");
-        assertDoesNotThrow(() -> this.policy.authorizeDelete(aClassroom(aTeacherWithId(randomUUID()), Set.of())));
+        assertDoesNotThrow(() -> this.policy.authorizeDelete(aClassroom(aTeacherWithId(randomUUID()))));
     }
 
     @Test
     void allowsCurrentTutorToDeleteTheirClassroomWithoutKids() {
         final UUID tutorId = randomUUID();
         authenticateAs(tutorId, "teacher");
-        assertDoesNotThrow(() -> this.policy.authorizeDelete(aClassroom(aTeacherWithId(tutorId), Set.of())));
+        assertDoesNotThrow(() -> this.policy.authorizeDelete(aClassroom(aTeacherWithId(tutorId))));
     }
 
     @Test
     void rejectsAdminDeletingAClassroomThatStillHasKids() {
         authenticateAs(randomUUID(), "admin");
-        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()), Set.of(of(Kid.class).create()));
+        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()));
+        when(this.kidRepository.countByClassroomId(classroom.getId())).thenReturn(1L);
         assertThrows(ClassroomHasKidsException.class, () -> this.policy.authorizeDelete(classroom));
     }
 
@@ -121,35 +134,36 @@ class ClassroomPolicyTest {
     void rejectsCurrentTutorDeletingTheirClassroomWhileItStillHasKids() {
         final UUID tutorId = randomUUID();
         authenticateAs(tutorId, "teacher");
-        final Classroom classroom = aClassroom(aTeacherWithId(tutorId), Set.of(of(Kid.class).create()));
+        final Classroom classroom = aClassroom(aTeacherWithId(tutorId));
+        when(this.kidRepository.countByClassroomId(classroom.getId())).thenReturn(1L);
         assertThrows(ClassroomHasKidsException.class, () -> this.policy.authorizeDelete(classroom));
     }
 
     @Test
     void rejectsNonTutorTeacherDeletingTheClassroom() {
         authenticateAs(randomUUID(), "teacher");
-        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()), Set.of());
+        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()));
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeDelete(classroom));
     }
 
     @Test
     void rejectsDeletingAClassroomWithNoTutorByATeacher() {
         authenticateAs(randomUUID(), "teacher");
-        final Classroom classroom = aClassroom(null, Set.of());
+        final Classroom classroom = aClassroom(null);
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeDelete(classroom));
     }
 
     @Test
     void rejectsParentDeletingAClassroom() {
         authenticateAs(randomUUID(), "parent");
-        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()), Set.of());
+        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()));
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeDelete(classroom));
     }
 
     @Test
     void rejectsUnauthenticatedDelete() {
         SecurityContextHolder.clearContext();
-        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()), Set.of());
+        final Classroom classroom = aClassroom(aTeacherWithId(randomUUID()));
         assertThrows(AccessDeniedException.class, () -> this.policy.authorizeDelete(classroom));
     }
 

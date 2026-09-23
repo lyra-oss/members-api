@@ -68,9 +68,7 @@ public class EntityFixtures {
         //@formatter:off
         return InstancioSupport.ignoringAuditableFields(
                         Instancio.of(School.class)
-                                 .ignore(field(School.class, "id"))
-                                 .ignore(field(School.class, "classrooms"))
-                                 .ignore(field(School.class, "teachers")))
+                                 .ignore(field(School.class, "id")))
                 .set(field(School.class, "name"), name)
                 .create();
         //@formatter:on
@@ -90,8 +88,7 @@ public class EntityFixtures {
         final Classroom classroom = InstancioSupport.ignoringAuditableFields(
                         Instancio.of(Classroom.class).ignore(field(Classroom.class, "id"))
                                  .ignore(field(Classroom.class, "tutor"))
-                                 .ignore(field(Classroom.class, "teachers"))
-                                 .ignore(field(Classroom.class, "kids")))
+                                 .ignore(field(Classroom.class, "teachers")))
                 .set(field(Classroom.class, "course"), course)
                 .set(field(Classroom.class, "group"), group)
                 .set(field(Classroom.class, "school"), this.school(schoolName)).create();

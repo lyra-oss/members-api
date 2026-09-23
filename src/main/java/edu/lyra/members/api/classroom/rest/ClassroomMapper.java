@@ -15,7 +15,6 @@ interface ClassroomMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "teachers", ignore = true)
-    @Mapping(target = "kids", ignore = true)
     @Mapping(target = "school", source = "resolvedSchool")
     @Mapping(target = "tutor", source = "resolvedTutor")
     Classroom toEntity(ClassroomRequest request, School resolvedSchool, Teacher resolvedTutor);
@@ -26,7 +25,6 @@ interface ClassroomMapper {
     @Mapping(target = "school", ignore = true)
     @Mapping(target = "tutor", ignore = true)
     @Mapping(target = "teachers", ignore = true)
-    @Mapping(target = "kids", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void update(ClassroomPatchRequest request, @MappingTarget Classroom classroom);
 

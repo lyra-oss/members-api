@@ -15,13 +15,12 @@ import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_
 class SpringBeanRulesTest {
 
     /**
-     * Outside of the "config" package, classes may not be annotated with {@code @Component} or
-     * {@code @Service}; beans must instead be registered explicitly via {@code @Bean} methods in a
-     * {@code @Configuration} class, keeping bean wiring explicit rather than relying on component
-     * scanning. The one deliberate exception is MapStruct's generated {@code *MapperImpl} classes: they
-     * use {@code @Mapper(componentModel = SPRING)} so MapStruct itself generates the {@code @Component}
-     * stereotype, which is idiomatic MapStruct/Spring wiring rather than a hand-written class opting out
-     * of explicit registration.
+     * Outside of the "config" package, classes may not be annotated with {@code @Component} or {@code @Service}; beans
+     * must instead be registered explicitly via {@code @Bean} methods in a {@code @Configuration} class, keeping bean
+     * wiring explicit rather than relying on component scanning. The one deliberate exception is MapStruct's generated
+     * {@code *MapperImpl} classes: they use {@code @Mapper(componentModel = SPRING)} so MapStruct itself generates the
+     * {@code @Component} stereotype, which is idiomatic MapStruct/Spring wiring rather than a hand-written class opting
+     * out of explicit registration.
      *
      * <p>Compliant:
      * <pre>{@code

@@ -13,6 +13,7 @@ import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -36,6 +37,13 @@ class KidAdapter
 
     Optional<KidModel> findById(final UUID id) {
         return this.kidRepository.findById(id).map(this::toModel);
+    }
+
+    @Override
+    public KidModel toModel(final @NonNull Kid kid) {
+        final KidModel model = this.mapper.toModel(kid);
+        model.add(linkTo(methodOn(KidController.class).get(kid.getId())).withSelfRel());
+        return model;
     }
 
     PagedModel<KidModel> findAll(final Pageable pageable, final PagedResourcesAssembler<Kid> pagedAssembler) {
@@ -63,13 +71,6 @@ class KidAdapter
         final Kid saved = this.kidRepository.save(kid);
         log.debug("Created kid {} under parent {}", saved.getId(), parent.getId());
         return this.toModel(saved);
-    }
-
-    @Override
-    public KidModel toModel(final Kid kid) {
-        final KidModel model = this.mapper.toModel(kid);
-        model.add(linkTo(methodOn(KidController.class).get(kid.getId())).withSelfRel());
-        return model;
     }
 
     Optional<KidModel> update(final UUID id, final KidPatchRequest request) {

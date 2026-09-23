@@ -36,12 +36,15 @@ public class Person
     @Id
     @Column(name = "ID", nullable = false)
     private UUID id;
+
     @Setter
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
+
     @Setter
     @Column(name = "SURNAME", length = 100, nullable = false)
     private String surname;
+
     @Setter
     @Column(name = "EMAIL", length = 200, nullable = false, unique = true)
     private String mail;

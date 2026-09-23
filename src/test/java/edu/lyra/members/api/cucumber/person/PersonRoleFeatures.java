@@ -162,8 +162,7 @@ public class PersonRoleFeatures
         final Classroom classroom = InstancioSupport.ignoringAuditableFields(
                         Instancio.of(Classroom.class)
                                  .ignore(field(Classroom.class, "id"))
-                                 .ignore(field(Classroom.class, "teachers"))
-                                 .ignore(field(Classroom.class, "kids")))
+                                 .ignore(field(Classroom.class, "teachers")))
                 .set(field(Classroom.class, "course"), 3)
                 .set(field(Classroom.class, "group"), "A")
                 .set(field(Classroom.class, "school"), teacher.getSchool())

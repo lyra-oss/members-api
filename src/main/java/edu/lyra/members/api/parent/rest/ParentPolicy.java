@@ -3,12 +3,17 @@ package edu.lyra.members.api.parent.rest;
 import edu.lyra.members.api.config.security.AuthenticatedPrincipal;
 import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.kid.Kid;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 
 @Slf4j
+@RequiredArgsConstructor
 class ParentPolicy {
+
+    private final KidRepository kidRepository;
 
     void authorizeUpdate(final Parent parent) {
         log.debug("Authorizing update of parent {}", parent.getId());
@@ -30,11 +35,12 @@ class ParentPolicy {
         if(this.isNotAdminNorSelf(parent)) {
             throw new AccessDeniedException("Authenticated user cannot delete this parent");
         }
-        if(! parent.getKids().isEmpty()) {
+        final long kids = this.kidRepository.countByParentId(parent.getId());
+        if(kids > 0) {
             //@formatter:off
             throw new ParentHasKidsException(
                     "Parent %s still has %d kid(s) linked; remove or reassign them before deleting this parent"
-                            .formatted(parent.getId(), parent.getKids().size()));
+                            .formatted(parent.getId(), kids));
             //@formatter:on
         }
     }

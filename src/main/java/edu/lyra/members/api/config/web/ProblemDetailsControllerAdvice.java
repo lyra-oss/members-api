@@ -56,6 +56,11 @@ class ProblemDetailsControllerAdvice
         //@formatter:on
     }
 
+    private String humanize(final Throwable ex) {
+        final String msg = ex.getMessage();
+        return (msg != null && msg.length() > MAX_DETAIL_LENGTH) ? msg.substring(0, MAX_DETAIL_LENGTH) + "…" : msg;
+    }
+
     @ExceptionHandler(UnresolvableReferenceException.class)
     public ResponseEntity<ProblemDetail> handleUnresolvableReferenceException(
             final UnresolvableReferenceException ex
@@ -63,11 +68,6 @@ class ProblemDetailsControllerAdvice
         return ProblemDetailBuilder.forStatus(BAD_REQUEST)
                                    .type("https://lyra.sagittec.com/problems/unresolvable-reference")
                                    .title("Referenced resource does not exist").detail(this.humanize(ex)).build();
-    }
-
-    private String humanize(final Throwable ex) {
-        final String msg = ex.getMessage();
-        return (msg != null && msg.length() > MAX_DETAIL_LENGTH) ? msg.substring(0, MAX_DETAIL_LENGTH) + "…" : msg;
     }
 
     @ExceptionHandler(SchoolMismatchException.class)

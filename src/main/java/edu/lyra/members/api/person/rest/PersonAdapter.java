@@ -7,6 +7,7 @@ import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.Person;
@@ -17,6 +18,7 @@ import edu.lyra.members.api.teacher.Teacher;
 import edu.lyra.members.api.teacher.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -36,17 +38,18 @@ class PersonAdapter
     private final TeacherRepository   teacherRepository;
     private final SchoolRepository    schoolRepository;
     private final ClassroomRepository classroomRepository;
+    private final KidRepository       kidRepository;
     private final PersonMapper        mapper;
-
-    @Override
-    public PersonModel toModel(final Person person) {
-        final PersonModel model = this.mapper.toModel(person);
-        model.add(linkTo(methodOn(PersonController.class).get(person.getId())).withSelfRel());
-        return model;
-    }
 
     Optional<PersonModel> findById(final UUID id) {
         return this.personRepository.findById(id).map(this::toModel);
+    }
+
+    @Override
+    public PersonModel toModel(final @NonNull Person person) {
+        final PersonModel model = this.mapper.toModel(person);
+        model.add(linkTo(methodOn(PersonController.class).get(person.getId())).withSelfRel());
+        return model;
     }
 
     PagedModel<PersonModel> findAll(final Pageable pageable, final PagedResourcesAssembler<Person> pagedAssembler) {
@@ -84,11 +87,12 @@ class PersonAdapter
 
     boolean revokeParentRole(final UUID id) {
         return this.parentRepository.findById(id).map(parent -> {
-            if(! parent.getKids().isEmpty()) {
+            final long kids = this.kidRepository.countByParentId(id);
+            if(kids > 0) {
                 log.debug("Parent {} still has kids; refusing to revoke the parent role", id);
                 throw new ParentHasKidsException(
                         ("Parent %s still has %d kid(s) linked; remove or reassign them before revoking the parent " +
-                         "role").formatted(id, parent.getKids().size()));
+                         "role").formatted(id, kids));
             }
             this.parentRepository.delete(parent);
             log.debug("Revoked the parent role from person {}", id);

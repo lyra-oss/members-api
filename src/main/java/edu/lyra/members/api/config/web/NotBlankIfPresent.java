@@ -12,8 +12,8 @@ import jakarta.validation.constraints.Pattern;
 
 /**
  * Composes {@link Pattern} into the "reject blank, but allow absent" rule every optional {@code String} field on a
- * PATCH request DTO in this codebase needs: {@code null} leaves the field unchanged, but {@code ""} or
- * whitespace-only input is rejected.
+ * PATCH request DTO in this codebase needs: {@code null} leaves the field unchanged, but {@code ""} or whitespace-only
+ * input is rejected.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -21,8 +21,16 @@ import jakarta.validation.constraints.Pattern;
 @Constraint(validatedBy = {})
 @Pattern(regexp = "\\s*\\S.*", message = "must not be blank")
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR,
-         ElementType.PARAMETER, ElementType.TYPE_USE})
+//@formatter:off
+@Target({
+        ElementType.METHOD,
+        ElementType.FIELD,
+        ElementType.ANNOTATION_TYPE,
+        ElementType.CONSTRUCTOR,
+        ElementType.PARAMETER,
+        ElementType.TYPE_USE
+})
+//@formatter:on
 public @interface NotBlankIfPresent {
 
     /**

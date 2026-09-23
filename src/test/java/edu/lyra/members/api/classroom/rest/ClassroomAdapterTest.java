@@ -50,6 +50,7 @@ import static org.mockito.Mockito.when;
 class ClassroomAdapterTest {
 
     private final ClassroomMapper mapper = Mappers.getMapper(ClassroomMapper.class);
+
     @Mock
     private ClassroomRepository classroomRepository;
     @Mock
@@ -57,7 +58,8 @@ class ClassroomAdapterTest {
     @Mock
     private TeacherRepository teacherRepository;
     @Mock
-    private KidRepository kidRepository;
+    private KidRepository    kidRepository;
+
     private ClassroomPolicy policy;
 
     private ClassroomAdapter adapter;
@@ -111,13 +113,6 @@ class ClassroomAdapterTest {
         assertEquals(3, this.adapter.findById(id).orElseThrow().getCourse());
     }
 
-    private static School aSchool() {
-        final School school = new School();
-        school.setName("Gloria Fuertes");
-        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
-        return school;
-    }
-
     @Test
     void createFailsWithAnUnresolvableReferenceWhenTheSchoolDoesNotExist() {
         final UUID unknownSchool = UUID.randomUUID();
@@ -155,6 +150,13 @@ class ClassroomAdapterTest {
         final ClassroomRequest request = new ClassroomRequest(3, "A", school.getId(), tutor.getId());
         assertThrows(SchoolMismatchException.class, () -> this.adapter.create(request));
         verify(this.classroomRepository, never()).save(any());
+    }
+
+    private static School aSchool() {
+        final School school = new School();
+        school.setName("Gloria Fuertes");
+        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
+        return school;
     }
 
     @Test
@@ -466,7 +468,7 @@ class ClassroomAdapterTest {
         when(this.schoolRepository.existsById(schoolId)).thenReturn(true);
         final Pageable        pageable = PageRequest.of(0, 20);
         final Page<Classroom> page     = new PageImpl<>(List.of(aClassroom(school)));
-        when(this.classroomRepository.findBySchoolId(schoolId, pageable)).thenReturn(page);
+        when(this.classroomRepository.findBySchoolIdOrderByCourseAscGroupAsc(schoolId, pageable)).thenReturn(page);
         @SuppressWarnings("unchecked")
         final PagedResourcesAssembler<Classroom> pagedAssembler = mock(PagedResourcesAssembler.class);
         final PagedModel<ClassroomModel> expected = PagedModel.empty();

@@ -2,14 +2,13 @@ package edu.lyra.members.api.person.rest;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
 import edu.lyra.members.api.exceptions.ParentHasKidsException;
 import edu.lyra.members.api.exceptions.TeacherAssignedToClassroomException;
 import edu.lyra.members.api.exceptions.UnresolvableReferenceException;
-import edu.lyra.members.api.kid.Kid;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.Parent;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.Person;
@@ -61,13 +60,16 @@ class PersonAdapterTest {
     private       SchoolRepository    schoolRepository;
     @Mock
     private       ClassroomRepository classroomRepository;
+    @Mock
+    private       KidRepository       kidRepository;
     private       PersonAdapter       adapter;
 
     @BeforeEach
     void setUp() {
         //@formatter:off
         this.adapter = new PersonAdapter(this.personRepository, this.parentRepository, this.teacherRepository,
-                                         this.schoolRepository, this.classroomRepository, this.mapper);
+                                         this.schoolRepository, this.classroomRepository, this.kidRepository,
+                                         this.mapper);
         //@formatter:on
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     }
@@ -75,23 +77,6 @@ class PersonAdapterTest {
     @AfterEach
     void tearDown() {
         RequestContextHolder.resetRequestAttributes();
-    }
-
-    private static School aSchool() {
-        final School school = new School();
-        school.setName("Gloria Fuertes");
-        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
-        return school;
-    }
-
-    private static Person aPerson(final UUID id) {
-        //@formatter:off
-        return Person.builder().id(id)
-                     .name("Esteban")
-                     .surname("Cristóbal")
-                     .mail("esteban.cristobal@example.com")
-                     .build();
-        //@formatter:on
     }
 
     @Test
@@ -106,6 +91,16 @@ class PersonAdapterTest {
         final UUID id = UUID.randomUUID();
         when(this.personRepository.findById(id)).thenReturn(Optional.of(aPerson(id)));
         assertEquals("Esteban", this.adapter.findById(id).orElseThrow().getName());
+    }
+
+    private static Person aPerson(final UUID id) {
+        //@formatter:off
+        return Person.builder().id(id)
+                     .name("Esteban")
+                     .surname("Cristóbal")
+                     .mail("esteban.cristobal@example.com")
+                     .build();
+        //@formatter:on
     }
 
     @Test
@@ -187,6 +182,13 @@ class PersonAdapterTest {
         assertEquals(person, captor.getValue().getPerson());
     }
 
+    private static School aSchool() {
+        final School school = new School();
+        school.setName("Gloria Fuertes");
+        ReflectionTestUtils.setField(school, "id", UUID.randomUUID());
+        return school;
+    }
+
     @Test
     void findAllDelegatesToThePagedResourcesAssembler() {
         final Pageable     pageable = PageRequest.of(0, 20);
@@ -210,7 +212,7 @@ class PersonAdapterTest {
     void revokeParentRoleRejectsWhenParentStillHasKids() {
         final UUID   id     = UUID.randomUUID();
         final Parent parent = mock(Parent.class);
-        when(parent.getKids()).thenReturn(Set.of(mock(Kid.class)));
+        when(this.kidRepository.countByParentId(id)).thenReturn(1L);
         when(this.parentRepository.findById(id)).thenReturn(Optional.of(parent));
         assertThrows(ParentHasKidsException.class, () -> this.adapter.revokeParentRole(id));
         verify(this.parentRepository, never()).delete(any());
@@ -220,7 +222,7 @@ class PersonAdapterTest {
     void revokeParentRoleDeletesTheParentWhenChildless() {
         final UUID   id     = UUID.randomUUID();
         final Parent parent = mock(Parent.class);
-        when(parent.getKids()).thenReturn(Set.of());
+        when(this.kidRepository.countByParentId(id)).thenReturn(0L);
         when(this.parentRepository.findById(id)).thenReturn(Optional.of(parent));
         assertTrue(this.adapter.revokeParentRole(id));
         verify(this.parentRepository).delete(parent);

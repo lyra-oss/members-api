@@ -10,8 +10,11 @@ import org.springframework.context.annotation.Configuration;
 class SchoolRestConfiguration {
 
     @Bean
-    SchoolPolicy schoolPolicy() {
-        return new SchoolPolicy();
+    SchoolPolicy schoolPolicy(
+            final ClassroomRepository classroomRepository,
+            final TeacherRepository teacherRepository
+    ) {
+        return new SchoolPolicy(classroomRepository, teacherRepository);
     }
 
     @Bean

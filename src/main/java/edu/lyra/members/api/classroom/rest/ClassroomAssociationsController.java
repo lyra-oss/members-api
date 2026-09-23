@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 class ClassroomAssociationsController {
 
-    private final ClassroomAdapter                   adapter;
+    private final ClassroomAdapter adapter;
     private final PagedResourcesAssembler<Classroom> pagedAssembler;
 
     @GetMapping("/kids/{kidId}/classroom")

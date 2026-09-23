@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.1</version>
         <relativePath/>
     </parent>
 
@@ -39,16 +39,10 @@
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
-        <log4j2.version>2.25.5</log4j2.version>
-        <cucumber.version>7.34.6</cucumber.version>
-        <opentelemetry.version>1.65.0</opentelemetry.version>
-        <okhttp.version>5.4.0</okhttp.version>
+        <cucumber.version>7.34.8</cucumber.version>
+        <okhttp.version>5.5.0</okhttp.version>
         <archunit.version>1.5.0</archunit.version>
-        <postgresql.version>42.7.13</postgresql.version>
-        <tomcat-embed-core.version>11.0.24</tomcat-embed-core.version>
-        <logback-core.version>1.6.1</logback-core.version>
-        <jackson-databind.version>3.1.5</jackson-databind.version>
-        <instancio.version>5.6.0</instancio.version>
+        <instancio.version>6.0.1</instancio.version>
         <datafaker.version>2.7.0</datafaker.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
@@ -57,12 +51,12 @@
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
-        <pitest-maven-plugin.version>1.25.9</pitest-maven-plugin.version>
+        <pitest-maven-plugin.version>1.30.0</pitest-maven-plugin.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
-        <rewrite-maven-plugin.version>6.45.0</rewrite-maven-plugin.version>
+        <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-        <checkstyle.version>13.10.0</checkstyle.version>
-        <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
+        <checkstyle.version>14.1.0</checkstyle.version>
+        <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -73,41 +67,6 @@
                 <version>${cucumber.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.opentelemetry</groupId>
-                <artifactId>opentelemetry-extension-trace-propagators</artifactId>
-                <version>${opentelemetry.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.opentelemetry</groupId>
-                <artifactId>opentelemetry-api</artifactId>
-                <version>${opentelemetry.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>${postgresql.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-core</artifactId>
-                <version>${tomcat-embed-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>tools.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson-databind.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>${log4j2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -459,7 +418,6 @@
                         </goals>
                         <configuration>
                             <configLocation>checkstyle-architecture.xml</configLocation>
-                            <includeMainSourceDirectory>false</includeMainSourceDirectory>
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <testSourceDirectories>
                                 <testSourceDirectory>

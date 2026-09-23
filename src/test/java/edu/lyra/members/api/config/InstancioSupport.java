@@ -10,11 +10,13 @@ import static org.instancio.Select.field;
 public class InstancioSupport {
 
     public <T> InstancioApi<T> ignoringAuditableFields(final InstancioApi<T> instancio) {
+        //@formatter:off
         return instancio.ignore(field(Auditable.class, "version"))
-                         .ignore(field(Auditable.class, "createdDate"))
-                         .ignore(field(Auditable.class, "createdBy"))
-                         .ignore(field(Auditable.class, "lastModifiedDate"))
-                         .ignore(field(Auditable.class, "updatedBy"));
+                        .ignore(field(Auditable.class, "createdDate"))
+                        .ignore(field(Auditable.class, "createdBy"))
+                        .ignore(field(Auditable.class, "lastModifiedDate"))
+                        .ignore(field(Auditable.class, "updatedBy"));
+        //@formatter:on
     }
 
 }

@@ -6,8 +6,8 @@ import lombok.experimental.UtilityClass;
 import org.springframework.http.ResponseEntity;
 
 /**
- * The two response shapes every controller in this codebase falls back to once its adapter reports "no such
- * resource": a found value becomes {@code 200 OK}, and a missing one becomes {@code 404 Not Found}.
+ * The two response shapes every controller in this codebase falls back to once its adapter reports "no such resource":
+ * a found value becomes {@code 200 OK}, and a missing one becomes {@code 404 Not Found}.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -27,8 +27,8 @@ public class ResponseEntities {
     }
 
     /**
-     * Builds a bodyless {@code 204 No Content} when {@code found} is {@code true}, or a bodyless
-     * {@code 404 Not Found} otherwise.
+     * Builds a bodyless {@code 204 No Content} when {@code found} is {@code true}, or a bodyless {@code 404 Not Found}
+     * otherwise.
      *
      * @param found whether the adapter located (and acted on) the resource
      *

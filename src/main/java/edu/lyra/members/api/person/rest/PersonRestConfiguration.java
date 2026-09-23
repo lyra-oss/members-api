@@ -1,6 +1,7 @@
 package edu.lyra.members.api.person.rest;
 
 import edu.lyra.members.api.classroom.ClassroomRepository;
+import edu.lyra.members.api.kid.KidRepository;
 import edu.lyra.members.api.parent.ParentRepository;
 import edu.lyra.members.api.person.PersonRepository;
 import edu.lyra.members.api.school.SchoolRepository;
@@ -18,10 +19,11 @@ class PersonRestConfiguration {
             final TeacherRepository teacherRepository,
             final SchoolRepository schoolRepository,
             final ClassroomRepository classroomRepository,
+            final KidRepository kidRepository,
             final PersonMapper mapper
     ) {
         return new PersonAdapter(personRepository, parentRepository, teacherRepository, schoolRepository,
-                                 classroomRepository, mapper);
+                                 classroomRepository, kidRepository, mapper);
     }
 
 }

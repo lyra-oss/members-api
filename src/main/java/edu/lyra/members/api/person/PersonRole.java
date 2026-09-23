@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.config.jpa.Auditable;
 import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MappedSuperclass;
@@ -42,7 +43,8 @@ public abstract class PersonRole
     private UUID id;
 
     @MapsId
-    @OneToOne(cascade = { PERSIST, MERGE })
+    @ToString.Exclude
+    @OneToOne(cascade = { PERSIST, MERGE }, fetch = FetchType.LAZY)
     @JoinColumn(name = "ID")
     private Person person;
 

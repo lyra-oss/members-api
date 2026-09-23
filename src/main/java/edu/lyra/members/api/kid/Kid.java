@@ -9,9 +9,11 @@ import edu.lyra.members.api.parent.Parent;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -32,7 +34,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "KIDS", uniqueConstraints = @UniqueConstraint(columnNames = { "NAME", "BIRTHDATE", "PARENT_ID" }))
+@Table(
+        name = "KIDS",
+        uniqueConstraints = @UniqueConstraint(columnNames = { "PARENT_ID", "NAME", "BIRTHDATE" }),
+        indexes = @Index(name = "IDX_KIDS_CLASSROOM_ID", columnList = "CLASSROOM_ID")
+)
 public class Kid
         extends Auditable {
 
@@ -54,11 +60,13 @@ public class Kid
     private LocalDate birthdate;
 
     @Setter
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private Parent parent;
 
     @Setter
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private Classroom classroom;
 
 }

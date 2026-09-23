@@ -1,7 +1,5 @@
 package edu.lyra.members.api.school;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
@@ -13,21 +11,19 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.ToString.Exclude;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import static jakarta.persistence.CascadeType.MERGE;
-import static jakarta.persistence.CascadeType.PERSIST;
-
 /**
- * A school, the shared organizational anchor for its {@link Classroom}s and {@link Teacher}s.
+ * A school, the shared organizational anchor for its classrooms and teachers.
+ *
+ * <p>Those {@link Classroom}s and {@link Teacher}s are deliberately not mapped as collections here: they are reached
+ * through {@code ClassroomRepository} and {@code TeacherRepository}, which page and order them, instead of being loaded
+ * whole into this entity.
  *
  * @author Esteban Cristóbal Rodríguez
  * @see Auditable
@@ -49,14 +45,5 @@ public class School
     @Setter
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
-
-    @Exclude
-    @OneToMany(cascade = { PERSIST, MERGE })
-    @JoinColumn(name = "SCHOOL_ID")
-    private Set<Classroom> classrooms = new HashSet<>();
-
-    @Exclude
-    @OneToMany(mappedBy = "school", cascade = { PERSIST, MERGE })
-    private Set<Teacher> teachers = new HashSet<>();
 
 }

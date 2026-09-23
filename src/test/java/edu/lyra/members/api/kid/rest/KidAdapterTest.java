@@ -51,12 +51,14 @@ import static org.mockito.Mockito.when;
 class KidAdapterTest {
 
     private final KidMapper mapper = Mappers.getMapper(KidMapper.class);
+
     @Mock
     private KidRepository kidRepository;
     @Mock
     private ParentRepository parentRepository;
     @Mock
     private ClassroomRepository classroomRepository;
+
     private KidPolicy policy;
 
     private KidVisibilityStrategyResolver visibilityResolver;
@@ -80,21 +82,6 @@ class KidAdapterTest {
         SecurityContextHolder.clearContext();
     }
 
-    private static Parent aParent(final UUID id) {
-        final Parent parent = new Parent();
-        ReflectionTestUtils.setField(parent, "id", id);
-        return parent;
-    }
-
-    private static Kid aKid(final String name) {
-        final Kid kid = new Kid();
-        kid.setName(name);
-        kid.setSurname("Cristóbal");
-        kid.setBirthdate(LocalDate.of(2019, 12, 12));
-        ReflectionTestUtils.setField(kid, "id", UUID.randomUUID());
-        return kid;
-    }
-
     @Test
     void findByIdReturnsEmptyWhenTheKidDoesNotExist() {
         final UUID id = UUID.randomUUID();
@@ -110,11 +97,13 @@ class KidAdapterTest {
         assertEquals("Alicia", this.adapter.findById(id).orElseThrow().getName());
     }
 
-    private static void authenticateAs(final UUID id) {
-        final Jwt            jwt            =
-                Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, List.of());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    private static Kid aKid(final String name) {
+        final Kid kid = new Kid();
+        kid.setName(name);
+        kid.setSurname("Cristóbal");
+        kid.setBirthdate(LocalDate.of(2019, 12, 12));
+        ReflectionTestUtils.setField(kid, "id", UUID.randomUUID());
+        return kid;
     }
 
     @Test
@@ -132,10 +121,17 @@ class KidAdapterTest {
         assertEquals(parent, saved.getValue().getParent());
     }
 
-    private static Classroom aClassroom() {
-        final Classroom classroom = new Classroom();
-        ReflectionTestUtils.setField(classroom, "id", UUID.randomUUID());
-        return classroom;
+    private static Parent aParent(final UUID id) {
+        final Parent parent = new Parent();
+        ReflectionTestUtils.setField(parent, "id", id);
+        return parent;
+    }
+
+    private static void authenticateAs(final UUID id) {
+        final Jwt            jwt            =
+                Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, List.of());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
@@ -196,6 +192,12 @@ class KidAdapterTest {
         this.adapter.update(id, request);
         verify(this.policy).authorizeUpdate(kid, null, classroom);
         assertEquals(classroom, kid.getClassroom());
+    }
+
+    private static Classroom aClassroom() {
+        final Classroom classroom = new Classroom();
+        ReflectionTestUtils.setField(classroom, "id", UUID.randomUUID());
+        return classroom;
     }
 
     @Test

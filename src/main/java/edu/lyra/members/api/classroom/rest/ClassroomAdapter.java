@@ -16,6 +16,7 @@ import edu.lyra.members.api.teacher.Teacher;
 import edu.lyra.members.api.teacher.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -41,6 +42,13 @@ class ClassroomAdapter
         return this.classroomRepository.findById(id).map(this::toModel);
     }
 
+    @Override
+    public ClassroomModel toModel(final @NonNull Classroom classroom) {
+        final ClassroomModel model = this.mapper.toModel(classroom);
+        model.add(linkTo(methodOn(ClassroomController.class).get(classroom.getId())).withSelfRel());
+        return model;
+    }
+
     PagedModel<ClassroomModel> findAll(
             final Pageable pageable,
             final PagedResourcesAssembler<Classroom> pagedAssembler
@@ -61,7 +69,8 @@ class ClassroomAdapter
         if(! this.schoolRepository.existsById(schoolId)) {
             return Optional.empty();
         }
-        final Page<Classroom> page = this.classroomRepository.findBySchoolId(schoolId, pageable);
+        final Page<Classroom> page =
+                this.classroomRepository.findBySchoolIdOrderByCourseAscGroupAsc(schoolId, pageable);
         return Optional.of(pagedAssembler.toModel(page, this));
     }
 
@@ -91,13 +100,6 @@ class ClassroomAdapter
         }
     }
 
-    @Override
-    public ClassroomModel toModel(final Classroom classroom) {
-        final ClassroomModel model = this.mapper.toModel(classroom);
-        model.add(linkTo(methodOn(ClassroomController.class).get(classroom.getId())).withSelfRel());
-        return model;
-    }
-
     Optional<ClassroomModel> update(final UUID id, final ClassroomPatchRequest request) {
         return this.classroomRepository.findById(id).map(classroom -> {
             this.policy.authorizeUpdate(classroom);
@@ -121,10 +123,6 @@ class ClassroomAdapter
         return this.linkTeacher(classroomId, teacherId, (classroom, teacher) -> classroom.getTeachers().add(teacher));
     }
 
-    boolean setTutor(final UUID classroomId, final UUID teacherId) {
-        return this.linkTeacher(classroomId, teacherId, Classroom::setTutor);
-    }
-
     private boolean linkTeacher(
             final UUID classroomId,
             final UUID teacherId,
@@ -140,6 +138,10 @@ class ClassroomAdapter
         link.accept(classroom.get(), teacher.get());
         this.classroomRepository.save(classroom.get());
         return true;
+    }
+
+    boolean setTutor(final UUID classroomId, final UUID teacherId) {
+        return this.linkTeacher(classroomId, teacherId, Classroom::setTutor);
     }
 
     boolean enrollKid(final UUID classroomId, final UUID kidId) {

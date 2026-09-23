@@ -60,16 +60,6 @@ class KidPolicyTest {
     }
 
     @Test
-    void allowsParentToUpdateOwnKidsFields() {
-        final UUID      parentId  = randomUUID();
-        final Parent    parent    = aParentWithId(parentId);
-        final Classroom classroom = aClassroomWithTutor(randomUUID());
-        final Kid       kid       = aKid(parent, classroom);
-        authenticateAs(parentId, "parent");
-        assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, parent, classroom));
-    }
-
-    @Test
     void authorizeCreateRejectsASubjectThatIsNotARegisteredParent() {
         final UUID subject = randomUUID();
         when(this.parentRepository.findById(subject)).thenReturn(Optional.empty());
@@ -77,16 +67,13 @@ class KidPolicyTest {
     }
 
     @Test
-    void allowsAdminToUpdateAnyKid() {
-        authenticateAs(randomUUID(), "admin");
-        final Parent    parent    = aParentWithId(randomUUID());
+    void allowsParentToUpdateOwnKidsFields() {
+        final UUID   parentId = randomUUID();
+        final Parent parent   = aParentWithId(parentId);
         final Classroom classroom = aClassroomWithTutor(randomUUID());
         final Kid       kid       = aKid(parent, classroom);
+        authenticateAs(parentId, "parent");
         assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, parent, classroom));
-    }
-
-    private static Parent aParentWithId(final UUID id) {
-        return of(Parent.class).set(field(PersonRole.class, "id"), id).ignore(field(Parent.class, "kids")).create();
     }
 
     private static Classroom aClassroomWithTutor(final UUID tutorId) {
@@ -94,7 +81,6 @@ class KidPolicyTest {
         //@formatter:off
         return of(Classroom.class).set(field(Classroom.class, "tutor"), tutor)
                                   .ignore(field(Classroom.class, "teachers"))
-                                  .ignore(field(Classroom.class, "kids"))
                                   .create();
         //@formatter:on
     }
@@ -113,6 +99,19 @@ class KidPolicyTest {
                 stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
         final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private static Parent aParentWithId(final UUID id) {
+        return of(Parent.class).set(field(PersonRole.class, "id"), id).create();
+    }
+
+    @Test
+    void allowsAdminToUpdateAnyKid() {
+        authenticateAs(randomUUID(), "admin");
+        final Parent    parent    = aParentWithId(randomUUID());
+        final Classroom classroom = aClassroomWithTutor(randomUUID());
+        final Kid       kid       = aKid(parent, classroom);
+        assertDoesNotThrow(() -> this.policy.authorizeUpdate(kid, parent, classroom));
     }
 
     @Test
@@ -272,7 +271,6 @@ class KidPolicyTest {
         //@formatter:off
         final Classroom classroom = of(Classroom.class).set(field(Classroom.class, "tutor"), (Teacher) null)
                                                        .ignore(field(Classroom.class, "teachers"))
-                                                       .ignore(field(Classroom.class, "kids"))
                                                        .create();
         //@formatter:on
         final Kid kid = aKid(aParentWithId(randomUUID()), classroom);
