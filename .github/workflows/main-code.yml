@@ -10,15 +10,18 @@ on:
 
 permissions:
   contents: read
-  security-events: write
-  packages: write
 
 jobs:
   build-source-code:
+    permissions:
+      security-events: write
     name: Build source code
     uses: ./.github/workflows/build-code.yml
     secrets: inherit
   build-application-deliverable:
+    permissions:
+      security-events: write
+      packages: write
     needs: build-source-code
     name: Build application deliverable
     uses: ./.github/workflows/build-docker.yml
@@ -26,6 +29,8 @@ jobs:
   clean-old-docker-images:
     needs: build-application-deliverable
     name: Clean up old Docker images
+    permissions:
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55

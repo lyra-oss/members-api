@@ -243,6 +243,7 @@ class ProblemDetailsControllerAdviceTest {
         @SuppressWarnings("unused")
         @PostMapping("/dummy")
         void dummy(final @RequestBody DummyRequest request) {
+            // Intentionally empty: only the request binding and validation are exercised
         }
 
     }

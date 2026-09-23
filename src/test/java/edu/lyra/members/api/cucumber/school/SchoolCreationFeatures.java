@@ -32,6 +32,7 @@ public class SchoolCreationFeatures
 
     @Given("the school name is not provided")
     public void schoolNameNotProvided() {
+        // Intentionally empty: the field is left unset in the request body
     }
 
     @Given("the school name is set to null")

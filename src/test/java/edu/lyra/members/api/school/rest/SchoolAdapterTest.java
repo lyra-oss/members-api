@@ -142,7 +142,8 @@ class SchoolAdapterTest {
         final School school = aSchool("Old name");
         when(this.repository.findById(id)).thenReturn(Optional.of(school));
         doThrow(new AccessDeniedException("nope")).when(this.policy).authorizeUpdate(school);
-        assertThrows(AccessDeniedException.class, () -> this.adapter.update(id, new SchoolRequest("New name")));
+        final SchoolRequest request = new SchoolRequest("New name");
+        assertThrows(AccessDeniedException.class, () -> this.adapter.update(id, request));
         verify(this.repository, never()).save(any());
     }
 

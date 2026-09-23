@@ -53,6 +53,7 @@ public class ParentCreationFeatures
 
     @Given("my name is not provided")
     public void myNameNotProvided() {
+        // Intentionally empty: the field is left unset in the request body
     }
 
     @Given("my name is set to null")
@@ -82,6 +83,7 @@ public class ParentCreationFeatures
 
     @And("my surname is not provided")
     public void mySurnameNotProvided() {
+        // Intentionally empty: the field is left unset in the request body
     }
 
     @And("my surname is set to null")
@@ -111,6 +113,7 @@ public class ParentCreationFeatures
 
     @And("my e-mail address is not provided")
     public void myEMailAddressNotProvided() {
+        // Intentionally empty: the field is left unset in the request body
     }
 
     @And("my e-mail address is set to null")
