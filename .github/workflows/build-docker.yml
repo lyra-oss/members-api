@@ -20,6 +20,8 @@ permissions:
   contents: read
   packages: write
   security-events: write
+  id-token: write
+  attestations: write
 
 jobs:
   build:
@@ -61,5 +63,16 @@ jobs:
       #     ./mvnw -B gatling:test -Dgatling.simulationClass=edu.lyra.members.api.performance.SmokeSimulation
       #     -Dit.image=${{ steps.image.outputs.reference }}
       - name: Push the verified image
+        id: push
         if: inputs.push-image
-        run: docker push ${{ steps.image.outputs.reference }}
+        run: |
+          docker push ${{ steps.image.outputs.reference }}
+          digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ steps.image.outputs.reference }} | cut -d'@' -f2)
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+      - name: Attest build provenance
+        if: inputs.push-image
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
+        with:
+          subject-name: ghcr.io/lyra-oss/members-api
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
