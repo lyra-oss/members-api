@@ -94,8 +94,7 @@ class SecurityRulesTest {
 
     /**
      * Every HTTP-mapped method in a "..rest" package must carry {@code @RequiredAccess}, so a new endpoint can never
-     * go live without an explicit, reviewable access decision — the deny-by-default guarantee a URL-matcher list
-     * previously gave by defaulting to {@code denyAll}.
+     * go live without an explicit, reviewable access decision.
      *
      * <p>Compliant: {@code @RequiredAccess(scopes = "kids.read")} on
      * {@code edu.lyra.members.api.kid.rest.KidController#findAll}

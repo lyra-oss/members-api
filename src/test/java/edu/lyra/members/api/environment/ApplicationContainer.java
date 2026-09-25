@@ -16,8 +16,7 @@ import org.testcontainers.utility.MountableFile;
 
 /**
  * The application under test, run as its own container on the same Docker network as PostgreSQL and Keycloak — the
- * deliverable the integration tests exercise, not a forked JVM process the way {@code spring-boot-maven-plugin}'s
- * {@code start}/{@code stop} goals used to.
+ * deliverable the integration tests exercise.
  *
  * <p>Two flavours: {@link #jvmJar} packages {@code target/*.jar} (a plain JRE base image plus that one file) for
  * fast, every-push feedback; {@link #preBuiltImage} runs an already-built OCI image — in particular, the native
@@ -37,7 +36,7 @@ public final class ApplicationContainer
     // with dots that are themselves significant — can't be set through Spring's environment-variable relaxed
     // binding: OS env var names can't distinguish a hyphen from a dot, so a Map<String, String> property (unlike a
     // typed @ConfigurationProperties field) can't be reconstructed from one unambiguously. Passing them as
-    // command-line arguments instead, exactly as spring-boot-maven-plugin's old start goal did, sidesteps that.
+    // command-line arguments instead sidesteps that.
     private final List<String> commandPrefix;
 
     private ApplicationContainer(final DockerImageName image, final List<String> commandPrefix) {
@@ -75,8 +74,7 @@ public final class ApplicationContainer
 
     /**
      * Joins {@code network}, and wires PostgreSQL and Keycloak connection details to their network aliases plus the
-     * schema-generation and metrics-export overrides the ITs need — the container-to-container equivalent of the
-     * arguments {@code spring-boot-maven-plugin}'s {@code start} goal used to pass on the command line.
+     * schema-generation and metrics-export overrides the ITs need.
      *
      * @param network             the network PostgreSQL and Keycloak are reachable on
      * @param postgresAlias       PostgreSQL's network alias
