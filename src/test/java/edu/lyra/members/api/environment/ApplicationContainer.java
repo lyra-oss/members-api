@@ -100,7 +100,12 @@ public final class ApplicationContainer
                 "SPRING_DATASOURCE_USERNAME", postgresUsername,
                 "SPRING_DATASOURCE_PASSWORD", postgresPassword,
                 "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI", keycloakIssuerUri,
-                "MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED", "false");
+                "MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED", "false",
+                // Pins the dialect and skips Hibernate's own eager JDBC-metadata connection at boot: this
+                // deliverable only ever talks to PostgreSQL, so there is nothing for that connection to
+                // auto-detect, and skipping it removes a startup-ordering dependency on PostgreSQL's readiness.
+                "SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT", "org.hibernate.dialect.PostgreSQLDialect",
+                "SPRING_JPA_PROPERTIES_HIBERNATE_BOOT_ALLOW_JDBC_METADATA_ACCESS", "false");
         final List<String> command = new ArrayList<>(this.commandPrefix);
         command.add("--spring.jpa.properties.jakarta.persistence.schema-generation.database.action=create-drop");
         return this.withNetwork(network)
