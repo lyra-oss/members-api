@@ -2,6 +2,19 @@ name: Build Docker image
 
 on:
   workflow_call:
+    inputs:
+      push-image:
+        description: 'Push the built image to ghcr.io once it has passed verification.'
+        required: false
+        type: boolean
+        default: false
+      run-verification:
+        description: >
+          Run the endpoint smoke IT suite against the freshly built native image before it is pushed - the same
+          suite build-code.yml already ran against a plain-JRE jar image, this time against the actual deliverable.
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -24,10 +37,29 @@ jobs:
           distribution: 'graalvm'
           cache: 'maven'
       - name: Log in to the Container registry
+        if: inputs.push-image
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build Docker image
-        run: ./mvnw -B spring-boot:build-image -Pnative -Dspring-boot.build-image.publish=true
+      - name: Build native image
+        run: ./mvnw -B spring-boot:build-image -Pnative
+      - name: Determine image reference
+        id: image
+        run: >
+          echo "reference=ghcr.io/lyra-oss/members-api:$(./mvnw -q help:evaluate
+          -Dexpression=project.version -DforceStdout)" >> "$GITHUB_OUTPUT"
+      - name: Verify the native image
+        if: inputs.run-verification
+        run: ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} verify
+      # Uncomment once the Gatling performance suite (Task 7) lands: a quick load-smoke run against this exact
+      # native image, gating the push below the same way the verification step already does.
+      # - name: Performance smoke test
+      #   if: inputs.run-verification
+      #   run: >
+      #     ./mvnw -B gatling:test -Dgatling.simulationClass=edu.lyra.members.api.performance.SmokeSimulation
+      #     -Dit.image=${{ steps.image.outputs.reference }}
+      - name: Push the verified image
+        if: inputs.push-image
+        run: docker push ${{ steps.image.outputs.reference }}

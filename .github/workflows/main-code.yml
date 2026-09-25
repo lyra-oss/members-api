@@ -15,6 +15,8 @@ jobs:
       security-events: write
     name: Build source code
     uses: ./.github/workflows/build-code.yml
+    with:
+      mutation-scope: full
     secrets: inherit
   build-application-deliverable:
     permissions:
@@ -24,6 +26,9 @@ jobs:
     needs: build-source-code
     name: Build application deliverable
     uses: ./.github/workflows/build-docker.yml
+    with:
+      push-image: true
+      run-verification: true
     secrets: inherit
   clean-old-docker-images:
     needs: build-application-deliverable

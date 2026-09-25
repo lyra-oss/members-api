@@ -2,6 +2,15 @@ name: Build source code
 
 on:
   workflow_call:
+    inputs:
+      mutation-scope:
+        description: >
+          "changed" mutation-tests only the main-source classes touched since the push's previous commit (falling
+          back to "full" when that can't be determined, e.g. a branch's first push); "full" always mutation-tests
+          every class.
+        required: false
+        type: string
+        default: 'full'
 
 permissions:
   contents: read
@@ -30,7 +39,27 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
       - name: Build & Test
         run: ./mvnw -B clean verify
-      - name: Mutation Tests
+      - name: Determine mutation testing scope
+        id: mutation-scope
+        if: inputs.mutation-scope == 'changed'
+        run: |
+          before="${{ github.event.before }}"
+          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            echo "Previous commit unknown (e.g. this branch's first push); falling back to a full mutation run"
+            echo "targets=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          targets=$(git diff --name-only --diff-filter=d "$before" "${{ github.sha }}" -- 'src/main/java/**/*.java' \
+            | sed -E 's#^src/main/java/##; s#\.java$##; s#/#.#g' | paste -sd, -)
+          echo "Classes changed since $before: ${targets:-<none>}"
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
+      - name: Mutation Tests (changed classes)
+        if: inputs.mutation-scope == 'changed' && steps.mutation-scope.outputs.targets != ''
+        run: >
+          ./mvnw -B org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=90
+          -DtargetClasses=${{ steps.mutation-scope.outputs.targets }}
+      - name: Mutation Tests (everything)
+        if: inputs.mutation-scope == 'full' || (inputs.mutation-scope == 'changed' && steps.mutation-scope.outputs.targets == '')
         run: ./mvnw -B org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=90
       - name: Run SonarCloud analysis
         if: github.actor != 'dependabot[bot]'
