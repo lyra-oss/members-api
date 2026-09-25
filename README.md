@@ -60,3 +60,18 @@ records a caller may read or update, on top of holding the required scope:
 
 A caller with neither role (only a scope) can create records and read/update their own account where applicable, but
 sees no kids and cannot update anyone else's records.
+
+## Exploring the API
+
+A [Postman](https://www.postman.com/) collection covering every endpoint lives at
+`postman/members-api.postman_collection.json` — import it and point its `baseUrl` variable at a running instance to
+explore the API. It is generated from the application's own OpenAPI description (`scripts/generate-postman-collection.sh`),
+so the API is never defined twice; CI fails if it drifts from the code. After changing the API, regenerate it and
+commit the result:
+
+```shell
+./scripts/generate-postman-collection.sh
+```
+
+The OpenAPI description itself is never served live (there is no `/v3/api-docs` endpoint) — it exists only as a
+build-time artifact (see `OpenApiExportTest`) that feeds the collection above.

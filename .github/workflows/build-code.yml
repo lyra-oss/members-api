@@ -37,8 +37,15 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+      - name: Cache npm packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-openapi-to-postmanv2-6.3.3
       - name: Build & Test
         run: ./mvnw -B clean verify
+      - name: Check the Postman collection is up to date
+        run: ./scripts/generate-postman-collection.sh --check
       - name: Determine mutation testing scope
         id: mutation-scope
         if: inputs.mutation-scope == 'changed'
