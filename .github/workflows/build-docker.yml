@@ -73,7 +73,10 @@ jobs:
           -Dexpression=project.version -DforceStdout)" >> "$GITHUB_OUTPUT"
       - name: Save the Buildpacks cache
         if: always()
+        # Removed first: the container can't overwrite a file the (unprivileged, differently-UID-mapped) restore
+        # step above already wrote, only create a new one.
         run: |
+          rm -f /tmp/buildpacks-layers.tar.gz
           docker run --rm -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch \
             -v /tmp:/backup busybox tar czf /backup/buildpacks-layers.tar.gz -C /cache build launch
       - name: Upload the Buildpacks cache
