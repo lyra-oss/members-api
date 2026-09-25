@@ -55,6 +55,12 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <springdoc-openapi.version>3.1.1</springdoc-openapi.version>
         <gatling.version>3.15.1</gatling.version>
+        <!-- Buildpacks builder -->
+        <!-- Pinned to a digest so every build of the same commit uses identical buildpack content; CI resolves this
+             same property to key its build-cache/launch-cache backup, so a bump here is the only place that needs
+             editing. Refresh with:
+             docker buildx imagetools inspect paketobuildpacks/builder-noble-java-tiny:latest -->
+        <buildpacks-builder.image>paketobuildpacks/builder-noble-java-tiny:latest@sha256:6553807caa811f6bb1f5bdd79318c56f275bc7da7e0d7ffc6470885c24919526</buildpacks-builder.image>
         <!-- Plugin versions -->
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
@@ -536,14 +542,13 @@
                     <createdDate>now</createdDate>
                     <imageName>ghcr.io/lyra-oss/${project.artifactId}:${project.version}</imageName>
                     <image>
+                        <builder>${buildpacks-builder.image}</builder>
                         <env>
                             <BP_OCI_SOURCE>https://github.com/lyra-oss/members-api</BP_OCI_SOURCE>
                             <BP_OCI_DESCRIPTION>Lyra OSS Members API</BP_OCI_DESCRIPTION>
                         </env>
-                        <!-- Named (not the default, per-build-hash-named) volumes so CI can save and restore them
-                             between runs - see the "Restore/Save the Buildpacks cache" steps in build-code.yml and
-                             build-docker.yml - instead of re-downloading the JDK/GraalVM layers Buildpacks itself
-                             caches here on every single build. -->
+                        <!-- Fixed volume names so build-code.yml and build-docker.yml can back them up and restore
+                             them between CI runs, persisting the JDK/GraalVM layers Buildpacks caches here. -->
                         <buildCache>
                             <volume>
                                 <name>members-api.build-cache</name>
