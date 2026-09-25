@@ -38,6 +38,9 @@
         <!-- Which deliverable the *IT suite exercises: "jvm" packages target/*.jar into a plain JRE
              container; any other value is treated as an already-built OCI image reference. -->
         <it.image>jvm</it.image>
+        <!-- Off by default so an ordinary "mvn test" isn't instrumented; pass -Dagent=true to attach the
+             GraalVM tracing agent to that test run instead (see the native-maven-plugin declaration below). -->
+        <agent>false</agent>
         <!-- Sonar settings -->
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java,**/HibernateRuntimeHints.java</sonar.coverage.exclusions>
@@ -574,6 +577,22 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Registers native-maven-plugin as a build extension so its GraalVM tracing-agent integration is
+                     available on demand: "./mvnw -Dagent=true test" runs the test suite on a normal JVM with the
+                     agent attached, which observes every reflection/resource/proxy access the app actually makes and
+                     writes it to target/native/agent-output/ - the authoritative way to check whether
+                     HibernateRuntimeHints (or a future registrar) is missing something, instead of guessing from a
+                     native-image stack trace and decompiling classes by hand. -->
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <agent>
+                        <enabled>${agent}</enabled>
+                    </agent>
                 </configuration>
             </plugin>
         </plugins>
