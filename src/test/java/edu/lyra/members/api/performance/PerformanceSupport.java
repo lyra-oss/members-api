@@ -12,19 +12,24 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 
 /**
  * What every performance simulation in this package shares: where the deliverable under test and its Keycloak
- * realm are (read from system properties, defaulting to where the Testcontainers-managed IT environment - see
- * {@code IntegrationTestEnvironment} - publishes them locally), how a virtual user logs in, and the read-only
- * scenario each simulation drives at its own load profile. Business logic and per-endpoint correctness are already
- * covered elsewhere ({@code EndpointSmokeIT}, the unit suite); these simulations only measure how the running
- * deliverable behaves under concurrent load.
+ * realm are, how a virtual user logs in, and the read-only scenario each simulation drives at its own load
+ * profile. Business logic and per-endpoint correctness are already covered elsewhere ({@code EndpointSmokeIT}, the
+ * unit suite); these simulations only measure how the running deliverable behaves under concurrent load.
+ *
+ * <p>{@code perf.baseUrl} and {@code perf.tokenUrl} have no built-in default and must be supplied as system
+ * properties: the API's version segment and Keycloak's port are both assigned dynamically (a random Testcontainers
+ * host port locally, whatever an environment actually runs in CI), so a hardcoded guess here would silently drift
+ * out of date. {@code PerformanceSmokeIT} and {@code NightlyPerformanceIT} - the way these simulations are meant to
+ * be run - set both automatically from {@code IntegrationTestEnvironment}'s already-running containers; a bare
+ * {@code ./mvnw gatling:test} invocation without going through one of those fails fast with a clear message instead
+ * of quietly hitting the wrong place.
  *
  * @author Esteban Cristóbal Rodríguez
  */
 final class PerformanceSupport {
 
-    static final String BASE_URL = System.getProperty("perf.baseUrl", "http://localhost:8080/v0");
-    static final String TOKEN_URL =
-            System.getProperty("perf.tokenUrl", "http://localhost:8180/realms/lyra/protocol/openid-connect/token");
+    static final String BASE_URL  = requireProperty("perf.baseUrl");
+    static final String TOKEN_URL = requireProperty("perf.tokenUrl");
     static final String CLIENT_ID = System.getProperty("perf.clientId", "members-api-test");
     static final String USERNAME  = System.getProperty("perf.username", "smoke.parent@example.com");
     static final String PASSWORD  = System.getProperty("perf.password", "password");
@@ -32,6 +37,20 @@ final class PerformanceSupport {
             "schools.read parents.read kids.read teachers.read classrooms.read");
 
     private PerformanceSupport() {
+    }
+
+    private static String requireProperty(final String name) {
+        final String value = System.getProperty(name);
+        if(value == null || value.isBlank()) {
+            //@formatter:off
+            throw new IllegalStateException(
+                    ("Missing required system property '%s'. Run this simulation through PerformanceSmokeIT or " +
+                     "NightlyPerformanceIT (./mvnw -Dit.test=PerformanceSmokeIT verify), which supply it " +
+                     "automatically; only pass it yourself when pointing Gatling at an already-running instance.")
+                            .formatted(name));
+            //@formatter:on
+        }
+        return value;
     }
 
     static HttpProtocolBuilder httpProtocol() {

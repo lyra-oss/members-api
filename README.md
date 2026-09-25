@@ -86,7 +86,18 @@ and `SoakSimulation` back a nightly suite (`NightlyPerformanceIT`, `nightly-perf
 yet - the workflow's schedule trigger is commented out until it's needed; `workflow_dispatch` still lets you run it
 by hand.
 
-To run any simulation yourself against a running instance:
+The easiest way to run a simulation yourself is through its `*IT` wrapper, the same way CI does: it starts (or
+reuses) the Testcontainers environment and points Gatling at it automatically, so you never have to know the API's
+current version segment or which port this run's Keycloak happens to be on.
+
+```shell
+./mvnw -Dit.test=PerformanceSmokeIT verify           # SmokeSimulation
+./mvnw -Dit.test=NightlyPerformanceIT -Dperf.nightly=true verify   # Load/Stress/Soak
+```
+
+`perf.baseUrl` and `perf.tokenUrl` have no built-in default on purpose - hardcoding a version segment or a
+Keycloak port here would silently go stale the moment either changes. To point a simulation at some other,
+already-running instance instead, supply both yourself:
 
 ```shell
 ./mvnw gatling:test -Dgatling.simulationClass=edu.lyra.members.api.performance.SmokeSimulation \
