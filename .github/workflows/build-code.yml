@@ -42,8 +42,50 @@ jobs:
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-openapi-to-postmanv2-6.3.3
-      - name: Build & Test
-        run: ./mvnw -B clean verify
+      - name: Restore the Buildpacks cache
+        id: buildpacks-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: |
+            /tmp/buildpacks-images.tar
+            /tmp/buildpacks-layers.tar.gz
+          key: buildpacks-jvm-${{ hashFiles('pom.xml') }}
+          restore-keys: buildpacks-jvm-
+      - name: Load the Buildpacks cache
+        if: steps.buildpacks-cache.outputs.cache-matched-key != ''
+        run: |
+          [ -f /tmp/buildpacks-images.tar ] && docker load -i /tmp/buildpacks-images.tar
+          [ -f /tmp/buildpacks-layers.tar.gz ] && docker run --rm \
+            -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch -v /tmp:/backup \
+            busybox tar xzf /backup/buildpacks-layers.tar.gz -C /cache
+          exit 0
+      - name: Build the JVM deliverable
+        run: ./mvnw -B clean spring-boot:build-image
+      - name: Determine image reference
+        id: image
+        run: >
+          echo "reference=ghcr.io/lyra-oss/members-api:$(./mvnw -q help:evaluate
+          -Dexpression=project.version -DforceStdout)" >> "$GITHUB_OUTPUT"
+      - name: Save the Buildpacks cache
+        if: always()
+        run: |
+          images=$(docker images --format '{{.Repository}}:{{.Tag}}' --filter 'reference=paketobuildpacks/*')
+          if [ -n "$images" ]; then
+            # shellcheck disable=SC2086
+            docker save $images -o /tmp/buildpacks-images.tar
+          fi
+          docker run --rm -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch \
+            -v /tmp:/backup busybox tar czf /backup/buildpacks-layers.tar.gz -C /cache build launch
+      - name: Upload the Buildpacks cache
+        if: always()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: |
+            /tmp/buildpacks-images.tar
+            /tmp/buildpacks-layers.tar.gz
+          key: buildpacks-jvm-${{ hashFiles('pom.xml') }}
+      - name: Verify against the JVM image
+        run: ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} verify
       - name: Check the Postman collection is up to date
         run: ./scripts/generate-postman-collection.sh --check
       - name: Determine mutation testing scope

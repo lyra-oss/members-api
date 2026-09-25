@@ -540,6 +540,20 @@
                             <BP_OCI_SOURCE>https://github.com/lyra-oss/members-api</BP_OCI_SOURCE>
                             <BP_OCI_DESCRIPTION>Lyra OSS Members API</BP_OCI_DESCRIPTION>
                         </env>
+                        <!-- Named (not the default, per-build-hash-named) volumes so CI can save and restore them
+                             between runs - see the "Restore/Save the Buildpacks cache" steps in build-code.yml and
+                             build-docker.yml - instead of re-pulling the builder/run images and re-downloading the
+                             JDK/GraalVM layers Buildpacks itself caches on every single build. -->
+                        <buildCache>
+                            <volume>
+                                <name>members-api.build-cache</name>
+                            </volume>
+                        </buildCache>
+                        <launchCache>
+                            <volume>
+                                <name>members-api.launch-cache</name>
+                            </volume>
+                        </launchCache>
                     </image>
                     <excludes>
                         <exclude>
