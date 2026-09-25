@@ -51,19 +51,14 @@ jobs:
         id: buildpacks-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
-          path: |
-            /tmp/buildpacks-images.tar
-            /tmp/buildpacks-layers.tar.gz
+          path: /tmp/buildpacks-layers.tar.gz
           key: buildpacks-native-${{ hashFiles('pom.xml') }}
           restore-keys: buildpacks-native-
       - name: Load the Buildpacks cache
         if: steps.buildpacks-cache.outputs.cache-matched-key != ''
         run: |
-          [ -f /tmp/buildpacks-images.tar ] && docker load -i /tmp/buildpacks-images.tar
-          [ -f /tmp/buildpacks-layers.tar.gz ] && docker run --rm \
-            -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch -v /tmp:/backup \
-            busybox tar xzf /backup/buildpacks-layers.tar.gz -C /cache
-          exit 0
+          docker run --rm -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch \
+            -v /tmp:/backup busybox tar xzf /backup/buildpacks-layers.tar.gz -C /cache
       - name: Build native image
         run: ./mvnw -B spring-boot:build-image -Pnative
       - name: Determine image reference
@@ -74,20 +69,13 @@ jobs:
       - name: Save the Buildpacks cache
         if: always()
         run: |
-          images=$(docker images --format '{{.Repository}}:{{.Tag}}' --filter 'reference=paketobuildpacks/*')
-          if [ -n "$images" ]; then
-            # shellcheck disable=SC2086
-            docker save $images -o /tmp/buildpacks-images.tar
-          fi
           docker run --rm -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch \
             -v /tmp:/backup busybox tar czf /backup/buildpacks-layers.tar.gz -C /cache build launch
       - name: Upload the Buildpacks cache
         if: always()
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
-          path: |
-            /tmp/buildpacks-images.tar
-            /tmp/buildpacks-layers.tar.gz
+          path: /tmp/buildpacks-layers.tar.gz
           key: buildpacks-native-${{ hashFiles('pom.xml') }}
       - name: Verify the native image
         if: inputs.run-verification
