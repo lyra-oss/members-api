@@ -54,7 +54,7 @@
         <spring-boot.aot.jvmArguments>-Dspring.security.oauth2.resourceserver.jwt.issuer-uri=https://placeholder.invalid/realms/members-api</spring-boot.aot.jvmArguments>
         <!-- Sonar settings -->
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
-        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java,**/ProtobufRuntimeHints.java,**/HibernateRuntimeHints.java</sonar.coverage.exclusions>
+        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java,**/ProtobufRuntimeHints.java,**/HibernateRuntimeHints.java,**/HibernateValidatorRuntimeHints.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
         <jackson-2-bom.version>2.22.3</jackson-2-bom.version>
         <jackson-bom.version>3.2.3</jackson-bom.version>
