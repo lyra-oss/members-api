@@ -103,8 +103,8 @@
         <dependency>
             <!-- Hibernate's own native-image reflection support (entity persisters, id generators, naming
                  strategies, etc. - see org.hibernate.graalvm.internal.GraalVMStaticFeature). The JBoss Logging
-                 message-logger classes and default-strategy implementations it doesn't cover are registered
-                 separately, in HibernateRuntimeHints. -->
+                 message-logger classes, default-strategy implementations and boot-time XML schema resources it
+                 doesn't cover are registered separately, in HibernateRuntimeHints. -->
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-graalvm</artifactId>
         </dependency>

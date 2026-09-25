@@ -5,11 +5,12 @@ import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 
 /**
- * Registers native-image reflection access this application needs from {@code org.hibernate.orm:hibernate-core}
- * that isn't (yet) covered by the GraalVM Reachability Metadata Repository for this Hibernate version, nor by
- * Hibernate's own {@code hibernate-graalvm} module (whose {@code GraalVMStaticFeature} doesn't touch either of the
- * two categories below). Both are classes Hibernate looks up reflectively by name rather than referencing
- * directly, so native-image's static analysis has no way to know they're reachable without this.
+ * Registers native-image reflection and resource access this application needs from
+ * {@code org.hibernate.orm:hibernate-core} that isn't (yet) covered by the GraalVM Reachability Metadata Repository
+ * for this Hibernate version, nor by Hibernate's own {@code hibernate-graalvm} module (whose
+ * {@code GraalVMStaticFeature} doesn't touch any of the three categories below). Hibernate reaches every one of them
+ * by name at boot time rather than by a direct reference, so native-image's static analysis has no way to know
+ * they're needed without this.
  *
  * <p>{@link #GENERATED_LOGGER_CLASSES}: the {@code *_$logger} classes JBoss Logging's annotation processor
  * generates, at compile time, for every {@code @MessageLogger} interface Hibernate declares (e.g.
@@ -23,6 +24,12 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
  * JSON/XML format mappers). {@code StrategySelectorImpl} resolves these via
  * {@code Class#getDeclaredConstructor().newInstance()} the first time each category is actually needed; left
  * unregistered, that fails with {@code NoSuchMethodException: <the class>.<init>()}.
+ *
+ * <p>{@link #XML_SCHEMA_RESOURCES}: every DTD/XSD hibernate-core ships for its boot-time XML infrastructure.
+ * {@code LocalXmlResourceResolver}'s static initializer resolves every one of these as a classpath resource while
+ * building the {@code EntityManagerFactory} - unconditionally, whether or not the application has any XML entity
+ * mappings - so native-image needs them all bundled as resources, not registered as reflection targets; left
+ * unregistered, that fails with {@code XmlInfrastructureException: Unable to locate schema [...] via classpath}.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -119,6 +126,34 @@ class HibernateRuntimeHints
             "org.hibernate.type.format.jaxb.JaxbXmlFormatMapper",
     };
 
+    // Every DTD/XSD org.hibernate.boot.jaxb.internal.stax.LocalXmlResourceResolver resolves in hibernate-core
+    // 7.4.5.Final, enumerated from the jar's own org/hibernate/**/*.{dtd,xsd} entries.
+    private static final String[] XML_SCHEMA_RESOURCES = {
+            "org/hibernate/hibernate-configuration-3.0.dtd",
+            "org/hibernate/hibernate-configuration-4.0.xsd",
+            "org/hibernate/hibernate-mapping-3.0.dtd",
+            "org/hibernate/hibernate-mapping-4.0.xsd",
+            "org/hibernate/jpa/orm_1_0.xsd",
+            "org/hibernate/jpa/orm_2_0.xsd",
+            "org/hibernate/jpa/orm_2_1.xsd",
+            "org/hibernate/jpa/orm_2_2.xsd",
+            "org/hibernate/jpa/orm_3_0.xsd",
+            "org/hibernate/jpa/orm_3_1.xsd",
+            "org/hibernate/jpa/orm_3_2.xsd",
+            "org/hibernate/jpa/persistence_1_0.xsd",
+            "org/hibernate/jpa/persistence_2_0.xsd",
+            "org/hibernate/jpa/persistence_2_1.xsd",
+            "org/hibernate/jpa/persistence_2_2.xsd",
+            "org/hibernate/jpa/persistence_3_0.xsd",
+            "org/hibernate/jpa/persistence_3_1.xsd",
+            "org/hibernate/jpa/persistence_3_2.xsd",
+            "org/hibernate/xsd/cfg/configuration-3.2.0.xsd",
+            "org/hibernate/xsd/cfg/legacy-configuration-4.0.xsd",
+            "org/hibernate/xsd/mapping/legacy-mapping-4.0.xsd",
+            "org/hibernate/xsd/mapping/mapping-3.1.0.xsd",
+            "org/hibernate/xsd/mapping/mapping-7.0.xsd",
+    };
+
     @Override
     public void registerHints(final RuntimeHints hints, final ClassLoader classLoader) {
         final MemberCategory invokeConstructors = MemberCategory.INVOKE_DECLARED_CONSTRUCTORS;
@@ -127,6 +162,9 @@ class HibernateRuntimeHints
         }
         for(final String className : DEFAULT_STRATEGY_CLASSES) {
             hints.reflection().registerTypeIfPresent(classLoader, className, invokeConstructors);
+        }
+        for(final String resource : XML_SCHEMA_RESOURCES) {
+            hints.resources().registerPatternIfPresent(classLoader, resource, hint -> hint.includes(resource));
         }
     }
 
