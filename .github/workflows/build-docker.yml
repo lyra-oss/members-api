@@ -47,12 +47,22 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Resolve the Buildpacks builder image digest
+        id: builder
+        # pom.xml doesn't pin <image><builder>, so this is spring-boot-maven-plugin's own default
+        # (org.springframework.boot.buildpack.platform.build.BuildRequest.DEFAULT_BUILDER_IMAGE_REF) - update this
+        # alongside pom.xml if that default is ever pinned to something else there. Resolved from the registry
+        # (no pull) so the cache key changes exactly when Paketo publishes a new builder, not on unrelated commits.
+        run: |
+          digest=$(docker buildx imagetools inspect paketobuildpacks/builder-noble-java-tiny:latest \
+            | grep -m1 '^Digest:' | awk '{print $2}')
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
       - name: Restore the Buildpacks cache
         id: buildpacks-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: /tmp/buildpacks-layers.tar.gz
-          key: buildpacks-native-${{ hashFiles('pom.xml') }}
+          key: buildpacks-native-${{ steps.builder.outputs.digest }}
           restore-keys: buildpacks-native-
       - name: Load the Buildpacks cache
         if: steps.buildpacks-cache.outputs.cache-matched-key != ''
@@ -76,7 +86,7 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: /tmp/buildpacks-layers.tar.gz
-          key: buildpacks-native-${{ hashFiles('pom.xml') }}
+          key: buildpacks-native-${{ steps.builder.outputs.digest }}
       - name: Verify the native image
         if: inputs.run-verification
         run: ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} verify
