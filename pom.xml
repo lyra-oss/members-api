@@ -527,6 +527,7 @@
                         <param>**.*Configuration</param>
                         <param>**.*Application</param>
                         <param>**.*MapperImpl</param>
+                        <param>**.*RuntimeHints</param>
                     </excludedClasses>
                     <excludedTestClasses>
                         <param>**.*IT</param>

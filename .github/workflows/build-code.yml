@@ -94,7 +94,11 @@ jobs:
             echo "targets=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # Mirrors pitest-maven's own <excludedClasses> patterns (pom.xml): a push touching only these falls
+          # through to the "everything" run below instead of handing pitest an all-excluded target list, which it
+          # treats as a hard failure ("No mutations found") rather than a no-op.
           targets=$(git diff --name-only --diff-filter=d "$before" "${{ github.sha }}" -- 'src/main/java/**/*.java' \
+            | grep -vE '(Configuration|Application|MapperImpl|RuntimeHints)\.java$' \
             | sed -E 's#^src/main/java/##; s#\.java$##; s#/#.#g' | paste -sd, -)
           echo "Classes changed since $before: ${targets:-<none>}"
           echo "targets=$targets" >> "$GITHUB_OUTPUT"
