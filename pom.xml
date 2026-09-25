@@ -35,6 +35,9 @@
         <!-- Maven settings -->
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Which deliverable the *IT suite exercises: "jvm" packages target/*.jar into a plain JRE
+             container; any other value is treated as an already-built OCI image reference. -->
+        <it.image>jvm</it.image>
         <!-- Sonar settings -->
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java</sonar.coverage.exclusions>
@@ -128,11 +131,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-docker-compose</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
@@ -177,6 +175,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -230,18 +238,6 @@
                         <goals>
                             <goal>parse-version</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>reserve-port</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>reserve-network-port</goal>
-                        </goals>
-                        <configuration>
-                            <portNames>
-                                <portName>it.port</portName>
-                            </portNames>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -310,7 +306,11 @@
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                     <systemPropertyVariables>
-                        <it.port>${it.port}</it.port>
+                        <!-- Either "jvm" (build and run the packaged jar in a plain JRE container) or an
+                             already-built OCI image reference (e.g. the native image spring-boot:build-image
+                             just produced), selecting which deliverable the *IT suite exercises. -->
+                        <it.image>${it.image}</it.image>
+                        <it.jarFile>${project.build.directory}/${project.build.finalName}.jar</it.jarFile>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -508,33 +508,6 @@
                     <execution>
                         <goals>
                             <goal>build-info</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>pre-integration-test</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>
-                                <argument>--server.port=${it.port}</argument>
-                                <argument>
-                                    --spring.jpa.properties.jakarta.persistence.schema-generation.database.action=create-drop
-                                </argument>
-                                <argument>--management.otlp.metrics.export.enabled=false</argument>
-                                <argument>
-                                    --spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/lyra
-                                </argument>
-                            </arguments>
-                            <maxAttempts>360</maxAttempts>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>post-integration-test</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
                         </goals>
                     </execution>
                 </executions>

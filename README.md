@@ -25,9 +25,10 @@ Keycloak). Configure it with:
 |--------------------------------------------------------|------------------------------------------------------------------|
 | `spring.security.oauth2.resourceserver.jwt.issuer-uri` | URL of the JWT issuer (e.g. `http://localhost:8180/realms/lyra`) |
 
-> **Local development:** when running with `mvn spring-boot:run`, the `spring-boot-docker-compose` integration
-> automatically starts the required PostgreSQL and Keycloak containers defined in `compose.yml`, so no manual
-> configuration is needed.
+> **Local development:** run `./mvnw spring-boot:test-run` instead of `spring-boot:run`. It starts the application
+> from the test classpath with `TestEnvironmentConfiguration` imported, which brings up PostgreSQL and Keycloak as
+> Testcontainers-managed containers (see `src/test/java/edu/lyra/members/api/environment`), so no manual
+> configuration or `docker compose` invocation is needed — only a running Docker daemon.
 
 #### Scopes
 
