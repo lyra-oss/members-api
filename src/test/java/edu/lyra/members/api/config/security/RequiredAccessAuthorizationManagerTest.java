@@ -208,21 +208,33 @@ class RequiredAccessAuthorizationManagerTest {
     private static final class Fixture {
 
         @RequiredAccess
-        void openMethod() {}
+        void openMethod() {
+            // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
+        }
 
-        void unannotatedMethod() {}
+        void unannotatedMethod() {
+            // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
+        }
 
         @RequiredAccess(scopes = "kids.read")
-        void scopedMethod() {}
+        void scopedMethod() {
+            // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
+        }
 
         @RequiredAccess(scopes = {"kids.read", "classrooms.read"})
-        void multiScopeMethod() {}
+        void multiScopeMethod() {
+            // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
+        }
 
         @RequiredAccess(scopes = "parents.create", roles = "admin")
-        void scopedAndRoledMethod() {}
+        void scopedAndRoledMethod() {
+            // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
+        }
 
         @RequiredAccess(roles = {"admin", "teacher"})
-        void multiRoleMethod() {}
+        void multiRoleMethod() {
+            // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
+        }
 
     }
 
