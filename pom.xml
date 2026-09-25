@@ -43,7 +43,7 @@
         <agent>false</agent>
         <!-- Sonar settings -->
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
-        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java,**/ProtobufRuntimeHints.java</sonar.coverage.exclusions>
+        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java,**/ProtobufRuntimeHints.java,**/HibernateRuntimeHints.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
         <jackson-2-bom.version>2.22.3</jackson-2-bom.version>
         <jackson-bom.version>3.2.3</jackson-bom.version>
@@ -106,10 +106,8 @@
         <dependency>
             <!-- Hibernate's own native-image reflection support (entity persisters, id generators, naming
                  strategies, etc. - see org.hibernate.graalvm.internal.GraalVMStaticFeature). The JBoss Logging
-                 message-logger classes, default-strategy implementations and boot-time XML schema resources it
-                 doesn't cover are captured separately, by running the test suite under the GraalVM tracing agent
-                 (see the native-maven-plugin declaration below) and checking in its Hibernate-scoped findings at
-                 src/main/resources/META-INF/native-image/edu.lyra/members-api-agent-capture/. -->
+                 message-logger classes, default-strategy implementations, boot-time XML schema resources and
+                 multi-ID-loader array types it doesn't cover are registered separately, in HibernateRuntimeHints. -->
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-graalvm</artifactId>
         </dependency>
@@ -585,11 +583,10 @@
                 <!-- Registers native-maven-plugin as a build extension so its GraalVM tracing-agent integration is
                      available on demand: "./mvnw -Dagent=true test" runs the test suite on a normal JVM with the
                      agent attached, which observes every reflection/resource/proxy access the app actually makes and
-                     writes it to target/native/agent-output/ - the authoritative way to check whether the
-                     Hibernate-scoped findings checked in at
-                     src/main/resources/META-INF/native-image/edu.lyra/members-api-agent-capture/ are missing
-                     something, instead of guessing from a native-image stack trace and decompiling classes by
-                     hand. -->
+                     writes it to target/native/agent-output/ - a useful cross-check against the hand-maintained
+                     registrars (HibernateRuntimeHints, ProtobufRuntimeHints), though not a substitute for them: it
+                     only captures what the local test suite happens to exercise, not every boot-time path a real
+                     deployment can still reach. -->
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
                 <extensions>true</extensions>
