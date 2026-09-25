@@ -41,6 +41,17 @@
         <!-- Off by default so an ordinary "mvn test" isn't instrumented; pass -Dagent=true to attach the
              GraalVM tracing agent to that test run instead (see the native-maven-plugin declaration below). -->
         <agent>false</agent>
+        <!-- spring-boot:process-aot bakes @ConditionalOnProperty-gated bean *registrations* into the native image
+             based on whatever the forked AOT JVM's own Environment sees - real deployments only ever set the real
+             issuer-uri as an environment variable at container start, never at build time, so without this the
+             JwtDecoder bean definition would be permanently stripped from the native image regardless of what's
+             supplied later. This only has to satisfy that build-time condition: the generated bean-registration
+             code still re-reads the property from the real Environment when the bean is actually created, so it
+             never reaches this JVM, let alone a native-image-time HTTP call, and the real
+             SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI override still takes effect as normal. Passed
+             only to the forked AOT process (spring-boot-maven-plugin's own ${spring-boot.aot.jvmArguments} hook)
+             rather than into application.properties, so it's never part of the shipped configuration. -->
+        <spring-boot.aot.jvmArguments>-Dspring.security.oauth2.resourceserver.jwt.issuer-uri=https://placeholder.invalid/realms/members-api</spring-boot.aot.jvmArguments>
         <!-- Sonar settings -->
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java,**/ProtobufRuntimeHints.java,**/HibernateRuntimeHints.java</sonar.coverage.exclusions>
