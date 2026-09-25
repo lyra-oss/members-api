@@ -5,16 +5,28 @@ import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 
 /**
- * Registers native-image reflection access for the {@code *_$logger} classes JBoss Logging's annotation processor
+ * Registers native-image reflection access this application needs from {@code org.hibernate.orm:hibernate-core}
+ * that isn't (yet) covered by the GraalVM Reachability Metadata Repository for this Hibernate version, nor by
+ * Hibernate's own {@code hibernate-graalvm} module (whose {@code GraalVMStaticFeature} doesn't touch either of the
+ * two categories below). Both are classes Hibernate looks up reflectively by name rather than referencing
+ * directly, so native-image's static analysis has no way to know they're reachable without this.
+ *
+ * <p>{@link #GENERATED_LOGGER_CLASSES}: the {@code *_$logger} classes JBoss Logging's annotation processor
  * generates, at compile time, for every {@code @MessageLogger} interface Hibernate declares (e.g.
- * {@code CoreMessageLogger_$logger}, {@code JpaLogger_$logger}). {@code org.jboss.logging.Logger} looks these up by
- * name at runtime ({@code MethodHandles.Lookup#findClass}) rather than referencing them directly, so native-image's
- * static analysis has no way to know they're reachable without this: left unregistered, the first one touched at
- * startup fails with {@code IllegalArgumentException: Invalid logger interface ... (implementation not found)}.
+ * {@code CoreMessageLogger_$logger}, {@code JpaLogger_$logger}). {@code org.jboss.logging.Logger} looks these up
+ * by name ({@code MethodHandles.Lookup#findClass}); left unregistered, the first one touched fails with
+ * {@code IllegalArgumentException: Invalid logger interface ... (implementation not found)}.
+ *
+ * <p>{@link #DEFAULT_STRATEGY_CLASSES}: every strategy implementation hibernate-core's own
+ * {@code StrategySelectorBuilder} registers as a short-name default (naming strategies, column-ordering
+ * strategies, multi-table mutation/insert strategies, the cache keys factory, transaction coordinator builders,
+ * JSON/XML format mappers). {@code StrategySelectorImpl} resolves these via
+ * {@code Class#getDeclaredConstructor().newInstance()} the first time each category is actually needed; left
+ * unregistered, that fails with {@code NoSuchMethodException: <the class>.<init>()}.
  *
  * @author Esteban Cristóbal Rodríguez
  */
-class HibernateJBossLoggingRuntimeHints
+class HibernateRuntimeHints
         implements RuntimeHintsRegistrar {
 
     // Every org.hibernate.**.*_$logger class present in hibernate-core 7.4.5.Final.
@@ -74,10 +86,46 @@ class HibernateJBossLoggingRuntimeHints
             "org.hibernate.sql.results.graph.embeddable.EmbeddableLoadingLogger_$logger",
     };
 
+    // Every default-strategy implementation StrategySelectorBuilder hardcodes in hibernate-core 7.4.5.Final.
+    private static final String[] DEFAULT_STRATEGY_CLASSES = {
+            "org.hibernate.resource.transaction.backend.jdbc.internal." +
+                    "JdbcResourceLocalTransactionCoordinatorBuilderImpl",
+            "org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorBuilderImpl",
+            "org.hibernate.query.sqm.mutation.internal.cte.CteInsertStrategy",
+            "org.hibernate.query.sqm.mutation.internal.temptable.GlobalTemporaryTableInsertStrategy",
+            "org.hibernate.query.sqm.mutation.internal.temptable.LocalTemporaryTableInsertStrategy",
+            "org.hibernate.query.sqm.mutation.internal.temptable.PersistentTableInsertStrategy",
+            "org.hibernate.query.sqm.mutation.internal.cte.CteMutationStrategy",
+            "org.hibernate.query.sqm.mutation.internal.temptable.GlobalTemporaryTableMutationStrategy",
+            "org.hibernate.query.sqm.mutation.internal.temptable.LocalTemporaryTableMutationStrategy",
+            "org.hibernate.query.sqm.mutation.internal.temptable.PersistentTableMutationStrategy",
+            "org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl",
+            "org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl",
+            "org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl",
+            "org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl",
+            "org.hibernate.id.enhanced.StandardNamingStrategy",
+            "org.hibernate.id.enhanced.SingleNamingStrategy",
+            "org.hibernate.id.enhanced.LegacyNamingStrategy",
+            "org.hibernate.boot.model.relational.ColumnOrderingStrategyStandard",
+            "org.hibernate.boot.model.relational.ColumnOrderingStrategyLegacy",
+            "org.hibernate.cache.internal.DefaultCacheKeysFactory",
+            "org.hibernate.cache.internal.SimpleCacheKeysFactory",
+            "org.hibernate.type.format.jakartajson.JsonBJsonFormatMapper",
+            "org.hibernate.type.format.jackson.JacksonJsonFormatMapper",
+            "org.hibernate.type.format.jackson.Jackson3JsonFormatMapper",
+            "org.hibernate.type.format.jackson.JacksonOsonFormatMapper",
+            "org.hibernate.type.format.jackson.JacksonXmlFormatMapper",
+            "org.hibernate.type.format.jackson.Jackson3XmlFormatMapper",
+            "org.hibernate.type.format.jaxb.JaxbXmlFormatMapper",
+    };
+
     @Override
     public void registerHints(final RuntimeHints hints, final ClassLoader classLoader) {
+        final MemberCategory invokeConstructors = MemberCategory.INVOKE_DECLARED_CONSTRUCTORS;
         for(final String className : GENERATED_LOGGER_CLASSES) {
-            final MemberCategory invokeConstructors = MemberCategory.INVOKE_DECLARED_CONSTRUCTORS;
+            hints.reflection().registerTypeIfPresent(classLoader, className, invokeConstructors);
+        }
+        for(final String className : DEFAULT_STRATEGY_CLASSES) {
             hints.reflection().registerTypeIfPresent(classLoader, className, invokeConstructors);
         }
     }

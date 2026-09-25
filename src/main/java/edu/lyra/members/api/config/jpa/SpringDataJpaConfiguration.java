@@ -9,5 +9,5 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableJpaRepositories(basePackageClasses = MembersApiApplication.class)
 @EnableTransactionManagement
-@ImportRuntimeHints(HibernateJBossLoggingRuntimeHints.class)
+@ImportRuntimeHints(HibernateRuntimeHints.class)
 class SpringDataJpaConfiguration {}
