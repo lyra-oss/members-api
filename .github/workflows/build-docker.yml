@@ -87,7 +87,9 @@ jobs:
           key: buildpacks-native-${{ steps.builder.outputs.digest }}
       - name: Verify the native image
         if: inputs.run-verification
-        run: ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} verify
+        # clean first: the native build just before this leaves target/spring-aot's generated bean-definition
+        # classes on disk, which ArchUnit's architecture tests would otherwise misidentify as real REST classes.
+        run: ./mvnw -B clean -Dit.image=${{ steps.image.outputs.reference }} verify
       - name: Push the verified image
         id: push
         if: inputs.push-image
