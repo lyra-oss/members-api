@@ -75,3 +75,21 @@ commit the result:
 
 The OpenAPI description itself is never served live (there is no `/v3/api-docs` endpoint) — it exists only as a
 build-time artifact (see `OpenApiExportTest`) that feeds the collection above.
+
+## Performance testing
+
+Gatling simulations live under `src/test/java/edu/lyra/members/api/performance`. `SmokeSimulation` runs
+automatically against every native image build on a pull request or `main` (`PerformanceSmokeIT`), gating the push
+to the registry; it's skipped when the deliverable under test is the plain-JRE jar used for fast per-push feedback,
+since JVM performance figures don't reflect the native image actually shipped. `LoadSimulation`, `StressSimulation`
+and `SoakSimulation` back a nightly suite (`NightlyPerformanceIT`, `nightly-performance.yml`) that isn't scheduled
+yet - the workflow's schedule trigger is commented out until it's needed; `workflow_dispatch` still lets you run it
+by hand.
+
+To run any simulation yourself against a running instance:
+
+```shell
+./mvnw gatling:test -Dgatling.simulationClass=edu.lyra.members.api.performance.SmokeSimulation \
+    -Dperf.baseUrl=http://localhost:8080/v0 \
+    -Dperf.tokenUrl=http://localhost:8180/realms/lyra/protocol/openid-connect/token
+```

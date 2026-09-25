@@ -10,8 +10,10 @@ on:
         default: false
       run-verification:
         description: >
-          Run the endpoint smoke IT suite against the freshly built native image before it is pushed - the same
-          suite build-code.yml already ran against a plain-JRE jar image, this time against the actual deliverable.
+          Run the endpoint smoke IT suite - and, since it's the actual deliverable, a Gatling load-smoke run too -
+          against the freshly built native image before it is pushed. build-code.yml already ran the same endpoint
+          suite against a plain-JRE jar image; PerformanceSmokeIT itself skips there, since JVM performance figures
+          don't reflect the native image actually shipped.
         required: false
         type: boolean
         default: true
@@ -55,13 +57,6 @@ jobs:
       - name: Verify the native image
         if: inputs.run-verification
         run: ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} verify
-      # Uncomment once the Gatling performance suite (Task 7) lands: a quick load-smoke run against this exact
-      # native image, gating the push below the same way the verification step already does.
-      # - name: Performance smoke test
-      #   if: inputs.run-verification
-      #   run: >
-      #     ./mvnw -B gatling:test -Dgatling.simulationClass=edu.lyra.members.api.performance.SmokeSimulation
-      #     -Dit.image=${{ steps.image.outputs.reference }}
       - name: Push the verified image
         id: push
         if: inputs.push-image
