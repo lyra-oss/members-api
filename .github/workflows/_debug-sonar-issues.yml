@@ -1,0 +1,34 @@
+name: Debug Sonar issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        required: true
+        type: string
+      pull_request:
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  print-issues:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Print new-code issues
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -n "${{ inputs.pull_request }}" ]; then
+            scope="pullRequest=${{ inputs.pull_request }}"
+          else
+            scope="branch=${{ inputs.branch }}"
+          fi
+          url="https://sonarcloud.io/api/issues/search?componentKeys=lyra-oss_members-api&${scope}&sinceLeakPeriod=true&ps=100"
+          echo "Fetching: $url"
+          curl -sS -u "$SONAR_TOKEN:" "$url" | jq '.issues[] | {rule, severity, type, component, line, message, status}'
+          echo "--- hotspots ---"
+          hurl="https://sonarcloud.io/api/hotspots/search?projectKey=lyra-oss_members-api&${scope}&ps=100"
+          curl -sS -u "$SONAR_TOKEN:" "$hurl" | jq '.hotspots[] | {ruleKey, vulnerabilityProbability, component, line, message, status}'
