@@ -17,6 +17,14 @@ on:
         required: false
         type: boolean
         default: true
+      performance-test-duration-seconds:
+        description: >
+          How many seconds SmokeSimulation's 3 virtual users ramp up over (see PerformanceSupport.readScenario());
+          it does not change how many requests run, only how spread out their start times are. Exposed here so it
+          can be tuned without touching the simulation's source.
+        required: false
+        type: number
+        default: 1
 
 permissions:
   contents: read
@@ -100,14 +108,14 @@ jobs:
         # report success without ever actually running this differently-scoped test.
         run: >
           ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} -Dit.test=PerformanceSmokeIT
+          -Dperf.smoke.durationSeconds=${{ inputs.performance-test-duration-seconds }}
           -Dmaven.build.cache.skipCache=true verify | tee /tmp/performance-smoke.log
       - name: Comment performance results on the PR
         if: inputs.run-verification && github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # Pulls the handful of numbers Gatling already prints (the "> Global" request-count row and its "max
-        # response time" assertion) out of the raw console log, rather than dumping that log verbatim into the
-        # comment.
+        # Pulls the handful of numbers Gatling already prints (the "> Global" request-count row and its response-
+        # time assertions) out of the raw console log, rather than dumping that log verbatim into the comment.
         run: |
           status="✅ Passed"
           grep -qE 'Failures: 0, Errors: 0,.*-- in edu\.lyra\.members\.api\.PerformanceSmokeIT$' \
@@ -118,9 +126,17 @@ jobs:
           ok=$(awk -F'|' '{gsub(/[ \t]+/,"",$3); print $3}' <<< "$global_line")
           ko=$(awk -F'|' '{gsub(/[ \t]+/,"",$4); print $4}' <<< "$global_line")
 
-          max_line=$(grep -E '^Global: max of response time' /tmp/performance-smoke.log)
-          max_actual=$(sed -E 's/.*actual : ([0-9.]+).*/\1/; s/\.0$//' <<< "$max_line")
-          max_threshold=$(sed -E 's/.*less than ([0-9.]+).*/\1/; s/\.0$//' <<< "$max_line")
+          # $1: grep pattern for the "Global: ..." assertion line: prints "<actual> ms *(< <threshold> ms)*",
+          # falling back to N/A on either side if that line isn't found (e.g. the simulation errored before Gatling
+          # ever printed its assertion results).
+          response_time_cell() {
+            local line
+            line=$(grep -E "$1" /tmp/performance-smoke.log | head -1)
+            local actual threshold
+            actual=$(sed -E 's/.*actual : ([0-9.]+).*/\1/; s/\.0$//' <<< "$line")
+            threshold=$(sed -E 's/.*less than ([0-9.]+).*/\1/; s/\.0$//' <<< "$line")
+            echo "${actual:-N/A} ms *(< ${threshold:-N/A} ms)*"
+          }
 
           {
             echo "### Performance smoke test — $status"
@@ -128,7 +144,9 @@ jobs:
             echo "| Metric | Value |"
             echo "| --- | --- |"
             echo "| Requests | ${total:-N/A} total · ${ok:-N/A} OK · ${ko:-N/A} KO |"
-            echo "| Max response time | ${max_actual:-N/A} ms *(threshold: < ${max_threshold:-N/A} ms)* |"
+            echo "| p50 response time | $(response_time_cell '^Global: 50th percentile of response time') |"
+            echo "| p95 response time | $(response_time_cell '^Global: 95th percentile of response time') |"
+            echo "| Max response time | $(response_time_cell '^Global: max of response time') |"
             echo
             echo "[View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           } > /tmp/performance-comment.md

@@ -38,6 +38,9 @@
         <!-- Which deliverable the *IT suite exercises: "jvm" packages target/*.jar into a plain JRE
              container; any other value is treated as an already-built OCI image reference. -->
         <it.image>jvm</it.image>
+        <!-- How long SmokeSimulation ramps its (fixed) 3 users over, in seconds - see build-docker.yml's
+             performance-test-duration-seconds input, which overrides this for a real run. -->
+        <perf.smoke.durationSeconds>1</perf.smoke.durationSeconds>
         <!-- Off by default so an ordinary "mvn test" isn't instrumented; pass -Dagent=true to attach the
              GraalVM tracing agent to that test run instead (see the native-maven-plugin declaration below). -->
         <agent>false</agent>
@@ -355,6 +358,7 @@
                              just produced), selecting which deliverable the *IT suite exercises. -->
                         <it.image>${it.image}</it.image>
                         <it.jarFile>${project.build.directory}/${project.build.finalName}.jar</it.jarFile>
+                        <perf.smoke.durationSeconds>${perf.smoke.durationSeconds}</perf.smoke.durationSeconds>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
