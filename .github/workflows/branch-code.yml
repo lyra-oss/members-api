@@ -9,6 +9,10 @@ on:
       - '.github/workflows/dependabot-code.yml'
       - '.github/dependabot.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   security-events: write
@@ -17,4 +21,6 @@ jobs:
   build-source-code:
     name: Build source code
     uses: ./.github/workflows/build-code.yml
+    with:
+      mutation-scope: changed
     secrets: inherit

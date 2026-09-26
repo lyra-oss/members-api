@@ -3,6 +3,7 @@ package edu.lyra.members.api.parent.rest;
 import java.net.URI;
 import java.util.UUID;
 
+import edu.lyra.members.api.config.security.RequiredAccess;
 import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.parent.Parent;
 import jakarta.validation.Valid;
@@ -32,18 +33,21 @@ class ParentController {
     private final ParentAdapter                   adapter;
     private final PagedResourcesAssembler<Parent> pagedAssembler;
 
+    @RequiredAccess(scopes = "parents.read")
     @GetMapping
     PagedModel<ParentModel> findAll(final Pageable pageable) {
         log.debug("Listing parents, page {}", pageable);
         return this.adapter.findAll(pageable, this.pagedAssembler);
     }
 
+    @RequiredAccess(scopes = "parents.read")
     @GetMapping("/{id}")
     ResponseEntity<ParentModel> get(final @PathVariable UUID id) {
         log.debug("Fetching parent {}", id);
         return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
+    @RequiredAccess(scopes = "parents.create")
     @PostMapping
     ResponseEntity<ParentModel> create(final @Valid @RequestBody ParentRequest request) {
         log.debug("Registering a parent");
@@ -52,18 +56,21 @@ class ParentController {
         return ResponseEntity.created(location).body(model);
     }
 
+    @RequiredAccess(scopes = "parents.update")
     @PatchMapping("/{id}")
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody ParentPatchRequest request) {
         log.debug("Updating parent {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.update(id, request).isPresent());
     }
 
+    @RequiredAccess(scopes = "parents.delete")
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(final @PathVariable UUID id) {
         log.debug("Deleting parent {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.delete(id));
     }
 
+    @RequiredAccess(scopes = "parents.update")
     @PutMapping("/{id}/kids/{kidId}")
     ResponseEntity<Void> bindKid(final @PathVariable UUID id, final @PathVariable UUID kidId) {
         log.debug("Binding kid {} to parent {}", kidId, id);

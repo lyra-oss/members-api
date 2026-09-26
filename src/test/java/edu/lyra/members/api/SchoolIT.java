@@ -27,7 +27,7 @@ class SchoolIT
             throws IOException {
         final String createToken = this.getToken(USERNAME, "schools.create");
         final String body = this.json.writeValueAsString(Map.of(NAME_KEY, NAME_VALUE));
-        final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/schools")
+        final Request postRequest = new Request.Builder().url(BASE_URL + "/schools")
                                                          .addHeader("Authorization", "Bearer " + createToken)
                                                          .post(create(body, get("application/json"))).build();
         String location;
@@ -51,7 +51,7 @@ class SchoolIT
             throws IOException {
         final String createToken = this.getToken(USERNAME, "schools.create");
         final String body        = this.json.writeValueAsString(Map.of(NAME_KEY, "Montessori Norte"));
-        final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/schools")
+        final Request postRequest = new Request.Builder().url(BASE_URL + "/schools")
                                                          .addHeader("Authorization", "Bearer " + createToken)
                                                          .post(create(body, get("application/json"))).build();
         String location;

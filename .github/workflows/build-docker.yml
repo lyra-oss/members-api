@@ -2,11 +2,37 @@ name: Build Docker image
 
 on:
   workflow_call:
+    inputs:
+      push-image:
+        description: 'Push the built image to ghcr.io once it has passed verification.'
+        required: false
+        type: boolean
+        default: false
+      run-verification:
+        description: >
+          Run the endpoint smoke IT suite - and, since it's the actual deliverable, a k6 load-smoke run too -
+          against the freshly built native image before it is pushed. build-code.yml already ran the same endpoint
+          suite against a plain-JRE jar image; PerformanceSmokeIT itself skips there, since JVM performance figures
+          don't reflect the native image actually shipped.
+        required: false
+        type: boolean
+        default: true
+      performance-test-duration-seconds:
+        description: >
+          How many seconds smoke.ts's 3 virtual users ramp up over (see support.ts's readScenario()); it does not
+          change how many requests run, only how spread out their start times are. Exposed here so it can be tuned
+          without touching the script's source.
+        required: false
+        type: number
+        default: 1
 
 permissions:
   contents: read
   packages: write
   security-events: write
+  id-token: write
+  attestations: write
+  pull-requests: write
 
 jobs:
   build:
@@ -24,10 +50,122 @@ jobs:
           distribution: 'graalvm'
           cache: 'maven'
       - name: Log in to the Container registry
+        if: inputs.push-image
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build Docker image
-        run: ./mvnw -B spring-boot:build-image -Pnative -Dspring-boot.build-image.publish=true
+      - name: Resolve the Buildpacks builder image digest
+        id: builder
+        run: |
+          image=$(./mvnw -q help:evaluate -Dexpression=buildpacks-builder.image -DforceStdout)
+          echo "digest=${image##*@}" >> "$GITHUB_OUTPUT"
+      - name: Restore the Buildpacks cache
+        id: buildpacks-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: /tmp/buildpacks-layers.tar.gz
+          key: buildpacks-native-${{ steps.builder.outputs.digest }}
+          restore-keys: buildpacks-native-
+      - name: Load the Buildpacks cache
+        if: steps.buildpacks-cache.outputs.cache-matched-key != ''
+        run: |
+          docker run --rm -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch \
+            -v /tmp:/backup busybox tar xzf /backup/buildpacks-layers.tar.gz -C /cache
+      - name: Build native image
+        run: ./mvnw -B spring-boot:build-image -Pnative
+      - name: Determine image reference
+        id: image
+        run: >
+          echo "reference=ghcr.io/lyra-oss/members-api:$(./mvnw -q help:evaluate
+          -Dexpression=project.version -DforceStdout)" >> "$GITHUB_OUTPUT"
+      - name: Save the Buildpacks cache
+        if: always()
+        # Removed first: the container can't overwrite a file the (unprivileged, differently-UID-mapped) restore
+        # step above already wrote, only create a new one.
+        run: |
+          rm -f /tmp/buildpacks-layers.tar.gz
+          docker run --rm -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch \
+            -v /tmp:/backup busybox tar czf /backup/buildpacks-layers.tar.gz -C /cache build launch
+      - name: Upload the Buildpacks cache
+        if: always()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: /tmp/buildpacks-layers.tar.gz
+          key: buildpacks-native-${{ steps.builder.outputs.digest }}
+      - name: Verify the native image
+        if: inputs.run-verification
+        # clean first: the native build just before this leaves target/spring-aot's generated bean-definition
+        # classes on disk, which ArchUnit's architecture tests would otherwise misidentify as real REST classes.
+        # PerformanceSmokeIT is excluded here and run as its own step below, so its result is reported separately.
+        run: ./mvnw -B clean -Dit.image=${{ steps.image.outputs.reference }} '-Dit.test=!PerformanceSmokeIT' verify
+      - name: Run performance smoke test
+        if: inputs.run-verification
+        # -Dmaven.build.cache.skipCache=true: the "Verify the native image" step just above already populated the
+        # build cache for a "verify" run with these same project inputs (only the -Dit.test selection differs, which
+        # the cache's checksum doesn't account for) - without this, Maven would restore that cached result and
+        # report success without ever actually running this differently-scoped test.
+        # | tee, rather than letting output go straight to the console: keeps this step's own exit status the
+        # (always-zero) exit status of tee, not of mvnw, so the PR-comment step below still runs and can report a
+        # failure even when the smoke test itself fails its thresholds - the log is kept for debugging, but the
+        # comment step reads target/k6/smoke-summary.json (handleSummary.ts's structured output), not this log.
+        run: >
+          ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} -Dit.test=PerformanceSmokeIT
+          -Dperf.smoke.durationSeconds=${{ inputs.performance-test-duration-seconds }}
+          -Dmaven.build.cache.skipCache=true verify | tee /tmp/performance-smoke.log
+      - name: Comment performance results on the PR
+        if: inputs.run-verification && github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Reads target/k6/smoke-summary.json - the full k6 summary object handleSummary.ts (src/test/k6) wrote,
+        # copied out of the k6 container by K6PerformanceSupport - rather than parsing console text back out of a
+        # log, the way the Gatling-based version of this step used to.
+        run: |
+          summary=target/k6/smoke-summary.json
+          status="✅ Passed"
+          if [ ! -s "$summary" ] || ! jq -e '[.metrics[].thresholds[]?.ok] | all' "$summary" >/dev/null 2>&1; then
+            status="❌ Failed"
+          fi
+
+          total=$(jq -r '.metrics.http_reqs.values.count // "N/A"' "$summary" 2>/dev/null || echo N/A)
+          ok=$(jq -r '.metrics.checks.values.passes // "N/A"' "$summary" 2>/dev/null || echo N/A)
+          ko=$(jq -r '.metrics.checks.values.fails // "N/A"' "$summary" 2>/dev/null || echo N/A)
+
+          # $1: the http_req_duration trend stat to read (e.g. "med" for p50, "p(95)" for p95); $2: its threshold,
+          # purely for display. Prints "<value> ms *(< <threshold> ms)*", falling back to N/A if the summary is
+          # missing or malformed (e.g. the script errored before k6 ever ran handleSummary.ts).
+          response_time_cell() {
+            jq -r --arg key "$1" --arg threshold "$2" '
+              .metrics.http_req_duration.values[$key] as $v |
+              if $v == null then "N/A ms *(< \($threshold) ms)*" else "\($v | round) ms *(< \($threshold) ms)*" end
+            ' "$summary" 2>/dev/null || echo "N/A ms *(< $2 ms)*"
+          }
+
+          {
+            echo "### Performance smoke test — $status"
+            echo
+            echo "| Metric | Value |"
+            echo "| --- | --- |"
+            echo "| Requests | ${total:-N/A} total · ${ok:-N/A} OK · ${ko:-N/A} KO |"
+            echo "| p50 response time | $(response_time_cell med 2000) |"
+            echo "| p95 response time | $(response_time_cell 'p(95)' 3000) |"
+            echo "| Max response time | $(response_time_cell max 5000) |"
+            echo
+            echo "[View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          } > /tmp/performance-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/performance-comment.md
+      - name: Push the verified image
+        id: push
+        if: inputs.push-image
+        run: |
+          docker push ${{ steps.image.outputs.reference }}
+          digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ steps.image.outputs.reference }} | cut -d'@' -f2)
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+      - name: Attest build provenance
+        if: inputs.push-image
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
+        with:
+          subject-name: ghcr.io/lyra-oss/members-api
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

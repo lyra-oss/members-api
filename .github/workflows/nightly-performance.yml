@@ -1,0 +1,45 @@
+name: Nightly performance suite
+
+# Disabled for now: no automatic schedule until the team decides it's needed. Uncomment the schedule trigger below
+# to turn it on; workflow_dispatch is left in so it can still be run manually meanwhile.
+on:
+  # schedule:
+  #   - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  performance:
+    name: Load, stress and soak the native image
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Set-up GraalVM
+        uses: graalvm/setup-graalvm@0426e2e191540e8514dff98dc52a5f5146a2a276
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          cache: 'maven'
+      - name: Build native image
+        run: ./mvnw -B spring-boot:build-image -Pnative
+      - name: Determine image reference
+        id: image
+        run: >
+          echo "reference=ghcr.io/lyra-oss/members-api:$(./mvnw -q help:evaluate
+          -Dexpression=project.version -DforceStdout)" >> "$GITHUB_OUTPUT"
+      - name: Run the nightly performance suite
+        run: >
+          ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} -Dit.test=NightlyPerformanceIT
+          -Dperf.nightly=true verify
+      - name: Publish k6 results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: k6-results
+          path: target/k6/*-summary.json
+          retention-days: 30

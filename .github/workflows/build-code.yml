@@ -2,6 +2,15 @@ name: Build source code
 
 on:
   workflow_call:
+    inputs:
+      mutation-scope:
+        description: >
+          "changed" mutation-tests only the main-source classes touched since the push's previous commit (falling
+          back to "full" when that can't be determined, e.g. a branch's first push); "full" always mutation-tests
+          every class.
+        required: false
+        type: string
+        default: 'full'
 
 permissions:
   contents: read
@@ -28,9 +37,92 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-      - name: Build & Test
-        run: ./mvnw -B clean verify
-      - name: Mutation Tests
+      - name: Cache npm packages
+        # Covers both npx's on-demand downloads (openapi-to-postmanv2, @grafana/openapi-to-k6) and "npm ci"'s
+        # install of src/test/k6/package.json's type-checking devDependencies - all share the same ~/.npm cache.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ~/.npm
+          key: >-
+            ${{ runner.os }}-npm-openapi-to-postmanv2-6.3.3-openapi-to-k6-0.4.1-${{
+            hashFiles('src/test/k6/package-lock.json') }}
+      - name: Resolve the Buildpacks builder image digest
+        id: builder
+        run: |
+          image=$(./mvnw -q help:evaluate -Dexpression=buildpacks-builder.image -DforceStdout)
+          echo "digest=${image##*@}" >> "$GITHUB_OUTPUT"
+      - name: Restore the Buildpacks cache
+        id: buildpacks-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: /tmp/buildpacks-layers.tar.gz
+          key: buildpacks-jvm-${{ steps.builder.outputs.digest }}
+          restore-keys: buildpacks-jvm-
+      - name: Load the Buildpacks cache
+        if: steps.buildpacks-cache.outputs.cache-matched-key != ''
+        run: |
+          docker run --rm -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch \
+            -v /tmp:/backup busybox tar xzf /backup/buildpacks-layers.tar.gz -C /cache
+      - name: Build the JVM deliverable
+        run: ./mvnw -B clean spring-boot:build-image
+      - name: Determine image reference
+        id: image
+        run: >
+          echo "reference=ghcr.io/lyra-oss/members-api:$(./mvnw -q help:evaluate
+          -Dexpression=project.version -DforceStdout)" >> "$GITHUB_OUTPUT"
+      - name: Save the Buildpacks cache
+        if: always()
+        # Removed first: the container can't overwrite a file the (unprivileged, differently-UID-mapped) restore
+        # step above already wrote, only create a new one.
+        run: |
+          rm -f /tmp/buildpacks-layers.tar.gz
+          docker run --rm -v members-api.build-cache:/cache/build -v members-api.launch-cache:/cache/launch \
+            -v /tmp:/backup busybox tar czf /backup/buildpacks-layers.tar.gz -C /cache build launch
+      - name: Upload the Buildpacks cache
+        if: always()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: /tmp/buildpacks-layers.tar.gz
+          key: buildpacks-jvm-${{ steps.builder.outputs.digest }}
+      - name: Verify against the JVM image
+        run: ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} verify
+      - name: Check the Postman collection is up to date
+        run: ./scripts/generate-postman-collection.sh --check
+      - name: Check the k6 client is up to date
+        run: ./scripts/generate-k6-client.sh --check
+      - name: Type-check the k6 performance scripts
+        # --ignore-scripts: neither devDependency (typescript, @types/k6) needs an install-time lifecycle script to
+        # function, so this just removes the arbitrary-code-execution surface a compromised transitive dependency's
+        # postinstall script would otherwise have.
+        run: |
+          cd src/test/k6
+          npm ci --ignore-scripts
+          npm run typecheck
+      - name: Determine mutation testing scope
+        id: mutation-scope
+        if: inputs.mutation-scope == 'changed'
+        run: |
+          before="${{ github.event.before }}"
+          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            echo "Previous commit unknown (e.g. this branch's first push); falling back to a full mutation run"
+            echo "targets=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Mirrors pitest-maven's own <excludedClasses> patterns (pom.xml): a push touching only these falls
+          # through to the "everything" run below instead of handing pitest an all-excluded target list, which it
+          # treats as a hard failure ("No mutations found") rather than a no-op.
+          targets=$(git diff --name-only --diff-filter=d "$before" "${{ github.sha }}" -- 'src/main/java/**/*.java' \
+            | grep -vE '(Configuration|Application|MapperImpl|RuntimeHints)\.java$' \
+            | sed -E 's#^src/main/java/##; s#\.java$##; s#/#.#g' | paste -sd, -)
+          echo "Classes changed since $before: ${targets:-<none>}"
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
+      - name: Mutation Tests (changed classes)
+        if: inputs.mutation-scope == 'changed' && steps.mutation-scope.outputs.targets != ''
+        run: >
+          ./mvnw -B org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=90
+          -DtargetClasses=${{ steps.mutation-scope.outputs.targets }}
+      - name: Mutation Tests (everything)
+        if: inputs.mutation-scope == 'full' || (inputs.mutation-scope == 'changed' && steps.mutation-scope.outputs.targets == '')
         run: ./mvnw -B org.pitest:pitest-maven:mutationCoverage -DmutationThreshold=90
       - name: Run SonarCloud analysis
         if: github.actor != 'dependabot[bot]'
