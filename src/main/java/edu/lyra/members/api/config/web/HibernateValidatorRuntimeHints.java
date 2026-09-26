@@ -60,6 +60,8 @@ class HibernateValidatorRuntimeHints
             "org.hibernate.validator.internal.constraintvalidators.bv.number.sign.PositiveValidatorForInteger",
             // @Max(...) Integer/int
             "org.hibernate.validator.internal.constraintvalidators.bv.number.bound.MaxValidatorForInteger",
+            // @Past LocalDate
+            "org.hibernate.validator.internal.constraintvalidators.bv.time.past.PastValidatorForLocalDate",
     };
 
     @Override
