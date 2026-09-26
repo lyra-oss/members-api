@@ -529,6 +529,17 @@
                         <param>**.*MapperImpl</param>
                         <param>**.*RuntimeHints</param>
                     </excludedClasses>
+                    <!-- The hibernate-maven-plugin's build-time enhancement (see the build/plugins section below)
+                         injects $$_hibernate_read_*/$$_hibernate_write_*/$$_hibernate_trackChange/etc. methods into
+                         every entity class for lazy-loading/dirty-tracking bookkeeping - framework plumbing with no
+                         dedicated test of its own, so PIT's mutants against it never get killed. excludedClasses
+                         can't help here: it excludes a whole class, and these methods live right alongside an
+                         entity's real (if sparse) hand-written logic. Matched without the literal "$$" since PIT's
+                         glob-to-regex conversion doesn't escape "$", which a literal "$$" would otherwise anchor as
+                         a regex end-of-input marker and never match. -->
+                    <excludedMethods>
+                        <param>*_hibernate_*</param>
+                    </excludedMethods>
                     <excludedTestClasses>
                         <param>**.*IT</param>
                         <param>**.*ITCase</param>
