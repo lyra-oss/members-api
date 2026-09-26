@@ -77,6 +77,9 @@ public final class ApplicationContainer
      * schema-generation and metrics-export overrides the ITs need.
      *
      * @param network             the network PostgreSQL and Keycloak are reachable on
+     * @param networkAlias        the alias this container itself joins {@code network} under - reachable at
+     *                            {@code http://<networkAlias>:8080} by any other container on it (e.g. the k6
+     *                            container {@code K6PerformanceSupport} runs)
      * @param postgresAlias       PostgreSQL's network alias
      * @param postgresDatabase    the database name
      * @param postgresUsername    the database username
@@ -87,6 +90,7 @@ public final class ApplicationContainer
      */
     public ApplicationContainer withEnvironment(
             final Network network,
+            final String networkAlias,
             final String postgresAlias,
             final String postgresDatabase,
             final String postgresUsername,
@@ -109,6 +113,7 @@ public final class ApplicationContainer
         final List<String> command = new ArrayList<>(this.commandPrefix);
         command.add("--spring.jpa.properties.jakarta.persistence.schema-generation.database.action=create-drop");
         return this.withNetwork(network)
+                   .withNetworkAliases(networkAlias)
                    .withExposedPorts(APPLICATION_PORT)
                    .withEnv(env)
                    .withCommand(command.toArray(new String[0]))
@@ -126,6 +131,19 @@ public final class ApplicationContainer
      */
     public String baseUrl() {
         return "http://%s:%d%s".formatted(this.getHost(), this.getMappedPort(APPLICATION_PORT), CONTEXT_PATH);
+    }
+
+    /**
+     * The base URL a caller on the same Docker network (e.g. the k6 container {@code K6PerformanceSupport} runs)
+     * can reach this container's API through, by the alias {@link #withEnvironment} joined it under - distinct
+     * from {@link #baseUrl()}, which instead uses the randomly assigned host port a caller outside Docker needs.
+     *
+     * @param networkAlias the alias {@link #withEnvironment} was given
+     *
+     * @return the {@code http://<networkAlias>:8080<context path>} base URL
+     */
+    public static String networkUrl(final String networkAlias) {
+        return "http://%s:%d%s".formatted(networkAlias, APPLICATION_PORT, CONTEXT_PATH);
     }
 
 }

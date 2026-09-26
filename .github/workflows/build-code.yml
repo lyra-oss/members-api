@@ -38,10 +38,14 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Cache npm packages
+        # Covers both npx's on-demand downloads (openapi-to-postmanv2, @grafana/openapi-to-k6) and "npm ci"'s
+        # install of src/test/k6/package.json's type-checking devDependencies - all share the same ~/.npm cache.
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-openapi-to-postmanv2-6.3.3
+          key: >-
+            ${{ runner.os }}-npm-openapi-to-postmanv2-6.3.3-openapi-to-k6-0.4.1-${{
+            hashFiles('src/test/k6/package-lock.json') }}
       - name: Resolve the Buildpacks builder image digest
         id: builder
         run: |
@@ -84,6 +88,13 @@ jobs:
         run: ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} verify
       - name: Check the Postman collection is up to date
         run: ./scripts/generate-postman-collection.sh --check
+      - name: Check the k6 client is up to date
+        run: ./scripts/generate-k6-client.sh --check
+      - name: Type-check the k6 performance scripts
+        run: |
+          cd src/test/k6
+          npm ci
+          npm run typecheck
       - name: Determine mutation testing scope
         id: mutation-scope
         if: inputs.mutation-scope == 'changed'

@@ -20,7 +20,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "grant Teacher Role",
+                  "name": "person Grant Teacher Role",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -44,7 +44,7 @@
                       }
                     ],
                     "method": "PUT",
-                    "name": "grant Teacher Role",
+                    "name": "person Grant Teacher Role",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -124,7 +124,7 @@
                 },
                 {
                   "event": [],
-                  "name": "revoke Teacher Role",
+                  "name": "person Revoke Teacher Role",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -133,7 +133,7 @@
                     "body": {},
                     "description": {},
                     "method": "DELETE",
-                    "name": "revoke Teacher Role",
+                    "name": "person Revoke Teacher Role",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -204,7 +204,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "grant Parent Role",
+                  "name": "person Grant Parent Role",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -213,7 +213,7 @@
                     "body": {},
                     "description": {},
                     "method": "PUT",
-                    "name": "grant Parent Role",
+                    "name": "person Grant Parent Role",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -278,7 +278,7 @@
                 },
                 {
                   "event": [],
-                  "name": "revoke Parent Role",
+                  "name": "person Revoke Parent Role",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -287,7 +287,7 @@
                     "body": {},
                     "description": {},
                     "method": "DELETE",
-                    "name": "revoke Parent Role",
+                    "name": "person Revoke Parent Role",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -355,7 +355,7 @@
             },
             {
               "event": [],
-              "name": "get 5",
+              "name": "person Get",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -370,7 +370,7 @@
                   }
                 ],
                 "method": "GET",
-                "name": "get 5",
+                "name": "person Get",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -397,7 +397,7 @@
               "response": [
                 {
                   "_postman_previewlanguage": "text",
-                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                   "code": 200,
                   "cookie": [],
                   "header": [
@@ -448,7 +448,7 @@
         },
         {
           "event": [],
-          "name": "find All 5",
+          "name": "person Find All",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -463,7 +463,7 @@
               }
             ],
             "method": "GET",
-            "name": "find All 5",
+            "name": "person Find All",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -506,7 +506,7 @@
           "response": [
             {
               "_postman_previewlanguage": "text",
-              "body": "{\n  \"_embedded\": {\n    \"persons\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "body": "{\n  \"_embedded\": {\n    \"persons\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
               "code": 200,
               "cookie": [],
               "header": [
@@ -585,7 +585,7 @@
                   "item": [
                     {
                       "event": [],
-                      "name": "bind Kid",
+                      "name": "parent Bind Kid",
                       "protocolProfileBehavior": {
                         "disableBodyPruning": true
                       },
@@ -594,7 +594,7 @@
                         "body": {},
                         "description": {},
                         "method": "PUT",
-                        "name": "bind Kid",
+                        "name": "parent Bind Kid",
                         "url": {
                           "host": [
                             "{{baseUrl}}"
@@ -687,7 +687,7 @@
             },
             {
               "event": [],
-              "name": "get 2",
+              "name": "parent Get",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -702,7 +702,7 @@
                   }
                 ],
                 "method": "GET",
-                "name": "get 2",
+                "name": "parent Get",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -729,7 +729,7 @@
               "response": [
                 {
                   "_postman_previewlanguage": "text",
-                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                   "code": 200,
                   "cookie": [],
                   "header": [
@@ -777,7 +777,7 @@
             },
             {
               "event": [],
-              "name": "delete 2",
+              "name": "parent Delete",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -786,7 +786,7 @@
                 "body": {},
                 "description": {},
                 "method": "DELETE",
-                "name": "delete 2",
+                "name": "parent Delete",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -849,7 +849,7 @@
             },
             {
               "event": [],
-              "name": "update 2",
+              "name": "parent Update",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -863,7 +863,7 @@
                       "language": "json"
                     }
                   },
-                  "raw": "{\n  \"name\": \" \\n  M!H7\",\n  \"surname\": \"   \\r᠎  eOc!I\",\n  \"mail\": \" l[l\"\n}"
+                  "raw": "{\n  \"name\": \"﻿       　^{XVDI\",\n  \"surname\": \" r%N_\",\n  \"mail\": \"   m\"\n}"
                 },
                 "description": {},
                 "header": [
@@ -873,7 +873,7 @@
                   }
                 ],
                 "method": "PATCH",
-                "name": "update 2",
+                "name": "parent Update",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -913,7 +913,7 @@
                           "language": "json"
                         }
                       },
-                      "raw": "{\n  \"name\": \" \\n  M!H7\",\n  \"surname\": \"   \\r᠎  eOc!I\",\n  \"mail\": \" l[l\"\n}"
+                      "raw": "{\n  \"name\": \"﻿       　^{XVDI\",\n  \"surname\": \" r%N_\",\n  \"mail\": \"   m\"\n}"
                     },
                     "header": [
                       {
@@ -954,7 +954,7 @@
         },
         {
           "event": [],
-          "name": "find All 2",
+          "name": "parent Find All",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -969,7 +969,7 @@
               }
             ],
             "method": "GET",
-            "name": "find All 2",
+            "name": "parent Find All",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -1076,7 +1076,7 @@
         },
         {
           "event": [],
-          "name": "create 2",
+          "name": "parent Create",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -1104,7 +1104,7 @@
               }
             ],
             "method": "POST",
-            "name": "create 2",
+            "name": "parent Create",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -1119,7 +1119,7 @@
           "response": [
             {
               "_postman_previewlanguage": "text",
-              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
               "code": 200,
               "cookie": [],
               "header": [
@@ -1174,7 +1174,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "find By Parent",
+                  "name": "kid Associations Find By Parent",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -1189,7 +1189,7 @@
                       }
                     ],
                     "method": "GET",
-                    "name": "find By Parent",
+                    "name": "kid Associations Find By Parent",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -1245,7 +1245,7 @@
                   "response": [
                     {
                       "_postman_previewlanguage": "text",
-                      "body": "{\n  \"_embedded\": {\n    \"kids\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+                      "body": "{\n  \"_embedded\": {\n    \"kids\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
                       "code": 200,
                       "cookie": [],
                       "header": [
@@ -1343,7 +1343,7 @@
                   "item": [
                     {
                       "event": [],
-                      "name": "set Tutor",
+                      "name": "classroom Set Tutor",
                       "protocolProfileBehavior": {
                         "disableBodyPruning": true
                       },
@@ -1352,7 +1352,7 @@
                         "body": {},
                         "description": {},
                         "method": "PUT",
-                        "name": "set Tutor",
+                        "name": "classroom Set Tutor",
                         "url": {
                           "host": [
                             "{{baseUrl}}"
@@ -1451,7 +1451,7 @@
                   "item": [
                     {
                       "event": [],
-                      "name": "add Teacher",
+                      "name": "classroom Add Teacher",
                       "protocolProfileBehavior": {
                         "disableBodyPruning": true
                       },
@@ -1460,7 +1460,7 @@
                         "body": {},
                         "description": {},
                         "method": "PUT",
-                        "name": "add Teacher",
+                        "name": "classroom Add Teacher",
                         "url": {
                           "host": [
                             "{{baseUrl}}"
@@ -1559,7 +1559,7 @@
                   "item": [
                     {
                       "event": [],
-                      "name": "enroll Kid",
+                      "name": "classroom Enroll Kid",
                       "protocolProfileBehavior": {
                         "disableBodyPruning": true
                       },
@@ -1568,7 +1568,7 @@
                         "body": {},
                         "description": {},
                         "method": "PUT",
-                        "name": "enroll Kid",
+                        "name": "classroom Enroll Kid",
                         "url": {
                           "host": [
                             "{{baseUrl}}"
@@ -1661,7 +1661,7 @@
             },
             {
               "event": [],
-              "name": "get 4",
+              "name": "classroom Get",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -1676,7 +1676,7 @@
                   }
                 ],
                 "method": "GET",
-                "name": "get 4",
+                "name": "classroom Get",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -1703,7 +1703,7 @@
               "response": [
                 {
                   "_postman_previewlanguage": "text",
-                  "body": "{\n  \"id\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"group\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"group\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                   "code": 200,
                   "cookie": [],
                   "header": [
@@ -1751,7 +1751,7 @@
             },
             {
               "event": [],
-              "name": "delete 4",
+              "name": "classroom Delete",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -1760,7 +1760,7 @@
                 "body": {},
                 "description": {},
                 "method": "DELETE",
-                "name": "delete 4",
+                "name": "classroom Delete",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -1823,7 +1823,7 @@
             },
             {
               "event": [],
-              "name": "update 4",
+              "name": "classroom Update",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -1837,7 +1837,7 @@
                       "language": "json"
                     }
                   },
-                  "raw": "{\n  \"course\": \"<integer>\",\n  \"group\": \"Z\"\n}"
+                  "raw": "{\n  \"course\": \"<integer>\",\n  \"group\": \"W\"\n}"
                 },
                 "description": {},
                 "header": [
@@ -1847,7 +1847,7 @@
                   }
                 ],
                 "method": "PATCH",
-                "name": "update 4",
+                "name": "classroom Update",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -1887,7 +1887,7 @@
                           "language": "json"
                         }
                       },
-                      "raw": "{\n  \"course\": \"<integer>\",\n  \"group\": \"Z\"\n}"
+                      "raw": "{\n  \"course\": \"<integer>\",\n  \"group\": \"W\"\n}"
                     },
                     "header": [
                       {
@@ -1928,7 +1928,7 @@
         },
         {
           "event": [],
-          "name": "find All 4",
+          "name": "classroom Find All",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -1943,7 +1943,7 @@
               }
             ],
             "method": "GET",
-            "name": "find All 4",
+            "name": "classroom Find All",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -1986,7 +1986,7 @@
           "response": [
             {
               "_postman_previewlanguage": "text",
-              "body": "{\n  \"_embedded\": {\n    \"classrooms\": [\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "body": "{\n  \"_embedded\": {\n    \"classrooms\": [\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
               "code": 200,
               "cookie": [],
               "header": [
@@ -2050,7 +2050,7 @@
         },
         {
           "event": [],
-          "name": "create 4",
+          "name": "classroom Create",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -2064,7 +2064,7 @@
                   "language": "json"
                 }
               },
-              "raw": "{\n  \"group\": \"E\",\n  \"school\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"tutor\": \"<uuid>\"\n}"
+              "raw": "{\n  \"group\": \"V\",\n  \"school\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"tutor\": \"<uuid>\"\n}"
             },
             "description": {},
             "header": [
@@ -2078,7 +2078,7 @@
               }
             ],
             "method": "POST",
-            "name": "create 4",
+            "name": "classroom Create",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -2093,7 +2093,7 @@
           "response": [
             {
               "_postman_previewlanguage": "text",
-              "body": "{\n  \"id\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"group\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "body": "{\n  \"id\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"group\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
               "code": 200,
               "cookie": [],
               "header": [
@@ -2112,7 +2112,7 @@
                       "language": "json"
                     }
                   },
-                  "raw": "{\n  \"group\": \"E\",\n  \"school\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"tutor\": \"<uuid>\"\n}"
+                  "raw": "{\n  \"group\": \"V\",\n  \"school\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"tutor\": \"<uuid>\"\n}"
                 },
                 "header": [
                   {
@@ -2148,7 +2148,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "find Tutor Of",
+                  "name": "teacher Associations Find Tutor Of",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -2163,7 +2163,7 @@
                       }
                     ],
                     "method": "GET",
-                    "name": "find Tutor Of",
+                    "name": "teacher Associations Find Tutor Of",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -2191,7 +2191,7 @@
                   "response": [
                     {
                       "_postman_previewlanguage": "text",
-                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                       "code": 200,
                       "cookie": [],
                       "header": [
@@ -2246,7 +2246,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "find By Classroom",
+                  "name": "teacher Associations Find By Classroom",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -2261,7 +2261,7 @@
                       }
                     ],
                     "method": "GET",
-                    "name": "find By Classroom",
+                    "name": "teacher Associations Find By Classroom",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -2317,7 +2317,7 @@
                   "response": [
                     {
                       "_postman_previewlanguage": "text",
-                      "body": "{\n  \"_embedded\": {\n    \"teachers\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_3\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+                      "body": "{\n  \"_embedded\": {\n    \"teachers\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_3\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_4\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
                       "code": 200,
                       "cookie": [],
                       "header": [
@@ -2400,7 +2400,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "find By Classroom 1",
+                  "name": "school Associations Find By Classroom",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -2415,7 +2415,7 @@
                       }
                     ],
                     "method": "GET",
-                    "name": "find By Classroom 1",
+                    "name": "school Associations Find By Classroom",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -2443,7 +2443,7 @@
                   "response": [
                     {
                       "_postman_previewlanguage": "text",
-                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                       "code": 200,
                       "cookie": [],
                       "header": [
@@ -2504,7 +2504,7 @@
       "item": [
         {
           "event": [],
-          "name": "find All",
+          "name": "teacher Find All",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -2519,7 +2519,7 @@
               }
             ],
             "method": "GET",
-            "name": "find All",
+            "name": "teacher Find All",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -2562,7 +2562,7 @@
           "response": [
             {
               "_postman_previewlanguage": "text",
-              "body": "{\n  \"_embedded\": {\n    \"teachers\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_3\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "body": "{\n  \"_embedded\": {\n    \"teachers\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_3\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_4\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
               "code": 200,
               "cookie": [],
               "header": [
@@ -2626,7 +2626,7 @@
         },
         {
           "event": [],
-          "name": "create",
+          "name": "teacher Create",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -2654,7 +2654,7 @@
               }
             ],
             "method": "POST",
-            "name": "create",
+            "name": "teacher Create",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -2669,7 +2669,7 @@
           "response": [
             {
               "_postman_previewlanguage": "text",
-              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
               "code": 200,
               "cookie": [],
               "header": [
@@ -2721,7 +2721,7 @@
           "item": [
             {
               "event": [],
-              "name": "get",
+              "name": "teacher Get",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -2736,7 +2736,7 @@
                   }
                 ],
                 "method": "GET",
-                "name": "get",
+                "name": "teacher Get",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -2763,7 +2763,7 @@
               "response": [
                 {
                   "_postman_previewlanguage": "text",
-                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                   "code": 200,
                   "cookie": [],
                   "header": [
@@ -2811,7 +2811,7 @@
             },
             {
               "event": [],
-              "name": "delete",
+              "name": "teacher Delete",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -2820,7 +2820,7 @@
                 "body": {},
                 "description": {},
                 "method": "DELETE",
-                "name": "delete",
+                "name": "teacher Delete",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -2883,7 +2883,7 @@
             },
             {
               "event": [],
-              "name": "update",
+              "name": "teacher Update",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -2897,7 +2897,7 @@
                       "language": "json"
                     }
                   },
-                  "raw": "{\n  \"name\": \" \\n  M!H7\",\n  \"surname\": \"   \\r᠎  eOc!I\",\n  \"mail\": \" l[l\"\n}"
+                  "raw": "{\n  \"name\": \"﻿       　^{XVDI\",\n  \"surname\": \" r%N_\",\n  \"mail\": \"   m\"\n}"
                 },
                 "description": {},
                 "header": [
@@ -2907,7 +2907,7 @@
                   }
                 ],
                 "method": "PATCH",
-                "name": "update",
+                "name": "teacher Update",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -2947,7 +2947,7 @@
                           "language": "json"
                         }
                       },
-                      "raw": "{\n  \"name\": \" \\n  M!H7\",\n  \"surname\": \"   \\r᠎  eOc!I\",\n  \"mail\": \" l[l\"\n}"
+                      "raw": "{\n  \"name\": \"﻿       　^{XVDI\",\n  \"surname\": \" r%N_\",\n  \"mail\": \"   m\"\n}"
                     },
                     "header": [
                       {
@@ -2994,7 +2994,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "find By Teacher",
+                  "name": "school Associations Find By Teacher",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -3009,7 +3009,7 @@
                       }
                     ],
                     "method": "GET",
-                    "name": "find By Teacher",
+                    "name": "school Associations Find By Teacher",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -3037,7 +3037,7 @@
                   "response": [
                     {
                       "_postman_previewlanguage": "text",
-                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                       "code": 200,
                       "cookie": [],
                       "header": [
@@ -3098,7 +3098,7 @@
       "item": [
         {
           "event": [],
-          "name": "find All 1",
+          "name": "school Find All",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -3113,7 +3113,7 @@
               }
             ],
             "method": "GET",
-            "name": "find All 1",
+            "name": "school Find All",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -3156,7 +3156,7 @@
           "response": [
             {
               "_postman_previewlanguage": "text",
-              "body": "{\n  \"_embedded\": {\n    \"schools\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "body": "{\n  \"_embedded\": {\n    \"schools\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
               "code": 200,
               "cookie": [],
               "header": [
@@ -3220,7 +3220,7 @@
         },
         {
           "event": [],
-          "name": "create 1",
+          "name": "school Create",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -3248,7 +3248,7 @@
               }
             ],
             "method": "POST",
-            "name": "create 1",
+            "name": "school Create",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -3263,7 +3263,7 @@
           "response": [
             {
               "_postman_previewlanguage": "text",
-              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
               "code": 200,
               "cookie": [],
               "header": [
@@ -3315,7 +3315,7 @@
           "item": [
             {
               "event": [],
-              "name": "get 1",
+              "name": "school Get",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -3330,7 +3330,7 @@
                   }
                 ],
                 "method": "GET",
-                "name": "get 1",
+                "name": "school Get",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -3357,7 +3357,7 @@
               "response": [
                 {
                   "_postman_previewlanguage": "text",
-                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                   "code": 200,
                   "cookie": [],
                   "header": [
@@ -3405,7 +3405,7 @@
             },
             {
               "event": [],
-              "name": "delete 1",
+              "name": "school Delete",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -3414,7 +3414,7 @@
                 "body": {},
                 "description": {},
                 "method": "DELETE",
-                "name": "delete 1",
+                "name": "school Delete",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -3477,7 +3477,7 @@
             },
             {
               "event": [],
-              "name": "update 1",
+              "name": "school Update",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -3501,7 +3501,7 @@
                   }
                 ],
                 "method": "PATCH",
-                "name": "update 1",
+                "name": "school Update",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -3588,7 +3588,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "find By School",
+                  "name": "teacher Associations Find By School",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -3603,7 +3603,7 @@
                       }
                     ],
                     "method": "GET",
-                    "name": "find By School",
+                    "name": "teacher Associations Find By School",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -3659,7 +3659,7 @@
                   "response": [
                     {
                       "_postman_previewlanguage": "text",
-                      "body": "{\n  \"_embedded\": {\n    \"teachers\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_3\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+                      "body": "{\n  \"_embedded\": {\n    \"teachers\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_3\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_4\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
                       "code": 200,
                       "cookie": [],
                       "header": [
@@ -3742,7 +3742,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "find By School 1",
+                  "name": "classroom Associations Find By School",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -3757,7 +3757,7 @@
                       }
                     ],
                     "method": "GET",
-                    "name": "find By School 1",
+                    "name": "classroom Associations Find By School",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -3813,7 +3813,7 @@
                   "response": [
                     {
                       "_postman_previewlanguage": "text",
-                      "body": "{\n  \"_embedded\": {\n    \"classrooms\": [\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+                      "body": "{\n  \"_embedded\": {\n    \"classrooms\": [\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
                       "code": 200,
                       "cookie": [],
                       "header": [
@@ -3902,7 +3902,7 @@
       "item": [
         {
           "event": [],
-          "name": "find All 3",
+          "name": "kid Find All",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -3917,7 +3917,7 @@
               }
             ],
             "method": "GET",
-            "name": "find All 3",
+            "name": "kid Find All",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -3960,7 +3960,7 @@
           "response": [
             {
               "_postman_previewlanguage": "text",
-              "body": "{\n  \"_embedded\": {\n    \"kids\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "body": "{\n  \"_embedded\": {\n    \"kids\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
               "code": 200,
               "cookie": [],
               "header": [
@@ -4024,7 +4024,7 @@
         },
         {
           "event": [],
-          "name": "create 3",
+          "name": "kid Create",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -4052,7 +4052,7 @@
               }
             ],
             "method": "POST",
-            "name": "create 3",
+            "name": "kid Create",
             "url": {
               "host": [
                 "{{baseUrl}}"
@@ -4119,7 +4119,7 @@
           "item": [
             {
               "event": [],
-              "name": "get 3",
+              "name": "kid Get",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -4134,7 +4134,7 @@
                   }
                 ],
                 "method": "GET",
-                "name": "get 3",
+                "name": "kid Get",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -4209,7 +4209,7 @@
             },
             {
               "event": [],
-              "name": "delete 3",
+              "name": "kid Delete",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -4218,7 +4218,7 @@
                 "body": {},
                 "description": {},
                 "method": "DELETE",
-                "name": "delete 3",
+                "name": "kid Delete",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -4281,7 +4281,7 @@
             },
             {
               "event": [],
-              "name": "update 3",
+              "name": "kid Update",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -4295,7 +4295,7 @@
                       "language": "json"
                     }
                   },
-                  "raw": "{\n  \"name\": \"  fbU\",\n  \"surname\": \"﻿\\f  　 Z\",\n  \"birthdate\": \"<date>\",\n  \"parent\": \"<uuid>\",\n  \"classroom\": \"<uuid>\"\n}"
+                  "raw": "{\n  \"name\": \"﻿   Ykz[|S3\",\n  \"surname\": \"\\r N 5N\",\n  \"birthdate\": \"<date>\",\n  \"parent\": \"<uuid>\",\n  \"classroom\": \"<uuid>\"\n}"
                 },
                 "description": {},
                 "header": [
@@ -4305,7 +4305,7 @@
                   }
                 ],
                 "method": "PATCH",
-                "name": "update 3",
+                "name": "kid Update",
                 "url": {
                   "host": [
                     "{{baseUrl}}"
@@ -4345,7 +4345,7 @@
                           "language": "json"
                         }
                       },
-                      "raw": "{\n  \"name\": \"  fbU\",\n  \"surname\": \"﻿\\f  　 Z\",\n  \"birthdate\": \"<date>\",\n  \"parent\": \"<uuid>\",\n  \"classroom\": \"<uuid>\"\n}"
+                      "raw": "{\n  \"name\": \"﻿   Ykz[|S3\",\n  \"surname\": \"\\r N 5N\",\n  \"birthdate\": \"<date>\",\n  \"parent\": \"<uuid>\",\n  \"classroom\": \"<uuid>\"\n}"
                     },
                     "header": [
                       {
@@ -4392,7 +4392,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "find By Kid",
+                  "name": "parent Associations Find By Kid",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -4407,7 +4407,7 @@
                       }
                     ],
                     "method": "GET",
-                    "name": "find By Kid",
+                    "name": "parent Associations Find By Kid",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -4435,7 +4435,7 @@
                   "response": [
                     {
                       "_postman_previewlanguage": "text",
-                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                       "code": 200,
                       "cookie": [],
                       "header": [
@@ -4490,7 +4490,7 @@
               "item": [
                 {
                   "event": [],
-                  "name": "find By Kid 1",
+                  "name": "classroom Associations Find By Kid",
                   "protocolProfileBehavior": {
                     "disableBodyPruning": true
                   },
@@ -4505,7 +4505,7 @@
                       }
                     ],
                     "method": "GET",
-                    "name": "find By Kid 1",
+                    "name": "classroom Associations Find By Kid",
                     "url": {
                       "host": [
                         "{{baseUrl}}"
@@ -4533,7 +4533,7 @@
                   "response": [
                     {
                       "_postman_previewlanguage": "text",
-                      "body": "{\n  \"id\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"group\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"group\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
                       "code": 200,
                       "cookie": [],
                       "header": [
@@ -4594,7 +4594,7 @@
       "item": [
         {
           "event": [],
-          "name": "index",
+          "name": "root Index",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -4609,7 +4609,7 @@
               }
             ],
             "method": "GET",
-            "name": "index",
+            "name": "root Index",
             "url": {
               "host": [
                 "{{baseUrl}}"

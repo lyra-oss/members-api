@@ -30,6 +30,10 @@ public final class IntegrationTestEnvironment {
     private static final String POSTGRES_USERNAME = "members";
     private static final String POSTGRES_PASSWORD = "members";
     private static final String KEYCLOAK_ALIAS     = "keycloak";
+    // K6PerformanceSupport addresses both this and KEYCLOAK_ALIAS by name, since it runs k6 as its own container
+    // on NETWORK rather than in this JVM (as the test JVM itself - and the perf.baseUrl/perf.tokenUrl system
+    // properties the old Gatling-based simulations read - used to).
+    public static final String APPLICATION_ALIAS = "application";
 
     public static final Network              NETWORK  = Network.newNetwork();
     public static final PostgreSQLContainer  POSTGRES = startPostgres();
@@ -64,8 +68,8 @@ public final class IntegrationTestEnvironment {
         final ApplicationContainer container = "jvm".equals(image)
                 ? ApplicationContainer.jvmJar(Path.of(System.getProperty("it.jarFile")))
                 : ApplicationContainer.preBuiltImage(image);
-        container.withEnvironment(NETWORK, POSTGRES_ALIAS, POSTGRES_DATABASE, POSTGRES_USERNAME, POSTGRES_PASSWORD,
-                                  KEYCLOAK.issuerUri());
+        container.withEnvironment(NETWORK, APPLICATION_ALIAS, POSTGRES_ALIAS, POSTGRES_DATABASE, POSTGRES_USERNAME,
+                                  POSTGRES_PASSWORD, KEYCLOAK.issuerUri());
         //@formatter:on
         container.start();
         return container;

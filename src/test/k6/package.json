@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "description": "Type-checking only (see scripts/generate-k6-client.sh and pr-code.yml) - k6 itself runs these scripts directly, with no build step.",
+  "devDependencies": {
+    "@types/k6": "2.2.1",
+    "typescript": "7.0.2"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

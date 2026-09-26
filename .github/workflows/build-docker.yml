@@ -10,7 +10,7 @@ on:
         default: false
       run-verification:
         description: >
-          Run the endpoint smoke IT suite - and, since it's the actual deliverable, a Gatling load-smoke run too -
+          Run the endpoint smoke IT suite - and, since it's the actual deliverable, a k6 load-smoke run too -
           against the freshly built native image before it is pushed. build-code.yml already ran the same endpoint
           suite against a plain-JRE jar image; PerformanceSmokeIT itself skips there, since JVM performance figures
           don't reflect the native image actually shipped.
@@ -19,9 +19,9 @@ on:
         default: true
       performance-test-duration-seconds:
         description: >
-          How many seconds SmokeSimulation's 3 virtual users ramp up over (see PerformanceSupport.readScenario());
-          it does not change how many requests run, only how spread out their start times are. Exposed here so it
-          can be tuned without touching the simulation's source.
+          How many seconds smoke.ts's 3 virtual users ramp up over (see support.ts's readScenario()); it does not
+          change how many requests run, only how spread out their start times are. Exposed here so it can be tuned
+          without touching the script's source.
         required: false
         type: number
         default: 1
@@ -106,6 +106,10 @@ jobs:
         # build cache for a "verify" run with these same project inputs (only the -Dit.test selection differs, which
         # the cache's checksum doesn't account for) - without this, Maven would restore that cached result and
         # report success without ever actually running this differently-scoped test.
+        # | tee, rather than letting output go straight to the console: keeps this step's own exit status the
+        # (always-zero) exit status of tee, not of mvnw, so the PR-comment step below still runs and can report a
+        # failure even when the smoke test itself fails its thresholds - the log is kept for debugging, but the
+        # comment step reads target/k6/smoke-summary.json (handleSummary.ts's structured output), not this log.
         run: >
           ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} -Dit.test=PerformanceSmokeIT
           -Dperf.smoke.durationSeconds=${{ inputs.performance-test-duration-seconds }}
@@ -114,28 +118,28 @@ jobs:
         if: inputs.run-verification && github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # Pulls the handful of numbers Gatling already prints (the "> Global" request-count row and its response-
-        # time assertions) out of the raw console log, rather than dumping that log verbatim into the comment.
+        # Reads target/k6/smoke-summary.json - the full k6 summary object handleSummary.ts (src/test/k6) wrote,
+        # copied out of the k6 container by K6PerformanceSupport - rather than parsing console text back out of a
+        # log, the way the Gatling-based version of this step used to.
         run: |
+          summary=target/k6/smoke-summary.json
           status="✅ Passed"
-          grep -qE 'Failures: 0, Errors: 0,.*-- in edu\.lyra\.members\.api\.PerformanceSmokeIT$' \
-            /tmp/performance-smoke.log || status="❌ Failed"
+          if [ ! -s "$summary" ] || ! jq -e '[.metrics[].thresholds[]?.ok] | all' "$summary" >/dev/null 2>&1; then
+            status="❌ Failed"
+          fi
 
-          global_line=$(grep -E '^> Global ' /tmp/performance-smoke.log | head -1)
-          total=$(awk -F'|' '{gsub(/[ \t]+/,"",$2); print $2}' <<< "$global_line")
-          ok=$(awk -F'|' '{gsub(/[ \t]+/,"",$3); print $3}' <<< "$global_line")
-          ko=$(awk -F'|' '{gsub(/[ \t]+/,"",$4); print $4}' <<< "$global_line")
+          total=$(jq -r '.metrics.http_reqs.values.count // "N/A"' "$summary" 2>/dev/null || echo N/A)
+          ok=$(jq -r '.metrics.checks.values.passes // "N/A"' "$summary" 2>/dev/null || echo N/A)
+          ko=$(jq -r '.metrics.checks.values.fails // "N/A"' "$summary" 2>/dev/null || echo N/A)
 
-          # $1: grep pattern for the "Global: ..." assertion line: prints "<actual> ms *(< <threshold> ms)*",
-          # falling back to N/A on either side if that line isn't found (e.g. the simulation errored before Gatling
-          # ever printed its assertion results).
+          # $1: the http_req_duration trend stat to read (e.g. "med" for p50, "p(95)" for p95); $2: its threshold,
+          # purely for display. Prints "<value> ms *(< <threshold> ms)*", falling back to N/A if the summary is
+          # missing or malformed (e.g. the script errored before k6 ever ran handleSummary.ts).
           response_time_cell() {
-            local line
-            line=$(grep -E "$1" /tmp/performance-smoke.log | head -1)
-            local actual threshold
-            actual=$(sed -E 's/.*actual : ([0-9.]+).*/\1/; s/\.0$//' <<< "$line")
-            threshold=$(sed -E 's/.*less than ([0-9.]+).*/\1/; s/\.0$//' <<< "$line")
-            echo "${actual:-N/A} ms *(< ${threshold:-N/A} ms)*"
+            jq -r --arg key "$1" --arg threshold "$2" '
+              .metrics.http_req_duration.values[$key] as $v |
+              if $v == null then "N/A ms *(< \($threshold) ms)*" else "\($v | round) ms *(< \($threshold) ms)*" end
+            ' "$summary" 2>/dev/null || echo "N/A ms *(< $2 ms)*"
           }
 
           {
@@ -144,9 +148,9 @@ jobs:
             echo "| Metric | Value |"
             echo "| --- | --- |"
             echo "| Requests | ${total:-N/A} total · ${ok:-N/A} OK · ${ko:-N/A} KO |"
-            echo "| p50 response time | $(response_time_cell '^Global: 50th percentile of response time') |"
-            echo "| p95 response time | $(response_time_cell '^Global: 95th percentile of response time') |"
-            echo "| Max response time | $(response_time_cell '^Global: max of response time') |"
+            echo "| p50 response time | $(response_time_cell med 2000) |"
+            echo "| p95 response time | $(response_time_cell 'p(95)' 3000) |"
+            echo "| Max response time | $(response_time_cell max 5000) |"
             echo
             echo "[View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           } > /tmp/performance-comment.md

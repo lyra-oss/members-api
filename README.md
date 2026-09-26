@@ -78,29 +78,39 @@ build-time artifact (see `OpenApiExportTest`) that feeds the collection above.
 
 ## Performance testing
 
-Gatling simulations live under `src/test/java/edu/lyra/members/api/performance`. `SmokeSimulation` runs
-automatically against every native image build on a pull request or `main` (`PerformanceSmokeIT`), gating the push
-to the registry; it's skipped when the deliverable under test is the plain-JRE jar used for fast per-push feedback,
-since JVM performance figures don't reflect the native image actually shipped. `LoadSimulation`, `StressSimulation`
-and `SoakSimulation` back a nightly suite (`NightlyPerformanceIT`, `nightly-performance.yml`) that isn't scheduled
-yet - the workflow's schedule trigger is commented out until it's needed; `workflow_dispatch` still lets you run it
-by hand.
+[k6](https://k6.io/) scripts live under `src/test/k6`. `smoke.ts` runs automatically against every native image
+build on a pull request or `main` (`PerformanceSmokeIT`), gating the push to the registry; it's skipped when the
+deliverable under test is the plain-JRE jar used for fast per-push feedback, since JVM performance figures don't
+reflect the native image actually shipped. `load.ts`, `stress.ts` and `soak.ts` back a nightly suite
+(`NightlyPerformanceIT`, `nightly-performance.yml`) that isn't scheduled yet - the workflow's schedule trigger is
+commented out until it's needed; `workflow_dispatch` still lets you run it by hand.
 
-The easiest way to run a simulation yourself is through its `*IT` wrapper, the same way CI does: it starts (or
-reuses) the Testcontainers environment and points Gatling at it automatically, so you never have to know the API's
-current version segment or which port this run's Keycloak happens to be on.
+`src/test/k6/generated/lyraMembersAPI.ts` is a typed client generated from the application's own OpenAPI
+description (see `scripts/generate-k6-client.sh`), the same source of truth the committed Postman collection comes
+from - `support.ts` builds on it for the one scenario every script shares (authenticate, then list every domain
+resource), differing only in injection profile and thresholds. Regenerate it after an API change and commit the
+result:
 
 ```shell
-./mvnw -Dit.test=PerformanceSmokeIT verify           # SmokeSimulation
-./mvnw -Dit.test=NightlyPerformanceIT -Dperf.nightly=true verify   # Load/Stress/Soak
+./scripts/generate-k6-client.sh
 ```
 
-`perf.baseUrl` and `perf.tokenUrl` have no built-in default on purpose - hardcoding a version segment or a
-Keycloak port here would silently go stale the moment either changes. To point a simulation at some other,
+The easiest way to run a script yourself is through its `*IT` wrapper, the same way CI does: `K6PerformanceSupport`
+runs k6 as its own container on the same Docker network as the (already-running, reused) Testcontainers
+environment, so you never have to know the API's current version segment or which port this run's Keycloak happens
+to be on.
+
+```shell
+./mvnw -Dit.test=PerformanceSmokeIT verify                        # smoke.ts
+./mvnw -Dit.test=NightlyPerformanceIT -Dperf.nightly=true verify  # load.ts / stress.ts / soak.ts
+```
+
+`PERF_BASE_URL` and `PERF_TOKEN_URL` have no built-in default on purpose - hardcoding a version segment or a
+Keycloak port here would silently go stale the moment either changes. To point a script at some other,
 already-running instance instead, supply both yourself:
 
 ```shell
-./mvnw gatling:test -Dgatling.simulationClass=edu.lyra.members.api.performance.SmokeSimulation \
-    -Dperf.baseUrl=http://localhost:8080/v0 \
-    -Dperf.tokenUrl=http://localhost:8180/realms/lyra/protocol/openid-connect/token
+k6 run src/test/k6/smoke.ts \
+    -e PERF_BASE_URL=http://localhost:8080/v0 \
+    -e PERF_TOKEN_URL=http://localhost:8180/realms/lyra/protocol/openid-connect/token
 ```

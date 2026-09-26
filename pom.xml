@@ -38,7 +38,7 @@
         <!-- Which deliverable the *IT suite exercises: "jvm" packages target/*.jar into a plain JRE
              container; any other value is treated as an already-built OCI image reference. -->
         <it.image>jvm</it.image>
-        <!-- How long SmokeSimulation ramps its (fixed) 3 users over, in seconds - see build-docker.yml's
+        <!-- How long smoke.ts ramps its (fixed) 3 users over, in seconds - see build-docker.yml's
              performance-test-duration-seconds input, which overrides this for a real run. -->
         <perf.smoke.durationSeconds>1</perf.smoke.durationSeconds>
         <!-- Off by default so an ordinary "mvn test" isn't instrumented; pass -Dagent=true to attach the
@@ -71,7 +71,10 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <springdoc-openapi.version>3.1.1</springdoc-openapi.version>
-        <gatling.version>3.15.1</gatling.version>
+        <testcontainers-k6.version>2.0.5</testcontainers-k6.version>
+        <!-- Also the image K6PerformanceSupport pulls at test time (org.testcontainers.k6.K6Container). Keep in
+             sync with the k6 CLI version scripts/generate-k6-client.sh's generated client is exercised against. -->
+        <k6.image>grafana/k6:2.3.0</k6.image>
         <!-- Buildpacks builder -->
         <!-- Pinned to a digest so every build of the same commit uses identical buildpack content; CI resolves this
              same property to key its build-cache/launch-cache backup, so a bump here is the only place that needs
@@ -84,7 +87,6 @@
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
         <pitest-maven-plugin.version>1.30.0</pitest-maven-plugin.version>
-        <gatling-maven-plugin.version>4.21.12</gatling-maven-plugin.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
@@ -137,12 +139,6 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
             <version>${springdoc-openapi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.gatling.highcharts</groupId>
-            <artifactId>gatling-charts-highcharts</artifactId>
-            <version>${gatling.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -230,6 +226,12 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-k6</artifactId>
+            <version>${testcontainers-k6.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -348,10 +350,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!-- The add-opens flag below: PerformanceSmokeIT embeds Gatling in-process (Gatling$.fromArgs),
-                         which needs reflective access to java.lang for its stats writer. -->
                     <!--suppress UnresolvedMavenProperty -->
-                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                     <systemPropertyVariables>
                         <!-- Either "jvm" (build and run the packaged jar in a plain JRE container) or an
                              already-built OCI image reference (e.g. the native image spring-boot:build-image
@@ -359,6 +359,7 @@
                         <it.image>${it.image}</it.image>
                         <it.jarFile>${project.build.directory}/${project.build.finalName}.jar</it.jarFile>
                         <perf.smoke.durationSeconds>${perf.smoke.durationSeconds}</perf.smoke.durationSeconds>
+                        <k6.image>${k6.image}</k6.image>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -552,11 +553,6 @@
                     </excludedTestClasses>
                     <parseSurefireConfig>false</parseSurefireConfig>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>io.gatling</groupId>
-                <artifactId>gatling-maven-plugin</artifactId>
-                <version>${gatling-maven-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.cyclonedx</groupId>
