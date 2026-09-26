@@ -105,18 +105,32 @@ jobs:
         if: inputs.run-verification && github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Pulls the handful of numbers Gatling already prints (the "> Global" request-count row and its "max
+        # response time" assertion) out of the raw console log, rather than dumping that log verbatim into the
+        # comment.
         run: |
           status="✅ Passed"
           grep -qE 'Failures: 0, Errors: 0,.*-- in edu\.lyra\.members\.api\.PerformanceSmokeIT$' \
             /tmp/performance-smoke.log || status="❌ Failed"
+
+          global_line=$(grep -E '^> Global ' /tmp/performance-smoke.log | head -1)
+          total=$(awk -F'|' '{gsub(/[ \t]+/,"",$2); print $2}' <<< "$global_line")
+          ok=$(awk -F'|' '{gsub(/[ \t]+/,"",$3); print $3}' <<< "$global_line")
+          ko=$(awk -F'|' '{gsub(/[ \t]+/,"",$4); print $4}' <<< "$global_line")
+
+          max_line=$(grep -E '^Global: max of response time' /tmp/performance-smoke.log)
+          max_actual=$(sed -E 's/.*actual : ([0-9.]+).*/\1/; s/\.0$//' <<< "$max_line")
+          max_threshold=$(sed -E 's/.*less than ([0-9.]+).*/\1/; s/\.0$//' <<< "$max_line")
+
           {
             echo "### Performance smoke test — $status"
             echo
-            echo '```'
-            grep -E '^> Global |^Global: ' /tmp/performance-smoke.log
-            echo '```'
+            echo "| Metric | Value |"
+            echo "| --- | --- |"
+            echo "| Requests | ${total:-N/A} total · ${ok:-N/A} OK · ${ko:-N/A} KO |"
+            echo "| Max response time | ${max_actual:-N/A} ms *(threshold: < ${max_threshold:-N/A} ms)* |"
             echo
-            echo "[Workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo "[View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           } > /tmp/performance-comment.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/performance-comment.md
       - name: Push the verified image
