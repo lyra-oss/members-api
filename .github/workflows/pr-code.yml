@@ -28,6 +28,7 @@ jobs:
       packages: write
       id-token: write
       attestations: write
+      pull-requests: write
     needs: build-source-code
     name: Build application deliverable
     uses: ./.github/workflows/build-docker.yml
