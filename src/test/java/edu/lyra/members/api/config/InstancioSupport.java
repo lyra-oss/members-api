@@ -17,10 +17,10 @@ import static org.instancio.Select.fields;
 public class InstancioSupport {
 
     /**
-     * Ignores {@link Auditable}'s Spring Data JPA-managed fields, and every {@code $$_hibernate_*} field Hibernate's
-     * build-time bytecode enhancement (see {@code HibernateBytecodeEnhancer}) injects into every enhanced entity
-     * class for lazy-loading/dirty-tracking bookkeeping. Instancio populating those directly - rather than leaving
-     * them at their Hibernate-managed defaults - trips {@code EntityEntryContext.addEntityEntry}'s internal
+     * Ignores {@link Auditable}'s Spring Data JPA-managed fields, and every {@code $$_hibernate_*} field the
+     * {@code hibernate-maven-plugin}'s build-time bytecode enhancement (see pom.xml) injects into every enhanced
+     * entity class for lazy-loading/dirty-tracking bookkeeping. Instancio populating those directly - rather than
+     * leaving them at their Hibernate-managed defaults - trips {@code EntityEntryContext.addEntityEntry}'s internal
      * consistency assertion the first time such an instance is persisted.
      *
      * @param instancio the in-progress Instancio API to constrain

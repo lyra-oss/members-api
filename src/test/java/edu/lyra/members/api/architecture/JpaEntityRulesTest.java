@@ -167,9 +167,10 @@ class JpaEntityRulesTest {
                                                                          javaClass.getFullName())));
                              final Set<String> methodNames = javaClass.getAllMethods().stream().map(JavaMethod::getName)
                                                                       .collect(Collectors.toSet());
-                             // $$_hibernate_* fields are injected by build-time bytecode enhancement (see
-                             // HibernateBytecodeEnhancer) into every entity class for lazy-loading/dirty-tracking
-                             // bookkeeping - framework plumbing, not domain data, so exempt from the getter rule.
+                             // $$_hibernate_* fields are injected by the hibernate-maven-plugin's build-time
+                             // bytecode enhancement (see pom.xml) into every entity class for lazy-loading/dirty-
+                             // tracking bookkeeping - framework plumbing, not domain data, so exempt from the
+                             // getter rule.
                              javaClass.getAllFields().stream()
                                       .filter(field -> ! field.getModifiers().contains(JavaModifier.STATIC))
                                       .filter(field -> ! field.getName().startsWith(HIBERNATE_ENHANCED_FIELD_PREFIX))

@@ -87,8 +87,6 @@
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.version>14.1.0</checkstyle.version>
         <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
-        <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
-        <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -611,66 +609,34 @@
                 </configuration>
             </plugin>
             <plugin>
-                <!-- Adds src/build/java (HibernateBytecodeEnhancer) as a test source root so it compiles into
-                     target/test-classes - available to the exec-maven-plugin execution below, but never bundled
-                     into the packaged application jar. -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${build-helper-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>add-build-tools-source</id>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/build/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <!-- Every entity reached through a lazy association (e.g. PersonRole.person, @OneToOne(fetch =
                      LAZY)) needs a $HibernateProxy/$HibernateInstantiator subclass. Hibernate's default bytecode
                      provider (ByteBuddy) generates those the first time they're needed, at runtime - which
                      native-image's closed-world build can't accommodate, since no new bytecode can be generated
                      once the image is built. Bytecode enhancement performs that same generation at *compile* time
                      instead, baking the proxy/instantiator classes into target/classes as ordinary compiled
-                     classes, so native-image's static analysis can see them like any other class.
+                     classes, so native-image's static analysis can see them like any other class; left
+                     unregistered, creating an entity with such a lazy association (Teacher/Kid/Parent, via
+                     PersonRole; but not School, which has none) fails with
+                     BeanCreationException/NoSuchMethodException under native-image once that code path actually
+                     runs.
 
-                     Not the dedicated hibernate-enhance-maven-plugin: its only Maven Central release
-                     (org.hibernate.orm.tooling:hibernate-enhance-maven-plugin:7.0.0.Beta1) generates bytecode
-                     incompatible with this project's hibernate-core version, breaking ~190 tests with
-                     AbstractMethodError. That plugin is a thin wrapper around org.hibernate.bytecode.enhance.spi.
-                     Enhancer, which lives inside hibernate-core itself - HibernateBytecodeEnhancer
-                     (src/build/java) drives that same engine directly, at the exact hibernate-core version already
-                     on this project's classpath, sidestepping the mismatch entirely.
-
-                     Runs after test-compile (both main and test classes already exist) but before the "test"
-                     phase, so both the unit-test suite and every later packaging step (spring-boot:process-aot,
-                     spring-boot:build-image) see the enhanced classes; left unregistered, creating an entity with
-                     such a lazy association (Teacher/Kid/Parent, via PersonRole; but not School, which has none)
-                     fails with BeanCreationException/NoSuchMethodException under native-image once that code path
-                     actually runs. -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec-maven-plugin.version}</version>
+                     Not org.hibernate.orm.tooling:hibernate-enhance-maven-plugin: that coordinate is Hibernate's
+                     pre-7.0 Maven plugin, discontinued after 7.0.0.Beta1 in favor of this one
+                     (org.hibernate.orm:hibernate-maven-plugin) - using the old, frozen-at-Beta1 coordinate against
+                     this project's much newer hibernate-core breaks ~190 tests with AbstractMethodError. Pinning
+                     this plugin's version to ${hibernate.version} keeps it locked to whatever hibernate-core
+                     version Spring Boot's BOM manages. Binds by default to process-classes, right after "compile" -
+                     before every later packaging step (spring-boot:process-aot, spring-boot:build-image) that
+                     needs to see the enhanced classes. -->
+                <groupId>org.hibernate.orm</groupId>
+                <artifactId>hibernate-maven-plugin</artifactId>
+                <version>${hibernate.version}</version>
                 <executions>
                     <execution>
-                        <id>enhance-hibernate-entities</id>
-                        <phase>process-test-classes</phase>
                         <goals>
-                            <goal>java</goal>
+                            <goal>enhance</goal>
                         </goals>
-                        <configuration>
-                            <mainClass>edu.lyra.members.api.buildtools.HibernateBytecodeEnhancer</mainClass>
-                            <classpathScope>test</classpathScope>
-                            <arguments>
-                                <argument>${project.build.outputDirectory}</argument>
-                            </arguments>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
