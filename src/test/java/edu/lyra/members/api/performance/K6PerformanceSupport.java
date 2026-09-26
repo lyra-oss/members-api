@@ -43,12 +43,6 @@ public final class K6PerformanceSupport {
 
     private static final Duration EXIT_POLL_TIMEOUT = Duration.ofSeconds(10);
 
-    // Seeded by src/test/resources/keycloak-fixtures/test-fixtures.json, the same test-only Keycloak user
-    // BaseIT/EndpointSmokeIT already authenticate as - kept in exactly this one place rather than also
-    // hardcoded in support.ts, so it's not duplicated across the Java and k6 sides of this test suite.
-    private static final String TEST_USERNAME = "smoke.parent@example.com";
-    private static final String TEST_PASSWORD = "password";
-
     private K6PerformanceSupport() {
     }
 
@@ -78,8 +72,10 @@ public final class K6PerformanceSupport {
                 .withCmdOptions("--quiet", "--no-usage-report")
                 .withScriptVar("PERF_BASE_URL", ApplicationContainer.networkUrl(IntegrationTestEnvironment.APPLICATION_ALIAS))
                 .withScriptVar("PERF_TOKEN_URL", IntegrationTestEnvironment.KEYCLOAK.issuerUri() + "/protocol/openid-connect/token")
-                .withScriptVar("PERF_USERNAME", TEST_USERNAME)
-                .withScriptVar("PERF_PASSWORD", TEST_PASSWORD)) {
+                // Seeded by src/test/resources/keycloak-fixtures/test-fixtures.json, the same test-only Keycloak
+                // user BaseIT/EndpointSmokeIT already authenticate as - not a real credential.
+                .withScriptVar("PERF_USERNAME", "smoke.parent@example.com") // NOSONAR
+                .withScriptVar("PERF_PASSWORD", "password")) { // NOSONAR
             //@formatter:on
             scriptVars.forEach(container::withScriptVar);
             container.start();
@@ -136,7 +132,7 @@ public final class K6PerformanceSupport {
                 throw new IllegalStateException("k6 container " + containerId + " never reported an exit code");
             }
             try {
-                Thread.sleep(Duration.ofMillis(200));
+                Thread.sleep(Duration.ofMillis(200)); // NOSONAR - bounded poll for a Docker exit code, not test flakiness
             } catch(final InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException(e);

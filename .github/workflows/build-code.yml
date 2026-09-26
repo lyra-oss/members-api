@@ -91,9 +91,12 @@ jobs:
       - name: Check the k6 client is up to date
         run: ./scripts/generate-k6-client.sh --check
       - name: Type-check the k6 performance scripts
+        # --ignore-scripts: neither devDependency (typescript, @types/k6) needs an install-time lifecycle script to
+        # function, so this just removes the arbitrary-code-execution surface a compromised transitive dependency's
+        # postinstall script would otherwise have.
         run: |
           cd src/test/k6
-          npm ci
+          npm ci --ignore-scripts
           npm run typecheck
       - name: Determine mutation testing scope
         id: mutation-scope
