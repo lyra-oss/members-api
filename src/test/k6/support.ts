@@ -3,12 +3,15 @@
 // logic and per-endpoint correctness are already covered elsewhere (EndpointSmokeIT, the unit suite); this only
 // measures how the running deliverable behaves under concurrent load.
 //
-// PERF_BASE_URL and PERF_TOKEN_URL have no built-in default and must be supplied as environment variables: the
-// API's version segment and Keycloak's port are both assigned dynamically (a random Testcontainers host port
-// locally, whatever CI actually runs in), so a hardcoded guess here would silently drift out of date.
-// K6PerformanceSupport - the way these scripts are meant to be run - sets both automatically from
-// IntegrationTestEnvironment's already-running containers; a bare "k6 run" invocation without going through it
-// fails fast with a clear message instead of quietly hitting the wrong place.
+// None of these have a built-in default and must be supplied as environment variables: PERF_BASE_URL/PERF_TOKEN_URL
+// because the API's version segment and Keycloak's port are both assigned dynamically (a random Testcontainers host
+// port locally, whatever CI actually runs in), so a hardcoded guess here would silently drift out of date;
+// PERF_USERNAME/PERF_PASSWORD so the test credential these scripts authenticate with lives in exactly one place
+// (K6PerformanceSupport, which already owns wiring every other test credential in this suite) rather than being
+// duplicated as a literal here too. K6PerformanceSupport - the way these scripts are meant to be run - sets all
+// four automatically from IntegrationTestEnvironment's already-running containers and test fixtures; a bare
+// "k6 run" invocation without going through it fails fast with a clear message instead of quietly hitting the
+// wrong place.
 import http from "k6/http";
 import { check } from "k6";
 import type { Params, Response } from "k6/http";
@@ -29,9 +32,9 @@ function requireEnv(name: string): string {
 
 const BASE_URL = requireEnv("PERF_BASE_URL");
 const TOKEN_URL = requireEnv("PERF_TOKEN_URL");
+const USERNAME = requireEnv("PERF_USERNAME");
+const PASSWORD = requireEnv("PERF_PASSWORD");
 const CLIENT_ID = __ENV.PERF_CLIENT_ID || "members-api-test";
-const USERNAME = __ENV.PERF_USERNAME || "smoke.parent@example.com";
-const PASSWORD = __ENV.PERF_PASSWORD || "password";
 const SCOPES =
   __ENV.PERF_SCOPES || "schools.read parents.read kids.read teachers.read classrooms.read";
 
