@@ -45,7 +45,7 @@
         <tomcat.version>11.0.25</tomcat.version>
         <cucumber.version>8.0.2</cucumber.version>
         <okhttp.version>5.5.0</okhttp.version>
-        <archunit.version>1.5.0</archunit.version>
+        <archunit.version>1.5.1</archunit.version>
         <instancio.version>6.1.0</instancio.version>
         <datafaker.version>2.7.0</datafaker.version>
         <mapstruct.version>1.6.3</mapstruct.version>
