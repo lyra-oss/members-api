@@ -59,7 +59,7 @@
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-        <checkstyle.version>14.1.0</checkstyle.version>
+        <checkstyle.version>14.3.0</checkstyle.version>
         <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
     </properties>
 
