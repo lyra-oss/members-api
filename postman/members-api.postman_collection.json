@@ -1,0 +1,4671 @@
+{
+  "event": [],
+  "info": {
+    "description": {
+      "content": "Service to manage Lyra users",
+      "type": "text/plain"
+    },
+    "name": "Lyra Members API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "description": "",
+      "item": [
+        {
+          "description": "",
+          "item": [
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "person Grant Teacher Role",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {
+                      "mode": "raw",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      },
+                      "raw": "{\n  \"school\": \"<uuid>\"\n}"
+                    },
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "PUT",
+                    "name": "person Grant Teacher Role",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "persons",
+                        ":id",
+                        "teacher"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {
+                          "mode": "raw",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          },
+                          "raw": "{\n  \"school\": \"<uuid>\"\n}"
+                        },
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "method": "PUT",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "persons",
+                            ":id",
+                            "teacher"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "id",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                },
+                {
+                  "event": [],
+                  "name": "person Revoke Teacher Role",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "method": "DELETE",
+                    "name": "person Revoke Teacher Role",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "persons",
+                        ":id",
+                        "teacher"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "method": "DELETE",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "persons",
+                            ":id",
+                            "teacher"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "id",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "teacher"
+            },
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "person Grant Parent Role",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "method": "PUT",
+                    "name": "person Grant Parent Role",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "persons",
+                        ":id",
+                        "parent"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "method": "PUT",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "persons",
+                            ":id",
+                            "parent"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "id",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                },
+                {
+                  "event": [],
+                  "name": "person Revoke Parent Role",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "method": "DELETE",
+                    "name": "person Revoke Parent Role",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "persons",
+                        ":id",
+                        "parent"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "method": "DELETE",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "persons",
+                            ":id",
+                            "parent"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "id",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "parent"
+            },
+            {
+              "event": [],
+              "name": "person Get",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "name": "person Get",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "persons",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "persons",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            }
+          ],
+          "name": "{id}"
+        },
+        {
+          "event": [],
+          "name": "person Find All",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {},
+            "description": {},
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "GET",
+            "name": "person Find All",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "persons"
+              ],
+              "query": [
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "size",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>,<string>"
+                }
+              ],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"_embedded\": {\n    \"persons\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "persons"
+                  ],
+                  "query": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "size",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "sort",
+                      "value": "<string>,<string>"
+                    }
+                  ],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        }
+      ],
+      "name": "persons"
+    },
+    {
+      "description": "",
+      "item": [
+        {
+          "description": "",
+          "item": [
+            {
+              "description": "",
+              "item": [
+                {
+                  "description": "",
+                  "item": [
+                    {
+                      "event": [],
+                      "name": "parent Bind Kid",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": null,
+                        "body": {},
+                        "description": {},
+                        "method": "PUT",
+                        "name": "parent Bind Kid",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "parents",
+                            ":id",
+                            "kids",
+                            ":kidId"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "id",
+                              "type": "any",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "kidId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "_postman_previewlanguage": "text",
+                          "code": 200,
+                          "cookie": [],
+                          "header": [],
+                          "name": "OK",
+                          "originalRequest": {
+                            "body": {},
+                            "method": "PUT",
+                            "url": {
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "parents",
+                                ":id",
+                                "kids",
+                                ":kidId"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  },
+                                  "disabled": false,
+                                  "key": "id",
+                                  "type": "any",
+                                  "value": "<uuid>"
+                                },
+                                {
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  },
+                                  "disabled": false,
+                                  "key": "kidId",
+                                  "type": "any",
+                                  "value": "<uuid>"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK"
+                        }
+                      ]
+                    }
+                  ],
+                  "name": "{kidId}"
+                }
+              ],
+              "name": "kids"
+            },
+            {
+              "event": [],
+              "name": "parent Get",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "name": "parent Get",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "parents",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "parents",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "parent Delete",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "method": "DELETE",
+                "name": "parent Delete",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "parents",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "method": "DELETE",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "parents",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "parent Update",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"name\": \"﻿       　^{XVDI\",\n  \"surname\": \" r%N_\",\n  \"mail\": \"   m\"\n}"
+                },
+                "description": {},
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "name": "parent Update",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "parents",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {
+                      "mode": "raw",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      },
+                      "raw": "{\n  \"name\": \"﻿       　^{XVDI\",\n  \"surname\": \" r%N_\",\n  \"mail\": \"   m\"\n}"
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "PATCH",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "parents",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            }
+          ],
+          "name": "{id}"
+        },
+        {
+          "event": [],
+          "name": "parent Find All",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {},
+            "description": {},
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "GET",
+            "name": "parent Find All",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "parents"
+              ],
+              "query": [
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "size",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>,<string>"
+                }
+              ],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"_embedded\": {\n    \"parents\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_3\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "parents"
+                  ],
+                  "query": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "size",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "sort",
+                      "value": "<string>,<string>"
+                    }
+                  ],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "event": [],
+          "name": "parent Create",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "headerFamily": "json",
+                  "language": "json"
+                }
+              },
+              "raw": "{\n  \"mail\": \"<email>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\"\n}"
+            },
+            "description": {},
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "POST",
+            "name": "parent Create",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "parents"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"mail\": \"<email>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\"\n}"
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "POST",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "parents"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "description": "",
+          "item": [
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "kid Associations Find By Parent",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "name": "kid Associations Find By Parent",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "parents",
+                        ":parentId",
+                        "kids"
+                      ],
+                      "query": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "page",
+                          "value": "<integer>"
+                        },
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "size",
+                          "value": "<integer>"
+                        },
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "sort",
+                          "value": "<string>,<string>"
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "parentId",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "body": "{\n  \"_embedded\": {\n    \"kids\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "method": "GET",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "parents",
+                            ":parentId",
+                            "kids"
+                          ],
+                          "query": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "page",
+                              "value": "<integer>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "size",
+                              "value": "<integer>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "sort",
+                              "value": "<string>,<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "parentId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "kids"
+            }
+          ],
+          "name": "{parentId}"
+        }
+      ],
+      "name": "parents"
+    },
+    {
+      "description": "",
+      "item": [
+        {
+          "description": "",
+          "item": [
+            {
+              "description": "",
+              "item": [
+                {
+                  "description": "",
+                  "item": [
+                    {
+                      "event": [],
+                      "name": "classroom Set Tutor",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": null,
+                        "body": {},
+                        "description": {},
+                        "method": "PUT",
+                        "name": "classroom Set Tutor",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "classrooms",
+                            ":id",
+                            "tutor",
+                            ":teacherId"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "id",
+                              "type": "any",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "teacherId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "_postman_previewlanguage": "text",
+                          "code": 200,
+                          "cookie": [],
+                          "header": [],
+                          "name": "OK",
+                          "originalRequest": {
+                            "body": {},
+                            "method": "PUT",
+                            "url": {
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "classrooms",
+                                ":id",
+                                "tutor",
+                                ":teacherId"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  },
+                                  "disabled": false,
+                                  "key": "id",
+                                  "type": "any",
+                                  "value": "<uuid>"
+                                },
+                                {
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  },
+                                  "disabled": false,
+                                  "key": "teacherId",
+                                  "type": "any",
+                                  "value": "<uuid>"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK"
+                        }
+                      ]
+                    }
+                  ],
+                  "name": "{teacherId}"
+                }
+              ],
+              "name": "tutor"
+            },
+            {
+              "description": "",
+              "item": [
+                {
+                  "description": "",
+                  "item": [
+                    {
+                      "event": [],
+                      "name": "classroom Add Teacher",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": null,
+                        "body": {},
+                        "description": {},
+                        "method": "PUT",
+                        "name": "classroom Add Teacher",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "classrooms",
+                            ":id",
+                            "teachers",
+                            ":teacherId"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "id",
+                              "type": "any",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "teacherId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "_postman_previewlanguage": "text",
+                          "code": 200,
+                          "cookie": [],
+                          "header": [],
+                          "name": "OK",
+                          "originalRequest": {
+                            "body": {},
+                            "method": "PUT",
+                            "url": {
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "classrooms",
+                                ":id",
+                                "teachers",
+                                ":teacherId"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  },
+                                  "disabled": false,
+                                  "key": "id",
+                                  "type": "any",
+                                  "value": "<uuid>"
+                                },
+                                {
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  },
+                                  "disabled": false,
+                                  "key": "teacherId",
+                                  "type": "any",
+                                  "value": "<uuid>"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK"
+                        }
+                      ]
+                    }
+                  ],
+                  "name": "{teacherId}"
+                }
+              ],
+              "name": "teachers"
+            },
+            {
+              "description": "",
+              "item": [
+                {
+                  "description": "",
+                  "item": [
+                    {
+                      "event": [],
+                      "name": "classroom Enroll Kid",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "auth": null,
+                        "body": {},
+                        "description": {},
+                        "method": "PUT",
+                        "name": "classroom Enroll Kid",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "classrooms",
+                            ":id",
+                            "kids",
+                            ":kidId"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "id",
+                              "type": "any",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "kidId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "_postman_previewlanguage": "text",
+                          "code": 200,
+                          "cookie": [],
+                          "header": [],
+                          "name": "OK",
+                          "originalRequest": {
+                            "body": {},
+                            "method": "PUT",
+                            "url": {
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "classrooms",
+                                ":id",
+                                "kids",
+                                ":kidId"
+                              ],
+                              "query": [],
+                              "variable": [
+                                {
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  },
+                                  "disabled": false,
+                                  "key": "id",
+                                  "type": "any",
+                                  "value": "<uuid>"
+                                },
+                                {
+                                  "description": {
+                                    "content": "(Required) ",
+                                    "type": "text/plain"
+                                  },
+                                  "disabled": false,
+                                  "key": "kidId",
+                                  "type": "any",
+                                  "value": "<uuid>"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK"
+                        }
+                      ]
+                    }
+                  ],
+                  "name": "{kidId}"
+                }
+              ],
+              "name": "kids"
+            },
+            {
+              "event": [],
+              "name": "classroom Get",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "name": "classroom Get",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "classrooms",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"group\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "classrooms",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "classroom Delete",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "method": "DELETE",
+                "name": "classroom Delete",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "classrooms",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "method": "DELETE",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "classrooms",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "classroom Update",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"course\": \"<integer>\",\n  \"group\": \"W\"\n}"
+                },
+                "description": {},
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "name": "classroom Update",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "classrooms",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {
+                      "mode": "raw",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      },
+                      "raw": "{\n  \"course\": \"<integer>\",\n  \"group\": \"W\"\n}"
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "PATCH",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "classrooms",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            }
+          ],
+          "name": "{id}"
+        },
+        {
+          "event": [],
+          "name": "classroom Find All",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {},
+            "description": {},
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "GET",
+            "name": "classroom Find All",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "classrooms"
+              ],
+              "query": [
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "size",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>,<string>"
+                }
+              ],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"_embedded\": {\n    \"classrooms\": [\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "classrooms"
+                  ],
+                  "query": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "size",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "sort",
+                      "value": "<string>,<string>"
+                    }
+                  ],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "event": [],
+          "name": "classroom Create",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "headerFamily": "json",
+                  "language": "json"
+                }
+              },
+              "raw": "{\n  \"group\": \"V\",\n  \"school\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"tutor\": \"<uuid>\"\n}"
+            },
+            "description": {},
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "POST",
+            "name": "classroom Create",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "classrooms"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"id\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"group\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"group\": \"V\",\n  \"school\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"tutor\": \"<uuid>\"\n}"
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "POST",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "classrooms"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "description": "",
+          "item": [
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "teacher Associations Find Tutor Of",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "name": "teacher Associations Find Tutor Of",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "classrooms",
+                        ":classroomId",
+                        "tutor"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "classroomId",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "method": "GET",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "classrooms",
+                            ":classroomId",
+                            "tutor"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "classroomId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "tutor"
+            },
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "teacher Associations Find By Classroom",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "name": "teacher Associations Find By Classroom",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "classrooms",
+                        ":classroomId",
+                        "teachers"
+                      ],
+                      "query": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "page",
+                          "value": "<integer>"
+                        },
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "size",
+                          "value": "<integer>"
+                        },
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "sort",
+                          "value": "<string>,<string>"
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "classroomId",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "body": "{\n  \"_embedded\": {\n    \"teachers\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_3\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_4\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "method": "GET",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "classrooms",
+                            ":classroomId",
+                            "teachers"
+                          ],
+                          "query": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "page",
+                              "value": "<integer>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "size",
+                              "value": "<integer>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "sort",
+                              "value": "<string>,<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "classroomId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "teachers"
+            },
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "school Associations Find By Classroom",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "name": "school Associations Find By Classroom",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "classrooms",
+                        ":classroomId",
+                        "school"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "classroomId",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "method": "GET",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "classrooms",
+                            ":classroomId",
+                            "school"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "classroomId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "school"
+            }
+          ],
+          "name": "{classroomId}"
+        }
+      ],
+      "name": "classrooms"
+    },
+    {
+      "description": "",
+      "item": [
+        {
+          "event": [],
+          "name": "teacher Find All",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {},
+            "description": {},
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "GET",
+            "name": "teacher Find All",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teachers"
+              ],
+              "query": [
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "size",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>,<string>"
+                }
+              ],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"_embedded\": {\n    \"teachers\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_3\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_4\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "teachers"
+                  ],
+                  "query": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "size",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "sort",
+                      "value": "<string>,<string>"
+                    }
+                  ],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "event": [],
+          "name": "teacher Create",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "headerFamily": "json",
+                  "language": "json"
+                }
+              },
+              "raw": "{\n  \"mail\": \"<email>\",\n  \"name\": \"<string>\",\n  \"school\": \"<uuid>\",\n  \"surname\": \"<string>\"\n}"
+            },
+            "description": {},
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "POST",
+            "name": "teacher Create",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teachers"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"mail\": \"<email>\",\n  \"name\": \"<string>\",\n  \"school\": \"<uuid>\",\n  \"surname\": \"<string>\"\n}"
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "POST",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "teachers"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "description": "",
+          "item": [
+            {
+              "event": [],
+              "name": "teacher Get",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "name": "teacher Get",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "teachers",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "teachers",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "teacher Delete",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "method": "DELETE",
+                "name": "teacher Delete",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "teachers",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "method": "DELETE",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "teachers",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "teacher Update",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"name\": \"﻿       　^{XVDI\",\n  \"surname\": \" r%N_\",\n  \"mail\": \"   m\"\n}"
+                },
+                "description": {},
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "name": "teacher Update",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "teachers",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {
+                      "mode": "raw",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      },
+                      "raw": "{\n  \"name\": \"﻿       　^{XVDI\",\n  \"surname\": \" r%N_\",\n  \"mail\": \"   m\"\n}"
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "PATCH",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "teachers",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            }
+          ],
+          "name": "{id}"
+        },
+        {
+          "description": "",
+          "item": [
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "school Associations Find By Teacher",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "name": "school Associations Find By Teacher",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "teachers",
+                        ":teacherId",
+                        "school"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "teacherId",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "method": "GET",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "teachers",
+                            ":teacherId",
+                            "school"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "teacherId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "school"
+            }
+          ],
+          "name": "{teacherId}"
+        }
+      ],
+      "name": "teachers"
+    },
+    {
+      "description": "",
+      "item": [
+        {
+          "event": [],
+          "name": "school Find All",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {},
+            "description": {},
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "GET",
+            "name": "school Find All",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "schools"
+              ],
+              "query": [
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "size",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>,<string>"
+                }
+              ],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"_embedded\": {\n    \"schools\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "schools"
+                  ],
+                  "query": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "size",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "sort",
+                      "value": "<string>,<string>"
+                    }
+                  ],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "event": [],
+          "name": "school Create",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "headerFamily": "json",
+                  "language": "json"
+                }
+              },
+              "raw": "{\n  \"name\": \"<string>\"\n}"
+            },
+            "description": {},
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "POST",
+            "name": "school Create",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "schools"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"name\": \"<string>\"\n}"
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "POST",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "schools"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "description": "",
+          "item": [
+            {
+              "event": [],
+              "name": "school Get",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "name": "school Get",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "schools",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "schools",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "school Delete",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "method": "DELETE",
+                "name": "school Delete",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "schools",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "method": "DELETE",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "schools",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "school Update",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"name\": \"<string>\"\n}"
+                },
+                "description": {},
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "name": "school Update",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "schools",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {
+                      "mode": "raw",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      },
+                      "raw": "{\n  \"name\": \"<string>\"\n}"
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "PATCH",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "schools",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            }
+          ],
+          "name": "{id}"
+        },
+        {
+          "description": "",
+          "item": [
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "teacher Associations Find By School",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "name": "teacher Associations Find By School",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "schools",
+                        ":schoolId",
+                        "teachers"
+                      ],
+                      "query": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "page",
+                          "value": "<integer>"
+                        },
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "size",
+                          "value": "<integer>"
+                        },
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "sort",
+                          "value": "<string>,<string>"
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "schoolId",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "body": "{\n  \"_embedded\": {\n    \"teachers\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_3\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_4\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"mail\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "method": "GET",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "schools",
+                            ":schoolId",
+                            "teachers"
+                          ],
+                          "query": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "page",
+                              "value": "<integer>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "size",
+                              "value": "<integer>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "sort",
+                              "value": "<string>,<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "schoolId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "teachers"
+            },
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "classroom Associations Find By School",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "name": "classroom Associations Find By School",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "schools",
+                        ":schoolId",
+                        "classrooms"
+                      ],
+                      "query": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "page",
+                          "value": "<integer>"
+                        },
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "size",
+                          "value": "<integer>"
+                        },
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "sort",
+                          "value": "<string>,<string>"
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "schoolId",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "body": "{\n  \"_embedded\": {\n    \"classrooms\": [\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"course\": \"<integer>\",\n        \"group\": \"<string>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "method": "GET",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "schools",
+                            ":schoolId",
+                            "classrooms"
+                          ],
+                          "query": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "page",
+                              "value": "<integer>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "size",
+                              "value": "<integer>"
+                            },
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "sort",
+                              "value": "<string>,<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "schoolId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "classrooms"
+            }
+          ],
+          "name": "{schoolId}"
+        }
+      ],
+      "name": "schools"
+    },
+    {
+      "description": "",
+      "item": [
+        {
+          "event": [],
+          "name": "kid Find All",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {},
+            "description": {},
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "GET",
+            "name": "kid Find All",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "kids"
+              ],
+              "query": [
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "size",
+                  "value": "<integer>"
+                },
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>,<string>"
+                }
+              ],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"_embedded\": {\n    \"kids\": [\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"name\": \"<string>\",\n        \"surname\": \"<string>\",\n        \"birthdate\": \"<date>\",\n        \"_links\": {\n          \"key_0\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_1\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          },\n          \"key_2\": {\n            \"href\": \"<string>\",\n            \"hreflang\": \"<string>\",\n            \"title\": \"<string>\",\n            \"type\": \"<string>\",\n            \"deprecation\": \"<string>\",\n            \"profile\": \"<string>\",\n            \"name\": \"<string>\",\n            \"templated\": \"<boolean>\"\n          }\n        }\n      }\n    ]\n  },\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  },\n  \"page\": {\n    \"size\": \"<long>\",\n    \"totalElements\": \"<long>\",\n    \"totalPages\": \"<long>\",\n    \"number\": \"<long>\"\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "kids"
+                  ],
+                  "query": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "page",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "size",
+                      "value": "<integer>"
+                    },
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "sort",
+                      "value": "<string>,<string>"
+                    }
+                  ],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "event": [],
+          "name": "kid Create",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "headerFamily": "json",
+                  "language": "json"
+                }
+              },
+              "raw": "{\n  \"birthdate\": \"<date>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\"\n}"
+            },
+            "description": {},
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "POST",
+            "name": "kid Create",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "kids"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"birthdate\": \"<date>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"birthdate\": \"<date>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\"\n}"
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "POST",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "kids"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        },
+        {
+          "description": "",
+          "item": [
+            {
+              "event": [],
+              "name": "kid Get",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "name": "kid Get",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "kids",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"birthdate\": \"<date>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "kids",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "kid Delete",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {},
+                "description": {},
+                "method": "DELETE",
+                "name": "kid Delete",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "kids",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {},
+                    "method": "DELETE",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "kids",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            },
+            {
+              "event": [],
+              "name": "kid Update",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": null,
+                "body": {
+                  "mode": "raw",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  },
+                  "raw": "{\n  \"name\": \"﻿   Ykz[|S3\",\n  \"surname\": \"\\r N 5N\",\n  \"birthdate\": \"<date>\",\n  \"parent\": \"<uuid>\",\n  \"classroom\": \"<uuid>\"\n}"
+                },
+                "description": {},
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "name": "kid Update",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "kids",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": {
+                        "content": "(Required) ",
+                        "type": "text/plain"
+                      },
+                      "disabled": false,
+                      "key": "id",
+                      "type": "any",
+                      "value": "<uuid>"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "_postman_previewlanguage": "text",
+                  "code": 200,
+                  "cookie": [],
+                  "header": [],
+                  "name": "OK",
+                  "originalRequest": {
+                    "body": {
+                      "mode": "raw",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      },
+                      "raw": "{\n  \"name\": \"﻿   Ykz[|S3\",\n  \"surname\": \"\\r N 5N\",\n  \"birthdate\": \"<date>\",\n  \"parent\": \"<uuid>\",\n  \"classroom\": \"<uuid>\"\n}"
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "PATCH",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "kids",
+                        ":id"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "id",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK"
+                }
+              ]
+            }
+          ],
+          "name": "{id}"
+        },
+        {
+          "description": "",
+          "item": [
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "parent Associations Find By Kid",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "name": "parent Associations Find By Kid",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "kids",
+                        ":kidId",
+                        "parent"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "kidId",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"<string>\",\n  \"surname\": \"<string>\",\n  \"mail\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "method": "GET",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "kids",
+                            ":kidId",
+                            "parent"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "kidId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "parent"
+            },
+            {
+              "description": "",
+              "item": [
+                {
+                  "event": [],
+                  "name": "classroom Associations Find By Kid",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": null,
+                    "body": {},
+                    "description": {},
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "method": "GET",
+                    "name": "classroom Associations Find By Kid",
+                    "url": {
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "kids",
+                        ":kidId",
+                        "classroom"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "description": {
+                            "content": "(Required) ",
+                            "type": "text/plain"
+                          },
+                          "disabled": false,
+                          "key": "kidId",
+                          "type": "any",
+                          "value": "<uuid>"
+                        }
+                      ]
+                    }
+                  },
+                  "response": [
+                    {
+                      "_postman_previewlanguage": "text",
+                      "body": "{\n  \"id\": \"<uuid>\",\n  \"course\": \"<integer>\",\n  \"group\": \"<string>\",\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+                      "code": 200,
+                      "cookie": [],
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "*/*"
+                        }
+                      ],
+                      "name": "OK",
+                      "originalRequest": {
+                        "body": {},
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "*/*"
+                          }
+                        ],
+                        "method": "GET",
+                        "url": {
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "kids",
+                            ":kidId",
+                            "classroom"
+                          ],
+                          "query": [],
+                          "variable": [
+                            {
+                              "description": {
+                                "content": "(Required) ",
+                                "type": "text/plain"
+                              },
+                              "disabled": false,
+                              "key": "kidId",
+                              "type": "any",
+                              "value": "<uuid>"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK"
+                    }
+                  ]
+                }
+              ],
+              "name": "classroom"
+            }
+          ],
+          "name": "{kidId}"
+        }
+      ],
+      "name": "kids"
+    },
+    {
+      "description": "",
+      "item": [
+        {
+          "event": [],
+          "name": "root Index",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": null,
+            "body": {},
+            "description": {},
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "method": "GET",
+            "name": "root Index",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "_postman_previewlanguage": "text",
+              "body": "{\n  \"_links\": {\n    \"key_0\": {\n      \"href\": \"<string>\",\n      \"hreflang\": \"<string>\",\n      \"title\": \"<string>\",\n      \"type\": \"<string>\",\n      \"deprecation\": \"<string>\",\n      \"profile\": \"<string>\",\n      \"name\": \"<string>\",\n      \"templated\": \"<boolean>\"\n    }\n  }\n}",
+              "code": 200,
+              "cookie": [],
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "*/*"
+                }
+              ],
+              "name": "OK",
+              "originalRequest": {
+                "body": {},
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    ""
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK"
+            }
+          ]
+        }
+      ],
+      "name": "/"
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost/v0"
+    }
+  ]
+}

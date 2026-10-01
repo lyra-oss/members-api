@@ -2,6 +2,7 @@ package edu.lyra.members.api.kid.rest;
 
 import java.util.UUID;
 
+import edu.lyra.members.api.config.security.RequiredAccess;
 import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.kid.Kid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ class KidAssociationsController {
     private final KidAdapter                   adapter;
     private final PagedResourcesAssembler<Kid> pagedAssembler;
 
+    @RequiredAccess(scopes = {"parents.read", "kids.read"})
     @GetMapping("/parents/{parentId}/kids")
     ResponseEntity<PagedModel<KidModel>> findByParent(final @PathVariable UUID parentId, final Pageable pageable) {
         log.debug("Listing kids for parent {}, page {}", parentId, pageable);

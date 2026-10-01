@@ -32,7 +32,7 @@ class ParentIT
         final String createToken = this.getToken(USERNAME, "parents.create");
         final String body = this.json.writeValueAsString(
                 Map.of(NAME_KEY, NAME_VALUE, SURNAME_KEY, SURNAME_VALUE, MAIL_KEY, MAIL_VALUE));
-        final Request postRequest = new Request.Builder().url("http://localhost:" + PORT + "/v0/parents")
+        final Request postRequest = new Request.Builder().url(BASE_URL + "/parents")
                                                          .addHeader("Authorization", "Bearer " + createToken)
                                                          .post(create(body, get("application/json"))).build();
         String location;

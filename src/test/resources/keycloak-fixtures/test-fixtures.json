@@ -1,0 +1,145 @@
+{
+    "sslRequired": "none",
+    "clients": [
+        {
+            "clientId": "members-api-test",
+            "enabled": true,
+            "publicClient": true,
+            "directAccessGrantsEnabled": true,
+            "standardFlowEnabled": false,
+            "implicitFlowEnabled": false,
+            "serviceAccountsEnabled": false,
+            "protocol": "openid-connect",
+            "defaultClientScopes": [
+                "basic",
+                "openid",
+                "roles"
+            ],
+            "optionalClientScopes": [
+                "email",
+                "parents.create",
+                "kids.create",
+                "schools.create",
+                "teachers.create",
+                "classrooms.create",
+                "parents.read",
+                "kids.read",
+                "schools.read",
+                "teachers.read",
+                "classrooms.read",
+                "persons.read",
+                "parents.update",
+                "kids.update",
+                "schools.update",
+                "teachers.update",
+                "classrooms.update",
+                "parents.delete",
+                "kids.delete",
+                "schools.delete",
+                "teachers.delete",
+                "classrooms.delete"
+            ]
+        }
+    ],
+    "users": [
+        {
+            "username": "test.user@example.com",
+            "email": "test.user@example.com",
+            "firstName": "Test",
+            "lastName": "User",
+            "enabled": true,
+            "emailVerified": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "kid.parent@example.com",
+            "email": "kid.parent@example.com",
+            "firstName": "Kid",
+            "lastName": "Parent",
+            "enabled": true,
+            "emailVerified": true,
+            "realmRoles": [
+                "parent"
+            ],
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "school.admin@example.com",
+            "email": "school.admin@example.com",
+            "firstName": "School",
+            "lastName": "Admin",
+            "enabled": true,
+            "emailVerified": true,
+            "realmRoles": [
+                "admin"
+            ],
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "teacher.account@example.com",
+            "email": "teacher.account@example.com",
+            "firstName": "Teacher",
+            "lastName": "Account",
+            "enabled": true,
+            "emailVerified": true,
+            "realmRoles": [
+                "teacher"
+            ],
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "smoke.parent@example.com",
+            "email": "smoke.parent@example.com",
+            "firstName": "Smoke",
+            "lastName": "Parent",
+            "enabled": true,
+            "emailVerified": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "smoke.teacher@example.com",
+            "email": "smoke.teacher@example.com",
+            "firstName": "Smoke",
+            "lastName": "Teacher",
+            "enabled": true,
+            "emailVerified": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        }
+    ]
+}

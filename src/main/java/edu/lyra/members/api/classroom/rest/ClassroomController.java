@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.config.security.RequiredAccess;
 import edu.lyra.members.api.config.web.ResponseEntities;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,18 +33,21 @@ class ClassroomController {
     private final ClassroomAdapter                   adapter;
     private final PagedResourcesAssembler<Classroom> pagedAssembler;
 
+    @RequiredAccess(scopes = "classrooms.read")
     @GetMapping
     PagedModel<ClassroomModel> findAll(final Pageable pageable) {
         log.debug("Listing classrooms, page {}", pageable);
         return this.adapter.findAll(pageable, this.pagedAssembler);
     }
 
+    @RequiredAccess(scopes = "classrooms.read")
     @GetMapping("/{id}")
     ResponseEntity<ClassroomModel> get(final @PathVariable UUID id) {
         log.debug("Fetching classroom {}", id);
         return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
+    @RequiredAccess(scopes = "classrooms.create")
     @PostMapping
     ResponseEntity<ClassroomModel> create(final @Valid @RequestBody ClassroomRequest request) {
         log.debug("Creating a classroom");
@@ -52,30 +56,35 @@ class ClassroomController {
         return ResponseEntity.created(location).body(model);
     }
 
+    @RequiredAccess(scopes = "classrooms.update")
     @PatchMapping("/{id}")
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody ClassroomPatchRequest request) {
         log.debug("Updating classroom {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.update(id, request).isPresent());
     }
 
+    @RequiredAccess(scopes = "classrooms.delete")
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(final @PathVariable UUID id) {
         log.debug("Deleting classroom {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.delete(id));
     }
 
+    @RequiredAccess(scopes = "classrooms.update")
     @PutMapping("/{id}/teachers/{teacherId}")
     ResponseEntity<Void> addTeacher(final @PathVariable UUID id, final @PathVariable UUID teacherId) {
         log.debug("Adding teacher {} to classroom {}", teacherId, id);
         return ResponseEntities.noContentOrNotFound(this.adapter.addTeacher(id, teacherId));
     }
 
+    @RequiredAccess(scopes = "classrooms.update")
     @PutMapping("/{id}/tutor/{teacherId}")
     ResponseEntity<Void> setTutor(final @PathVariable UUID id, final @PathVariable UUID teacherId) {
         log.debug("Setting teacher {} as tutor of classroom {}", teacherId, id);
         return ResponseEntities.noContentOrNotFound(this.adapter.setTutor(id, teacherId));
     }
 
+    @RequiredAccess(scopes = "classrooms.update")
     @PutMapping("/{id}/kids/{kidId}")
     ResponseEntity<Void> enrollKid(final @PathVariable UUID id, final @PathVariable UUID kidId) {
         log.debug("Enrolling kid {} in classroom {}", kidId, id);

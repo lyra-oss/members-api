@@ -210,6 +210,21 @@ class SpringSecurityConfigurationTest {
     }
 
     @Test
+    void testUnmappedRouteRequiresAuthentication()
+            throws Exception {
+        this.perform(get(this.base() + "/does-not-exist")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testUnmappedRouteReturnsNotFoundOnceAuthenticated()
+            throws Exception {
+        //@formatter:off
+        this.perform(get(this.base() + "/does-not-exist").with(jwt()))
+           .andExpect(status().isNotFound());
+        //@formatter:on
+    }
+
+    @Test
     void testCreateClassroomOk()
             throws Exception {
         final School school = Instancio.create(School.class);

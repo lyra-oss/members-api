@@ -39,7 +39,7 @@ class KidIT
             throws IOException {
         final String token = this.getToken(USERNAME, "parents.create");
         final String body  = this.json.writeValueAsString(Map.of("name", "Kid", "surname", "Parent", "mail", USERNAME));
-        final Request request = new Request.Builder().url("http://localhost:" + PORT + "/v0/parents")
+        final Request request = new Request.Builder().url(BASE_URL + "/parents")
                                                      .addHeader("Authorization", "Bearer " + token)
                                                      .post(create(body, get("application/json"))).build();
         try(Response response = this.http.newCall(request).execute()) {
@@ -52,7 +52,7 @@ class KidIT
         final String token = this.getToken(USERNAME, "kids.create");
         final String body = this.json.writeValueAsString(
                 Map.of(NAME_KEY, NAME_VALUE, SURNAME_KEY, SURNAME_VALUE, BIRTHDATE_KEY, BIRTHDATE_VALUE));
-        final Request request = new Request.Builder().url("http://localhost:" + PORT + "/v0/kids")
+        final Request request = new Request.Builder().url(BASE_URL + "/kids")
                                                      .addHeader("Authorization", "Bearer " + token)
                                                      .post(create(body, get("application/json"))).build();
         try(Response response = this.http.newCall(request).execute()) {
@@ -79,7 +79,7 @@ class KidIT
     private void verifyKidAppearsInParentScopedKidList()
             throws IOException {
         final String token = this.getToken(USERNAME, "kids.read");
-        final Request request = new Request.Builder().url("http://localhost:" + PORT + "/v0/kids")
+        final Request request = new Request.Builder().url(BASE_URL + "/kids")
                                                      .addHeader("Authorization", "Bearer " + token).build();
         try(Response response = this.http.newCall(request).execute()) {
             assertEquals(200, response.code());

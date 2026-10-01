@@ -9,6 +9,7 @@ import com.tngtech.archunit.lang.ArchRule;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.mapstruct.Mapper;
+import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.data.repository.Repository;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -38,6 +39,10 @@ class NamingRulesTest {
 
     private static final DescribedPredicate<JavaClass> IS_A_RECORD =
             DescribedPredicate.describe("is a record", JavaClass::isRecord);
+
+    private static final DescribedPredicate<JavaClass> IMPLEMENTS_RUNTIME_HINTS_REGISTRAR =
+            DescribedPredicate.describe("implements RuntimeHintsRegistrar",
+                                        javaClass -> javaClass.isAssignableTo(RuntimeHintsRegistrar.class));
 
     /**
      * Every {@code @RestController} class must have a simple name ending in "Controller".
@@ -246,5 +251,42 @@ class NamingRulesTest {
     @ArchTest
     static final ArchRule entitiesDeclareAnExplicitTable =
             classes().that().areAnnotatedWith(Entity.class).should().beAnnotatedWith(Table.class);
+
+    /**
+     * Every {@link RuntimeHintsRegistrar} implementation must have a simple name ending in "RuntimeHints".
+     *
+     * <p>Compliant: {@code class HibernateRuntimeHints implements RuntimeHintsRegistrar}
+     *
+     * <p>Violation: {@code class HibernateNativeImageSupport implements RuntimeHintsRegistrar}
+     */
+    @ArchTest
+    static final ArchRule runtimeHintsRegistrarsAreNamedRuntimeHints =
+            classes().that(IMPLEMENTS_RUNTIME_HINTS_REGISTRAR).should().haveSimpleNameEndingWith("RuntimeHints");
+
+    /**
+     * The inverse of the rule above: any class named {@code *RuntimeHints} must actually implement
+     * {@link RuntimeHintsRegistrar}, so the name is never misleading - and so it's reliably matched by the
+     * {@code pitest-maven} and SonarCloud exclusions that assume every such class is a declarative, untested
+     * registrar (see {@code sonar.coverage.exclusions} and pitest-maven's {@code excludedClasses} in the POM).
+     *
+     * <p>Compliant: {@code class HibernateRuntimeHints implements RuntimeHintsRegistrar}
+     *
+     * <p>Violation: {@code class HibernateRuntimeHints} (does not implement {@code RuntimeHintsRegistrar})
+     */
+    @ArchTest
+    static final ArchRule namedRuntimeHintsAreRuntimeHintsRegistrars =
+            classes().that().haveSimpleNameEndingWith("RuntimeHints").should(be(IMPLEMENTS_RUNTIME_HINTS_REGISTRAR));
+
+    /**
+     * Every {@code *RuntimeHints} registrar must live in a "..config.." package, alongside the
+     * {@code @Configuration} class that imports it via {@code @ImportRuntimeHints}.
+     *
+     * <p>Compliant: {@code edu.lyra.members.api.config.jpa.HibernateRuntimeHints}
+     *
+     * <p>Violation: {@code edu.lyra.members.api.jpa.HibernateRuntimeHints}
+     */
+    @ArchTest
+    static final ArchRule runtimeHintsRegistrarsLiveInConfigPackages =
+            classes().that(IMPLEMENTS_RUNTIME_HINTS_REGISTRAR).should().resideInAPackage("..config..");
 
 }

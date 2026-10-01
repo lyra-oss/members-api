@@ -3,6 +3,7 @@ package edu.lyra.members.api.classroom.rest;
 import java.util.UUID;
 
 import edu.lyra.members.api.classroom.Classroom;
+import edu.lyra.members.api.config.security.RequiredAccess;
 import edu.lyra.members.api.config.web.ResponseEntities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +23,14 @@ class ClassroomAssociationsController {
     private final ClassroomAdapter adapter;
     private final PagedResourcesAssembler<Classroom> pagedAssembler;
 
+    @RequiredAccess(scopes = {"kids.read", "classrooms.read"})
     @GetMapping("/kids/{kidId}/classroom")
     ResponseEntity<ClassroomModel> findByKid(final @PathVariable UUID kidId) {
         log.debug("Fetching the classroom of kid {}", kidId);
         return ResponseEntities.okOrNotFound(this.adapter.findByKid(kidId));
     }
 
+    @RequiredAccess(scopes = {"schools.read", "classrooms.read"})
     @GetMapping("/schools/{schoolId}/classrooms")
     ResponseEntity<PagedModel<ClassroomModel>> findBySchool(
             final @PathVariable UUID schoolId,

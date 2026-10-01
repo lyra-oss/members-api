@@ -1,5 +1,6 @@
 package edu.lyra.members.api.root.rest;
 
+import edu.lyra.members.api.config.security.RequiredAccess;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
@@ -15,6 +16,7 @@ class RootController {
     private static final String[] COLLECTION_RELS =
             { "schools", "teachers", "parents", "kids", "classrooms", "persons" };
 
+    @RequiredAccess
     @GetMapping("/")
     RootModel index() {
         log.debug("Building the root link index");
