@@ -65,7 +65,8 @@ sees no kids and cannot update anyone else's records.
 
 A [Postman](https://www.postman.com/) collection covering every endpoint lives at
 `postman/members-api.postman_collection.json` — import it and point its `baseUrl` variable at a running instance to
-explore the API. It is generated from the application's own OpenAPI description (`scripts/generate-postman-collection.sh`),
+explore the API. It is generated from the application's own OpenAPI description
+(`scripts/generate-postman-collection.sh`),
 so the API is never defined twice; CI fails if it drifts from the code. After changing the API, regenerate it and
 commit the result:
 

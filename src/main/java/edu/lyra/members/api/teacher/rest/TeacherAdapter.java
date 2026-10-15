@@ -31,8 +31,8 @@ class TeacherAdapter
         implements RepresentationModelAssembler<Teacher, TeacherModel> {
 
     private final TeacherRepository teacherRepository;
-    private final SchoolRepository  schoolRepository;
-    private final PersonRepository  personRepository;
+    private final SchoolRepository schoolRepository;
+    private final PersonRepository personRepository;
     private final ClassroomRepository classroomRepository;
 
     private final TeacherMapper mapper;
@@ -40,13 +40,6 @@ class TeacherAdapter
 
     Optional<TeacherModel> findById(final UUID id) {
         return this.teacherRepository.findById(id).map(this::toModel);
-    }
-
-    @Override
-    public TeacherModel toModel(final @NonNull Teacher teacher) {
-        final TeacherModel model = this.mapper.toModel(teacher);
-        model.add(linkTo(methodOn(TeacherController.class).get(teacher.getId())).withSelfRel());
-        return model;
     }
 
     PagedModel<TeacherModel> findAll(final Pageable pageable, final PagedResourcesAssembler<Teacher> pagedAssembler) {
@@ -96,6 +89,13 @@ class TeacherAdapter
         final Teacher saved = this.teacherRepository.save(teacher);
         log.debug("Created teacher {} at school {}", saved.getId(), school.getId());
         return this.toModel(saved);
+    }
+
+    @Override
+    public TeacherModel toModel(final @NonNull Teacher teacher) {
+        final TeacherModel model = this.mapper.toModel(teacher);
+        model.add(linkTo(methodOn(TeacherController.class).get(teacher.getId())).withSelfRel());
+        return model;
     }
 
     Optional<TeacherModel> update(final UUID id, final TeacherPatchRequest request) {

@@ -17,8 +17,8 @@ import org.testcontainers.k6.K6Container;
 import org.testcontainers.utility.MountableFile;
 
 /**
- * Runs one of this package's k6 scripts (see {@code src/test/k6}) as its own container on the same Docker network
- * as {@link IntegrationTestEnvironment}'s already-running Keycloak and application containers, the way
+ * Runs one of this package's k6 scripts (see {@code src/test/k6}) as its own container on the same Docker network as
+ * {@link IntegrationTestEnvironment}'s already-running Keycloak and application containers, the way
  * {@code PerformanceSmokeIT} and {@code NightlyPerformanceIT} are meant to be run.
  *
  * <p>k6 runs in its own container rather than embedded in this JVM (the way Gatling previously was) because k6
@@ -58,8 +58,7 @@ public final class K6PerformanceSupport {
      * @return {@code true} if the k6 process exited successfully (every threshold passed), {@code false} otherwise
      *         - either way, {@code target/k6/<scenario>-summary.json} is written for inspection
      */
-    public static boolean run(final String scenario, final Map<String, String> scriptVars,
-            final Duration waitTimeout) {
+    public static boolean run(final String scenario, final Map<String, String> scriptVars, final Duration waitTimeout) {
         final String image = System.getProperty("k6.image", "grafana/k6:2.3.0");
         //@formatter:off
         try(K6Container container = new K6Container(image)
@@ -94,11 +93,11 @@ public final class K6PerformanceSupport {
         container.followOutput(consumer);
         try {
             consumer.waitUntil(frame -> frame.getUtf8String().contains(COMPLETION_MARKER),
-                    Math.toIntExact(waitTimeout.toSeconds()), TimeUnit.SECONDS);
+                               Math.toIntExact(waitTimeout.toSeconds()), TimeUnit.SECONDS);
         } catch(final TimeoutException e) {
             throw new IllegalStateException(
-                    "k6 didn't finish " + container.getDockerImageName() + " within " + waitTimeout
-                            + " - logs:\n" + container.getLogs(), e);
+                    "k6 didn't finish " + container.getDockerImageName() + " within " + waitTimeout + " - logs:\n" +
+                    container.getLogs(), e);
         }
     }
 
@@ -106,17 +105,17 @@ public final class K6PerformanceSupport {
         try {
             Files.createDirectories(SUMMARY_OUTPUT_DIR);
             container.copyFileFromContainer(CONTAINER_WORKDIR + "/summary.json",
-                    SUMMARY_OUTPUT_DIR.resolve(scenario + "-summary.json").toString());
+                                            SUMMARY_OUTPUT_DIR.resolve(scenario + "-summary.json").toString());
         } catch(final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     /**
-     * k6 exits non-zero when any threshold fails, the same way Gatling's own assertions used to fail the run - see
-     * each script's {@code thresholds} option. {@link WaitingConsumer#waitUntil} only guarantees the completion
-     * marker has been logged, which can race the container's own state transition to "exited" by a moment, so this
-     * polls briefly rather than reading a possibly stale/absent exit code immediately.
+     * k6 exits non-zero when any threshold fails, the same way Gatling's own assertions used to fail the run - see each
+     * script's {@code thresholds} option. {@link WaitingConsumer#waitUntil} only guarantees the completion marker has
+     * been logged, which can race the container's own state transition to "exited" by a moment, so this polls briefly
+     * rather than reading a possibly stale/absent exit code immediately.
      */
     private static boolean exitedSuccessfully(final String containerId) {
         final long deadline = System.nanoTime() + EXIT_POLL_TIMEOUT.toNanos();
@@ -132,7 +131,8 @@ public final class K6PerformanceSupport {
                 throw new IllegalStateException("k6 container " + containerId + " never reported an exit code");
             }
             try {
-                Thread.sleep(Duration.ofMillis(200)); // NOSONAR - bounded poll for a Docker exit code, not test flakiness
+                Thread.sleep(
+                        Duration.ofMillis(200)); // NOSONAR - bounded poll for a Docker exit code, not test flakiness
             } catch(final InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException(e);

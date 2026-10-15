@@ -42,13 +42,6 @@ class ClassroomAdapter
         return this.classroomRepository.findById(id).map(this::toModel);
     }
 
-    @Override
-    public ClassroomModel toModel(final @NonNull Classroom classroom) {
-        final ClassroomModel model = this.mapper.toModel(classroom);
-        model.add(linkTo(methodOn(ClassroomController.class).get(classroom.getId())).withSelfRel());
-        return model;
-    }
-
     PagedModel<ClassroomModel> findAll(
             final Pageable pageable,
             final PagedResourcesAssembler<Classroom> pagedAssembler
@@ -98,6 +91,13 @@ class ClassroomAdapter
             throw new SchoolMismatchException(
                     "Teacher %s does not belong to the classroom's school".formatted(teacher.getId()));
         }
+    }
+
+    @Override
+    public ClassroomModel toModel(final @NonNull Classroom classroom) {
+        final ClassroomModel model = this.mapper.toModel(classroom);
+        model.add(linkTo(methodOn(ClassroomController.class).get(classroom.getId())).withSelfRel());
+        return model;
     }
 
     Optional<ClassroomModel> update(final UUID id, final ClassroomPatchRequest request) {

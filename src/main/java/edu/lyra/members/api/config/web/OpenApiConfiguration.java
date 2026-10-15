@@ -15,14 +15,14 @@ import org.springframework.web.method.HandlerMethod;
 
 /**
  * The OpenAPI description springdoc serves at {@code /v3/api-docs}, generated from the controllers and their Bean
- * Validation-annotated request records - the single source of truth the committed Postman collection and the
- * generated k6 client are both generated from, so the API is never defined twice.
+ * Validation-annotated request records - the single source of truth the committed Postman collection and the generated
+ * k6 client are both generated from, so the API is never defined twice.
  *
  * <p>The {@code oauth2} {@link SecurityScheme} declared here is what every controller method's
  * {@code @SecurityRequirement(name = "oauth2", ...)} refers to by name; springdoc resolves the two together when
- * rendering each operation's security section, so this is the one place the full scope catalog - which scope means
- * what - needs to be kept in sync with {@code keycloak/lyra-realm.json}'s {@code clientScopes} (that file isn't
- * shipped with the application artifact, so nothing re-derives this list from it automatically).
+ * rendering each operation's security section, so this is the one place the full scope catalog - which scope means what
+ * - needs to be kept in sync with {@code keycloak/lyra-realm.json}'s {@code clientScopes} (that file isn't shipped with
+ * the application artifact, so nothing re-derives this list from it automatically).
  *
  * @author Esteban Cristóbal Rodríguez
  */

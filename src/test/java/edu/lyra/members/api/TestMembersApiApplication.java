@@ -13,9 +13,9 @@ import org.springframework.boot.SpringApplication;
  *
  * <p>Keycloak is started here directly, before {@code SpringApplication} ever runs, and its issuer URI is appended
  * as a command-line argument rather than wired through a bean: {@code OAuth2ResourceServerAutoConfiguration}'s
- * {@code JwtDecoder} bean is {@code @ConditionalOnProperty}-gated, and that condition is evaluated before any bean
- * in {@link TestEnvironmentConfiguration} runs, so the property has to already be part of the environment by the
- * time {@code run} is called — exactly what a command-line argument guarantees.
+ * {@code JwtDecoder} bean is {@code @ConditionalOnProperty}-gated, and that condition is evaluated before any bean in
+ * {@link TestEnvironmentConfiguration} runs, so the property has to already be part of the environment by the time
+ * {@code run} is called — exactly what a command-line argument guarantees.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -27,7 +27,7 @@ public class TestMembersApiApplication {
      *
      * @param args the command-line arguments, forwarded on to {@link MembersApiApplication#main}
      */
-    public static void main(final String[] args) {
+    static void main(final String[] args) {
         final KeycloakTestContainer keycloak = new KeycloakTestContainer();
         keycloak.start();
         //@formatter:off
@@ -37,7 +37,7 @@ public class TestMembersApiApplication {
                 .toArray(String[]::new);
         //@formatter:on
         SpringApplication.from(MembersApiApplication::main).with(TestEnvironmentConfiguration.class)
-                          .run(argsWithKeycloak);
+                         .run(argsWithKeycloak);
     }
 
 }

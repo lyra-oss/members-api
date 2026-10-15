@@ -55,14 +55,6 @@ class ParentPolicyTest {
         assertDoesNotThrow(() -> this.policy.authorizeUpdate(aParentWithId(randomUUID())));
     }
 
-    private static void authenticateAs(final UUID id, final String... roles) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final List<SimpleGrantedAuthority> authorities =
-                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
     private static Parent aParentWithId(final UUID id) {
         return of(Parent.class).set(field(PersonRole.class, "id"), id).create();
     }
@@ -81,6 +73,14 @@ class ParentPolicyTest {
         ReflectionTestUtils.setField(kid, "id", randomUUID());
         ReflectionTestUtils.setField(kid, "createdBy", creatorId.toString());
         return kid;
+    }
+
+    private static void authenticateAs(final UUID id, final String... roles) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final List<SimpleGrantedAuthority> authorities =
+                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test

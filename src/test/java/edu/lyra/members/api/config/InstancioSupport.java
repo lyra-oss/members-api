@@ -8,8 +8,8 @@ import static org.instancio.Select.field;
 import static org.instancio.Select.fields;
 
 /**
- * Keeps Instancio's reflective field population off framework-managed fields it isn't supposed to touch, for the
- * entity instances it creates directly (bypassing constructors/setters).
+ * Keeps Instancio's reflective field population off framework-managed fields it isn't supposed to touch, for the entity
+ * instances it creates directly (bypassing constructors/setters).
  *
  * @author Esteban Cristóbal Rodríguez
  */

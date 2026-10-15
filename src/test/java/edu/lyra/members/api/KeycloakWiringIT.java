@@ -24,8 +24,8 @@ class KeycloakWiringIT
     void aTokenMissingTheRequiredScopeIsForbidden()
             throws IOException {
         final String token = this.getToken("kid.parent@example.com", "kids.read");
-        final Request request = new Request.Builder().url(BASE_URL + "/parents")
-                                                     .addHeader("Authorization", "Bearer " + token).build();
+        final Request request =
+                new Request.Builder().url(BASE_URL + "/parents").addHeader("Authorization", "Bearer " + token).build();
         try(Response response = this.http.newCall(request).execute()) {
             assertEquals(403, response.code());
         }
@@ -35,8 +35,8 @@ class KeycloakWiringIT
     void aTokenWithTheScopeButNotTheRequiredRealmRoleIsForbidden()
             throws IOException {
         final String token = this.getToken("kid.parent@example.com", "persons.read");
-        final Request request = new Request.Builder().url(BASE_URL + "/persons")
-                                                     .addHeader("Authorization", "Bearer " + token).build();
+        final Request request =
+                new Request.Builder().url(BASE_URL + "/persons").addHeader("Authorization", "Bearer " + token).build();
         try(Response response = this.http.newCall(request).execute()) {
             assertEquals(403, response.code());
         }

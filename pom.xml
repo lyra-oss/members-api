@@ -35,6 +35,36 @@
         <!-- Maven settings -->
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Sonar settings -->
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java,**/ProtobufRuntimeHints.java,**/HibernateRuntimeHints.java,**/HibernateValidatorRuntimeHints.java,**/SecurityRequirementRuntimeHints.java</sonar.coverage.exclusions>
+        <!-- Dependency versions -->
+        <jackson-2-bom.version>2.22.3</jackson-2-bom.version>
+        <jackson-bom.version>3.2.3</jackson-bom.version>
+        <logback.version>1.6.3</logback.version>
+        <tomcat.version>11.0.25</tomcat.version>
+        <cucumber.version>8.0.2</cucumber.version>
+        <okhttp.version>5.5.0</okhttp.version>
+        <archunit.version>1.5.1</archunit.version>
+        <instancio.version>6.1.0</instancio.version>
+        <datafaker.version>2.7.0</datafaker.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <springdoc-openapi.version>3.1.1</springdoc-openapi.version>
+        <testcontainers-k6.version>2.0.5</testcontainers-k6.version>
+        <k6.image>grafana/k6:2.3.0</k6.image>
+        <!-- Plugin versions -->
+        <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
+        <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
+        <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
+        <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
+        <pitest-maven-plugin.version>1.30.0</pitest-maven-plugin.version>
+        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
+        <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
+        <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+        <checkstyle.version>14.3.0</checkstyle.version>
+        <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
+        <!-- Build properties -->
         <!-- Which deliverable the *IT suite exercises: "jvm" packages target/*.jar into a plain JRE
              container; any other value is treated as an already-built OCI image reference. -->
         <it.image>jvm</it.image>
@@ -54,38 +84,9 @@
              SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI override still takes effect as normal. Passed
              only to the forked AOT process (spring-boot-maven-plugin's own ${spring-boot.aot.jvmArguments} hook)
              rather than into application.properties, so it's never part of the shipped configuration. -->
-        <spring-boot.aot.jvmArguments>-Dspring.security.oauth2.resourceserver.jwt.issuer-uri=https://placeholder.invalid/realms/members-api</spring-boot.aot.jvmArguments>
-        <!-- Sonar settings -->
-        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
-        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java,**/ProtobufRuntimeHints.java,**/HibernateRuntimeHints.java,**/HibernateValidatorRuntimeHints.java,**/SecurityRequirementRuntimeHints.java</sonar.coverage.exclusions>
-        <!-- Dependency versions -->
-        <jackson-2-bom.version>2.22.3</jackson-2-bom.version>
-        <jackson-bom.version>3.2.3</jackson-bom.version>
-        <logback.version>1.6.3</logback.version>
-        <tomcat.version>11.0.25</tomcat.version>
-        <cucumber.version>8.0.2</cucumber.version>
-        <okhttp.version>5.5.0</okhttp.version>
-        <archunit.version>1.5.1</archunit.version>
-        <instancio.version>6.1.0</instancio.version>
-        <datafaker.version>2.7.0</datafaker.version>
-        <mapstruct.version>1.6.3</mapstruct.version>
-        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-        <springdoc-openapi.version>3.1.1</springdoc-openapi.version>
-        <testcontainers-k6.version>2.0.5</testcontainers-k6.version>
-        <!-- Also the image K6PerformanceSupport pulls at test time (org.testcontainers.k6.K6Container). Keep in
-             sync with the k6 CLI version scripts/generate-k6-client.sh's generated client is exercised against. -->
-        <k6.image>grafana/k6:2.3.0</k6.image>
-        <!-- Plugin versions -->
-        <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
-        <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
-        <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
-        <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
-        <pitest-maven-plugin.version>1.30.0</pitest-maven-plugin.version>
-        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
-        <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
-        <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-        <checkstyle.version>14.3.0</checkstyle.version>
-        <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
+        <spring-boot.aot.jvmArguments>
+            -Dspring.security.oauth2.resourceserver.jwt.issuer-uri=https://placeholder.invalid/realms/members-api
+        </spring-boot.aot.jvmArguments>
     </properties>
 
     <dependencyManagement>
@@ -114,10 +115,6 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
-            <!-- Hibernate's own native-image reflection support (entity persisters, id generators, naming
-                 strategies, etc. - see org.hibernate.graalvm.internal.GraalVMStaticFeature). The JBoss Logging
-                 message-logger classes, default-strategy implementations, boot-time XML schema resources and
-                 multi-ID-loader array types it doesn't cover are registered separately, in HibernateRuntimeHints. -->
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-graalvm</artifactId>
         </dependency>
@@ -347,9 +344,6 @@
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                     <systemPropertyVariables>
-                        <!-- Either "jvm" (build and run the packaged jar in a plain JRE container) or an
-                             already-built OCI image reference (e.g. the native image spring-boot:build-image
-                             just produced), selecting which deliverable the *IT suite exercises. -->
                         <it.image>${it.image}</it.image>
                         <it.jarFile>${project.build.directory}/${project.build.finalName}.jar</it.jarFile>
                         <perf.smoke.durationSeconds>${perf.smoke.durationSeconds}</perf.smoke.durationSeconds>
@@ -528,14 +522,6 @@
                         <param>**.*MapperImpl</param>
                         <param>**.*RuntimeHints</param>
                     </excludedClasses>
-                    <!-- The hibernate-maven-plugin's build-time enhancement (see the build/plugins section below)
-                         injects $$_hibernate_read_*/$$_hibernate_write_*/$$_hibernate_trackChange/etc. methods into
-                         every entity class for lazy-loading/dirty-tracking bookkeeping - framework plumbing with no
-                         dedicated test of its own, so PIT's mutants against it never get killed. excludedClasses
-                         can't help here: it excludes a whole class, and these methods live right alongside an
-                         entity's real (if sparse) hand-written logic. Matched without the literal "$$" since PIT's
-                         glob-to-regex conversion doesn't escape "$", which a literal "$$" would otherwise anchor as
-                         a regex end-of-input marker and never match. -->
                     <excludedMethods>
                         <param>*_hibernate_*</param>
                     </excludedMethods>
@@ -574,8 +560,6 @@
                             <BP_OCI_SOURCE>https://github.com/lyra-oss/members-api</BP_OCI_SOURCE>
                             <BP_OCI_DESCRIPTION>Lyra OSS Members API</BP_OCI_DESCRIPTION>
                         </env>
-                        <!-- Fixed volume names so build-code.yml and build-docker.yml can back them up and restore
-                             them between CI runs, persisting the JDK/GraalVM layers Buildpacks caches here. -->
                         <buildCache>
                             <volume>
                                 <name>members-api.build-cache</name>
@@ -596,13 +580,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <!-- Registers native-maven-plugin as a build extension so its GraalVM tracing-agent integration is
-                     available on demand: "./mvnw -Dagent=true test" runs the test suite on a normal JVM with the
-                     agent attached, which observes every reflection/resource/proxy access the app actually makes and
-                     writes it to target/native/agent-output/ - a useful cross-check against the hand-maintained
-                     registrars (HibernateRuntimeHints, ProtobufRuntimeHints), though not a substitute for them: it
-                     only captures what the local test suite happens to exercise, not every boot-time path a real
-                     deployment can still reach. -->
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
                 <extensions>true</extensions>
@@ -613,26 +590,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <!-- Every entity reached through a lazy association (e.g. PersonRole.person, @OneToOne(fetch =
-                     LAZY)) needs a $HibernateProxy/$HibernateInstantiator subclass. Hibernate's default bytecode
-                     provider (ByteBuddy) generates those the first time they're needed, at runtime - which
-                     native-image's closed-world build can't accommodate, since no new bytecode can be generated
-                     once the image is built. Bytecode enhancement performs that same generation at *compile* time
-                     instead, baking the proxy/instantiator classes into target/classes as ordinary compiled
-                     classes, so native-image's static analysis can see them like any other class; left
-                     unregistered, creating an entity with such a lazy association (Teacher/Kid/Parent, via
-                     PersonRole; but not School, which has none) fails with
-                     BeanCreationException/NoSuchMethodException under native-image once that code path actually
-                     runs.
-
-                     Not org.hibernate.orm.tooling:hibernate-enhance-maven-plugin: that coordinate is Hibernate's
-                     pre-7.0 Maven plugin, discontinued after 7.0.0.Beta1 in favor of this one
-                     (org.hibernate.orm:hibernate-maven-plugin) - using the old, frozen-at-Beta1 coordinate against
-                     this project's much newer hibernate-core breaks ~190 tests with AbstractMethodError. Pinning
-                     this plugin's version to ${hibernate.version} keeps it locked to whatever hibernate-core
-                     version Spring Boot's BOM manages. Binds by default to process-classes, right after "compile" -
-                     before every later packaging step (spring-boot:process-aot, spring-boot:build-image) that
-                     needs to see the enhanced classes. -->
                 <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-maven-plugin</artifactId>
                 <version>${hibernate.version}</version>

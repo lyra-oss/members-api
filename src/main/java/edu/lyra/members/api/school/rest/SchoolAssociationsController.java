@@ -18,14 +18,14 @@ class SchoolAssociationsController {
 
     private final SchoolAdapter adapter;
 
-    @SecurityRequirement(name = "oauth2", scopes = {"teachers.read", "schools.read"})
+    @SecurityRequirement(name = "oauth2", scopes = { "teachers.read", "schools.read" })
     @GetMapping("/teachers/{teacherId}/school")
     ResponseEntity<SchoolModel> findByTeacher(final @PathVariable UUID teacherId) {
         log.debug("Fetching the school of teacher {}", teacherId);
         return ResponseEntities.okOrNotFound(this.adapter.findByTeacher(teacherId));
     }
 
-    @SecurityRequirement(name = "oauth2", scopes = {"classrooms.read", "schools.read"})
+    @SecurityRequirement(name = "oauth2", scopes = { "classrooms.read", "schools.read" })
     @GetMapping("/classrooms/{classroomId}/school")
     ResponseEntity<SchoolModel> findByClassroom(final @PathVariable UUID classroomId) {
         log.debug("Fetching the school of classroom {}", classroomId);

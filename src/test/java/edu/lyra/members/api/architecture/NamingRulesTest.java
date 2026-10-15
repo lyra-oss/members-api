@@ -266,8 +266,8 @@ class NamingRulesTest {
     /**
      * The inverse of the rule above: any class named {@code *RuntimeHints} must actually implement
      * {@link RuntimeHintsRegistrar}, so the name is never misleading - and so it's reliably matched by the
-     * {@code pitest-maven} and SonarCloud exclusions that assume every such class is a declarative, untested
-     * registrar (see {@code sonar.coverage.exclusions} and pitest-maven's {@code excludedClasses} in the POM).
+     * {@code pitest-maven} and SonarCloud exclusions that assume every such class is a declarative, untested registrar
+     * (see {@code sonar.coverage.exclusions} and pitest-maven's {@code excludedClasses} in the POM).
      *
      * <p>Compliant: {@code class HibernateRuntimeHints implements RuntimeHintsRegistrar}
      *
@@ -278,8 +278,8 @@ class NamingRulesTest {
             classes().that().haveSimpleNameEndingWith("RuntimeHints").should(be(IMPLEMENTS_RUNTIME_HINTS_REGISTRAR));
 
     /**
-     * Every {@code *RuntimeHints} registrar must live in a "..config.." package, alongside the
-     * {@code @Configuration} class that imports it via {@code @ImportRuntimeHints}.
+     * Every {@code *RuntimeHints} registrar must live in a "..config.." package, alongside the {@code @Configuration}
+     * class that imports it via {@code @ImportRuntimeHints}.
      *
      * <p>Compliant: {@code edu.lyra.members.api.config.jpa.HibernateRuntimeHints}
      *

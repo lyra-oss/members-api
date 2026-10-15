@@ -18,10 +18,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Writes the application's OpenAPI description to {@code target/openapi.json} - the single source of truth the
- * committed Postman collection is generated from (see {@code scripts/generate-postman-collection.sh}), so the API
- * is never defined twice. springdoc's {@code /v3/api-docs} endpoint stays disabled everywhere else (see
- * {@code application.properties}); this test is the one place that turns it on, in its own isolated context, and
- * only reaches it in-process through {@link MockMvc} - never over a real network listener.
+ * committed Postman collection is generated from (see {@code scripts/generate-postman-collection.sh}), so the API is
+ * never defined twice. springdoc's {@code /v3/api-docs} endpoint stays disabled everywhere else (see
+ * {@code application.properties}); this test is the one place that turns it on, in its own isolated context, and only
+ * reaches it in-process through {@link MockMvc} - never over a real network listener.
  *
  * @author Esteban Cristóbal Rodríguez
  */

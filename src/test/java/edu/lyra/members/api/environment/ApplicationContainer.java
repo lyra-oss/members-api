@@ -19,8 +19,8 @@ import org.testcontainers.utility.MountableFile;
  * deliverable the integration tests exercise.
  *
  * <p>Two flavours: {@link #jvmJar} packages {@code target/*.jar} (a plain JRE base image plus that one file) for
- * fast, every-push feedback; {@link #preBuiltImage} runs an already-built OCI image — in particular, the native
- * image {@code spring-boot:build-image} just produced — verifying the exact artifact that would be shipped.
+ * fast, every-push feedback; {@link #preBuiltImage} runs an already-built OCI image — in particular, the native image
+ * {@code spring-boot:build-image} just produced — verifying the exact artifact that would be shipped.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -73,18 +73,31 @@ public final class ApplicationContainer
     }
 
     /**
+     * The base URL a caller on the same Docker network (e.g. the k6 container {@code K6PerformanceSupport} runs) can
+     * reach this container's API through, by the alias {@link #withEnvironment} joined it under - distinct from
+     * {@link #baseUrl()}, which instead uses the randomly assigned host port a caller outside Docker needs.
+     *
+     * @param networkAlias the alias {@link #withEnvironment} was given
+     *
+     * @return the {@code http://<networkAlias>:8080<context path>} base URL
+     */
+    public static String networkUrl(final String networkAlias) {
+        return "http://%s:%d%s".formatted(networkAlias, APPLICATION_PORT, CONTEXT_PATH);
+    }
+
+    /**
      * Joins {@code network}, and wires PostgreSQL and Keycloak connection details to their network aliases plus the
      * schema-generation and metrics-export overrides the ITs need.
      *
-     * @param network             the network PostgreSQL and Keycloak are reachable on
-     * @param networkAlias        the alias this container itself joins {@code network} under - reachable at
-     *                            {@code http://<networkAlias>:8080} by any other container on it (e.g. the k6
-     *                            container {@code K6PerformanceSupport} runs)
-     * @param postgresAlias       PostgreSQL's network alias
-     * @param postgresDatabase    the database name
-     * @param postgresUsername    the database username
-     * @param postgresPassword    the database password
-     * @param keycloakIssuerUri   Keycloak's fixed issuer URI (see {@link KeycloakTestContainer#withFixedHostname})
+     * @param network           the network PostgreSQL and Keycloak are reachable on
+     * @param networkAlias      the alias this container itself joins {@code network} under - reachable at
+     *                          {@code http://<networkAlias>:8080} by any other container on it (e.g. the k6 container
+     *                          {@code K6PerformanceSupport} runs)
+     * @param postgresAlias     PostgreSQL's network alias
+     * @param postgresDatabase  the database name
+     * @param postgresUsername  the database username
+     * @param postgresPassword  the database password
+     * @param keycloakIssuerUri Keycloak's fixed issuer URI (see {@link KeycloakTestContainer#withFixedHostname})
      *
      * @return this container
      */
@@ -131,19 +144,6 @@ public final class ApplicationContainer
      */
     public String baseUrl() {
         return "http://%s:%d%s".formatted(this.getHost(), this.getMappedPort(APPLICATION_PORT), CONTEXT_PATH);
-    }
-
-    /**
-     * The base URL a caller on the same Docker network (e.g. the k6 container {@code K6PerformanceSupport} runs)
-     * can reach this container's API through, by the alias {@link #withEnvironment} joined it under - distinct
-     * from {@link #baseUrl()}, which instead uses the randomly assigned host port a caller outside Docker needs.
-     *
-     * @param networkAlias the alias {@link #withEnvironment} was given
-     *
-     * @return the {@code http://<networkAlias>:8080<context path>} base URL
-     */
-    public static String networkUrl(final String networkAlias) {
-        return "http://%s:%d%s".formatted(networkAlias, APPLICATION_PORT, CONTEXT_PATH);
     }
 
 }

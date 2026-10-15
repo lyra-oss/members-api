@@ -25,10 +25,9 @@ class SecurityRulesTest {
     private static final String SECURITY_PACKAGE = "..config.security..";
 
     private static final DescribedPredicate<CanBeAnnotated> IS_HTTP_MAPPED =
-            annotatedWith(GetMapping.class).or(annotatedWith(PostMapping.class))
-                                            .or(annotatedWith(PutMapping.class))
-                                            .or(annotatedWith(PatchMapping.class))
-                                            .or(annotatedWith(DeleteMapping.class));
+            annotatedWith(GetMapping.class).or(annotatedWith(PostMapping.class)).or(annotatedWith(PutMapping.class))
+                                           .or(annotatedWith(PatchMapping.class))
+                                           .or(annotatedWith(DeleteMapping.class));
 
     /**
      * Only classes inside "config.security" may depend on Spring Security's SecurityContextHolder; everywhere else must

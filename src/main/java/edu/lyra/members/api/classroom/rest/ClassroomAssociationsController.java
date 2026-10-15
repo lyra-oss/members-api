@@ -23,14 +23,14 @@ class ClassroomAssociationsController {
     private final ClassroomAdapter adapter;
     private final PagedResourcesAssembler<Classroom> pagedAssembler;
 
-    @SecurityRequirement(name = "oauth2", scopes = {"kids.read", "classrooms.read"})
+    @SecurityRequirement(name = "oauth2", scopes = { "kids.read", "classrooms.read" })
     @GetMapping("/kids/{kidId}/classroom")
     ResponseEntity<ClassroomModel> findByKid(final @PathVariable UUID kidId) {
         log.debug("Fetching the classroom of kid {}", kidId);
         return ResponseEntities.okOrNotFound(this.adapter.findByKid(kidId));
     }
 
-    @SecurityRequirement(name = "oauth2", scopes = {"schools.read", "classrooms.read"})
+    @SecurityRequirement(name = "oauth2", scopes = { "schools.read", "classrooms.read" })
     @GetMapping("/schools/{schoolId}/classrooms")
     ResponseEntity<PagedModel<ClassroomModel>> findBySchool(
             final @PathVariable UUID schoolId,

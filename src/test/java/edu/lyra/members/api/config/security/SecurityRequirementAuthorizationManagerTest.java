@@ -39,7 +39,7 @@ class SecurityRequirementAuthorizationManagerTest {
 
     private SecurityRequirementAuthorizationManager manager;
     private MockHttpServletRequest                  request;
-    private RequestAuthorizationContext              context;
+    private RequestAuthorizationContext context;
 
     @BeforeEach
     void setUp() {
@@ -75,8 +75,25 @@ class SecurityRequirementAuthorizationManagerTest {
         assertTrue(this.decide(this::authenticatedWithNoAuthorities, "openMethod").isGranted());
     }
 
+    private AuthorizationDecision decide(final Supplier<Authentication> authentication, final String methodName)
+            throws Exception {
+        final HandlerExecutionChain chain = new HandlerExecutionChain(handlerMethodFor(methodName));
+        when(this.handlerMapping.getHandler(this.request)).thenReturn(chain);
+        return this.manager.authorize(authentication, this.context);
+    }
+
     private Authentication authenticatedWithNoAuthorities() {
         return new TestingAuthenticationToken("user", "n/a", List.<GrantedAuthority>of());
+    }
+
+    private static HandlerMethod handlerMethodFor(final String methodName) {
+        final Fixture fixture = new Fixture();
+        try {
+            final Method method = Fixture.class.getDeclaredMethod(methodName);
+            return new HandlerMethod(fixture, method);
+        } catch(final NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Test
@@ -89,8 +106,7 @@ class SecurityRequirementAuthorizationManagerTest {
     @Test
     void grantsWhenThePathMatchesOnlyUnderAnotherHttpMethod()
             throws Exception {
-        when(this.handlerMapping.getHandler(this.request))
-                .thenThrow(new HttpRequestMethodNotSupportedException("PUT"));
+        when(this.handlerMapping.getHandler(this.request)).thenThrow(new HttpRequestMethodNotSupportedException("PUT"));
         assertTrue(this.manager.authorize(this::authenticatedWithNoAuthorities, this.context).isGranted());
     }
 
@@ -188,23 +204,6 @@ class SecurityRequirementAuthorizationManagerTest {
         assertFalse(this.decide(() -> authentication, "multiRoleMethod").isGranted());
     }
 
-    private AuthorizationDecision decide(final Supplier<Authentication> authentication, final String methodName)
-            throws Exception {
-        final HandlerExecutionChain chain = new HandlerExecutionChain(handlerMethodFor(methodName));
-        when(this.handlerMapping.getHandler(this.request)).thenReturn(chain);
-        return this.manager.authorize(authentication, this.context);
-    }
-
-    private static HandlerMethod handlerMethodFor(final String methodName) {
-        final Fixture fixture = new Fixture();
-        try {
-            final Method method = Fixture.class.getDeclaredMethod(methodName);
-            return new HandlerMethod(fixture, method);
-        } catch(final NoSuchMethodException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     @SuppressWarnings("unused")
     private static final class Fixture {
 
@@ -222,17 +221,17 @@ class SecurityRequirementAuthorizationManagerTest {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }
 
-        @SecurityRequirement(name = "oauth2", scopes = {"kids.read", "classrooms.read"})
+        @SecurityRequirement(name = "oauth2", scopes = { "kids.read", "classrooms.read" })
         void multiScopeMethod() {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }
 
-        @SecurityRequirement(name = "oauth2", scopes = {"parents.create", "role:admin"})
+        @SecurityRequirement(name = "oauth2", scopes = { "parents.create", "role:admin" })
         void scopedAndRoledMethod() {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }
 
-        @SecurityRequirement(name = "oauth2", scopes = {"role:admin", "role:teacher"})
+        @SecurityRequirement(name = "oauth2", scopes = { "role:admin", "role:teacher" })
         void multiRoleMethod() {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }

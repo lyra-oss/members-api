@@ -11,14 +11,14 @@ import org.testcontainers.utility.DockerImageName;
  *
  * <p>By default it is left in its dynamic hostname mode: it stamps the {@code iss} claim of every token with
  * whatever host and port the caller used to reach it, so {@link #issuerUri()} — computed from the same randomly
- * assigned host port every caller (in-JVM application code and test code alike) addresses it through — is always
- * the value tokens actually carry. This is what {@link KeycloakTestContainer#KeycloakTestContainer()} gives you, for
+ * assigned host port every caller (in-JVM application code and test code alike) addresses it through — is always the
+ * value tokens actually carry. This is what {@link KeycloakTestContainer#KeycloakTestContainer()} gives you, for
  * callers that are not themselves inside the Docker network Keycloak runs on.
  *
  * <p>{@link #withFixedHostname(Network, String)} switches to an explicit, fixed issuer instead: needed whenever a
- * caller that lives on the same Docker network (a container under test, addressing Keycloak by its network alias)
- * and a caller that does not (the test JVM, addressing it by its randomly assigned host port) must agree on one
- * issuer despite reaching Keycloak two different ways.
+ * caller that lives on the same Docker network (a container under test, addressing Keycloak by its network alias) and a
+ * caller that does not (the test JVM, addressing it by its randomly assigned host port) must agree on one issuer
+ * despite reaching Keycloak two different ways.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -42,8 +42,8 @@ public final class KeycloakTestContainer
     }
 
     /**
-     * Fixes the issuer every token carries to {@code http://<alias>:8080/realms/lyra}, regardless of which URL a
-     * given caller used to reach this container, and joins {@code network} under that alias.
+     * Fixes the issuer every token carries to {@code http://<alias>:8080/realms/lyra}, regardless of which URL a given
+     * caller used to reach this container, and joins {@code network} under that alias.
      *
      * @param network the network to join
      * @param alias   the network alias other containers on {@code network} will reach this one by
@@ -66,20 +66,20 @@ public final class KeycloakTestContainer
      * container
      */
     public String issuerUri() {
-        return this.fixedIssuerUri != null ? this.fixedIssuerUri
-                : "http://%s:%d%s".formatted(this.getHost(), this.getMappedPort(PORT), REALM_PATH);
+        return this.fixedIssuerUri != null ? this.fixedIssuerUri :
+               "http://%s:%d%s".formatted(this.getHost(), this.getMappedPort(PORT), REALM_PATH);
     }
 
     /**
      * The token endpoint a caller outside Docker (the test JVM) can reach this container's realm through, via its
-     * randomly assigned host port — distinct from {@link #issuerUri()}, which may instead be a fixed network alias
-     * only containers on the same network can resolve.
+     * randomly assigned host port — distinct from {@link #issuerUri()}, which may instead be a fixed network alias only
+     * containers on the same network can resolve.
      *
      * @return the {@code http://<host>:<mapped port>/realms/lyra/protocol/openid-connect/token} URL
      */
     public String tokenEndpoint() {
         return "http://%s:%d%s/protocol/openid-connect/token".formatted(this.getHost(), this.getMappedPort(PORT),
-                REALM_PATH);
+                                                                        REALM_PATH);
     }
 
 }

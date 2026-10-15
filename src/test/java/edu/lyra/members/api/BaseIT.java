@@ -13,8 +13,8 @@ import static java.lang.String.join;
 
 /**
  * Base class for the black-box {@code *IT} suite: every subclass talks HTTP to
- * {@link IntegrationTestEnvironment#APPLICATION}, the application under test running as its own container, the same
- * way any real client would.
+ * {@link IntegrationTestEnvironment#APPLICATION}, the application under test running as its own container, the same way
+ * any real client would.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -35,8 +35,8 @@ abstract class BaseIT {
                                                     .add("scope", join(" ", scopes))
                                                     .build();
         //@formatter:on
-        final String tokenUrl = IntegrationTestEnvironment.KEYCLOAK.tokenEndpoint();
-        final Request request = new Request.Builder().url(tokenUrl).post(body).build();
+        final String  tokenUrl = IntegrationTestEnvironment.KEYCLOAK.tokenEndpoint();
+        final Request request  = new Request.Builder().url(tokenUrl).post(body).build();
         try(Response response = this.http.newCall(request).execute()) {
             return this.json.readTree(response.body().string()).get("access_token").asString();
         }

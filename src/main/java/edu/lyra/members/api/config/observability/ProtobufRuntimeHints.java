@@ -1,6 +1,7 @@
 package edu.lyra.members.api.config.observability;
 
 import org.springframework.aot.hint.MemberCategory;
+import org.springframework.aot.hint.ReflectionHints;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 
@@ -24,8 +25,8 @@ class ProtobufRuntimeHints
 
     @Override
     public void registerHints(final RuntimeHints hints, final ClassLoader classLoader) {
-        hints.reflection().registerTypeIfPresent(
-                classLoader, EXTENSION_REGISTRY_CLASS, MemberCategory.INVOKE_PUBLIC_METHODS);
+        final ReflectionHints reflection = hints.reflection();
+        reflection.registerTypeIfPresent(classLoader, EXTENSION_REGISTRY_CLASS, MemberCategory.INVOKE_PUBLIC_METHODS);
     }
 
 }

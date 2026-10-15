@@ -29,28 +29,28 @@ class PersonController {
     private final PersonAdapter adapter;
     private final PagedResourcesAssembler<Person> pagedAssembler;
 
-    @SecurityRequirement(name = "oauth2", scopes = {"persons.read", "role:admin"})
+    @SecurityRequirement(name = "oauth2", scopes = { "persons.read", "role:admin" })
     @GetMapping
     PagedModel<PersonModel> findAll(final Pageable pageable) {
         log.debug("Listing persons, page {}", pageable);
         return this.adapter.findAll(pageable, this.pagedAssembler);
     }
 
-    @SecurityRequirement(name = "oauth2", scopes = {"persons.read", "role:admin"})
+    @SecurityRequirement(name = "oauth2", scopes = { "persons.read", "role:admin" })
     @GetMapping("/{id}")
     ResponseEntity<PersonModel> get(final @PathVariable UUID id) {
         log.debug("Fetching person {}", id);
         return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
-    @SecurityRequirement(name = "oauth2", scopes = {"parents.create", "role:admin"})
+    @SecurityRequirement(name = "oauth2", scopes = { "parents.create", "role:admin" })
     @PutMapping("/{id}/parent")
     ResponseEntity<Void> grantParentRole(final @PathVariable UUID id) {
         log.debug("Granting the parent role to person {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.grantParentRole(id));
     }
 
-    @SecurityRequirement(name = "oauth2", scopes = {"teachers.create", "role:admin"})
+    @SecurityRequirement(name = "oauth2", scopes = { "teachers.create", "role:admin" })
     @PutMapping("/{id}/teacher")
     ResponseEntity<Void> grantTeacherRole(
             final @PathVariable UUID id,
@@ -60,14 +60,14 @@ class PersonController {
         return ResponseEntities.noContentOrNotFound(this.adapter.grantTeacherRole(id, request));
     }
 
-    @SecurityRequirement(name = "oauth2", scopes = {"parents.create", "role:admin"})
+    @SecurityRequirement(name = "oauth2", scopes = { "parents.create", "role:admin" })
     @DeleteMapping("/{id}/parent")
     ResponseEntity<Void> revokeParentRole(final @PathVariable UUID id) {
         log.debug("Revoking the parent role from person {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.revokeParentRole(id));
     }
 
-    @SecurityRequirement(name = "oauth2", scopes = {"teachers.create", "role:admin"})
+    @SecurityRequirement(name = "oauth2", scopes = { "teachers.create", "role:admin" })
     @DeleteMapping("/{id}/teacher")
     ResponseEntity<Void> revokeTeacherRole(final @PathVariable UUID id) {
         log.debug("Revoking the teacher role from person {}", id);

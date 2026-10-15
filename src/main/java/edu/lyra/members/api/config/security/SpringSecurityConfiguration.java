@@ -34,8 +34,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 class SpringSecurityConfiguration {
 
     private static final String ACTUATOR_HEALTH     = "/actuator/health";
-    private static final String ACTUATOR_HEALTH_ANY  = "/actuator/health/**";
-    private static final String ACTUATOR_INFO        = "/actuator/info";
+    private static final String ACTUATOR_HEALTH_ANY = "/actuator/health/**";
+    private static final String ACTUATOR_INFO       = "/actuator/info";
 
     @Bean
     SecurityFilterChain securityFilterChain(

@@ -39,13 +39,6 @@ class KidAdapter
         return this.kidRepository.findById(id).map(this::toModel);
     }
 
-    @Override
-    public KidModel toModel(final @NonNull Kid kid) {
-        final KidModel model = this.mapper.toModel(kid);
-        model.add(linkTo(methodOn(KidController.class).get(kid.getId())).withSelfRel());
-        return model;
-    }
-
     PagedModel<KidModel> findAll(final Pageable pageable, final PagedResourcesAssembler<Kid> pagedAssembler) {
         final Page<Kid> page = this.visibilityResolver.resolve(pageable);
         return pagedAssembler.toModel(page, this);
@@ -71,6 +64,13 @@ class KidAdapter
         final Kid saved = this.kidRepository.save(kid);
         log.debug("Created kid {} under parent {}", saved.getId(), parent.getId());
         return this.toModel(saved);
+    }
+
+    @Override
+    public KidModel toModel(final @NonNull Kid kid) {
+        final KidModel model = this.mapper.toModel(kid);
+        model.add(linkTo(methodOn(KidController.class).get(kid.getId())).withSelfRel());
+        return model;
     }
 
     Optional<KidModel> update(final UUID id, final KidPatchRequest request) {

@@ -37,13 +37,6 @@ class ParentAdapter
         return this.parentRepository.findById(id).map(this::toModel);
     }
 
-    @Override
-    public ParentModel toModel(final @NonNull Parent parent) {
-        final ParentModel model = this.mapper.toModel(parent);
-        model.add(linkTo(methodOn(ParentController.class).get(parent.getId())).withSelfRel());
-        return model;
-    }
-
     PagedModel<ParentModel> findAll(final Pageable pageable, final PagedResourcesAssembler<Parent> pagedAssembler) {
         final Page<Parent> page = this.parentRepository.findAll(pageable);
         return pagedAssembler.toModel(page, this);
@@ -65,6 +58,13 @@ class ParentAdapter
         final Parent saved = this.parentRepository.save(parent);
         log.debug("Created parent {}", saved.getId());
         return this.toModel(saved);
+    }
+
+    @Override
+    public ParentModel toModel(final @NonNull Parent parent) {
+        final ParentModel model = this.mapper.toModel(parent);
+        model.add(linkTo(methodOn(ParentController.class).get(parent.getId())).withSelfRel());
+        return model;
     }
 
     Optional<ParentModel> update(final UUID id, final ParentPatchRequest request) {

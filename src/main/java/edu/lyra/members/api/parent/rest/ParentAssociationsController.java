@@ -18,7 +18,7 @@ class ParentAssociationsController {
 
     private final ParentAdapter adapter;
 
-    @SecurityRequirement(name = "oauth2", scopes = {"kids.read", "parents.read"})
+    @SecurityRequirement(name = "oauth2", scopes = { "kids.read", "parents.read" })
     @GetMapping("/kids/{kidId}/parent")
     ResponseEntity<ParentModel> findByKid(final @PathVariable UUID kidId) {
         log.debug("Fetching the parent of kid {}", kidId);

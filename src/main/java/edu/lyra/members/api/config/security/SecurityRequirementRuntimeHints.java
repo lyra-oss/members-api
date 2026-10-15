@@ -14,9 +14,9 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
  *
  * <p>{@code HandlerMethod#getMethodAnnotation} ultimately invokes {@code scopes()}/{@code name()} on the
  * annotation's JDK dynamic proxy; left unregistered, that fails under native-image, since nothing else in this
- * application's boot path otherwise needs this annotation's attributes at runtime - springdoc's own OpenAPI
- * generation never runs in a shipped image, since {@code springdoc.api-docs.enabled} stays {@code false} in every
- * environment (see {@code OpenApiConfiguration}).
+ * application's boot path otherwise needs this annotation's attributes at runtime - springdoc's own OpenAPI generation
+ * never runs in a shipped image, since {@code springdoc.api-docs.enabled} stays {@code false} in every environment (see
+ * {@code OpenApiConfiguration}).
  *
  * @author Esteban Cristóbal Rodríguez
  */

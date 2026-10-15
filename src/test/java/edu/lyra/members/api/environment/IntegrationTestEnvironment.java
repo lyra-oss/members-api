@@ -7,19 +7,19 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * The multi-container environment the {@code *IT} suite runs against: PostgreSQL, Keycloak and the application
- * itself, all on one Docker network — replacing {@code spring-boot-maven-plugin}'s {@code start}/{@code stop} goals
- * (a forked JVM process reading {@code compose.yml}-provisioned services by a hardcoded port) with the deliverable
- * actually under test.
+ * The multi-container environment the {@code *IT} suite runs against: PostgreSQL, Keycloak and the application itself,
+ * all on one Docker network — replacing {@code spring-boot-maven-plugin}'s {@code start}/{@code stop} goals (a forked
+ * JVM process reading {@code compose.yml}-provisioned services by a hardcoded port) with the deliverable actually under
+ * test.
  *
  * <p>Started once per JVM, on first use, and left running for every {@code *IT} class in the same Failsafe fork to
- * share — the well-known Testcontainers "singleton container" pattern. Cleanup is left to the Ryuk reaper Testcontainers
- * itself starts, the same way {@link TestEnvironmentConfiguration} and {@link KeycloakTestContainer} already rely on
- * it for {@code spring-boot:test-run}.
+ * share — the well-known Testcontainers "singleton container" pattern. Cleanup is left to the Ryuk reaper
+ * Testcontainers itself starts, the same way {@link TestEnvironmentConfiguration} and {@link KeycloakTestContainer}
+ * already rely on it for {@code spring-boot:test-run}.
  *
  * <p>Which deliverable is exercised is controlled by the {@code it.image} system property Failsafe is configured to
- * pass: {@code "jvm"} (the default) packages {@code target/*.jar}; any other value is treated as an already-built
- * OCI image reference.
+ * pass: {@code "jvm"} (the default) packages {@code target/*.jar}; any other value is treated as an already-built OCI
+ * image reference.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -29,16 +29,16 @@ public final class IntegrationTestEnvironment {
     private static final String POSTGRES_DATABASE = "members";
     private static final String POSTGRES_USERNAME = "members";
     private static final String POSTGRES_PASSWORD = "members";
-    private static final String KEYCLOAK_ALIAS     = "keycloak";
+    private static final String KEYCLOAK_ALIAS    = "keycloak";
     // K6PerformanceSupport addresses both this and KEYCLOAK_ALIAS by name, since it runs k6 as its own container
     // on NETWORK rather than in this JVM (as the test JVM itself - and the perf.baseUrl/perf.tokenUrl system
     // properties the old Gatling-based simulations read - used to).
-    public static final String APPLICATION_ALIAS = "application";
+    public static final  String APPLICATION_ALIAS = "application";
 
-    public static final Network              NETWORK  = Network.newNetwork();
-    public static final PostgreSQLContainer  POSTGRES = startPostgres();
-    public static final KeycloakTestContainer KEYCLOAK = startKeycloak();
-    public static final ApplicationContainer APPLICATION = startApplication();
+    public static final Network               NETWORK     = Network.newNetwork();
+    public static final PostgreSQLContainer   POSTGRES    = startPostgres();
+    public static final KeycloakTestContainer KEYCLOAK    = startKeycloak();
+    public static final ApplicationContainer  APPLICATION = startApplication();
 
     private IntegrationTestEnvironment() {
     }

@@ -128,8 +128,7 @@ class KidAdapterTest {
     }
 
     private static void authenticateAs(final UUID id) {
-        final Jwt            jwt            =
-                Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
         final Authentication authentication = new JwtAuthenticationToken(jwt, List.of());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

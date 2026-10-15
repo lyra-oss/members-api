@@ -21,25 +21,24 @@ import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
- * Resolves the {@link org.springframework.web.method.HandlerMethod HandlerMethod} a request would be dispatched to
- * and grants access only when the authenticated principal satisfies that method's
- * {@link SecurityRequirement @SecurityRequirement} — the single point where every endpoint's access rule is
- * enforced, in place of a request-matcher list that would otherwise have to be kept in lockstep with the
- * controllers by hand.
+ * Resolves the {@link org.springframework.web.method.HandlerMethod HandlerMethod} a request would be dispatched to and
+ * grants access only when the authenticated principal satisfies that method's
+ * {@link SecurityRequirement @SecurityRequirement} — the single point where every endpoint's access rule is enforced,
+ * in place of a request-matcher list that would otherwise have to be kept in lockstep with the controllers by hand.
  *
  * <p>{@code @SecurityRequirement} is springdoc's own annotation (from {@code io.swagger.core.v3:swagger-annotations}):
  * declaring it on a controller method both enforces the rule here and - with no further wiring - makes springdoc
  * document that operation's required scopes in the generated OpenAPI description, so the two can never drift apart.
- * Every {@code scopes()} entry is required (an empty array requires no scope beyond authentication), each checked as
- * a {@code SCOPE_}-prefixed authority. OpenAPI's security model has no concept of an application-level "role"
- * distinct from an OAuth2 scope, so a realm-role requirement instead rides inside that same array as a
- * {@value #ROLE_SCOPE_PREFIX}-prefixed marker entry (see {@link OpenApiConfiguration}'s {@code role:admin}
- * {@code @OAuthScope}, which documents the convention); when one or more such entries are present, holding any one
- * of the named roles (as a {@code ROLE_}-prefixed authority) is also required.
+ * Every {@code scopes()} entry is required (an empty array requires no scope beyond authentication), each checked as a
+ * {@code SCOPE_}-prefixed authority. OpenAPI's security model has no concept of an application-level "role" distinct
+ * from an OAuth2 scope, so a realm-role requirement instead rides inside that same array as a
+ * {@value #ROLE_SCOPE_PREFIX}-prefixed marker entry (see {@code OpenApiConfiguration}'s {@code role:admin}
+ * {@code @OAuthScope}, which documents the convention); when one or more such entries are present, holding any one of
+ * the named roles (as a {@code ROLE_}-prefixed authority) is also required.
  *
  * <p>A request whose path matches no handler, or matches one only under a different HTTP method, is let through here
- * (subject to a genuine, non-anonymous authentication) so Spring MVC's own dispatch produces the ordinary 404 or 405
- * — the same routes that are absent today stay absent, without this class hard-coding which ones they are.
+ * (subject to a genuine, non-anonymous authentication) so Spring MVC's own dispatch produces the ordinary 404 or 405 —
+ * the same routes that are absent today stay absent, without this class hard-coding which ones they are.
  *
  * @author Esteban Cristóbal Rodríguez
  */
@@ -48,7 +47,7 @@ class SecurityRequirementAuthorizationManager
         implements AuthorizationManager<RequestAuthorizationContext> {
 
     private static final String SCOPE_AUTHORITY_PREFIX = "SCOPE_";
-    private static final String ROLE_AUTHORITY_PREFIX   = "ROLE_";
+    private static final String ROLE_AUTHORITY_PREFIX = "ROLE_";
 
     // Not a real OAuth2 scope: see this class's javadoc. OpenApiConfiguration's "role:admin" @OAuthScope documents
     // the same "role:" literal for humans reading the generated spec; it can't reference this constant directly
@@ -114,12 +113,11 @@ class SecurityRequirementAuthorizationManager
             throw failure;
         }
         return chain != null && chain.getHandler() instanceof HandlerMethod handlerMethod ?
-                handlerMethod.getMethodAnnotation(SecurityRequirement.class) : null;
+               handlerMethod.getMethodAnnotation(SecurityRequirement.class) : null;
     }
 
     private boolean hasAuthority(final Authentication authentication, final String authority) {
-        return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                              .anyMatch(authority::equals);
+        return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).anyMatch(authority::equals);
     }
 
 }

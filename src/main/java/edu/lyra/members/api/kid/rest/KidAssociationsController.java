@@ -23,7 +23,7 @@ class KidAssociationsController {
     private final KidAdapter                   adapter;
     private final PagedResourcesAssembler<Kid> pagedAssembler;
 
-    @SecurityRequirement(name = "oauth2", scopes = {"parents.read", "kids.read"})
+    @SecurityRequirement(name = "oauth2", scopes = { "parents.read", "kids.read" })
     @GetMapping("/parents/{parentId}/kids")
     ResponseEntity<PagedModel<KidModel>> findByParent(final @PathVariable UUID parentId, final Pageable pageable) {
         log.debug("Listing kids for parent {}, page {}", parentId, pageable);
