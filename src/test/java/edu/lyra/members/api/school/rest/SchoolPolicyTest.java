@@ -38,6 +38,14 @@ class SchoolPolicyTest {
 
     private SchoolPolicy policy;
 
+    private static void authenticateAs(final UUID id, final String... roles) {
+        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
+        final List<SimpleGrantedAuthority> authorities =
+                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
+        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
     @BeforeEach
     void setUp() {
         this.policy = new SchoolPolicy(this.classroomRepository, this.teacherRepository);
@@ -52,14 +60,6 @@ class SchoolPolicyTest {
     void allowsAdminToUpdateASchool() {
         authenticateAs(randomUUID(), "admin");
         assertDoesNotThrow(() -> this.policy.authorizeUpdate(aSchool()));
-    }
-
-    private static void authenticateAs(final UUID id, final String... roles) {
-        final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).build();
-        final List<SimpleGrantedAuthority> authorities =
-                stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
-        final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     private static School aSchool() {

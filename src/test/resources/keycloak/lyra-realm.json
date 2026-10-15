@@ -366,6 +366,36 @@
                     "temporary": false
                 }
             ]
+        },
+        {
+            "username": "smoke.parent@example.com",
+            "email": "smoke.parent@example.com",
+            "firstName": "Smoke",
+            "lastName": "Parent",
+            "enabled": true,
+            "emailVerified": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
+        },
+        {
+            "username": "smoke.teacher@example.com",
+            "email": "smoke.teacher@example.com",
+            "firstName": "Smoke",
+            "lastName": "Teacher",
+            "enabled": true,
+            "emailVerified": true,
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "password",
+                    "temporary": false
+                }
+            ]
         }
     ]
 }

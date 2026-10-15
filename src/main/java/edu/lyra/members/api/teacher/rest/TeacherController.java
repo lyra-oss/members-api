@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.teacher.Teacher;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,18 +32,21 @@ class TeacherController {
     private final TeacherAdapter                   adapter;
     private final PagedResourcesAssembler<Teacher> pagedAssembler;
 
+    @SecurityRequirement(name = "oauth2", scopes = "teachers.read")
     @GetMapping
     PagedModel<TeacherModel> findAll(final Pageable pageable) {
         log.debug("Listing teachers, page {}", pageable);
         return this.adapter.findAll(pageable, this.pagedAssembler);
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = "teachers.read")
     @GetMapping("/{id}")
     ResponseEntity<TeacherModel> get(final @PathVariable UUID id) {
         log.debug("Fetching teacher {}", id);
         return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = "teachers.create")
     @PostMapping
     ResponseEntity<TeacherModel> create(final @Valid @RequestBody TeacherRequest request) {
         log.debug("Registering a teacher");
@@ -51,12 +55,14 @@ class TeacherController {
         return ResponseEntity.created(location).body(model);
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = "teachers.update")
     @PatchMapping("/{id}")
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody TeacherPatchRequest request) {
         log.debug("Updating teacher {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.update(id, request).isPresent());
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = "teachers.delete")
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(final @PathVariable UUID id) {
         log.debug("Deleting teacher {}", id);

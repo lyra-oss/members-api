@@ -59,6 +59,10 @@ class KidPolicyTest {
         assertEquals(parent, this.policy.authorizeCreate(subject));
     }
 
+    private static Parent aParentWithId(final UUID id) {
+        return of(Parent.class).set(field(PersonRole.class, "id"), id).create();
+    }
+
     @Test
     void authorizeCreateRejectsASubjectThatIsNotARegisteredParent() {
         final UUID subject = randomUUID();
@@ -99,10 +103,6 @@ class KidPolicyTest {
                 stream(roles).map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
         final Authentication authentication = new JwtAuthenticationToken(jwt, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    private static Parent aParentWithId(final UUID id) {
-        return of(Parent.class).set(field(PersonRole.class, "id"), id).create();
     }
 
     @Test

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.parent.Parent;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,18 +33,21 @@ class ParentController {
     private final ParentAdapter                   adapter;
     private final PagedResourcesAssembler<Parent> pagedAssembler;
 
+    @SecurityRequirement(name = "oauth2", scopes = "parents.read")
     @GetMapping
     PagedModel<ParentModel> findAll(final Pageable pageable) {
         log.debug("Listing parents, page {}", pageable);
         return this.adapter.findAll(pageable, this.pagedAssembler);
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = "parents.read")
     @GetMapping("/{id}")
     ResponseEntity<ParentModel> get(final @PathVariable UUID id) {
         log.debug("Fetching parent {}", id);
         return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = "parents.create")
     @PostMapping
     ResponseEntity<ParentModel> create(final @Valid @RequestBody ParentRequest request) {
         log.debug("Registering a parent");
@@ -52,18 +56,21 @@ class ParentController {
         return ResponseEntity.created(location).body(model);
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = "parents.update")
     @PatchMapping("/{id}")
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody ParentPatchRequest request) {
         log.debug("Updating parent {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.update(id, request).isPresent());
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = "parents.delete")
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(final @PathVariable UUID id) {
         log.debug("Deleting parent {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.delete(id));
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = "parents.update")
     @PutMapping("/{id}/kids/{kidId}")
     ResponseEntity<Void> bindKid(final @PathVariable UUID id, final @PathVariable UUID kidId) {
         log.debug("Binding kid {} to parent {}", kidId, id);

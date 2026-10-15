@@ -53,16 +53,16 @@ public class ClassroomCreationFeatures
         //@formatter:on
     }
 
-    private ResultActions performAddTeacher(final String teacherName)
-            throws Exception {
-        return this.performAddTeacher(teacherName, this.scenarioContext.getJwtProcessor());
-    }
-
     private ResultActions performAddTeacher(final String teacherName, final RequestPostProcessor jwtProcessor)
             throws Exception {
         final String teacherId = idOf(this.scenarioContext.getLocation("teacher:" + teacherName));
         final String path      = this.classroomLocation() + "/teachers/" + teacherId;
         return this.mvc.perform(put(path).with(jwtProcessor).contextPath(this.apiBasePath.contextPath()));
+    }
+
+    private ResultActions performAddTeacher(final String teacherName)
+            throws Exception {
+        return this.performAddTeacher(teacherName, this.scenarioContext.getJwtProcessor());
     }
 
     @When("I add teacher {string} to the classroom")

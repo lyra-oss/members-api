@@ -18,4 +18,6 @@ jobs:
   build-source-code:
     name: Build source code
     uses: ./.github/workflows/build-code.yml
+    with:
+      mutation-scope: changed
     secrets: inherit

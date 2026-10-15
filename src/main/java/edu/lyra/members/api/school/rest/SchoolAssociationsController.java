@@ -3,6 +3,7 @@ package edu.lyra.members.api.school.rest;
 import java.util.UUID;
 
 import edu.lyra.members.api.config.web.ResponseEntities;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +18,14 @@ class SchoolAssociationsController {
 
     private final SchoolAdapter adapter;
 
+    @SecurityRequirement(name = "oauth2", scopes = { "teachers.read", "schools.read" })
     @GetMapping("/teachers/{teacherId}/school")
     ResponseEntity<SchoolModel> findByTeacher(final @PathVariable UUID teacherId) {
         log.debug("Fetching the school of teacher {}", teacherId);
         return ResponseEntities.okOrNotFound(this.adapter.findByTeacher(teacherId));
     }
 
+    @SecurityRequirement(name = "oauth2", scopes = { "classrooms.read", "schools.read" })
     @GetMapping("/classrooms/{classroomId}/school")
     ResponseEntity<SchoolModel> findByClassroom(final @PathVariable UUID classroomId) {
         log.debug("Fetching the school of classroom {}", classroomId);

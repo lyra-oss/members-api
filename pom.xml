@@ -37,7 +37,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Sonar settings -->
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
-        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java</sonar.coverage.exclusions>
+        <sonar.coverage.exclusions>**/MembersApiApplication.java,**/*MapperImpl.java,**/ProtobufRuntimeHints.java,**/HibernateRuntimeHints.java,**/HibernateValidatorRuntimeHints.java,**/SecurityRequirementRuntimeHints.java</sonar.coverage.exclusions>
         <!-- Dependency versions -->
         <jackson-2-bom.version>2.22.3</jackson-2-bom.version>
         <jackson-bom.version>3.2.3</jackson-bom.version>
@@ -50,6 +50,9 @@
         <datafaker.version>2.7.0</datafaker.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <springdoc-openapi.version>3.1.1</springdoc-openapi.version>
+        <testcontainers-k6.version>2.0.5</testcontainers-k6.version>
+        <k6.image>grafana/k6:2.3.0</k6.image>
         <!-- Plugin versions -->
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
@@ -61,6 +64,29 @@
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.version>14.3.0</checkstyle.version>
         <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
+        <!-- Build properties -->
+        <!-- Which deliverable the *IT suite exercises: "jvm" packages target/*.jar into a plain JRE
+             container; any other value is treated as an already-built OCI image reference. -->
+        <it.image>jvm</it.image>
+        <!-- How long smoke.ts ramps its (fixed) 3 users over, in seconds - see build-docker.yml's
+             performance-test-duration-seconds input, which overrides this for a real run. -->
+        <perf.smoke.durationSeconds>1</perf.smoke.durationSeconds>
+        <!-- Off by default so an ordinary "mvn test" isn't instrumented; pass -Dagent=true to attach the
+             GraalVM tracing agent to that test run instead (see the native-maven-plugin declaration below). -->
+        <agent>false</agent>
+        <!-- spring-boot:process-aot bakes @ConditionalOnProperty-gated bean *registrations* into the native image
+             based on whatever the forked AOT JVM's own Environment sees - real deployments only ever set the real
+             issuer-uri as an environment variable at container start, never at build time, so without this the
+             JwtDecoder bean definition would be permanently stripped from the native image regardless of what's
+             supplied later. This only has to satisfy that build-time condition: the generated bean-registration
+             code still re-reads the property from the real Environment when the bean is actually created, so it
+             never reaches this JVM, let alone a native-image-time HTTP call, and the real
+             SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI override still takes effect as normal. Passed
+             only to the forked AOT process (spring-boot-maven-plugin's own ${spring-boot.aot.jvmArguments} hook)
+             rather than into application.properties, so it's never part of the shipped configuration. -->
+        <spring-boot.aot.jvmArguments>
+            -Dspring.security.oauth2.resourceserver.jwt.issuer-uri=https://placeholder.invalid/realms/members-api
+        </spring-boot.aot.jvmArguments>
     </properties>
 
     <dependencyManagement>
@@ -89,12 +115,21 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-graalvm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+            <version>${springdoc-openapi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -125,11 +160,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-docker-compose</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -177,6 +207,22 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-k6</artifactId>
+            <version>${testcontainers-k6.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -230,18 +276,6 @@
                         <goals>
                             <goal>parse-version</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>reserve-port</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>reserve-network-port</goal>
-                        </goals>
-                        <configuration>
-                            <portNames>
-                                <portName>it.port</portName>
-                            </portNames>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -310,7 +344,10 @@
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                     <systemPropertyVariables>
-                        <it.port>${it.port}</it.port>
+                        <it.image>${it.image}</it.image>
+                        <it.jarFile>${project.build.directory}/${project.build.finalName}.jar</it.jarFile>
+                        <perf.smoke.durationSeconds>${perf.smoke.durationSeconds}</perf.smoke.durationSeconds>
+                        <k6.image>${k6.image}</k6.image>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -483,7 +520,11 @@
                         <param>**.*Configuration</param>
                         <param>**.*Application</param>
                         <param>**.*MapperImpl</param>
+                        <param>**.*RuntimeHints</param>
                     </excludedClasses>
+                    <excludedMethods>
+                        <param>*_hibernate_*</param>
+                    </excludedMethods>
                     <excludedTestClasses>
                         <param>**.*IT</param>
                         <param>**.*ITCase</param>
@@ -510,33 +551,6 @@
                             <goal>build-info</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>pre-integration-test</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>
-                                <argument>--server.port=${it.port}</argument>
-                                <argument>
-                                    --spring.jpa.properties.jakarta.persistence.schema-generation.database.action=create-drop
-                                </argument>
-                                <argument>--management.otlp.metrics.export.enabled=false</argument>
-                                <argument>
-                                    --spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/lyra
-                                </argument>
-                            </arguments>
-                            <maxAttempts>360</maxAttempts>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>post-integration-test</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
                 </executions>
                 <configuration>
                     <createdDate>now</createdDate>
@@ -546,6 +560,16 @@
                             <BP_OCI_SOURCE>https://github.com/lyra-oss/members-api</BP_OCI_SOURCE>
                             <BP_OCI_DESCRIPTION>Lyra OSS Members API</BP_OCI_DESCRIPTION>
                         </env>
+                        <buildCache>
+                            <volume>
+                                <name>members-api.build-cache</name>
+                            </volume>
+                        </buildCache>
+                        <launchCache>
+                            <volume>
+                                <name>members-api.launch-cache</name>
+                            </volume>
+                        </launchCache>
                     </image>
                     <excludes>
                         <exclude>
@@ -554,6 +578,28 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <agent>
+                        <enabled>${agent}</enabled>
+                    </agent>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.hibernate.orm</groupId>
+                <artifactId>hibernate-maven-plugin</artifactId>
+                <version>${hibernate.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>enhance</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

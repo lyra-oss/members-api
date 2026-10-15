@@ -1,0 +1,38 @@
+name: Build Code (pull request)
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-source-code:
+    if: github.actor != 'dependabot[bot]'
+    permissions:
+      contents: read
+      security-events: write
+    name: Build source code
+    uses: ./.github/workflows/build-code.yml
+    with:
+      mutation-scope: full
+    secrets: inherit
+  build-application-deliverable:
+    if: github.actor != 'dependabot[bot]'
+    permissions:
+      contents: read
+      security-events: write
+      packages: write
+      id-token: write
+      attestations: write
+      pull-requests: write
+    needs: build-source-code
+    name: Build application deliverable
+    uses: ./.github/workflows/build-docker.yml
+    with:
+      push-image: false
+      run-verification: true
+    secrets: inherit

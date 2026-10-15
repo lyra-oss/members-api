@@ -12,3 +12,6 @@ target/
 
 ### GraalVM ###
 src/main/resources/META-INF/native*
+
+### Node (src/test/k6 type-checking only - see package.json) ###
+src/test/k6/node_modules/
