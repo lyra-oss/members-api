@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.function.Supplier;
 
 import edu.lyra.members.api.exceptions.HandlerLookupException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -21,9 +22,20 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 /**
  * Resolves the {@link org.springframework.web.method.HandlerMethod HandlerMethod} a request would be dispatched to
- * and grants access only when the authenticated principal satisfies that method's {@link RequiredAccess} — the
- * single point where every endpoint's access rule is enforced, in place of a request-matcher list that would
- * otherwise have to be kept in lockstep with the controllers by hand.
+ * and grants access only when the authenticated principal satisfies that method's
+ * {@link SecurityRequirement @SecurityRequirement} — the single point where every endpoint's access rule is
+ * enforced, in place of a request-matcher list that would otherwise have to be kept in lockstep with the
+ * controllers by hand.
+ *
+ * <p>{@code @SecurityRequirement} is springdoc's own annotation (from {@code io.swagger.core.v3:swagger-annotations}):
+ * declaring it on a controller method both enforces the rule here and - with no further wiring - makes springdoc
+ * document that operation's required scopes in the generated OpenAPI description, so the two can never drift apart.
+ * Every {@code scopes()} entry is required (an empty array requires no scope beyond authentication), each checked as
+ * a {@code SCOPE_}-prefixed authority. OpenAPI's security model has no concept of an application-level "role"
+ * distinct from an OAuth2 scope, so a realm-role requirement instead rides inside that same array as a
+ * {@value #ROLE_SCOPE_PREFIX}-prefixed marker entry (see {@link OpenApiConfiguration}'s {@code role:admin}
+ * {@code @OAuthScope}, which documents the convention); when one or more such entries are present, holding any one
+ * of the named roles (as a {@code ROLE_}-prefixed authority) is also required.
  *
  * <p>A request whose path matches no handler, or matches one only under a different HTTP method, is let through here
  * (subject to a genuine, non-anonymous authentication) so Spring MVC's own dispatch produces the ordinary 404 or 405
@@ -32,11 +44,17 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @author Esteban Cristóbal Rodríguez
  */
 @RequiredArgsConstructor
-class RequiredAccessAuthorizationManager
+class SecurityRequirementAuthorizationManager
         implements AuthorizationManager<RequestAuthorizationContext> {
 
     private static final String SCOPE_AUTHORITY_PREFIX = "SCOPE_";
     private static final String ROLE_AUTHORITY_PREFIX   = "ROLE_";
+
+    // Not a real OAuth2 scope: see this class's javadoc. OpenApiConfiguration's "role:admin" @OAuthScope documents
+    // the same "role:" literal for humans reading the generated spec; it can't reference this constant directly
+    // (different package, and this one stays package-private like every other class here), so keep both in sync
+    // by hand if this prefix ever changes.
+    private static final String ROLE_SCOPE_PREFIX = "role:";
 
     private final RequestMappingHandlerMapping handlerMapping;
     private final AuthenticationTrustResolver  trustResolver = new AuthenticationTrustResolverImpl();
@@ -50,16 +68,20 @@ class RequiredAccessAuthorizationManager
         if(! this.isGenuinelyAuthenticated(principal)) {
             return new AuthorizationDecision(false);
         }
-        final RequiredAccess required = this.resolveRequiredAccess(context.getRequest());
+        final SecurityRequirement required = this.resolveRequiredAccess(context.getRequest());
         if(required == null) {
             return new AuthorizationDecision(true);
         }
         //@formatter:off
         final boolean hasEveryScope =
-                Arrays.stream(required.scopes())
+                Arrays.stream(required.scopes()).filter(entry -> ! entry.startsWith(ROLE_SCOPE_PREFIX))
                       .allMatch(scope -> this.hasAuthority(principal, SCOPE_AUTHORITY_PREFIX + scope));
-        final boolean hasAnyRole = required.roles().length == 0 ||
-                                    Arrays.stream(required.roles())
+        final String[] roles =
+                Arrays.stream(required.scopes()).filter(entry -> entry.startsWith(ROLE_SCOPE_PREFIX))
+                      .map(entry -> entry.substring(ROLE_SCOPE_PREFIX.length()))
+                      .toArray(String[]::new);
+        final boolean hasAnyRole = roles.length == 0 ||
+                                    Arrays.stream(roles)
                                           .anyMatch(role -> this.hasAuthority(principal, ROLE_AUTHORITY_PREFIX + role));
         //@formatter:on
         return new AuthorizationDecision(hasEveryScope && hasAnyRole);
@@ -73,15 +95,15 @@ class RequiredAccessAuthorizationManager
     }
 
     /**
-     * Looks up the handler Spring MVC would dispatch this request to, and returns its {@link RequiredAccess}.
+     * Looks up the handler Spring MVC would dispatch this request to, and returns its {@link SecurityRequirement}.
      *
      * @param request the current request
      *
-     * @return the matched method's {@link RequiredAccess}, or {@code null} when no handler method matches this exact
-     * (HTTP method, path) pair — either because the path is unmapped, or because it is mapped only for a different
-     * HTTP method
+     * @return the matched method's {@link SecurityRequirement}, or {@code null} when no handler method matches this
+     * exact (HTTP method, path) pair — either because the path is unmapped, or because it is mapped only for a
+     * different HTTP method
      */
-    private RequiredAccess resolveRequiredAccess(final HttpServletRequest request) {
+    private SecurityRequirement resolveRequiredAccess(final HttpServletRequest request) {
         final HandlerExecutionChain chain;
         try {
             chain = ThrowingSupplier.of(() -> this.handlerMapping.getHandler(request)).get(HandlerLookupException::new);
@@ -92,7 +114,7 @@ class RequiredAccessAuthorizationManager
             throw failure;
         }
         return chain != null && chain.getHandler() instanceof HandlerMethod handlerMethod ?
-                handlerMethod.getMethodAnnotation(RequiredAccess.class) : null;
+                handlerMethod.getMethodAnnotation(SecurityRequirement.class) : null;
     }
 
     private boolean hasAuthority(final Authentication authentication, final String authority) {

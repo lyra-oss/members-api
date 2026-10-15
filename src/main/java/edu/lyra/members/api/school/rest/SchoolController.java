@@ -3,9 +3,9 @@ package edu.lyra.members.api.school.rest;
 import java.net.URI;
 import java.util.UUID;
 
-import edu.lyra.members.api.config.security.RequiredAccess;
 import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.school.School;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,21 +32,21 @@ class SchoolController {
     private final SchoolAdapter                   adapter;
     private final PagedResourcesAssembler<School> pagedAssembler;
 
-    @RequiredAccess(scopes = "schools.read")
+    @SecurityRequirement(name = "oauth2", scopes = "schools.read")
     @GetMapping
     PagedModel<SchoolModel> findAll(final Pageable pageable) {
         log.debug("Listing schools, page {}", pageable);
         return this.adapter.findAll(pageable, this.pagedAssembler);
     }
 
-    @RequiredAccess(scopes = "schools.read")
+    @SecurityRequirement(name = "oauth2", scopes = "schools.read")
     @GetMapping("/{id}")
     ResponseEntity<SchoolModel> get(final @PathVariable UUID id) {
         log.debug("Fetching school {}", id);
         return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
-    @RequiredAccess(scopes = "schools.create")
+    @SecurityRequirement(name = "oauth2", scopes = "schools.create")
     @PostMapping
     ResponseEntity<SchoolModel> create(final @Valid @RequestBody SchoolRequest request) {
         log.debug("Creating a school");
@@ -55,14 +55,14 @@ class SchoolController {
         return ResponseEntity.created(location).body(model);
     }
 
-    @RequiredAccess(scopes = "schools.update")
+    @SecurityRequirement(name = "oauth2", scopes = "schools.update")
     @PatchMapping("/{id}")
     ResponseEntity<Void> update(final @PathVariable UUID id, final @Valid @RequestBody SchoolRequest request) {
         log.debug("Updating school {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.update(id, request).isPresent());
     }
 
-    @RequiredAccess(scopes = "schools.delete")
+    @SecurityRequirement(name = "oauth2", scopes = "schools.delete")
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(final @PathVariable UUID id) {
         log.debug("Deleting school {}", id);

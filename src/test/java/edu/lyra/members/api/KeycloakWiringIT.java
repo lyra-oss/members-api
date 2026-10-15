@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The bare minimum needed to verify the deployed application's Keycloak wiring is correct — that scopes and realm
- * roles from a real token actually reach {@code RequiredAccessAuthorizationManager} as {@code SCOPE_}/{@code ROLE_}
- * authorities. Everything else about authorization (which scope or role each endpoint requires) is a unit-testable
- * decision already covered by {@code RequiredAccessAuthorizationManagerTest} and the architecture suite; only the
- * end-to-end wiring itself needs a real identity provider.
+ * roles from a real token actually reach {@code SecurityRequirementAuthorizationManager} as {@code SCOPE_}/
+ * {@code ROLE_} authorities. Everything else about authorization (which scope or role each endpoint requires) is a
+ * unit-testable decision already covered by {@code SecurityRequirementAuthorizationManagerTest} and the architecture
+ * suite; only the end-to-end wiring itself needs a real identity provider.
  *
  * @author Esteban Cristóbal Rodríguez
  */

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import edu.lyra.members.api.exceptions.HandlerLookupException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,18 +32,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class RequiredAccessAuthorizationManagerTest {
+class SecurityRequirementAuthorizationManagerTest {
 
     @Mock
     private RequestMappingHandlerMapping handlerMapping;
 
-    private RequiredAccessAuthorizationManager manager;
-    private MockHttpServletRequest             request;
-    private RequestAuthorizationContext        context;
+    private SecurityRequirementAuthorizationManager manager;
+    private MockHttpServletRequest                  request;
+    private RequestAuthorizationContext              context;
 
     @BeforeEach
     void setUp() {
-        this.manager = new RequiredAccessAuthorizationManager(this.handlerMapping);
+        this.manager = new SecurityRequirementAuthorizationManager(this.handlerMapping);
         this.request = new MockHttpServletRequest();
         this.context = new RequestAuthorizationContext(this.request);
     }
@@ -106,7 +107,7 @@ class RequiredAccessAuthorizationManagerTest {
     }
 
     @Test
-    void grantsWhenTheMatchedMethodCarriesNoRequiredAccess()
+    void grantsWhenTheMatchedMethodCarriesNoSecurityRequirement()
             throws Exception {
         assertTrue(this.decide(this::authenticatedWithNoAuthorities, "unannotatedMethod").isGranted());
     }
@@ -207,7 +208,7 @@ class RequiredAccessAuthorizationManagerTest {
     @SuppressWarnings("unused")
     private static final class Fixture {
 
-        @RequiredAccess
+        @SecurityRequirement(name = "oauth2")
         void openMethod() {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }
@@ -216,22 +217,22 @@ class RequiredAccessAuthorizationManagerTest {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }
 
-        @RequiredAccess(scopes = "kids.read")
+        @SecurityRequirement(name = "oauth2", scopes = "kids.read")
         void scopedMethod() {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }
 
-        @RequiredAccess(scopes = {"kids.read", "classrooms.read"})
+        @SecurityRequirement(name = "oauth2", scopes = {"kids.read", "classrooms.read"})
         void multiScopeMethod() {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }
 
-        @RequiredAccess(scopes = "parents.create", roles = "admin")
+        @SecurityRequirement(name = "oauth2", scopes = {"parents.create", "role:admin"})
         void scopedAndRoledMethod() {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }
 
-        @RequiredAccess(roles = {"admin", "teacher"})
+        @SecurityRequirement(name = "oauth2", scopes = {"role:admin", "role:teacher"})
         void multiRoleMethod() {
             // never invoked - only a reflection target carrying this annotation, via handlerMethodFor
         }

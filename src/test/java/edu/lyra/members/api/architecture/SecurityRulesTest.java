@@ -6,7 +6,7 @@ import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
-import edu.lyra.members.api.config.security.RequiredAccess;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,40 +73,41 @@ class SecurityRulesTest {
 
     /**
      * No method may be annotated with {@code @PreAuthorize}: every access decision is made centrally, before Spring
-     * MVC dispatches the request, by {@code RequiredAccessAuthorizationManager} reading the target method's
-     * {@code @RequiredAccess} — never inside the controller method itself.
+     * MVC dispatches the request, by {@code SecurityRequirementAuthorizationManager} reading the target method's
+     * {@code @SecurityRequirement} — never inside the controller method itself.
      *
      * <p>{@code @PreAuthorize} runs only after the request body has already been bound and validated, so a caller
      * lacking permission would learn validation details (via a 400) before learning they are unauthorized; the
      * centralized check runs first and always answers with 403 (or 401), closing that gap.
      *
-     * <p>Compliant: an access rule expressed as {@code @RequiredAccess(scopes = "parents.create", roles = "admin")}
-     * on {@code edu.lyra.members.api.person.rest.PersonController#grantParentRole}
+     * <p>Compliant: an access rule expressed as
+     * {@code @SecurityRequirement(name = "oauth2", scopes = {"parents.create", "role:admin"})} on
+     * {@code edu.lyra.members.api.person.rest.PersonController#grantParentRole}
      *
      * <p>Violation: {@code @PreAuthorize("hasRole('admin')")} on any method
      */
     @ArchTest
     static final ArchRule noMethodIsAnnotatedWithPreAuthorize =
             noMethods().should().beAnnotatedWith(PreAuthorize.class)
-                       .as("access is granted centrally by RequiredAccessAuthorizationManager reading "
-                           + "@RequiredAccess; @PreAuthorize would run after request-body validation and could leak "
-                           + "validation errors to a caller who isn't even authorized to see them");
+                       .as("access is granted centrally by SecurityRequirementAuthorizationManager reading "
+                           + "@SecurityRequirement; @PreAuthorize would run after request-body validation and could "
+                           + "leak validation errors to a caller who isn't even authorized to see them");
 
     /**
-     * Every HTTP-mapped method in a "..rest" package must carry {@code @RequiredAccess}, so a new endpoint can never
-     * go live without an explicit, reviewable access decision.
+     * Every HTTP-mapped method in a "..rest" package must carry {@code @SecurityRequirement}, so a new endpoint can
+     * never go live without an explicit, reviewable access decision.
      *
-     * <p>Compliant: {@code @RequiredAccess(scopes = "kids.read")} on
+     * <p>Compliant: {@code @SecurityRequirement(name = "oauth2", scopes = "kids.read")} on
      * {@code edu.lyra.members.api.kid.rest.KidController#findAll}
      *
-     * <p>Violation: a {@code @GetMapping}-annotated method in a "..rest" package with no {@code @RequiredAccess}
+     * <p>Violation: a {@code @GetMapping}-annotated method in a "..rest" package with no {@code @SecurityRequirement}
      */
     @ArchTest
-    static final ArchRule everyHttpMappedRestMethodDeclaresRequiredAccess =
+    static final ArchRule everyHttpMappedRestMethodDeclaresSecurityRequirement =
             //@formatter:off
             methods().that(IS_HTTP_MAPPED).and().areDeclaredInClassesThat().resideInAPackage("..rest")
-                     .should().beAnnotatedWith(RequiredAccess.class)
-                     .as("every HTTP-mapped '..rest' method must declare @RequiredAccess, "
+                     .should().beAnnotatedWith(SecurityRequirement.class)
+                     .as("every HTTP-mapped '..rest' method must declare @SecurityRequirement, "
                          + "so it is never reachable without an explicit access decision");
             //@formatter:on
 

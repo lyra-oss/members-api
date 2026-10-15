@@ -2,9 +2,9 @@ package edu.lyra.members.api.person.rest;
 
 import java.util.UUID;
 
-import edu.lyra.members.api.config.security.RequiredAccess;
 import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.person.Person;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,28 +29,28 @@ class PersonController {
     private final PersonAdapter adapter;
     private final PagedResourcesAssembler<Person> pagedAssembler;
 
-    @RequiredAccess(scopes = "persons.read", roles = "admin")
+    @SecurityRequirement(name = "oauth2", scopes = {"persons.read", "role:admin"})
     @GetMapping
     PagedModel<PersonModel> findAll(final Pageable pageable) {
         log.debug("Listing persons, page {}", pageable);
         return this.adapter.findAll(pageable, this.pagedAssembler);
     }
 
-    @RequiredAccess(scopes = "persons.read", roles = "admin")
+    @SecurityRequirement(name = "oauth2", scopes = {"persons.read", "role:admin"})
     @GetMapping("/{id}")
     ResponseEntity<PersonModel> get(final @PathVariable UUID id) {
         log.debug("Fetching person {}", id);
         return ResponseEntities.okOrNotFound(this.adapter.findById(id));
     }
 
-    @RequiredAccess(scopes = "parents.create", roles = "admin")
+    @SecurityRequirement(name = "oauth2", scopes = {"parents.create", "role:admin"})
     @PutMapping("/{id}/parent")
     ResponseEntity<Void> grantParentRole(final @PathVariable UUID id) {
         log.debug("Granting the parent role to person {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.grantParentRole(id));
     }
 
-    @RequiredAccess(scopes = "teachers.create", roles = "admin")
+    @SecurityRequirement(name = "oauth2", scopes = {"teachers.create", "role:admin"})
     @PutMapping("/{id}/teacher")
     ResponseEntity<Void> grantTeacherRole(
             final @PathVariable UUID id,
@@ -60,14 +60,14 @@ class PersonController {
         return ResponseEntities.noContentOrNotFound(this.adapter.grantTeacherRole(id, request));
     }
 
-    @RequiredAccess(scopes = "parents.create", roles = "admin")
+    @SecurityRequirement(name = "oauth2", scopes = {"parents.create", "role:admin"})
     @DeleteMapping("/{id}/parent")
     ResponseEntity<Void> revokeParentRole(final @PathVariable UUID id) {
         log.debug("Revoking the parent role from person {}", id);
         return ResponseEntities.noContentOrNotFound(this.adapter.revokeParentRole(id));
     }
 
-    @RequiredAccess(scopes = "teachers.create", roles = "admin")
+    @SecurityRequirement(name = "oauth2", scopes = {"teachers.create", "role:admin"})
     @DeleteMapping("/{id}/teacher")
     ResponseEntity<Void> revokeTeacherRole(final @PathVariable UUID id) {
         log.debug("Revoking the teacher role from person {}", id);

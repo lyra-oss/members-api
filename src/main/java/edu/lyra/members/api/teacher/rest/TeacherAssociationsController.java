@@ -2,9 +2,9 @@ package edu.lyra.members.api.teacher.rest;
 
 import java.util.UUID;
 
-import edu.lyra.members.api.config.security.RequiredAccess;
 import edu.lyra.members.api.config.web.ResponseEntities;
 import edu.lyra.members.api.teacher.Teacher;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -23,14 +23,14 @@ class TeacherAssociationsController {
     private final TeacherAdapter adapter;
     private final PagedResourcesAssembler<Teacher> pagedAssembler;
 
-    @RequiredAccess(scopes = {"schools.read", "teachers.read"})
+    @SecurityRequirement(name = "oauth2", scopes = {"schools.read", "teachers.read"})
     @GetMapping("/schools/{schoolId}/teachers")
     ResponseEntity<PagedModel<TeacherModel>> findBySchool(final @PathVariable UUID schoolId, final Pageable pageable) {
         log.debug("Listing teachers for school {}, page {}", schoolId, pageable);
         return ResponseEntities.okOrNotFound(this.adapter.findBySchool(schoolId, pageable, this.pagedAssembler));
     }
 
-    @RequiredAccess(scopes = {"classrooms.read", "teachers.read"})
+    @SecurityRequirement(name = "oauth2", scopes = {"classrooms.read", "teachers.read"})
     @GetMapping("/classrooms/{classroomId}/teachers")
     ResponseEntity<PagedModel<TeacherModel>> findByClassroom(
             final @PathVariable UUID classroomId,
@@ -40,7 +40,7 @@ class TeacherAssociationsController {
         return ResponseEntities.okOrNotFound(this.adapter.findByClassroom(classroomId, pageable, this.pagedAssembler));
     }
 
-    @RequiredAccess(scopes = {"classrooms.read", "teachers.read"})
+    @SecurityRequirement(name = "oauth2", scopes = {"classrooms.read", "teachers.read"})
     @GetMapping("/classrooms/{classroomId}/tutor")
     ResponseEntity<TeacherModel> findTutorOf(final @PathVariable UUID classroomId) {
         log.debug("Fetching the tutor of classroom {}", classroomId);

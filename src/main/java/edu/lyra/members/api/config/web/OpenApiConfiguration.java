@@ -1,5 +1,10 @@
 package edu.lyra.members.api.config.web;
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.OAuthFlow;
+import io.swagger.v3.oas.annotations.security.OAuthFlows;
+import io.swagger.v3.oas.annotations.security.OAuthScope;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.info.Info;
@@ -13,9 +18,103 @@ import org.springframework.web.method.HandlerMethod;
  * Validation-annotated request records - the single source of truth the committed Postman collection and the
  * generated k6 client are both generated from, so the API is never defined twice.
  *
+ * <p>The {@code oauth2} {@link SecurityScheme} declared here is what every controller method's
+ * {@code @SecurityRequirement(name = "oauth2", ...)} refers to by name; springdoc resolves the two together when
+ * rendering each operation's security section, so this is the one place the full scope catalog - which scope means
+ * what - needs to be kept in sync with {@code keycloak/lyra-realm.json}'s {@code clientScopes} (that file isn't
+ * shipped with the application artifact, so nothing re-derives this list from it automatically).
+ *
  * @author Esteban Cristóbal Rodríguez
  */
 @Configuration
+//@formatter:off
+@SecurityScheme(
+        name = "oauth2",
+        type = SecuritySchemeType.OAUTH2,
+        flows = @OAuthFlows(
+                password = @OAuthFlow(
+                        // Illustrative only: the real Keycloak host and realm are environment-specific and supplied
+                        // at deploy time (spring.security.oauth2.resourceserver.jwt.issuer-uri has no built-in
+                        // default - see SpringSecurityConfiguration); springdoc still requires some syntactically
+                        // valid URL here to render the scheme.
+                        tokenUrl = "https://placeholder.invalid/realms/lyra/protocol/openid-connect/token",
+                        scopes = {
+                                @OAuthScope(
+                                        name = "classrooms.create",
+                                        description = "Permission to create classrooms"),
+                                @OAuthScope(
+                                        name = "classrooms.delete",
+                                        description = "Permission to delete classrooms"),
+                                @OAuthScope(
+                                        name = "classrooms.read",
+                                        description = "Permission to look up classroom records"),
+                                @OAuthScope(
+                                        name = "classrooms.update",
+                                        description = "Permission to update classroom records"),
+                                @OAuthScope(
+                                        name = "kids.create",
+                                        description = "Permission to register kids"),
+                                @OAuthScope(
+                                        name = "kids.delete",
+                                        description = "Permission to delete kid records"),
+                                @OAuthScope(
+                                        name = "kids.read",
+                                        description = "Permission to look up kid records"),
+                                @OAuthScope(
+                                        name = "kids.update",
+                                        description = "Permission to update kid records"),
+                                @OAuthScope(
+                                        name = "parents.create",
+                                        description = "Permission to create parent accounts"),
+                                @OAuthScope(
+                                        name = "parents.delete",
+                                        description = "Permission to delete parent accounts"),
+                                @OAuthScope(
+                                        name = "parents.read",
+                                        description = "Permission to look up parent records"),
+                                @OAuthScope(
+                                        name = "parents.update",
+                                        description = "Permission to update parent accounts"),
+                                @OAuthScope(
+                                        name = "persons.read",
+                                        description = "Permission to look up person records"),
+                                @OAuthScope(
+                                        name = "schools.create",
+                                        description = "Permission to create schools"),
+                                @OAuthScope(
+                                        name = "schools.delete",
+                                        description = "Permission to delete schools"),
+                                @OAuthScope(
+                                        name = "schools.read",
+                                        description = "Permission to look up school records"),
+                                @OAuthScope(
+                                        name = "schools.update",
+                                        description = "Permission to update school records"),
+                                @OAuthScope(
+                                        name = "teachers.create",
+                                        description = "Permission to register teachers"),
+                                @OAuthScope(
+                                        name = "teachers.delete",
+                                        description = "Permission to delete teacher accounts"),
+                                @OAuthScope(
+                                        name = "teachers.read",
+                                        description = "Permission to look up teacher records"),
+                                @OAuthScope(
+                                        name = "teachers.update",
+                                        description = "Permission to update teacher records"),
+                                // Not a real Keycloak client scope - see SecurityRequirementAuthorizationManager's
+                                // ROLE_SCOPE_PREFIX ("role:") handling, which reads this as a realm-role requirement
+                                // instead. OpenAPI's security model has no vocabulary of its own for "the caller's
+                                // realm role", so it rides inside the same scopes array as every real scope.
+                                @OAuthScope(
+                                        name = "role:admin",
+                                        description =
+                                                "Marker: requires the realm role 'admin', not a real OAuth2 scope")
+                        }
+                )
+        )
+)
+//@formatter:on
 class OpenApiConfiguration {
 
     @Bean

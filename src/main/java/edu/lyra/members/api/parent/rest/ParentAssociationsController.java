@@ -2,8 +2,8 @@ package edu.lyra.members.api.parent.rest;
 
 import java.util.UUID;
 
-import edu.lyra.members.api.config.security.RequiredAccess;
 import edu.lyra.members.api.config.web.ResponseEntities;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ class ParentAssociationsController {
 
     private final ParentAdapter adapter;
 
-    @RequiredAccess(scopes = {"kids.read", "parents.read"})
+    @SecurityRequirement(name = "oauth2", scopes = {"kids.read", "parents.read"})
     @GetMapping("/kids/{kidId}/parent")
     ResponseEntity<ParentModel> findByKid(final @PathVariable UUID kidId) {
         log.debug("Fetching the parent of kid {}", kidId);

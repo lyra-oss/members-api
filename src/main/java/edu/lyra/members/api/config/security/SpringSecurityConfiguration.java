@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,14 +22,15 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 /**
  * Wires the OAuth2 resource server and delegates every access decision, endpoint by endpoint, to
- * {@link RequiredAccessAuthorizationManager} reading each controller method's {@link RequiredAccess}. This
- * configuration itself only carries the handful of rules that are not a single {@code ..rest} controller's business:
- * the actuator's health/info probes (infrastructure, permitted without authentication) and the JWT-to-authorities
- * conversion feeding every {@link RequiredAccess} check.
+ * {@link SecurityRequirementAuthorizationManager} reading each controller method's
+ * {@link SecurityRequirement @SecurityRequirement}. This configuration itself only carries the handful of rules
+ * that are not a single {@code ..rest} controller's business: the actuator's health/info probes (infrastructure,
+ * permitted without authentication) and the JWT-to-authorities conversion feeding every access check.
  *
  * @author Esteban Cristóbal Rodríguez
  */
 @Configuration
+@ImportRuntimeHints(SecurityRequirementRuntimeHints.class)
 class SpringSecurityConfiguration {
 
     private static final String ACTUATOR_HEALTH     = "/actuator/health";
@@ -47,7 +50,7 @@ class SpringSecurityConfiguration {
                            .requestMatchers(ACTUATOR_HEALTH, ACTUATOR_HEALTH_ANY, ACTUATOR_INFO)
                                    .permitAll()
                            .anyRequest()
-                                   .access(new RequiredAccessAuthorizationManager(handlerMapping)))
+                                   .access(new SecurityRequirementAuthorizationManager(handlerMapping)))
                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                    .csrf(AbstractHttpConfigurer::disable)
                    .oauth2ResourceServer(oauth2 -> oauth2
