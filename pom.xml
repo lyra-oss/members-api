@@ -75,12 +75,6 @@
         <!-- Also the image K6PerformanceSupport pulls at test time (org.testcontainers.k6.K6Container). Keep in
              sync with the k6 CLI version scripts/generate-k6-client.sh's generated client is exercised against. -->
         <k6.image>grafana/k6:2.3.0</k6.image>
-        <!-- Buildpacks builder -->
-        <!-- Pinned to a digest so every build of the same commit uses identical buildpack content; CI resolves this
-             same property to key its build-cache/launch-cache backup, so a bump here is the only place that needs
-             editing. Refresh with:
-             docker buildx imagetools inspect paketobuildpacks/builder-noble-java-tiny:latest -->
-        <buildpacks-builder.image>paketobuildpacks/builder-noble-java-tiny:latest@sha256:6553807caa811f6bb1f5bdd79318c56f275bc7da7e0d7ffc6470885c24919526</buildpacks-builder.image>
         <!-- Plugin versions -->
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
@@ -576,7 +570,6 @@
                     <createdDate>now</createdDate>
                     <imageName>ghcr.io/lyra-oss/${project.artifactId}:${project.version}</imageName>
                     <image>
-                        <builder>${buildpacks-builder.image}</builder>
                         <env>
                             <BP_OCI_SOURCE>https://github.com/lyra-oss/members-api</BP_OCI_SOURCE>
                             <BP_OCI_DESCRIPTION>Lyra OSS Members API</BP_OCI_DESCRIPTION>

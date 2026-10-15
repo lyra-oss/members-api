@@ -56,18 +56,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Resolve the Buildpacks builder image digest
-        id: builder
-        run: |
-          image=$(./mvnw -q help:evaluate -Dexpression=buildpacks-builder.image -DforceStdout)
-          echo "digest=${image##*@}" >> "$GITHUB_OUTPUT"
       - name: Restore the Buildpacks cache
         id: buildpacks-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: /tmp/buildpacks-layers.tar.gz
-          key: buildpacks-native-${{ steps.builder.outputs.digest }}
-          restore-keys: buildpacks-native-
+          key: buildpacks-native
       - name: Load the Buildpacks cache
         if: steps.buildpacks-cache.outputs.cache-matched-key != ''
         run: |
@@ -93,7 +87,7 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: /tmp/buildpacks-layers.tar.gz
-          key: buildpacks-native-${{ steps.builder.outputs.digest }}
+          key: buildpacks-native
       - name: Verify the native image
         if: inputs.run-verification
         # clean first: the native build just before this leaves target/spring-aot's generated bean-definition

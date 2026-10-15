@@ -46,18 +46,12 @@ jobs:
           key: >-
             ${{ runner.os }}-npm-openapi-to-postmanv2-6.3.3-openapi-to-k6-0.4.1-${{
             hashFiles('src/test/k6/package-lock.json') }}
-      - name: Resolve the Buildpacks builder image digest
-        id: builder
-        run: |
-          image=$(./mvnw -q help:evaluate -Dexpression=buildpacks-builder.image -DforceStdout)
-          echo "digest=${image##*@}" >> "$GITHUB_OUTPUT"
       - name: Restore the Buildpacks cache
         id: buildpacks-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: /tmp/buildpacks-layers.tar.gz
-          key: buildpacks-jvm-${{ steps.builder.outputs.digest }}
-          restore-keys: buildpacks-jvm-
+          key: buildpacks-jvm
       - name: Load the Buildpacks cache
         if: steps.buildpacks-cache.outputs.cache-matched-key != ''
         run: |
@@ -83,7 +77,7 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: /tmp/buildpacks-layers.tar.gz
-          key: buildpacks-jvm-${{ steps.builder.outputs.digest }}
+          key: buildpacks-jvm
       - name: Verify against the JVM image
         run: ./mvnw -B -Dit.image=${{ steps.image.outputs.reference }} verify
       - name: Check the Postman collection is up to date
