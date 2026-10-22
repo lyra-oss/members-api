@@ -7,6 +7,24 @@
         "serve",
         "--mcp"
       ]
+    },
+    "docker_desktop": {
+      "command": "docker",
+      "args": [
+        "mcp",
+        "gateway",
+        "run",
+        "--profile",
+        "default"
+      ]
+    },
+    "snyk": {
+      "command": "snyk",
+      "args": [
+        "mcp",
+        "-t",
+        "stdio"
+      ]
     }
   }
 }
