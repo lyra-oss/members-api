@@ -44,4 +44,4 @@ jobs:
         with:
           package-name: 'members-api'
           package-type: 'container'
-          min-versions-to-keep: 2
+          min-versions-to-keep: 15
