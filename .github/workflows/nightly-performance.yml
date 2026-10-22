@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set-up GraalVM
-        uses: graalvm/setup-graalvm@0426e2e191540e8514dff98dc52a5f5146a2a276
+        uses: graalvm/setup-graalvm@27b360dbb857524eaf0b4c4cef364d38e5b4f173
         with:
           java-version: '25'
           distribution: 'graalvm'
@@ -38,7 +38,7 @@ jobs:
           -Dperf.nightly=true verify
       - name: Publish k6 results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: k6-results
           path: target/k6/*-summary.json
