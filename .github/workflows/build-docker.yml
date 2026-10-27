@@ -149,6 +149,29 @@ jobs:
             echo "[View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           } > /tmp/performance-comment.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/performance-comment.md
+      - name: Install the Snyk CLI
+        # snyk/actions/setup downloads the x64 binary, which can't run on this ARM64 runner.
+        if: github.actor != 'dependabot[bot]'
+        id: snyk
+        run: echo "executable=$(./scripts/install-snyk-cli.sh)" >> "$GITHUB_OUTPUT"
+      - name: Run Snyk container analysis
+        # --sarif-file-output (not --sarif): the CLI's exit code 1 just means "vulnerabilities found", which must
+        # not stop the report from being uploaded, so it is tolerated here; real failures (exit code 2 or more,
+        # e.g. a bad token) still fail the step.
+        if: github.actor != 'dependabot[bot]'
+        run: |
+          status=0
+          ${{ steps.snyk.outputs.executable }} container test ${{ steps.image.outputs.reference }} \
+            --sarif-file-output=snyk-container.sarif || status=$?
+          [ "$status" -le 1 ] || exit "$status"
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Upload Snyk container results to GitHub
+        if: always() && github.actor != 'dependabot[bot]' && hashFiles('snyk-container.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370
+        with:
+          sarif_file: snyk-container.sarif
+          category: snyk-container
       - name: Push the verified image
         id: push
         if: inputs.push-image

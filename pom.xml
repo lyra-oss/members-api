@@ -58,6 +58,8 @@
         <!-- Plugin versions -->
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <snyk-maven-plugin.version>2.3.0</snyk-maven-plugin.version>
+        <snyk.cli.executable></snyk.cli.executable>
+        <snyk.sarif.file>${project.build.directory}/snyk-code.sarif</snyk.sarif.file>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
         <pitest-maven-plugin.version>1.30.1</pitest-maven-plugin.version>
@@ -383,6 +385,24 @@
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>${sonar-maven-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <!-- Run on demand (./mvnw io.snyk:snyk-maven-plugin:code-test), not bound to the lifecycle. CI points
+                     snyk.cli.executable at the architecture-appropriate CLI (scripts/install-snyk-cli.sh), since the
+                     plugin's own auto-download picks the wrong binary on ARM64 runners. failOnIssues is off so the
+                     SARIF report is still produced and uploaded to GitHub code scanning. -->
+                <groupId>io.snyk</groupId>
+                <artifactId>snyk-maven-plugin</artifactId>
+                <version>${snyk-maven-plugin.version}</version>
+                <configuration>
+                    <failOnIssues>false</failOnIssues>
+                    <cli>
+                        <executable>${snyk.cli.executable}</executable>
+                    </cli>
+                    <args>
+                        <arg>--sarif-file-output=${snyk.sarif.file}</arg>
+                    </args>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

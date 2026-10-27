@@ -129,3 +129,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Install the Snyk CLI
+        # The plugin's own auto-download (like snyk/actions/setup) picks the x64 binary, which can't run on this ARM64
+        # runner, so fetch the right build ourselves and point the plugin at it.
+        if: github.actor != 'dependabot[bot]'
+        id: snyk
+        run: echo "executable=$(./scripts/install-snyk-cli.sh)" >> "$GITHUB_OUTPUT"
+      - name: Run Snyk Code analysis
+        if: github.actor != 'dependabot[bot]'
+        run: >
+          ./mvnw -B io.snyk:snyk-maven-plugin:code-test
+          -Dsnyk.cli.executable=${{ steps.snyk.outputs.executable }}
+          -Dsnyk.sarif.file=${{ github.workspace }}/snyk-code.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Upload Snyk Code results to GitHub
+        if: always() && github.actor != 'dependabot[bot]' && hashFiles('snyk-code.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370
+        with:
+          sarif_file: snyk-code.sarif
+          category: snyk-code
