@@ -166,6 +166,14 @@ jobs:
           [ "$status" -le 1 ] || exit "$status"
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Sanitize Snyk container results
+        # Snyk emits a null "security-severity" for some findings (e.g. licence issues), which GitHub code scanning
+        # rejects ("invalid security severity value, is not a number: null"), failing the whole upload.
+        if: github.actor != 'dependabot[bot]' && hashFiles('snyk-container.sarif') != ''
+        run: |
+          jq 'del(.runs[].tool.driver.rules[]?.properties["security-severity"]? | select(. == null or . == "null"))' \
+            snyk-container.sarif > snyk-container.sanitized.sarif
+          mv snyk-container.sanitized.sarif snyk-container.sarif
       - name: Upload Snyk container results to GitHub
         if: always() && github.actor != 'dependabot[bot]' && hashFiles('snyk-container.sarif') != ''
         uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370
