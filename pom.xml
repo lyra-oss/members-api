@@ -44,7 +44,7 @@
         <logback.version>1.6.5</logback.version>
         <tomcat.version>11.0.26</tomcat.version>
         <cucumber.version>8.0.4</cucumber.version>
-        <okhttp.version>5.5.0</okhttp.version>
+        <okhttp.version>5.5.1</okhttp.version>
         <archunit.version>1.5.1</archunit.version>
         <instancio.version>6.1.0</instancio.version>
         <datafaker.version>2.7.0</datafaker.version>
