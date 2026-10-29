@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
@@ -44,7 +44,7 @@
         <logback.version>1.6.5</logback.version>
         <tomcat.version>11.0.26</tomcat.version>
         <cucumber.version>8.0.4</cucumber.version>
-        <okhttp.version>5.5.0</okhttp.version>
+        <okhttp.version>5.5.1</okhttp.version>
         <archunit.version>1.5.1</archunit.version>
         <instancio.version>6.1.0</instancio.version>
         <datafaker.version>2.7.0</datafaker.version>
@@ -52,7 +52,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <postgresql.version>42.7.14</postgresql.version>
         <hibernate-validator.version>9.1.5.Final</hibernate-validator.version>
-        <springdoc-openapi.version>3.1.1</springdoc-openapi.version>
+        <springdoc-openapi.version>3.2.0</springdoc-openapi.version>
         <testcontainers-k6.version>2.0.5</testcontainers-k6.version>
         <k6.image>grafana/k6:2.3.0</k6.image>
         <!-- Plugin versions -->
@@ -383,6 +383,19 @@
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>${sonar-maven-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <!-- Run on demand (e.g. ./mvnw io.snyk:snyk-maven-plugin:code-test), not bound to the lifecycle. CI
+                     pre-installs the architecture-appropriate CLI where the plugin looks for its own download
+                     (scripts/install-snyk-cli.sh), as that download picks the wrong binary on ARM64 runners. -->
+                <groupId>io.snyk</groupId>
+                <artifactId>snyk-maven-plugin</artifactId>
+                <version>${snyk-maven-plugin.version}</version>
+                <configuration>
+                    <args>
+                        <arg>--sarif-file-output=${project.build.directory}/snyk.sarif</arg>
+                    </args>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
