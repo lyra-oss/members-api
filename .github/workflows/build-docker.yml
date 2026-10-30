@@ -44,14 +44,14 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set-up GraalVM
-        uses: graalvm/setup-graalvm@27b360dbb857524eaf0b4c4cef364d38e5b4f173
+        uses: graalvm/setup-graalvm@f70bc8032f90a104502824a54bcb94b6f01715bc
         with:
           java-version: '25'
           distribution: 'graalvm'
           cache: 'maven'
       - name: Log in to the Container registry
         if: inputs.push-image
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -130,10 +130,11 @@ jobs:
           # purely for display. Prints "<value> ms *(< <threshold> ms)*", falling back to N/A if the summary is
           # missing or malformed (e.g. the script errored before k6 ever ran handleSummary.ts).
           response_time_cell() {
-            jq -r --arg key "$1" --arg threshold "$2" '
+            local key="$1" threshold="$2"
+            jq -r --arg key "$key" --arg threshold "$threshold" '
               .metrics.http_req_duration.values[$key] as $v |
               if $v == null then "N/A ms *(< \($threshold) ms)*" else "\($v | round) ms *(< \($threshold) ms)*" end
-            ' "$summary" 2>/dev/null || echo "N/A ms *(< $2 ms)*"
+            ' "$summary" 2>/dev/null || echo "N/A ms *(< $threshold ms)*"
           }
 
           {
@@ -149,6 +150,37 @@ jobs:
             echo "[View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           } > /tmp/performance-comment.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/performance-comment.md
+      - name: Install the Snyk CLI
+        # snyk/actions/setup downloads the x64 binary, which can't run on this ARM64 runner.
+        if: github.actor != 'dependabot[bot]'
+        id: snyk
+        run: echo "executable=$(./scripts/install-snyk-cli.sh)" >> "$GITHUB_OUTPUT"
+      - name: Run Snyk container analysis
+        # --sarif-file-output (not --sarif): the CLI's exit code 1 just means "vulnerabilities found", which must
+        # not stop the report from being uploaded, so it is tolerated here; real failures (exit code 2 or more,
+        # e.g. a bad token) still fail the step.
+        if: github.actor != 'dependabot[bot]'
+        run: |
+          status=0
+          ${{ steps.snyk.outputs.executable }} container test ${{ steps.image.outputs.reference }} \
+            --sarif-file-output=snyk-container.sarif || status=$?
+          [ "$status" -le 1 ] || exit "$status"
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Sanitize Snyk container results
+        # Snyk emits a null "security-severity" for some findings (e.g. licence issues), which GitHub code scanning
+        # rejects ("invalid security severity value, is not a number: null"), failing the whole upload.
+        if: github.actor != 'dependabot[bot]' && hashFiles('snyk-container.sarif') != ''
+        run: |
+          jq 'del(.runs[].tool.driver.rules[]?.properties["security-severity"]? | select(. == null or . == "null"))' \
+            snyk-container.sarif > snyk-container.sanitized.sarif
+          mv snyk-container.sanitized.sarif snyk-container.sarif
+      - name: Upload Snyk container results to GitHub
+        if: always() && github.actor != 'dependabot[bot]' && hashFiles('snyk-container.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370
+        with:
+          sarif_file: snyk-container.sarif
+          category: snyk-container
       - name: Push the verified image
         id: push
         if: inputs.push-image

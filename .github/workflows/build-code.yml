@@ -129,3 +129,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Install the Snyk CLI
+        # The plugin's own auto-download (like snyk/actions/setup) picks the x64 binary, which can't run on this ARM64
+        # runner, so the right build is installed where the plugin looks for it and reused as is.
+        run: ./scripts/install-snyk-cli.sh
+      - name: Validate dependencies with Snyk (Dependabot)
+        # Includes transitive dependencies, so a version bump can't pull in a vulnerable one. Fails the build on
+        # findings, and doesn't upload SARIF: Dependabot's token can't write security events. Needs SNYK_TOKEN as a
+        # Dependabot secret (Settings > Secrets and variables > Dependabot).
+        if: github.actor == 'dependabot[bot]'
+        run: ./mvnw -B io.snyk:snyk-maven-plugin:test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Run Snyk Code analysis
+        if: github.actor != 'dependabot[bot]'
+        # Findings are reported through GitHub code scanning rather than failing the build.
+        continue-on-error: true
+        run: ./mvnw -B io.snyk:snyk-maven-plugin:code-test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Upload Snyk Code results to GitHub
+        if: always() && github.actor != 'dependabot[bot]' && hashFiles('target/snyk.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370
+        with:
+          sarif_file: target/snyk.sarif
+          category: snyk-code
