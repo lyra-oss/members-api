@@ -1,0 +1,26 @@
+name: Build K6 (Dependabot)
+
+# Dependabot's npm updates only touch src/test/k6's type-checking devDependencies (typescript, @types/k6), so the
+# full Maven/GraalVM build (dependabot-code.yml) would be wasted work: only the k6 type-check is relevant here.
+on:
+  push:
+    branches:
+      - 'dependabot/npm_and_yarn/**'
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    name: Type-check the k6 performance scripts
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Type-check the k6 performance scripts
+        # --ignore-scripts: neither devDependency needs an install-time lifecycle script to function, so this removes
+        # the arbitrary-code-execution surface a compromised transitive dependency's postinstall script would have.
+        run: |
+          cd src/test/k6
+          npm ci --ignore-scripts
+          npm run typecheck
