@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'dependabot/maven/**'
+      - 'dependabot/npm_and_yarn/**'
     paths:
       - '/**'
       - '.github/workflows/**'
