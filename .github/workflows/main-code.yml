@@ -6,7 +6,7 @@ on:
       - 'main'
     paths-ignore:
       - '.github/workflows/dependabot-code.yml'
-      - '.github/dependabot.yml'
+      - '.github/dependabot*.yml'
 
 jobs:
   build-source-code:
