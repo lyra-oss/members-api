@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - 'main'
+    paths-ignore:
+      - '.github/workflows/dependabot-code.yml'
+      - '.github/dependabot.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
