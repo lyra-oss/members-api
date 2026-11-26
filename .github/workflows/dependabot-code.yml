@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - 'dependabot/maven/**'
-    paths:
-      - '/**'
-      - '.github/workflows/**'
 
 permissions:
   pull-requests: write
