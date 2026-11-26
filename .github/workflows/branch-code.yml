@@ -4,7 +4,6 @@ on:
   push:
     branches-ignore:
       - 'main'
-      - 'dependabot/maven/**'
       - 'dependabot/npm_and_yarn/**'
     paths-ignore:
       - '.github/workflows/dependabot-code.yml'
