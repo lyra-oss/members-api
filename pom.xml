@@ -65,7 +65,7 @@
         <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.version>14.4.0</checkstyle.version>
-        <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.9.0.7382</sonar-maven-plugin.version>
         <!-- Build properties -->
         <!-- Which deliverable the *IT suite exercises: "jvm" packages target/*.jar into a plain JRE
              container; any other value is treated as an already-built OCI image reference. -->
